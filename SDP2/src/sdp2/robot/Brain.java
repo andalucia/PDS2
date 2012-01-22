@@ -35,7 +35,7 @@ public class Brain {
 	public static void main(String[] args) {
 		
 		// The robot won't do anything until it's told to
-		int command = DO_NOTHING;
+		int command = KICK;
 		
 		LEFT_WHEEL.setSpeed(DEFAULT_SPEED);
 		RIGHT_WHEEL.setSpeed(DEFAULT_SPEED);
@@ -78,6 +78,11 @@ public class Brain {
 		RIGHT_WHEEL.stop();		
 	}
 	
+	/**
+	 * Kick the ball!
+	 * 
+	 * Starts a new thread and makes the robot kick if it isn't already kicking
+	 */
 	public static void kickIt() {
 		Thread Kick_thread = new Thread() {
 			public void run() {
