@@ -8,7 +8,7 @@ public class TestServer {
 		Thread.sleep(1000);
 
 		s.sendStop();
-
+		s.sendReset();
 //		s.sendExit();
 	}
 }

@@ -15,6 +15,7 @@ public class Client {
 	private static final byte GO_FORWARD = 1;
 	private static final byte STOP = 2;
 	private static final byte KICK = 3;
+	private static final byte RESET = 126;
 	private static final byte EXIT = 127;
 
 	private static BTConnection btc;
@@ -45,13 +46,13 @@ public class Client {
 			dis = btc.openDataInputStream();
 			dos = btc.openDataOutputStream();
 		
-			boolean stop = false; 
-			while (!stop && !exit) {
+			boolean reset = false; 
+			while (!exit && !reset) {
 				byte [] b = new byte [PACKET_SIZE];
 				recieveBytes(b);
 				int rslt = executeCommand(b);
-				if (rslt == STOP)
-					stop = true;
+				if (rslt == RESET)
+					reset = true;
 				if (rslt == EXIT)
 					exit = true;
 			}
@@ -67,6 +68,10 @@ public class Client {
 		}
 	}
 	
+	/**
+	 * Receives 32 bytes from the blue-tooth connection. 
+	 * @param b The array in which to store the bytes.
+	 */
 	private static void recieveBytes(byte [] b) {
 		try {
 			dis.read(b, 0, PACKET_SIZE);
@@ -77,6 +82,12 @@ public class Client {
 		}
 	}
 	
+	/**
+	 * Converts four bytes of an array of bytes to an integer.
+	 * @param b The array of bytes to convert.
+	 * @param offset The offset at which to get the four bytes
+	 * @return The integer.
+	 */
 	private static int byte4ToInt(byte [] b, int offset) {
 		int result = 0;
 		for (int i = 0; i < 4; ++i) {
@@ -86,6 +97,11 @@ public class Client {
 		return result;
 	}
 	
+	/**
+	 * Deciphers the command that is received and executes it. 
+	 * @param b The commands.
+	 * @return The first byte of the command.
+	 */
 	private static int executeCommand(byte [] b) {
 		switch (b[0]) {
 		case GO_FORWARD:
@@ -98,6 +114,8 @@ public class Client {
 		case KICK:
 			int kick = byte4ToInt(b, 4);     
 			Brain.kick(kick);
+			break;
+		case RESET:
 			break;
 		case EXIT:
 			break;
