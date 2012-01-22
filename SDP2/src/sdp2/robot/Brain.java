@@ -87,15 +87,22 @@ public class Brain {
 		Thread Kick_thread = new Thread() {
 			public void run() {
 				
-				KICKER.rotate(1, true);
+				KICKER.rotate(90, true);
 				
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1000);
+					
 				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 				
-				KICKER.rotate(-1, true);
-				KICKER.stop();
+				
+				KICKER.rotate(-90, true);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {				
+					e.printStackTrace();
+				}
 				
 				kicking = false;
 			}
