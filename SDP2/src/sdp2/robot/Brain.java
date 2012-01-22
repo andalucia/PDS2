@@ -26,6 +26,11 @@ public class Brain {
 	
 	// All motors will be set to this speed initially
 	private static final int DEFAULT_SPEED = 100;
+	private static final int KICKER_SPEED = 10000;
+	
+	// Robot state indicators
+	private static volatile boolean kicking = false;
+
 	
 	public static void main(String[] args) {
 		
@@ -34,6 +39,7 @@ public class Brain {
 		
 		LEFT_WHEEL.setSpeed(DEFAULT_SPEED);
 		RIGHT_WHEEL.setSpeed(DEFAULT_SPEED);
+		KICKER.setSpeed(KICKER_SPEED);
 		
 		LCD.drawString("Robot Ready!", 0, 0);
 		
@@ -44,23 +50,56 @@ public class Brain {
 				break;
 			
 			case MOVE_FORWARDS:
-				LEFT_WHEEL.forward();
-				RIGHT_WHEEL.forward();
+				moveForwards();
 				break;
 				
 			case STOP:
-				LEFT_WHEEL.stop();
-				RIGHT_WHEEL.stop();
+				stop();
 				break;
 			
 			case KICK:
-				break;		
+				kickIt();
+				break;
 			}
 			
 			// The robot will continue to do it's current command until it's told to
 			// stop, so setting DO_NOTHING here really means "continue"
 			command = DO_NOTHING;
 		}
+	}
+	
+	public static void moveForwards() {
+		LEFT_WHEEL.forward();
+		RIGHT_WHEEL.forward();		
+	}
+	
+	public static void stop() {
+		LEFT_WHEEL.stop();
+		RIGHT_WHEEL.stop();		
+	}
+	
+	public static void kickIt() {
+		Thread Kick_thread = new Thread() {
+			public void run() {
+				
+				KICKER.rotate(1, true);
+				
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+				
+				KICKER.rotate(-1, true);
+				KICKER.stop();
+				
+				kicking = false;
+			}
+		};
+		
+		if (!kicking) {
+			kicking = true;
+			Kick_thread.start();
+		}	
 	}
 	
 }
