@@ -14,6 +14,7 @@ import lejos.pc.comm.NXTConnector;
  * 1 - go forward,
  * 2 - stop,
  * 3 - kick,
+ * 126 - reset,
  * 127 - terminate.
  */
 public class Server {
@@ -116,6 +117,16 @@ public class Server {
 		byte [] power_b = intToByte4(power);
 		byte [] b = {op, 0, 0, 0, power_b[0], power_b[1], power_b[2], power_b[3], 0, 0, 0, 0, 0, 0, 0, 0,
 					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		sendBytes(b, true);
+	}
+	
+	/**
+	 * Tells the robot to reset communication.
+	 */
+	public void sendReset() {
+		byte op = 126;
+		byte [] b = {op, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		sendBytes(b, true);
 	}
 	
