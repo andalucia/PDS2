@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.comm.BTConnection;
 import lejos.nxt.comm.Bluetooth;
@@ -29,35 +28,43 @@ public class Client {
         String waiting = "Waiting...";
         String closing = "Closing...";
         
-		LCD.drawString(waiting,0,0);
-		LCD.refresh();
-
-        btc = Bluetooth.waitForConnection();
+        // Initiate BRAIN!
+        Brain.init();
         
-		LCD.clear();
-		LCD.drawString(connected,0,0);
-		LCD.refresh();	
-
-		dis = btc.openDataInputStream();
-		dos = btc.openDataOutputStream();
-		
-		boolean exit = false;
+        boolean exit = false;
 		while (!exit) {
-			byte [] b = new byte [PACKET_SIZE];
-			recieveBytes(b);
-			if (executeCommand(b) == -1)
-				exit = true;
-			//Button.waitForPress();
-		}
+			LCD.drawString(waiting,0,0);
+			LCD.refresh();
 		
-		dis.close();
-		dos.close();
-		Thread.sleep(100); // wait for data to drain
-		LCD.clear();
-		LCD.drawString(closing,0,0);
-		LCD.refresh();
-		btc.close();
-		LCD.clear();
+		    btc = Bluetooth.waitForConnection();
+		    
+			LCD.clear();
+			LCD.drawString(connected,0,0);
+			LCD.refresh();	
+		
+			dis = btc.openDataInputStream();
+			dos = btc.openDataOutputStream();
+		
+			boolean stop = false; 
+			while (!stop && !exit) {
+				byte [] b = new byte [PACKET_SIZE];
+				recieveBytes(b);
+				int rslt = executeCommand(b);
+				if (rslt == STOP)
+					stop = true;
+				if (rslt == EXIT)
+					exit = true;
+			}
+		
+			dis.close();
+			dos.close();
+			Thread.sleep(100); // wait for data to drain
+			LCD.clear();
+			LCD.drawString(closing,0,0);
+			LCD.refresh();
+			btc.close();
+			LCD.clear();
+		}
 	}
 	
 	private static void recieveBytes(byte [] b) {
@@ -93,8 +100,8 @@ public class Client {
 			Brain.kick(kick);
 			break;
 		case EXIT:
-			return -1;
+			break;
 		}
-		return 0;
+		return b[0];
 	}
 }

@@ -3,14 +3,19 @@ package group2.sdp.robot.commandreciever;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.robotics.navigation.DifferentialPilot;
 
 public class Brain {
 	
 	private static String fwd1 = "Going forward ";
 	private static String fwd2 = "with speed:"; 
-	private static String stp = "Stopping...";
+	private static String stp = "Stopped";
 	private static String kck1 = "Kicking with ";
 	private static String kck2 = "power:";
+	
+	// constants for the pilot class
+	private static final float TRACK_WIDTH = (float) 14.5;
+	private static final float WHEEL_DIAMETER = (float) 8.4;
 	
 	// The motors to be controlled
 	private static final NXTRegulatedMotor LEFT_WHEEL = Motor.C;
@@ -18,13 +23,14 @@ public class Brain {
 	private static final NXTRegulatedMotor KICKER = Motor.B;
 	
 	// All motors will be set to this speed initially
-	private static final int DEFAULT_SPEED = 100;
 	private static final int KICKER_SPEED = 10000;
 	
 	// Robot state indicators
 	private static volatile boolean kicking = false;
+	private static DifferentialPilot pilot;
 	
-	public Brain() {
+	public static void init () {
+		pilot = new DifferentialPilot(WHEEL_DIAMETER, TRACK_WIDTH, LEFT_WHEEL, RIGHT_WHEEL);
 		KICKER.setSpeed(KICKER_SPEED);
 	}
 	
@@ -33,22 +39,23 @@ public class Brain {
 		LCD.drawString(fwd1, 0, 0);
 		LCD.drawString(fwd2, 0, 1);
 		LCD.drawInt(speed, 1, 2);
+		LCD.drawString("MAX SPEED", 0, 3);
+		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 		LCD.refresh();
 		
-		LEFT_WHEEL.setSpeed(speed);
-		RIGHT_WHEEL.setSpeed(speed);
 		
-		LEFT_WHEEL.forward();
-		RIGHT_WHEEL.forward();
+		
+		pilot.setTravelSpeed(speed);
+		pilot.forward();
 	}
+	
 	
 	public static void stop() {
 		LCD.clear();
 		LCD.drawString(stp, 0, 0);
 		LCD.refresh();
 		
-		RIGHT_WHEEL.stop();
-		LEFT_WHEEL.stop();
+		pilot.stop();
 	}
 	
 	/**
