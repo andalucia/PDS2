@@ -68,6 +68,29 @@ public class Brain {
 	}
 	
 	/**
+	 * This method is for reference
+	 */
+	public static void spin() {
+		LCD.clear();
+		LCD.drawString(FWD1, 0, 0);
+		LCD.drawString(FWD2, 0, 1);
+		//LCD.drawInt(speed, 1, 2);
+		LCD.drawString("MAX SPEED", 0, 3);
+		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+		LCD.refresh();			
+		
+		pilot.setTravelSpeed(20);
+		pilot.arc(100, 90);
+		
+		/*LEFT_WHEEL.setSpeed(90);
+		RIGHT_WHEEL.setSpeed(45);
+		LEFT_WHEEL.forward();
+		RIGHT_WHEEL.forward();*/
+	}
+	
+	
+	
+	/**
 	 * Make Alfie stop moving
 	 */
 	public static void stop() {

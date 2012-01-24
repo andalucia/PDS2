@@ -35,7 +35,7 @@ public class Brain {
 	public static void main(String[] args) {
 		
 		// The robot won't do anything until it's told to
-		int command = KICK;
+		int command = MOVE_FORWARDS;
 		
 		LEFT_WHEEL.setSpeed(DEFAULT_SPEED);
 		RIGHT_WHEEL.setSpeed(DEFAULT_SPEED);

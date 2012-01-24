@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JFormattedTextField;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JTextArea;
 
 public class CommanderGUI {
 
@@ -51,32 +52,16 @@ public class CommanderGUI {
 	private void initialize() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 284, 64);
+		frmAlfieCommandCentre.setBounds(100, 100, 443, 396);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmAlfieCommandCentre.getContentPane().setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
-		JButton btnGoForward = new JButton("Go Forward");
-		btnGoForward.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				alfie.sendGoForward(54);
-			}
-		});
-		frmAlfieCommandCentre.getContentPane().add(btnGoForward);
+		JButton btnNewButton = new JButton("New button");
+		btnNewButton.setBounds(12, 329, 118, 25);
+		frmAlfieCommandCentre.getContentPane().add(btnNewButton);
 		
-		JButton btnStop = new JButton("Stop");
-		btnStop.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				alfie.sendStop();
-			}
-		});
-		frmAlfieCommandCentre.getContentPane().add(btnStop);
-		
-		JButton btnKick = new JButton("Kick");
-		btnKick.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				alfie.sendKick(10000);
-			}
-		});
-		frmAlfieCommandCentre.getContentPane().add(btnKick);
+		JTextPane textPane = new JTextPane();
+		textPane.setBounds(12, 12, 415, 305);
+		frmAlfieCommandCentre.getContentPane().add(textPane);
 	}
 }

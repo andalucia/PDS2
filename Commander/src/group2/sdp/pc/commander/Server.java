@@ -14,6 +14,7 @@ import lejos.pc.comm.NXTConnector;
  * 1 - go forward,
  * 2 - stop,
  * 3 - kick,
+ * 4 - spin,
  * 126 - reset,
  * 127 - terminate.
  */
@@ -127,6 +128,15 @@ public class Server {
 		byte op = 126;
 		byte [] b = {op, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		sendBytes(b, true);
+	}
+	
+	
+	public void sendSpin(int speed) {
+		byte op = 4;
+		byte [] speed_b = intToByte4(speed);
+		byte [] b = {op, 0, 0, 0, speed_b[0], speed_b[1], speed_b[2], speed_b[3], 0, 0, 0, 0, 0, 0, 0, 0,
+					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		sendBytes(b, true);
 	}
 	

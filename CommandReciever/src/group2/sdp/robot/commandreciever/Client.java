@@ -15,6 +15,7 @@ public class Client {
 	private static final byte GO_FORWARD = 1;
 	private static final byte STOP = 2;
 	private static final byte KICK = 3;
+	private static final byte SPIN = 4;
 	private static final byte RESET = 126;
 	private static final byte EXIT = 127;
 
@@ -107,6 +108,9 @@ public class Client {
 		case GO_FORWARD:
 			int speed = byte4ToInt(b, 4);     
 			Brain.goForward(speed);
+			break;
+		case SPIN:
+			Brain.spin();
 			break;
 		case STOP:
 			Brain.stop();
