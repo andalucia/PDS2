@@ -29,8 +29,9 @@ public class Server {
 	/**
 	 * Default constructor. Initialises the blue-tooth connection and adds a 
 	 * log listener.
+	 * @throws Exception 
 	 */
-	public Server () {
+	public Server () throws Exception {
 		conn = new NXTConnector();
 		
 		conn.addLogListener(new NXTCommLogListener() {
@@ -50,7 +51,8 @@ public class Server {
 	
 		if (!connected) {
 			System.err.println("Failed to connect to the NXT brick");
-			System.exit(1);
+			throw new Exception();
+			//System.exit(1);
 		}
 		
 		dos = conn.getDataOut();
