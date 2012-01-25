@@ -1,6 +1,5 @@
 package group2.sdp.pc.commander;
 
-
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -21,14 +20,14 @@ public class CommanderGUIKeyBoard implements KeyListener {
 	private JTextPane txtLog;
 	private JEditorPane Alfie_Speed;
 	private JEditorPane Alfie_Angle;
-	
+
 	private JLabel Speed;
 	private JLabel Angle;
-	
+
 	private JLabel Info;
 	private JLabel Info2;
 
-	private ServerUnstable alfie;
+	private Server alfie;
 
 	// No of connection attempts before giving up
 	private static final int CONNECTION_ATTEMPTS = 5;
@@ -75,14 +74,14 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		txtLog.setBounds(12, 12, 472, 305);
 		frmAlfieCommandCentre.getContentPane().add(txtLog);
 		txtLog.addKeyListener(this);
-		Info = new JLabel();	
-		Info2= new JLabel();
+		Info = new JLabel();
+		Info2 = new JLabel();
 		Info.setBounds(12, 329, 500, 25);
 		Info2.setBounds(12, 345, 500, 25);
 		Info.setText("UP: forward; DOWN: backward; LEFT: trun left; RIGHT: trun right");
-		
+
 		Info2.setText("1: +speed; 2: -speed; 3: +angle; 4: -angle");
-		
+
 		frmAlfieCommandCentre.getContentPane().add(Info);
 		frmAlfieCommandCentre.getContentPane().add(Info2);
 
@@ -97,12 +96,11 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		Speed = new JLabel();
 		Speed.setText("Speed");
 		Speed.setBounds(120, 373, 60, 25);
-		
+
 		Angle = new JLabel();
 		Angle.setText("Angle");
 		Angle.setBounds(10, 373, 40, 25);
-		
-		
+
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
 		frmAlfieCommandCentre.getContentPane().add(Angle);
@@ -139,12 +137,12 @@ public class CommanderGUIKeyBoard implements KeyListener {
 	private void init() {
 		// Attempt to initialise the bluetooth connection
 
-		 init_thread.start();
+		init_thread.start();
 	}
 
 	private boolean initAlfie() {
 		try {
-			alfie = new ServerUnstable();
+			alfie = new Server();
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -160,7 +158,7 @@ public class CommanderGUIKeyBoard implements KeyListener {
 				log("Connection attempt: " + i);
 
 				try {
-					alfie = new ServerUnstable();
+					alfie = new Server();
 					log("Connected to Alfie");
 					this.stop();
 				} catch (Exception e) {
@@ -199,21 +197,23 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		// when pressed "left" key the robot turn left
 		case KeyEvent.VK_LEFT:
 
-			alfie.sendSpin(Integer.parseInt(Alfie_Angle.getText()));
+			alfie.sendSpin(Integer.parseInt(Alfie_Speed.getText()),
+					Integer.parseInt(Alfie_Angle.getText()));
 			key_pressed = KeyEvent.VK_LEFT;
 			break;
 
 		// when pressed "right" key the robot turn right
 		case KeyEvent.VK_RIGHT:
 
-			alfie.sendSpin(-Integer.parseInt(Alfie_Angle.getText()));
+			alfie.sendSpin(Integer.parseInt(Alfie_Speed.getText()),
+					-Integer.parseInt(Alfie_Angle.getText()));
 			key_pressed = KeyEvent.VK_RIGHT;
 			break;
 
 		// when pressed "up" key the robot move backward
 		case KeyEvent.VK_DOWN:
 			if (key_pressed != KeyEvent.VK_DOWN)
-				alfie.sendGoBackword(Integer.parseInt(Alfie_Speed.getText()));
+				alfie.sendGoBackwards(Integer.parseInt(Alfie_Speed.getText()));
 			key_pressed = KeyEvent.VK_DOWN;
 			break;
 		}
@@ -229,7 +229,7 @@ public class CommanderGUIKeyBoard implements KeyListener {
 	public void keyTyped(KeyEvent key) {
 		System.out.println(key.getKeyChar());
 		if (key.getKeyChar() == 's') {
-			alfie.sendKick(10);
+			alfie.sendKick(1000);
 
 		}
 		if (key.getKeyChar() == 'd') {
