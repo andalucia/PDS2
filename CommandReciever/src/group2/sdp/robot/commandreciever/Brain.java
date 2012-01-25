@@ -36,6 +36,10 @@ public class Brain {
 	
 	// The speed to set the kicker motor, determines the power of the kick.
 	private static final int KICKER_SPEED = 10000;
+	// The angle of the kicker at the end of the kick.
+	private static final int KICKER_ANGLE = 90;
+	// The delay before resetting the kicker.
+	private static final int KICKER_DELAY = 1000;
 	
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
@@ -103,28 +107,22 @@ public class Brain {
 	 * Kick the ball!
 	 * 
 	 * Starts a new thread and makes the robot kick if it isn't already kicking
-	 * @param power How hard should the motor rotate in degrees/s
+	 * @param power How hard should the motor rotate in degrees/s.
 	 */
 	public static void kick(int power) {
 		assert(initialized);
 		// Start a new thread to control the kicker
 		Thread Kick_thread = new Thread() {
 	
-			public void run() {			
-				KICKER.rotate(90, true);
-				
+			public void run() {
 				try {
-					Thread.sleep(1000);			
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-							
-				KICKER.rotate(-90, true);
-				
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {				
-					e.printStackTrace();
+					KICKER.rotate(KICKER_ANGLE, true);
+					Thread.sleep(KICKER_DELAY);
+								
+					KICKER.rotate(-KICKER_ANGLE, true);
+					Thread.sleep(KICKER_DELAY);
+				} catch (InterruptedException exc) {
+					System.out.println(exc.toString());
 				}
 				
 				kicking = false;
