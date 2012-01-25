@@ -31,7 +31,7 @@ public class CommanderGUIUnstable implements KeyListener {
 	private JEditorPane  Alfie_Speed;
 	private JEditorPane  Alfie_Angle;
 
-	private Server alfie;
+	private ServerUnstable alfie;
 
 	// No of connection attempts before giving up
 	private static final int CONNECTION_ATTEMPTS = 5;
@@ -135,7 +135,7 @@ public class CommanderGUIUnstable implements KeyListener {
 
 	private boolean initAlfie() {
 		try {
-			alfie = new Server();
+			alfie = new ServerUnstable();
 			return true;
 		} catch (Exception e) {
 			return false;
@@ -151,7 +151,7 @@ public class CommanderGUIUnstable implements KeyListener {
 				log("Connection attempt: " + i);
 
 				try {
-					alfie = new Server();
+					alfie = new ServerUnstable();
 					log("Connected to Alfie");
 					this.stop();
 				} catch (Exception e) {
