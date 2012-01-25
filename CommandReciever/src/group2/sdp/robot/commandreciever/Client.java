@@ -12,8 +12,9 @@ public class Client {
 	
 	private static final int PACKET_SIZE = 32;
 	
+	private static final byte STOP = 0;
 	private static final byte GO_FORWARD = 1;
-	private static final byte STOP = 2;
+	private static final byte GO_BACKWARDS = 2;
 	private static final byte KICK = 3;
 	private static final byte SPIN = 4;
 	private static final byte RESET = 126;
@@ -104,16 +105,23 @@ public class Client {
 	 * @return The first byte of the command.
 	 */
 	private static int executeCommand(byte [] b) {
+		int speed = 0, angle = 0;
 		switch (b[0]) {
-		case GO_FORWARD:
-			int speed = byte4ToInt(b, 4);     
-			Brain.goForward(speed);
-			break;
-		case SPIN:
-			Brain.spin();
-			break;
 		case STOP:
 			Brain.stop();
+			break;
+		case GO_FORWARD:
+			speed = byte4ToInt(b, 4);
+			Brain.goForward(speed);
+			break;
+		case GO_BACKWARDS:
+			speed = byte4ToInt(b, 4);     
+			Brain.goBackwards(speed);
+			break;
+		case SPIN:
+			speed = byte4ToInt(b, 4);
+			angle = byte4ToInt(b, 8);
+			Brain.spin(speed, angle);
 			break;
 		case KICK:
 			int kick = byte4ToInt(b, 4);     

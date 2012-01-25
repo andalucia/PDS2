@@ -2,5 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.lejos.nxt.ldt.LEJOS_LIBRARY_CONTAINER/nxt"/>
+	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s09/s0922504/Desktop/sdp/lejos_nxj/lib/nxt/classes.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

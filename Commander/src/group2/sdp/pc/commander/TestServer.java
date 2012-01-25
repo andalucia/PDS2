@@ -10,7 +10,7 @@ public class TestServer {
 			
 			Thread.sleep(1000);
 
-			s.sendSpin(10);
+			s.sendSpin(10, 10);
 			
 			Thread.sleep(1000);
 			

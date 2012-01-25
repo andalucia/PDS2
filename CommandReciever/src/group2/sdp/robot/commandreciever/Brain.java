@@ -18,7 +18,9 @@ public class Brain {
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
 	// defined as a different field.
 	private static String FWD1 = "Going forward ";
-	private static String FWD2 = "with speed:"; 
+	private static String FWD2 = "with speed:";
+	private static String BWD1 = "Going backwards ";
+	private static String BWD2 = "with speed:";
 	private static String STP = "Stopped.";
 	private static String KCK1 = "Kicking with ";
 	private static String KCK2 = "power:";
@@ -52,12 +54,11 @@ public class Brain {
 	 */
 	public static void init () {
 		pilot = new DifferentialPilot(WHEEL_DIAMETER, TRACK_WIDTH, LEFT_WHEEL, RIGHT_WHEEL);
-		KICKER.setSpeed(KICKER_SPEED);
 		initialized = true;
 	}
 	
 	/**
-	 * Make Alfie go forwards.
+	 * Make Alfie go forward.
 	 * 
 	 * @param speed The speed in cm/s
 	 */
@@ -77,13 +78,33 @@ public class Brain {
 	}
 	
 	/**
-	 * This method is for reference.
+	 * Make Alfie go backwards.
+	 * 
+	 * @param speed The speed in cm/s
 	 */
-	public static void spin() {
+	public static void goBackwards(int speed) {
 		assert(initialized);
 		
-		pilot.setTravelSpeed(20);
-		pilot.arc(100, 90);
+		pilot.setTravelSpeed(speed);
+		pilot.backward();
+		
+		LCD.clear();
+		LCD.drawString(BWD1, 0, 0);
+		LCD.drawString(BWD2, 0, 1);
+		LCD.drawInt(speed, 1, 2);
+		LCD.drawString("MAX SPEED", 0, 3);
+		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+		LCD.refresh();
+	}
+	
+	/**
+	 * This method is for reference.
+	 */
+	public static void spin(int speed, int angle) {
+		assert(initialized);
+		
+		pilot.setTravelSpeed(speed);
+		pilot.rotate(angle);
 		
 		LCD.clear();
 		LCD.drawString(SPN, 0, 0);
@@ -133,6 +154,7 @@ public class Brain {
 		// Alfie only has 1 leg, so he can only make 1 kick at a time
 		if (!kicking) {
 			kicking = true;
+			KICKER.setSpeed(power);
 			Kick_thread.start();
 			
 			LCD.clear();

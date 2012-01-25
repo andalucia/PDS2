@@ -27,7 +27,7 @@ public class CommanderGUI {
 	private JFrame frmAlfieCommandCentre;
 	private JTextPane txtLog;
 
-	private Server alfie;
+	private Server alfieServer;
 	public boolean connected = false;
 	
 	// No of connection attempts before giving up
@@ -77,7 +77,7 @@ public class CommanderGUI {
 		btnTakePenalty.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(connected == true) {
-					alfie.sendKick(1000);
+					alfieServer.sendKick(1000);
 					log("Sending Penalty Code");
 				} else {
 					log("Unable to send Penalty Code: Alfie not connected");
@@ -91,7 +91,7 @@ public class CommanderGUI {
 		btnGoForward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent argo) {
 				if(connected == true) {
-					alfie.sendGoForward(10);
+					alfieServer.sendGoForward(10);
 					log("Sending Go Forward code");
 				} else {
 					log("Unable to send Go Forward code: Alfie not connected");
@@ -105,7 +105,7 @@ public class CommanderGUI {
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent argo) {
 				if(connected == true) {
-					alfie.sendStop();
+					alfieServer.sendStop();
 					log("Sending Stop code");
 				} else {
 					log("Unable to send Stop code: Alfie not connected");
@@ -154,7 +154,7 @@ public class CommanderGUI {
 				log("Connection attempt: " + i);
 				
 				try {
-					alfie = new Server();
+					alfieServer = new Server();
 					connected = true;
 					log("Connected to Alfie");
 					Thread.yield();
