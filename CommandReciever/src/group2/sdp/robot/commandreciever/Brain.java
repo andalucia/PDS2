@@ -19,14 +19,14 @@ public class Brain {
 	// defined as a different field
 	private static String FWD1 = "Going forward ";
 	private static String FWD2 = "with speed:"; 
-	private static String STP = "Stopped";
+	private static String STP = "Stopped.";
 	private static String KCK1 = "Kicking with ";
 	private static String KCK2 = "power:";
 	
 	// Alfie's physical attributes. Constants for the pilot class,
-	// measurements are in centimeters
-	private static final float TRACK_WIDTH = (float) 14.5;
-	private static final float WHEEL_DIAMETER = (float) 8.4;
+	// measurements are in centimetres
+	private static final float TRACK_WIDTH = (float) 12.65;
+	private static final float WHEEL_DIAMETER = (float) 8.16;
 	
 	// Alfie's legs and arms. The motors to be controlled
 	private static final NXTRegulatedMotor LEFT_WHEEL = Motor.C;
