@@ -28,9 +28,10 @@ public class CommanderGUI {
 	private JTextPane txtLog;
 
 	private Server alfie;
+	public boolean connected = false;
 	
 	// No of connection attempts before giving up
-	private static final int CONNECTION_ATTEMPTS = 5;
+	private static final int CONNECTION_ATTEMPTS = 1;
 	private static final int RETRY_TIMEOUT = 3000;
 
 	/**
@@ -64,7 +65,7 @@ public class CommanderGUI {
 	private void initialize() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 443, 440);
+		frmAlfieCommandCentre.setBounds(100, 100, 443, 391);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
@@ -75,29 +76,50 @@ public class CommanderGUI {
 		JButton btnTakePenalty = new JButton("Take Penalty");
 		btnTakePenalty.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				alfie.sendKick(1000);
-				log("Sending Penalty Code");
+				if(connected == true) {
+					alfie.sendKick(1000);
+					log("Sending Penalty Code");
+				} else {
+					log("Unable to send Penalty Code: Alfie not connected");
+				}
 			}
 		});
 		btnTakePenalty.setBounds(12, 329, 142, 25);
 		frmAlfieCommandCentre.getContentPane().add(btnTakePenalty);
 		
 		JButton btnGoForward = new JButton("Go Forward");
+		btnGoForward.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent argo) {
+				if(connected == true) {
+					alfie.sendGoForward(10);
+					log("Sending Go Forward code");
+				} else {
+					log("Unable to send Go Forward code: Alfie not connected");
+				}
+			}
+		});
 		btnGoForward.setBounds(166, 329, 118, 25);
 		frmAlfieCommandCentre.getContentPane().add(btnGoForward);
 		
-		JButton btnKick = new JButton("Kick");
-		btnKick.setBounds(12, 373, 63, 25);
-		frmAlfieCommandCentre.getContentPane().add(btnKick);
-		
 		JButton btnStop = new JButton("Stop");
-		btnStop.setBounds(87, 373, 75, 25);
+		btnStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent argo) {
+				if(connected == true) {
+					alfie.sendStop();
+					log("Sending Stop code");
+				} else {
+					log("Unable to send Stop code: Alfie not connected");
+				}
+			}
+		});
+		btnStop.setBounds(296, 329, 75, 25);
 		frmAlfieCommandCentre.getContentPane().add(btnStop);
 		
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {
             public void windowClosed(WindowEvent arg0) {
+            	System.exit(0);
             }
             public void windowActivated(WindowEvent arg0) {
             	init();
@@ -119,35 +141,25 @@ public class CommanderGUI {
 	}
 	
 	private void init() {
-		// Attempt to initialise the bluetooth connection
-
-		
+		// Attempt to initialise the bluetooth connection		
 		init_thread.start();
 	}
-	
-	private boolean initAlfie() {
-		try {
-			alfie = new Server();
-			return true;
-		} catch(Exception e) {
-			return false;
-		}
-	}
-	
+		
 	Thread init_thread = new Thread() {
 		
 		public void run() {
 			
-			for(int i = 1; i < CONNECTION_ATTEMPTS; ++i) {	
+			for(int i = 1; i <= CONNECTION_ATTEMPTS; ++i) {	
 				
 				log("Connection attempt: " + i);
 				
 				try {
 					alfie = new Server();
+					connected = true;
 					log("Connected to Alfie");
-					this.stop();
+					Thread.yield();
 				} catch(Exception e) {
-					log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 5) + " seconds");
+					log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
 					try {
 						Thread.sleep(RETRY_TIMEOUT);
 					} catch (InterruptedException e1) {
@@ -156,6 +168,8 @@ public class CommanderGUI {
 					}
 				}
 			}
+			
+			Thread.yield();
 		}
 	
 	};
