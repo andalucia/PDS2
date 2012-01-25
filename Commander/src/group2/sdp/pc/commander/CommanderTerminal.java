@@ -22,9 +22,11 @@ public class CommanderTerminal {
 	public boolean connected = false;
 	
 	// No of connection attempts before giving up
-	private static final int CONNECTION_ATTEMPTS = 1;
+	private static final int CONNECTION_ATTEMPTS = 10;
 	private static final int RETRY_TIMEOUT = 3000;
 
+	private Thread init_thread;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -45,13 +47,43 @@ public class CommanderTerminal {
 	 * Create the application.
 	 */
 	public CommanderTerminal() {
-		initialize();
+		initializeConnectingThread();
+		initializeFrame();
 	}
+	
+	/**
+	 * Initialise the thread for connecting to Alfie.
+	 */
+	private void initializeConnectingThread() {
+		init_thread = new Thread() {		
+			public void run() {
+				for(int i = 1; i <= CONNECTION_ATTEMPTS; ++i) {	
+					log("Connection attempt: " + i);
+					
+					try {
+						alfieServer = new Server();
+						connected = true;
+						log("Connected to Alfie");
+						break;
+					} catch(Exception e) {
+						log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
+						try {
+							Thread.sleep(RETRY_TIMEOUT);
+						} catch (InterruptedException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		};
+	}
+	
 
 	/**
 	 * Initialise the contents of the frame.
 	 */
-	private void initialize() {
+	private void initializeFrame() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
 		frmAlfieCommandCentre.setBounds(100, 100, 443, 391);
@@ -121,48 +153,15 @@ public class CommanderTerminal {
             public void windowIconified(WindowEvent arg0) {
             }
             public void windowOpened(WindowEvent arg0) {
-            	init();
+            	init_thread.start();
             }
         });
-
-		
-		// Check whether Al
-	}
+	}	
 	
-	private void init() {
-		// Attempt to initialise the bluetooth connection		
-		init_thread.start();
-	}
-		
-	Thread init_thread = new Thread() {
-		
-		public void run() {
-			
-			for(int i = 1; i <= CONNECTION_ATTEMPTS; ++i) {	
-				
-				log("Connection attempt: " + i);
-				
-				try {
-					alfieServer = new Server();
-					connected = true;
-					log("Connected to Alfie");
-					Thread.yield();
-				} catch(Exception e) {
-					log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
-					try {
-						Thread.sleep(RETRY_TIMEOUT);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-			}
-			
-			Thread.yield();
-		}
-	
-	};
-	
+	/**
+	 * Output a string to the log box.
+	 * @param logString The string to show.
+	 */
 	private void log(String logString) {
 		txtLog.setText(txtLog.getText() + logString + "\n");
 		txtLog.repaint();
