@@ -25,7 +25,7 @@ public class CommanderTerminal {
 	private static final int CONNECTION_ATTEMPTS = 10;
 	private static final int RETRY_TIMEOUT = 3000;
 
-	private Thread init_thread;
+	private Thread init_thread, cleanup_thread;
 	
 	/**
 	 * Launch the application.
@@ -47,14 +47,14 @@ public class CommanderTerminal {
 	 * Create the application.
 	 */
 	public CommanderTerminal() {
-		initializeConnectingThread();
+		initializeConnectionThreads();
 		initializeFrame();
 	}
 	
 	/**
-	 * Initialise the thread for connecting to Alfie.
+	 * Initialise the threads for connecting to and disconnecting from Alfie.
 	 */
-	private void initializeConnectingThread() {
+	private void initializeConnectionThreads() {
 		init_thread = new Thread() {		
 			public void run() {
 				for(int i = 1; i <= CONNECTION_ATTEMPTS; ++i) {	
@@ -75,6 +75,12 @@ public class CommanderTerminal {
 						}
 					}
 				}
+			}
+		};
+		
+		cleanup_thread = new Thread() {		
+			public void run() {
+				alfieServer.sendReset();
 			}
 		};
 	}
@@ -112,7 +118,7 @@ public class CommanderTerminal {
 		btnGoForward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent argo) {
 				if(connected == true) {
-					alfieServer.sendGoForward(10);
+					alfieServer.sendGoForward(25);
 					log("Sending Go Forward code");
 				} else {
 					log("Unable to send Go Forward code: Alfie not connected");
@@ -145,6 +151,7 @@ public class CommanderTerminal {
             public void windowActivated(WindowEvent arg0) {
             }
             public void windowClosing(WindowEvent arg0) {
+            	cleanup_thread.start();
             }
             public void windowDeactivated(WindowEvent arg0) {
             }

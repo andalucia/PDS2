@@ -1,5 +1,7 @@
 package group2.sdp.robot.commandreciever;
 
+import group2.sdp.common.candypacket.CandyPacket;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,16 +12,6 @@ import lejos.nxt.comm.Bluetooth;
 
 public class Client {
 	
-	private static final int PACKET_SIZE = 32;
-	
-	private static final byte STOP = 0;
-	private static final byte GO_FORWARD = 1;
-	private static final byte GO_BACKWARDS = 2;
-	private static final byte KICK = 3;
-	private static final byte SPIN = 4;
-	private static final byte RESET = 126;
-	private static final byte EXIT = 127;
-
 	private static BTConnection btc;
 
 	private static DataInputStream dis;
@@ -50,13 +42,16 @@ public class Client {
 		
 			boolean reset = false; 
 			while (!exit && !reset) {
-				byte [] b = new byte [PACKET_SIZE];
-				recieveBytes(b);
-				int rslt = executeCommand(b);
-				if (rslt == RESET)
+				byte [] b = new byte [CandyPacket.PACKET_SIZE];
+				if (recieveBytes(b)) {
+					int rslt = executeCommand(b);
+					if (rslt == CandyPacket.RESET_CANDY)
+						reset = true;
+					if (rslt == CandyPacket.SLEEP_CANDY)
+						exit = true;
+				} else {
 					reset = true;
-				if (rslt == EXIT)
-					exit = true;
+				}
 			}
 		
 			dis.close();
@@ -74,14 +69,22 @@ public class Client {
 	 * Receives 32 bytes from the blue-tooth connection. 
 	 * @param b The array in which to store the bytes.
 	 */
-	private static void recieveBytes(byte [] b) {
+	private static boolean recieveBytes(byte [] b) {
 		try {
-			dis.read(b, 0, PACKET_SIZE);
-			dos.write(b, 0, PACKET_SIZE);
+			if (dis.read(b, 0, CandyPacket.PACKET_SIZE) != CandyPacket.PACKET_SIZE)
+				// Connection was closed by the server, without telling Alfie!
+				return false;
+		} catch (IOException e) {
+			// Connection was closed by the server, without telling Alfie!
+			return false;
+		}
+		try {
+			dos.write(b, 0, CandyPacket.PACKET_SIZE);
 			dos.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return true;
 	}
 	
 	/**
@@ -105,31 +108,31 @@ public class Client {
 	 * @return The first byte of the command.
 	 */
 	private static int executeCommand(byte [] b) {
-		int speed = 0, angle = 0;
+		int speed = 0, angle;
 		switch (b[0]) {
-		case STOP:
+		case CandyPacket.STOP_CANDY:
 			Brain.stop();
 			break;
-		case GO_FORWARD:
+		case CandyPacket.GO_FORWARD_CANDY:
 			speed = byte4ToInt(b, 4);
 			Brain.goForward(speed);
 			break;
-		case GO_BACKWARDS:
+		case CandyPacket.GO_BACKWARDS_CANDY:
 			speed = byte4ToInt(b, 4);     
 			Brain.goBackwards(speed);
 			break;
-		case SPIN:
+		case CandyPacket.SPIN_CANDY:
 			speed = byte4ToInt(b, 4);
 			angle = byte4ToInt(b, 8);
 			Brain.spin(speed, angle);
 			break;
-		case KICK:
+		case CandyPacket.KICK_CANDY:
 			int kick = byte4ToInt(b, 4);     
 			Brain.kick(kick);
 			break;
-		case RESET:
+		case CandyPacket.RESET_CANDY:
 			break;
-		case EXIT:
+		case CandyPacket.SLEEP_CANDY:
 			break;
 		}
 		return b[0];

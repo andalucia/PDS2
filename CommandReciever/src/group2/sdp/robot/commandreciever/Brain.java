@@ -15,6 +15,22 @@ import lejos.robotics.navigation.DifferentialPilot;
  */
 public class Brain {
 	
+	// The minimum speed that could ever be received.
+	private static final int MIN_SPEED = 0;
+	// The maximum speed that could ever be received.
+	private static final int MAX_SPEED = 1024;
+	
+	// The minimum speed that could ever be received.
+	private static final int MIN_KICK_POWER = 0;
+	// The maximum speed that could ever be received.
+	private static final int MAX_KICK_POWER = 1024;
+	
+	// The minimum speed that could ever be received.
+	private static final int MIN_ANGLE = -360;
+	// The maximum speed that could ever be received.
+	private static final int MAX_ANGLE = 360;
+	
+	
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
 	// defined as a different field.
 	private static String FWD1 = "Going forward ";
@@ -37,7 +53,7 @@ public class Brain {
 	private static final NXTRegulatedMotor KICKER = Motor.B;
 	
 	// The speed to set the kicker motor, determines the power of the kick.
-	private static final int KICKER_SPEED = 10000;
+	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
 	private static final int KICKER_ANGLE = 90;
 	// The delay before resetting the kicker.
@@ -64,6 +80,7 @@ public class Brain {
 	 */
 	public static void goForward(int speed) {
 		assert(initialized);
+		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		
 		pilot.setTravelSpeed(speed);
 		pilot.forward();
@@ -77,6 +94,7 @@ public class Brain {
 		LCD.refresh();
 	}
 	
+
 	/**
 	 * Make Alfie go backwards.
 	 * 
@@ -84,6 +102,7 @@ public class Brain {
 	 */
 	public static void goBackwards(int speed) {
 		assert(initialized);
+		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		
 		pilot.setTravelSpeed(speed);
 		pilot.backward();
@@ -102,6 +121,8 @@ public class Brain {
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
+		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+		angle = SanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		
 		pilot.setTravelSpeed(speed);
 		pilot.rotate(angle);
@@ -154,6 +175,7 @@ public class Brain {
 		// Alfie only has 1 leg, so he can only make 1 kick at a time
 		if (!kicking) {
 			kicking = true;
+			power = SanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
 			KICKER.setSpeed(power);
 			Kick_thread.start();
 			
@@ -163,5 +185,20 @@ public class Brain {
 			LCD.drawInt(power, 1, 2);
 			LCD.refresh();
 		}	
+	}
+
+	/**
+	 * Puts the given value in reasonable limits.
+	 * @param value The value to restrict.
+	 * @param min Lower bound.
+	 * @param max Upper bound.
+	 * @return min if value < min, max if value > max, just value otherwise.
+	 */
+	private static int SanitizeInput(int value, int min, int max) {
+		if (value > max)
+			value = max;
+		if (value < min)
+			value = min;
+		return value;
 	}
 }
