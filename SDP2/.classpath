@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/afs/inf.ed.ac.uk/user/s09/s0942444/SDP/lejos_nxj/lib/nxt/classes.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
