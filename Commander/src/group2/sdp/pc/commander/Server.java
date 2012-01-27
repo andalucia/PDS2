@@ -103,8 +103,17 @@ public class Server {
 	 * @param speed The speed for the spin.
 	 * @param angle The angle for the spin.
 	 */
+
 	public void sendSpin(int speed, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_CANDY, speed, angle), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_CANDY, angle), true);
+	}
+	
+	public void sendSpinToLeft(int speed) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_TO_LEFT_CANDY, speed), true);
+	}
+	
+	public void sendSpinToRight(int speed) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_TO_RIGHT_CANDY, speed), true);
 	}
 	
 	/**

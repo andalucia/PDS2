@@ -128,6 +128,12 @@ public class Client {
 			break;
 		case CandyPacket.SPIN_CANDY:
 			Brain.spin(candy.getPretzel(0), candy.getPretzel(1));
+    		break;
+		case CandyPacket.SPIN_TO_LEFT_CANDY:
+			Brain.spinToLeft(candy.getPretzel(0));
+			break;
+		case CandyPacket.SPIN_TO_RIGHT_CANDY:
+			Brain.spinToRight(candy.getPretzel(0));
 			break;
 		case CandyPacket.KICK_CANDY:     
 			Brain.kick(candy.getPretzel(0));

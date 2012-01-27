@@ -52,6 +52,12 @@ public class Brain {
 	private static final NXTRegulatedMotor RIGHT_WHEEL = Motor.A;
 	private static final NXTRegulatedMotor KICKER = Motor.B;
 	
+	// Alfie's finger tips
+	private static final TouchSensor LEFT_TOUCH_SENSOR = new TouchSensor(
+			SensorPort.S1);
+	private static final TouchSensor RIGHT_TOUCH_SENSOR = new TouchSensor(
+			SensorPort.S2);
+
 	// The speed to set the kicker motor, determines the power of the kick.
 	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
@@ -64,6 +70,23 @@ public class Brain {
 	private static boolean initialized = false;
 	private static DifferentialPilot pilot;
 	
+	// sensor flag
+	private static boolean Sensor_Switch = false;
+
+	// Create a Thread to detect whether touch sensors have been touched
+	private static Thread StopByTouch = new Thread() {
+
+		public void run() {
+			while (true) {				
+					if ((LEFT_TOUCH_SENSOR.isPressed() || RIGHT_TOUCH_SENSOR
+							.isPressed()) && Sensor_Switch) {
+						stop();
+				}
+			}
+		}
+
+	};
+
 	/**
 	 * All methods in this class are static so there is no constructor.
 	 * This method should be called before running any other methods in the class.	
@@ -71,6 +94,8 @@ public class Brain {
 	public static void init () {
 		pilot = new DifferentialPilot(WHEEL_DIAMETER, TRACK_WIDTH, LEFT_WHEEL, RIGHT_WHEEL);
 		initialized = true;
+		//start the touch sensor thread
+		StopByTouch.start();
 	}
 	
 	/**
@@ -114,10 +139,14 @@ public class Brain {
 		LCD.drawString("MAX SPEED", 0, 3);
 		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 		LCD.refresh();
+		
+		Sensor_Switch = false;
+
 	}
 	
 	/**
-	 * This method is for reference.
+	 * Makes Alfie spin around his centre at the given angle and with the given speed.
+	 * FIXME: the speed argument does not seem to affect the actual speed of the robot.
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
@@ -131,7 +160,39 @@ public class Brain {
 		LCD.drawString(SPN, 0, 0);
 		LCD.refresh();
 	}
+
+	/**
+	 * spin for control 
+	 */
 	
+	public static void spinToLeft(int speed) {
+		assert (initialized);
+		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+
+		pilot.setTravelSpeed(speed);
+		LEFT_WHEEL.forward();
+		RIGHT_WHEEL.backward();
+
+		LCD.clear();
+		LCD.drawString(SPN, 0, 0);
+		LCD.refresh();	
+		Sensor_Switch = true;
+	}
+	
+	public static void spinToRight(int speed) {
+		assert (initialized);
+		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+
+		pilot.setTravelSpeed(speed);
+		RIGHT_WHEEL.forward();
+		LEFT_WHEEL.backward();
+
+		LCD.clear();
+		LCD.drawString(SPN, 0, 0);
+		LCD.refresh();
+		Sensor_Switch = true;
+	}
+
 	/**
 	 * Make Alfie stop moving.
 	 */
@@ -143,6 +204,8 @@ public class Brain {
 		LCD.clear();
 		LCD.drawString(STP, 0, 0);
 		LCD.refresh();
+		
+		Sensor_Switch = false;
 	}
 	
 	/**
