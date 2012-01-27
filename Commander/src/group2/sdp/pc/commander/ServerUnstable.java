@@ -1,5 +1,7 @@
 package group2.sdp.pc.commander;
 
+import group2.sdp.common.candypacket.CandyPacket;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,50 +11,50 @@ import lejos.pc.comm.NXTConnector;
 
 /**
  * Connects to the robot and can send commands to it.
- * Op codes:
- * 0 - stop,
- * 1 - go forward,
- * 2 - go backward,
- * 3 - kick,
- * 4 - spin,
- * 126 - reset,
- * 127 - terminate.
  */
+
+/**
+ * 
+ * @author hanbing
+ * 
+ * new rotation function sendSpinToLeft and sendSpinToRight
+ * edit the exist spin function, remove speed, we don't need to set speed.
+ * 
+ */
+
 public class ServerUnstable {
-	
+		
 	private String nxtAddress = "btspp://group2";
 	
 	private NXTConnector conn;
 	private DataOutputStream dos;
-	private DataInputStream dis;
-	
+	private DataInputStream dis;	
+
 	/**
 	 * Default constructor. Initialises the blue-tooth connection and adds a 
 	 * log listener.
 	 * @throws Exception 
 	 */
-	public ServerUnstable () throws Exception {
+	public ServerUnstable() throws Exception {
 		conn = new NXTConnector();
 		
 		conn.addLogListener(new NXTCommLogListener() {
-
 			public void logEvent(String message) {
 				System.out.println("BTSend Log.listener: " + message);				
 			}
-
 			public void logEvent(Throwable throwable) {
 				System.out.println("BTSend Log.listener - stack trace: ");
 				throwable.printStackTrace();
 			}
 		} 
 		);
-		// Connect to our NXT
+
+		// Connect to Alfie
 		boolean connected = conn.connectTo(nxtAddress);
 	
 		if (!connected) {
-			System.err.println("Failed to connect to the NXT brick");
+			System.err.println("Failed to connect to Alfie");
 			throw new Exception();
-			//System.exit(1);
 		}
 		
 		dos = conn.getDataOut();
@@ -63,7 +65,7 @@ public class ServerUnstable {
 	 * Called when the object is garbage-collected. Closes the connections.
 	 */
 	@Override
-	protected void finalize() throws Throwable {		
+	protected void finalize() throws Throwable {
 		try {
 			dis.close();
 			dos.close();
@@ -74,95 +76,68 @@ public class ServerUnstable {
 		}
 		super.finalize();
 	}
-
-	/**
-	 * Converts an integer to four bytes.
-	 * @param arg The integer to convert.
-	 * @return A byte array consisting of four bytes.
-	 */
-	public byte[] intToByte4(int arg) {
-		byte [] result = new byte [4];
-		result[0] = (byte)(arg >> 24);
-		result[1] = (byte)((arg >> 16) & 255);
-		result[2] = (byte)((arg >> 8) & 255);
-		result[3] = (byte)(arg & 255);
-		return result;
-	}
 	
 	/**
-	 * Sends a 'stop' command to the NXT.  
+	 * Tells Alfie to stop moving.
 	 */
 	public void sendStop() {
-		byte op = 0;
-		byte [] b = {op, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
+		sendCandyPacket(new CandyPacket(CandyPacket.STOP_CANDY), true);
 	}
 	
 	/**
-	 * Sends a 'go forward' command to the NXT. 
+	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.
 	 */
 	public void sendGoForward(int speed) {
-		byte op = 1;
-		byte [] speed_b = intToByte4(speed);
-		byte [] b = {op, 0, 0, 0, speed_b[0], speed_b[1], speed_b[2], speed_b[3], 0, 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
+		sendCandyPacket(new CandyPacket(CandyPacket.GO_FORWARD_CANDY, speed), true);
 	}
 	
 	/**
-	 * Sends a 'go backward' command to the NXT. 
+	 * Tells Alfie to start moving backwards. 
 	 * @param speed The speed for the command.
 	 */
-	public void sendGoBackword(int speed) {
-		byte op = 2;
-		byte [] speed_b = intToByte4(speed);
-		byte [] b = {op, 0, 0, 0, speed_b[0], speed_b[1], speed_b[2], speed_b[3], 0, 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
+	public void sendGoBackwards(int speed) {
+		sendCandyPacket(new CandyPacket(CandyPacket.GO_BACKWARDS_CANDY, speed), true);
 	}
 	
-	
 	/**
-	 * Sends a 'kick' command to the NXT. 
+	 * Tells Alfie to become aggressive.
 	 * @param power The power for the kick.
 	 */
 	public void sendKick(int power) {
-		byte op = 3;
-		byte [] power_b = intToByte4(power);
-		byte [] b = {op, 0, 0, 0, power_b[0], power_b[1], power_b[2], power_b[3], 0, 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
+		sendCandyPacket(new CandyPacket(CandyPacket.KICK_CANDY, power), true);
 	}
 	
 	/**
-	 * Tells the robot to reset communication.
+	 * Tells Alfie to spin on the spot.
+	 * @param angle The angle for the spin.
+	 */
+	
+	//use angle to rotate the robot, we don't need to set speed
+	public void sendSpin(int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_CANDY, angle), true);
+	}
+	
+	public void sendSpinToLeft(int speed) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_TO_LEFT_CANDY, speed), true);
+	}
+	
+	public void sendSpinToRight(int speed) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_TO_RIGHT_CANDY, speed), true);
+	}
+	
+	/**
+	 * Tells Alfie to reset communication.
 	 */
 	public void sendReset() {
-		byte op = 126;
-		byte [] b = {op, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
-	}
-	
-	
-	public void sendSpin(int angle) {
-		byte op = 4;
-		byte [] angle_b = intToByte4(angle);
-		byte [] b = {op, 0, 0, 0, angle_b[0], angle_b[1], angle_b[2], angle_b[3], 0, 0, 0, 0, 0, 0, 0, 0,
-					 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
+		sendCandyPacket(new CandyPacket(CandyPacket.RESET_CANDY), true);
 	}
 	
 	/**
-	 * Tells the robot to stop execution.
+	 * Tells the Alfie to go to sleep.
 	 */
 	public void sendExit() {
-		byte op = 127;
-		byte [] b = {op, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-				 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		sendBytes(b, true);
+		sendCandyPacket(new CandyPacket(CandyPacket.SLEEP_CANDY), true);
 	}
 	
 	/**
@@ -171,7 +146,7 @@ public class ServerUnstable {
 	 * @param b The bytes to send.
 	 * @param verbose If true, the bytes are printed before being sent.
 	 */
-	private void sendBytes(byte [] b, boolean verbose) {
+	private void sendCandyPacket(CandyPacket packet, boolean verbose) {
 		//long start = System.currentTimeMillis();
 		
 		boolean success = false;
@@ -179,15 +154,12 @@ public class ServerUnstable {
 			try {
 				// Print output if requested
 				if (verbose) {
-					System.out.print("Sending bytes:");
-					for (int i = 0; i < b.length; ++i) {
-						System.out.print(" " + b[i]);
-					}
-					System.out.println();
+					packet.printSweets();
 				}
 	
+				byte b [] = packet.getSweets();
 				// Send bytes
-				dos.write(b, 0, b.length);
+				dos.write(b, 0, CandyPacket.PACKET_SIZE);
 				dos.flush();
 			} catch (IOException ioe) {
 				System.out.println("IO Exception writing bytes:");
@@ -196,15 +168,13 @@ public class ServerUnstable {
 			}
 			
 			try {
-				// On success the NXT should return the command back.
-				byte [] b2 = new byte [b.length];
-				dis.read(b2, 0, b.length);
+				// On success Alfie should repeat the command back.
+				byte [] b = new byte [CandyPacket.PACKET_SIZE];
+				dis.read(b, 0, CandyPacket.PACKET_SIZE);
 				success = true;
-				for (int i = 0; i < b.length; ++i) {
-					if (b[i] != b2[i]) {
-						success = false;
-						break;
-					}
+				if (!packet.contentsEqual(b)) {
+					success = false;
+					System.out.println("WARNING: command is not the same; RESENDING...");
 				}
 			} catch (IOException ioe) {
 				System.out.println("IO Exception reading bytes:");

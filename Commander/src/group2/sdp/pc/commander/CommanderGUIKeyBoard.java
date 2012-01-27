@@ -188,32 +188,29 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		// when pressed "up" key the robot move forward
 		case KeyEvent.VK_UP:
 
-			if (key_pressed != KeyEvent.VK_UP)
-
-				alfie.sendGoForward(Integer.parseInt(Alfie_Speed.getText()));
+			alfie.sendGoForward(Integer.parseInt(Alfie_Speed.getText()));
 			key_pressed = KeyEvent.VK_UP;
 			break;
 
 		// when pressed "left" key the robot turn left
 		case KeyEvent.VK_LEFT:
 
-			alfie.sendSpin(Integer.parseInt(Alfie_Speed.getText()),
-					Integer.parseInt(Alfie_Angle.getText()));
+			alfie.sendSpinToLeft(Integer.parseInt(Alfie_Speed.getText()));
 			key_pressed = KeyEvent.VK_LEFT;
 			break;
 
 		// when pressed "right" key the robot turn right
 		case KeyEvent.VK_RIGHT:
 
-			alfie.sendSpin(Integer.parseInt(Alfie_Speed.getText()),
-					-Integer.parseInt(Alfie_Angle.getText()));
+			alfie.sendSpinToRight(Integer.parseInt(Alfie_Speed.getText()));
+
 			key_pressed = KeyEvent.VK_RIGHT;
 			break;
 
 		// when pressed "up" key the robot move backward
 		case KeyEvent.VK_DOWN:
-			if (key_pressed != KeyEvent.VK_DOWN)
-				alfie.sendGoBackwards(Integer.parseInt(Alfie_Speed.getText()));
+
+			alfie.sendGoBackwards(Integer.parseInt(Alfie_Speed.getText()));
 			key_pressed = KeyEvent.VK_DOWN;
 			break;
 		}
@@ -253,6 +250,13 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		if (key.getKeyChar() == '4') {
 			Alfie_Angle.setText(Integer.parseInt(Alfie_Angle.getText()) - 1
 					+ "");
+		}
+		if (key.getKeyChar() == ',') {
+			alfie.sendSpin(-Integer.parseInt(Alfie_Angle.getText()));
+		}
+		if (key.getKeyChar() == '.') {
+			alfie.sendSpin(Integer.parseInt(Alfie_Angle.getText()));
+			
 		}
 
 	}
