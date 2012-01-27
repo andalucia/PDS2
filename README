@@ -1,2 +1,24 @@
-Do not commit binaries (.class, .nxj, .nxd).
+Welcome to the software repository of team Pretzel.
 
+Contents
+1. Installation instructions
+
+
+
+1. Installation instructions
+- have git and eclipse on a linux machine
+- open a terminal
+- go to your least favourite folder
+- execute
+git clone git@github.com:andalucia/PDS2.git
+- open eclipse
+- select your favourite workspace
+- do
+   = File -> Import... -> Existing Projects into Workspace
+   = Select your least favourite folder/PDS2
+   = Finish
+- do
+   = File -> Import... -> Run/Debug -> Launch Configurations
+   = Select the candy folder
+   = Tick ALLL of them
+- you should be able to run any java file with a main method
