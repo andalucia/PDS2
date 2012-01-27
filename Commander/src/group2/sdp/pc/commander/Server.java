@@ -11,17 +11,6 @@ import lejos.pc.comm.NXTConnector;
 
 /**
  * Connects to the robot and can send commands to it.
- * Op codes:
- *
- * CHANGE IN CandyPacket.java ON UPDATE]
- * 
- * 0 - Stop moving
- * 1 - Start moving forward
- * 2 - Start moving backwards
- * 3 - Become aggressive and KICK!
- * 4 - Spinning around...
- * 126 - Reset candy packet exchange
- * 127 - Go to sleep
  */
 public class Server {
 		
