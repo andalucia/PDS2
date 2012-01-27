@@ -3,6 +3,8 @@ package group2.sdp.robot.commandreciever;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.SensorPort;
+import lejos.nxt.TouchSensor;
 import lejos.robotics.navigation.DifferentialPilot;
 
 /**

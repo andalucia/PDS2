@@ -1,20 +1,17 @@
 package group2.sdp.pc.commander;
 
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-
-import javax.swing.JTextPane;
-import javax.swing.JEditorPane;
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTextPane;
 
-public class CommanderGUIKeyBoard implements KeyListener {
+public class CommanderControlStation implements KeyListener {
 
 	private JFrame frmAlfieCommandCentre;
 	private JTextPane txtLog;
@@ -33,6 +30,7 @@ public class CommanderGUIKeyBoard implements KeyListener {
 	private static final int CONNECTION_ATTEMPTS = 5;
 	private static final int RETRY_TIMEOUT = 3000;
 
+	@SuppressWarnings("unused")
 	private int key_pressed = 0;
 
 	/**
@@ -42,7 +40,7 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					CommanderGUIKeyBoard window = new CommanderGUIKeyBoard();
+					CommanderControlStation window = new CommanderControlStation();
 					window.frmAlfieCommandCentre.setVisible(true);
 
 				} catch (Exception e) {
@@ -55,7 +53,7 @@ public class CommanderGUIKeyBoard implements KeyListener {
 	/**
 	 * Create the application.
 	 */
-	public CommanderGUIKeyBoard() {
+	public CommanderControlStation() {
 		initialize();
 	}
 
@@ -140,15 +138,6 @@ public class CommanderGUIKeyBoard implements KeyListener {
 		init_thread.start();
 	}
 
-	private boolean initAlfie() {
-		try {
-			alfie = new Server();
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
 	Thread init_thread = new Thread() {
 
 		public void run() {
@@ -160,7 +149,7 @@ public class CommanderGUIKeyBoard implements KeyListener {
 				try {
 					alfie = new Server();
 					log("Connected to Alfie");
-					this.stop();
+					break;
 				} catch (Exception e) {
 					log("Failed to connect... Retrying in "
 							+ (RETRY_TIMEOUT / 5) + " seconds");
@@ -252,10 +241,10 @@ public class CommanderGUIKeyBoard implements KeyListener {
 					+ "");
 		}
 		if (key.getKeyChar() == ',') {
-			alfie.sendSpin(-Integer.parseInt(Alfie_Angle.getText()));
+			alfie.sendSpin(0, -Integer.parseInt(Alfie_Angle.getText()));
 		}
 		if (key.getKeyChar() == '.') {
-			alfie.sendSpin(Integer.parseInt(Alfie_Angle.getText()));
+			alfie.sendSpin(0, Integer.parseInt(Alfie_Angle.getText()));
 			
 		}
 
