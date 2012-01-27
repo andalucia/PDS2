@@ -14,12 +14,6 @@ import au.edu.jcu.v4l4j.VideoFrame;
 import au.edu.jcu.v4l4j.exceptions.StateException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
-/**
- * This class demonstrates how to perform a simple push-mode capture.
- * It starts the capture and display the video stream in a JLabel
- * @author gilles
- *
- */
 public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 	private static int      width = 640, height = 480, std = V4L4JConstants.STANDARD_WEBCAM, channel = 0;
 	private static String   device = "/dev/video0";
@@ -148,17 +142,17 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 
 	 public BufferedImage normalizeFrame(BufferedImage thisFrame) {
 		 // does not normalize at the moment (thresholds for red)
-		 for (int x=0; x < thisFrame.getWidth(); x++)
-		 {          
-			 for (int y = 0; y < thisFrame.getHeight(); y++)
-			 {   
-				 //System.out.println((thisFrame.getRGB(x,y) >> 16) & 0xFF);
-				 if (( (thisFrame.getRGB(x,y) >> 16) & 0xFF) > 210) {
-					 thisFrame.setRGB(x, y, 0xFFFFFF);
-				 } else {
-					 thisFrame.setRGB(x, y, 0x000000); }
-			 }
-		 }
+//		 for (int x=0; x < thisFrame.getWidth(); x++)
+//		 {          
+//			 for (int y = 0; y < thisFrame.getHeight(); y++)
+//			 {   
+//				 //System.out.println((thisFrame.getRGB(x,y) >> 16) & 0xFF);
+//				 if (( (thisFrame.getRGB(x,y) >> 16) & 0xFF) > 210) {
+//					 thisFrame.setRGB(x, y, 0xFFFFFF);
+//				 } else {
+//					 thisFrame.setRGB(x, y, 0x000000); }
+//			 }
+//		 }
 		 return thisFrame;
 
 	 }
