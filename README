@@ -51,7 +51,7 @@ git add mynewfile.java
    =    think of a comment explaining what you did
    =    do
 git commit -m "an intelligent and explanatory comment"
-git push
+git push origin mycoolnewfeature
    = reiterate
    = do
 git checkout master
@@ -61,6 +61,6 @@ git merge mycoolnewfeature
    = look at cool pictrues by doing
 gitk
    = clean up after yourself by doing
-git branch -d :mycoolnewfeature
+git branch -d mycoolnewfeature
 git push origin :mycoolnewfeature
    = eat
