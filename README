@@ -24,6 +24,7 @@ git clone git@github.com:andalucia/PDS2.git
    = Select the candy folder
    = Tick ALLL of them
 - you should be able to run any java file with a main method
+- IMPORTANT: You must have leJOS plugin installed and NXJ_HOME variable set, see: http://lejos.sourceforge.net/nxt/nxj/tutorial/Preliminaries/UsingEclipse.htm#7
 
 
 
@@ -40,7 +41,7 @@ git push origin mycoolnewfeature
    = while unsatisfied:
    =    think how to implement the cool feature
    =    do
-git pull [someone might have been working on your branch while you were thinking!]
+git pull origin mycoolnewfeature [someone might have been working on your branch while you were thinking!]
    =    modify some .java files to implement the cool feature
    =    [if you create a new file there is an EXTRA STEP later - FUN!]
    =    compile 
