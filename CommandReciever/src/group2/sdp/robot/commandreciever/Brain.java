@@ -241,6 +241,8 @@ public class Brain {
 		if (!kicking) {
 			kicking = true;
 			power = SanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
+			if (power == 0)
+				power = MAX_KICK_POWER;
 			KICKER.setSpeed(power);
 			Kick_thread.start();
 			
