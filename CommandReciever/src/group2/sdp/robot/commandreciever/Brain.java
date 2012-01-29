@@ -181,6 +181,10 @@ public class Brain {
 	
 	/**
 	 * Makes Alfie spin around his centre at the given angle and with the given speed.
+	 * If the angle is negative, he spins clock wise and otherwise he spins 
+	 * counter-clock wise. If the angle is 0 and the speed is negative he spins forever
+	 * in the clock wise direction and is the angle is 0 and the speed is positive
+	 * he spins forever in the counter-clock wise direction. 
 	 * FIXME: the speed argument does not seem to affect the actual speed of the robot.
 	 */
 	public static void spin(int speed, int angle) {
@@ -198,7 +202,7 @@ public class Brain {
 				RIGHT_WHEEL.backward();
 			}
 		} else {
-			pilot.rotate(angle);
+			pilot.rotate(-angle);
 		}
 		
 		if (verbose) {
@@ -209,40 +213,6 @@ public class Brain {
 		
 		Sensor_Switch = true;
 	}
-
-//	public static void spinToLeft(int speed) {
-//		assert (initialized);
-//		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-//
-//		pilot.setTravelSpeed(speed);
-//		LEFT_WHEEL.forward();
-//		RIGHT_WHEEL.backward();
-//
-//		if (verbose) {
-//			LCD.clear();
-//			LCD.drawString(SPN, 0, 0);
-//			LCD.refresh();
-//		}
-//		
-//		Sensor_Switch = true;
-//	}
-//	
-//	public static void spinToRight(int speed) {
-//		assert (initialized);
-//		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-//
-//		pilot.setTravelSpeed(speed);
-//		RIGHT_WHEEL.forward();
-//		LEFT_WHEEL.backward();
-//
-//		if (verbose) {
-//			LCD.clear();
-//			LCD.drawString(SPN, 0, 0);
-//			LCD.refresh();
-//		}
-//		
-//		Sensor_Switch = true;
-//	}
 
 	/**
 	 * Make Alfie stop moving.

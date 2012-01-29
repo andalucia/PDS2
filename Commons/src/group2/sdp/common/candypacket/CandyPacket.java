@@ -15,10 +15,10 @@ public class CandyPacket {
 	public static final byte GO_BACKWARDS_CANDY = 2;
 	// The brand of candy that makes Alfie become aggressive and kick.	
 	public static final byte KICK_CANDY = 3;
-	// The brand of candy that makes Alfie start spinning around.
-	public static final byte SPIN_CANDY = 4;
-	public static final byte SPIN_TO_LEFT_CANDY = 5;
-	public static final byte SPIN_TO_RIGHT_CANDY = 6;
+	// The brand of candy that makes Alfie start spinning around CCW.
+	public static final byte SPIN_LEFT_CANDY = 4;
+	// The brand of candy that makes Alfie start spinning around CW.
+	public static final byte SPIN_RIGHT_CANDY = 5;
 	// The brand of candy that makes Alfie reset the candy exchange.
 	public static final byte RESET_CANDY = 126;
 	// The brand of candy that makes Alfie go to bed.

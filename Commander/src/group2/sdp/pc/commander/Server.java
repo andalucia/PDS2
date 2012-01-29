@@ -77,17 +77,18 @@ public class Server {
 	/**
 	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.
+	 * @param distance 
 	 */
-	public void sendGoForward(int speed) {
-		sendCandyPacket(new CandyPacket(CandyPacket.GO_FORWARD_CANDY, speed), true);
+	public void sendGoForward(int speed, int distance) {
+		sendCandyPacket(new CandyPacket(CandyPacket.GO_FORWARD_CANDY, speed, distance), true);
 	}
 	
 	/**
 	 * Tells Alfie to start moving backwards. 
 	 * @param speed The speed for the command.
 	 */
-	public void sendGoBackwards(int speed) {
-		sendCandyPacket(new CandyPacket(CandyPacket.GO_BACKWARDS_CANDY, speed), true);
+	public void sendGoBackwards(int speed, int distance) {
+		sendCandyPacket(new CandyPacket(CandyPacket.GO_BACKWARDS_CANDY, speed, distance), true);
 	}
 	
 	/**
@@ -99,21 +100,21 @@ public class Server {
 	}
 	
 	/**
-	 * Tells Alfie to spin on the spot.
+	 * Tells Alfie to spin on the spot counter-clock wise.
 	 * @param speed The speed for the spin.
 	 * @param angle The angle for the spin.
 	 */
-
-	public void sendSpin(int speed, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_CANDY, angle), true);
+	public void sendSpinLeft(int speed, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_LEFT_CANDY, speed, angle), true);
 	}
 	
-	public void sendSpinToLeft(int speed) {
-		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_TO_LEFT_CANDY, speed), true);
-	}
-	
-	public void sendSpinToRight(int speed) {
-		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_TO_RIGHT_CANDY, speed), true);
+	/**
+	 * Tells Alfie to spin on the spot clock wise.
+	 * @param speed The speed for the spin.
+	 * @param angle The angle for the spin.
+	 */
+	public void sendSpinRight(int speed, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_RIGHT_CANDY, speed, angle), true);
 	}
 	
 	/**

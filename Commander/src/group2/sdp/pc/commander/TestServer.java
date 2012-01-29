@@ -5,12 +5,12 @@ public class TestServer {
 		Server s;
 		try {
 			s = new Server();
-			s.sendGoForward(10);
+			s.sendGoForward(10, 0);
 			
 			
 			Thread.sleep(1000);
 
-			s.sendSpin(10, 10);
+			s.sendSpinLeft(10, 10);
 			
 			Thread.sleep(1000);
 			

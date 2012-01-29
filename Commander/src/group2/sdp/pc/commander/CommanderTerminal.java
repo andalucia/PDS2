@@ -118,7 +118,7 @@ public class CommanderTerminal {
 		btnGoForward.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent argo) {
 				if(connected == true) {
-					alfieServer.sendGoForward(25);
+					alfieServer.sendGoForward(25, 0);
 					log("Sending Go Forward code");
 				} else {
 					log("Unable to send Go Forward code: Alfie not connected");
