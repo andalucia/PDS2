@@ -51,12 +51,12 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 	private static final int[] firebrick = new int[] {178, 34, 34};
 
 	// THRESHOLDS - CHANGE THEM!!!
-	private static final int redThreshForYellow = 15;
-	private static final int greenThreshForYellow = 25;
+	private static final int redThreshForYellow = 140;
+	private static final int greenThreshForYellow = 140;
 	private static final int blueThreshForYellow = 0; //not actually used but could be needed at some point
-	private static final int redThreshForBlue = 25;
-	private static final int greenThreshForBlue = 5;
-	private static final int blueThreshForBlue = 120;
+	private static final int redThreshForBlue = 120;
+	private static final int greenThreshForBlue = 120;
+	private static final int blueThreshForBlue = 150;
 	private static final int redThreshForBlack = 2;
 	private static final int greenThreshForBlack = 2;
 	private static final int blueThreshForBlack = 2;
@@ -195,6 +195,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 		// draw the new frame onto the JLabel
 		BufferedImage ball_cross_drawn = null;
 		ball_cross_drawn = findBallPosition(frame.getBufferedImage());
+		ball_cross_drawn = detectRobots(ball_cross_drawn);
 		label.getGraphics().drawImage(ball_cross_drawn, 0, 0, width, height, null);
 
 		// recycle the frame
@@ -305,6 +306,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 				Point currentPoint = new Point(x,y);
 
 				if (isSthYellow(colour))	{
+					System.out.println("Found a yellow pixel!");
 					drawPixel(raster, currentPoint, pureYellow);
 					howManyYellows++;
 					yellowCentroid.x += currentPoint.x;
@@ -340,16 +342,15 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 					actualCentroidPosBlack.y = blackCentroid.y / howManyBlacks;}
 			}
 		}
+		drawCross(raster,actualCentroidPosYellow,pureYellow);
 
 		double distanceBetweenCentroidsYandK = calcDistanceBetweenPoints(actualCentroidPosYellow,actualCentroidPosBlack);
 		double distanceBetweenCentroidsBandK = calcDistanceBetweenPoints(actualCentroidPosBlue,actualCentroidPosBlack);
 
 		if (distanceBetweenCentroidsYandK < 5000) drawLine(raster, actualCentroidPosYellow, actualCentroidPosBlack, firebrick);
 		else if (distanceBetweenCentroidsBandK < 5000) drawLine(raster, actualCentroidPosBlue, actualCentroidPosBlack, firebrick);
-
-		Point somePoint = new Point(100,100);
-		Point otherPoint = new Point(200,200);
-		drawLine(raster, somePoint, otherPoint, firebrick);
+//		drawCross(raster,actualCentroidPosBlue,pureBlue);
+		//System.out.println(actualCentroidPosYellow);
 
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
