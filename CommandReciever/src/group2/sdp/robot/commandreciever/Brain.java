@@ -119,6 +119,8 @@ public class Brain {
 		LCD.drawString("MAX SPEED", 0, 3);
 		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 		LCD.refresh();
+		
+		Sensor_Switch = true;
 	}
 	
 
@@ -143,7 +145,6 @@ public class Brain {
 		LCD.refresh();
 		
 		Sensor_Switch = false;
-
 	}
 	
 	/**
@@ -161,6 +162,8 @@ public class Brain {
 		LCD.clear();
 		LCD.drawString(SPN, 0, 0);
 		LCD.refresh();
+		
+		Sensor_Switch = true;
 	}
 
 	/**

@@ -10,7 +10,9 @@ import lejos.util.TextMenu;
 public class Milestone1 {
 	
 	// The time to wait before executing a command.
-	private static final int TIMEOUT_BEFORE_EXECUTION = 1800;  
+	private static final int TIMEOUT_BEFORE_EXECUTION = 1800;
+	// Defines the speed by which the robot will cross the pitch. 
+	private static final int CRUISE_SPEED = 35;
     private static final String [] menuItems = {"Cross Pitch", "Kick"};
 	
 	public static void main (String [] args) {
@@ -34,7 +36,7 @@ public class Milestone1 {
         	}
         }
 	}
-
+	
 	/**
 	 * Waits for {@link #TIMEOUT_BEFORE_EXECUTION} ms and performs a kick 
 	 * as required for milestone 1.
@@ -55,7 +57,23 @@ public class Milestone1 {
 		Brain.kick(0);
 	}
 
+	/**
+	 * Waits for {@link #TIMEOUT_BEFORE_EXECUTION} ms and crosses the pitch 
+	 * as required for milestone 1.
+	 */
 	private static void crossPitch() {
+		try {
+			LCD.clear();
+			LCD.drawString("Waiting for " + TIMEOUT_BEFORE_EXECUTION + "ms", 0, 0);
+			LCD.refresh();
+			Thread.sleep(TIMEOUT_BEFORE_EXECUTION);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		LCD.clear();
+		LCD.drawString("Crossing the pitch...", 0, 0);
+		LCD.refresh();
 		
+		Brain.goForward(CRUISE_SPEED);
 	}
 }
