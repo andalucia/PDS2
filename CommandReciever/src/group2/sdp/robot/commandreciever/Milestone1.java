@@ -18,11 +18,13 @@ public class Milestone1 {
 	public static void main (String [] args) {
 		// Initiate BRAIN!
         Brain.init();
+        Brain.setVerbose(false);
         
         TextMenu menu = new TextMenu(menuItems);
         
         boolean exit = false;
         while (!exit) {
+        	LCD.clear();
         	int selection = menu.select();
         	switch (selection) {
         	case 0:

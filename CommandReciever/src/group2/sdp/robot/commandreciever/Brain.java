@@ -69,8 +69,13 @@ public class Brain {
 	
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
+	
 	private static boolean initialized = false;
+	
 	private static DifferentialPilot pilot;
+	
+	// Indicates whether messages should be output to the LCD or not.
+	private static boolean verbose = true;
 	
 	// sensor flag
 	private static boolean Sensor_Switch = false;
@@ -112,13 +117,15 @@ public class Brain {
 		pilot.setTravelSpeed(speed);
 		pilot.forward();
 		
-		LCD.clear();
-		LCD.drawString(FWD1, 0, 0);
-		LCD.drawString(FWD2, 0, 1);
-		LCD.drawInt(speed, 1, 2);
-		LCD.drawString("MAX SPEED", 0, 3);
-		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
-		LCD.refresh();
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(FWD1, 0, 0);
+			LCD.drawString(FWD2, 0, 1);
+			LCD.drawInt(speed, 1, 2);
+			LCD.drawString("MAX SPEED", 0, 3);
+			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+			LCD.refresh();
+		}
 		
 		Sensor_Switch = true;
 	}
@@ -136,13 +143,15 @@ public class Brain {
 		pilot.setTravelSpeed(speed);
 		pilot.backward();
 		
-		LCD.clear();
-		LCD.drawString(BWD1, 0, 0);
-		LCD.drawString(BWD2, 0, 1);
-		LCD.drawInt(speed, 1, 2);
-		LCD.drawString("MAX SPEED", 0, 3);
-		LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
-		LCD.refresh();
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(BWD1, 0, 0);
+			LCD.drawString(BWD2, 0, 1);
+			LCD.drawInt(speed, 1, 2);
+			LCD.drawString("MAX SPEED", 0, 3);
+			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+			LCD.refresh();
+		}
 		
 		Sensor_Switch = false;
 	}
@@ -159,9 +168,11 @@ public class Brain {
 		pilot.setTravelSpeed(speed);
 		pilot.rotate(angle);
 		
-		LCD.clear();
-		LCD.drawString(SPN, 0, 0);
-		LCD.refresh();
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(SPN, 0, 0);
+			LCD.refresh();
+		}
 		
 		Sensor_Switch = true;
 	}
@@ -178,9 +189,12 @@ public class Brain {
 		LEFT_WHEEL.forward();
 		RIGHT_WHEEL.backward();
 
-		LCD.clear();
-		LCD.drawString(SPN, 0, 0);
-		LCD.refresh();	
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(SPN, 0, 0);
+			LCD.refresh();
+		}
+		
 		Sensor_Switch = true;
 	}
 	
@@ -192,9 +206,12 @@ public class Brain {
 		RIGHT_WHEEL.forward();
 		LEFT_WHEEL.backward();
 
-		LCD.clear();
-		LCD.drawString(SPN, 0, 0);
-		LCD.refresh();
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(SPN, 0, 0);
+			LCD.refresh();
+		}
+		
 		Sensor_Switch = true;
 	}
 
@@ -206,9 +223,11 @@ public class Brain {
 		
 		pilot.stop();
 		
-		LCD.clear();
-		LCD.drawString(STP, 0, 0);
-		LCD.refresh();
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(STP, 0, 0);
+			LCD.refresh();
+		}
 		
 		Sensor_Switch = false;
 	}
@@ -248,12 +267,14 @@ public class Brain {
 				power = MAX_KICK_POWER;
 			KICKER.setSpeed(power);
 			Kick_thread.start();
-			
-			LCD.clear();
-			LCD.drawString(KCK1, 0, 0);
-			LCD.drawString(KCK2, 0, 1);
-			LCD.drawInt(power, 1, 2);
-			LCD.refresh();
+
+			if (verbose) {
+				LCD.clear();
+				LCD.drawString(KCK1, 0, 0);
+				LCD.drawString(KCK2, 0, 1);
+				LCD.drawInt(power, 1, 2);
+				LCD.refresh();
+			}
 		}	
 	}
 
@@ -270,5 +291,12 @@ public class Brain {
 		if (value < min)
 			value = min;
 		return value;
+	}
+	
+	/**
+	 * Sets whether the brain should output messages to the screen or not.
+	 */
+	public static void setVerbose(boolean value) {
+		verbose = value;
 	}
 }
