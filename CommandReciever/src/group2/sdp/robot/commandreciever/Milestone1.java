@@ -13,7 +13,7 @@ public class Milestone1 {
 	private static final int TIMEOUT_BEFORE_EXECUTION = 1800;
 	// Defines the speed by which the robot will cross the pitch. 
 	private static final int CRUISE_SPEED = 35;
-    private static final String [] menuItems = {"Cross Pitch", "Kick"};
+    private static final String [] menuItems = {"Cross Pitch", "Travel 2m", "Kick", "Exit"};
 	
 	public static void main (String [] args) {
 		// Initiate BRAIN!
@@ -22,8 +22,7 @@ public class Milestone1 {
         
         TextMenu menu = new TextMenu(menuItems);
         
-        boolean exit = false;
-        while (!exit) {
+        for (;;) {
         	LCD.clear();
         	int selection = menu.select();
         	switch (selection) {
@@ -31,10 +30,16 @@ public class Milestone1 {
         		crossPitch();
         		break;
         	case 1:
+        		travel2m();
+        		break;
+        	case 2:
         		kick();
         		break;
     		default:
-    			exit = true;
+    			LCD.clear();
+				LCD.drawString("Finished",3,4);
+				LCD.refresh();
+    			return;
         	}
         }
 	}
@@ -59,6 +64,25 @@ public class Milestone1 {
 		Brain.kick(0);
 	}
 
+	/**
+	 * Waits for {@link #TIMEOUT_BEFORE_EXECUTION} ms and travels 2 meters.
+	 */
+	private static void travel2m() {
+		try {
+			LCD.clear();
+			LCD.drawString("Waiting for " + TIMEOUT_BEFORE_EXECUTION + "ms", 0, 0);
+			LCD.refresh();
+			Thread.sleep(TIMEOUT_BEFORE_EXECUTION);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		LCD.clear();  
+		LCD.drawString("Travelling 2m", 0, 0);
+		LCD.refresh();
+		
+		Brain.goForward(CRUISE_SPEED, 200);
+	}
+	
 	/**
 	 * Waits for {@link #TIMEOUT_BEFORE_EXECUTION} ms and crosses the pitch 
 	 * as required for milestone 1.
