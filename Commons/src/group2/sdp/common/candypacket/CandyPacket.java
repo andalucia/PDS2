@@ -31,6 +31,8 @@ public class CandyPacket {
 	// The number of sweets intended for consumption. Alfie spits the other back, which
 	// modifies them into feedback.
 	private static final int CONSUMPTION_SIZE = 4 + 4 * PRETZEL_COUNT;
+	// The number of sweets that can be used as feedback.
+	private static final int FEEDBACK_SWEETS_COUNT = PACKET_SIZE - CONSUMPTION_SIZE;
 	// The collection of sweets.
 	private byte [] sweets;
 	
@@ -161,6 +163,26 @@ public class CandyPacket {
 	public int getPretzel(int index) {
 		assert(index >= 0 && index < PRETZEL_COUNT);
 		return sweets4ToPretzel(sweets, 4 * (1 + index));
+	}
+	
+	/**
+	 * Sets the specified feedback sweet to the specified value.
+	 * @param index The index of the feedback sweet to set.
+	 * @param value The new value of the sweet.
+	 */
+	public void setFeedbackSweet(int index, byte value) {
+		assert(index >= 0 && index < FEEDBACK_SWEETS_COUNT);
+		sweets[CONSUMPTION_SIZE + index] = value;
+	}
+	
+	/**
+	 * Gets the specified feedback sweet.
+	 * @param index The index of the feedback sweet to get.
+	 * @return The value of the specified sweet.
+	 */
+	public byte getFeedbackSweet(int index) {
+		assert(index >= 0 && index < FEEDBACK_SWEETS_COUNT);
+		return sweets[CONSUMPTION_SIZE + index];
 	}
 	
 	/**

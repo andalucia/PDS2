@@ -166,7 +166,9 @@ public class Server {
 				if (!packet.contentsEqual(b)) {
 					success = false;
 					System.out.println("WARNING: command is not the same; RESENDING...");
+					continue;
 				}
+				new CandyPacket(b).printSweets();
 			} catch (IOException ioe) {
 				System.out.println("IO Exception reading bytes:");
 				System.out.println(ioe.getMessage());

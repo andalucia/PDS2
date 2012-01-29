@@ -152,6 +152,7 @@ public class Client {
 	 * @param candy The CandyPacket that was given to Alfie.
 	 */
 	private static void droolOnCandy(CandyPacket candy) {
-		// TODO: implement
+		candy.setFeedbackSweet(0, Brain.getLeftTouchFlagAndReset() ? (byte)1 : 0);
+		candy.setFeedbackSweet(1, Brain.getRightTouchFlagAndReset() ? (byte) 1 : 0);
 	}
 }

@@ -87,22 +87,15 @@ public class Brain {
 	// Indicates whether messages should be output to the LCD or not.
 	private static boolean verbose = true;
 	
-	// sensor flag
-	private static boolean Sensor_Switch = false;
-
+	// If set to true, Alfie will stop when one of his touch sensors fires.
+	private static boolean stopOnTouch = false;
+	// These flags are true during the period after the corresponding touch 
+	// sensor was fired and before a command was issued to Alfie. When Alfie 
+	// drools on a candy packet, he returns these flags and sets them to false.
+	private static boolean leftTouchFired = false;
+	private static boolean rightTouchFired = false;
 	// Create a Thread to detect whether touch sensors have been touched
-	private static Thread StopByTouch = new Thread() {
-
-		public void run() {
-			while (true) {				
-					if ((LEFT_TOUCH_SENSOR.isPressed() || RIGHT_TOUCH_SENSOR
-							.isPressed()) && Sensor_Switch) {
-						stop();
-				}
-			}
-		}
-
-	};
+	private static Thread touchSensorsThread;
 
 	/**
 	 * All methods in this class are static so there is no constructor.
@@ -110,9 +103,36 @@ public class Brain {
 	 */
 	public static void init () {
 		pilot = new DifferentialPilot(WHEEL_DIAMETER, TRACK_WIDTH, LEFT_WHEEL, RIGHT_WHEEL);
+		initTouchThread();		
 		initialized = true;
+	}
+	
+	/**
+	 * Initializes the thread that is watching the touch sensors.
+	 */
+	private static void initTouchThread() {
+		touchSensorsThread = new Thread() {
+			
+			public void run() {
+				while (true) {			
+					if (LEFT_TOUCH_SENSOR.isPressed() || 
+						RIGHT_TOUCH_SENSOR.isPressed()) {
+						if (stopOnTouch) {
+							stop();
+						}
+						if (LEFT_TOUCH_SENSOR.isPressed()) {
+							leftTouchFired = true;
+						}
+						if (RIGHT_TOUCH_SENSOR.isPressed()) {
+							rightTouchFired = true;
+						}
+					}
+				}
+			}
+
+		};
 		//start the touch sensor thread
-		StopByTouch.start();
+		touchSensorsThread.start();
 	}
 	
 	/**
@@ -144,10 +164,9 @@ public class Brain {
 			LCD.refresh();
 		}
 		
-		Sensor_Switch = true;
+		stopOnTouch = true;
 	}
 	
-
 	/**
 	 * Make Alfie go backwards.
 	 * 
@@ -176,7 +195,7 @@ public class Brain {
 			LCD.refresh();
 		}
 		
-		Sensor_Switch = false;
+		stopOnTouch = false;
 	}
 	
 	/**
@@ -211,7 +230,7 @@ public class Brain {
 			LCD.refresh();
 		}
 		
-		Sensor_Switch = true;
+		stopOnTouch = true;
 	}
 
 	/**
@@ -228,7 +247,7 @@ public class Brain {
 			LCD.refresh();
 		}
 		
-		Sensor_Switch = false;
+		stopOnTouch = false;
 	}
 	
 	/**
@@ -297,5 +316,25 @@ public class Brain {
 	 */
 	public static void setVerbose(boolean value) {
 		verbose = value;
+	}
+	
+	/**
+	 * Returns the left touch flag and resets it to false. 
+	 * @return The left touch flag.
+	 */
+	public static boolean getLeftTouchFlagAndReset() {
+		boolean result = leftTouchFired;
+		leftTouchFired = false;
+		return result;
+	}
+	
+	/**
+	 * Returns the right touch flag and resets it to false. 
+	 * @return The right touch flag.
+	 */
+	public static boolean getRightTouchFlagAndReset() {
+		boolean result = rightTouchFired;
+		rightTouchFired = false;
+		return result;
 	}
 }
