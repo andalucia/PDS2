@@ -121,19 +121,19 @@ public class Client {
 			Brain.stop();
 			break;
 		case CandyPacket.GO_FORWARD_CANDY:
-			Brain.goForward(candy.getPretzel(0));
+			Brain.goForward(candy.getPretzel(0), candy.getPretzel(1));
 			break;
 		case CandyPacket.GO_BACKWARDS_CANDY:
-			Brain.goBackwards(candy.getPretzel(0));
+			Brain.goBackwards(candy.getPretzel(0), candy.getPretzel(1));
 			break;
 		case CandyPacket.SPIN_CANDY:
 			Brain.spin(candy.getPretzel(0), candy.getPretzel(1));
     		break;
 		case CandyPacket.SPIN_TO_LEFT_CANDY:
-			Brain.spinToLeft(candy.getPretzel(0));
+			Brain.spin(candy.getPretzel(0), 0);
 			break;
 		case CandyPacket.SPIN_TO_RIGHT_CANDY:
-			Brain.spinToRight(candy.getPretzel(0));
+			Brain.spin(-candy.getPretzel(0), 0);
 			break;
 		case CandyPacket.KICK_CANDY:     
 			Brain.kick(candy.getPretzel(0));

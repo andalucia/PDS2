@@ -76,6 +76,6 @@ public class Milestone1 {
 		LCD.drawString("Crossing the pitch...", 0, 0);
 		LCD.refresh();
 		
-		Brain.goForward(CRUISE_SPEED);
+		Brain.goForward(CRUISE_SPEED, 0);
 	}
 }

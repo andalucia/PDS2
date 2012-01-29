@@ -22,6 +22,16 @@ public class Brain {
 	// The maximum speed that could ever be received.
 	private static final int MAX_SPEED = 1024;
 	
+	// The minimum turn speed that could ever be received.
+	private static final int MIN_TURN_SPEED = -1024;
+	// The maximum turn speed that could ever be received.
+	private static final int MAX_TURN_SPEED = 1024;
+	
+	// The minimum speed that could ever be received.
+	private static final int MIN_DISTANCE = 0;
+	// The maximum speed that could ever be received.
+	private static final int MAX_DISTANCE = 300;
+	
 	// The minimum speed that could ever be received.
 	private static final int MIN_KICK_POWER = 0;
 	// The maximum speed that could ever be received.
@@ -109,13 +119,20 @@ public class Brain {
 	 * Make Alfie go forward.
 	 * 
 	 * @param speed The speed in cm/s
+	 * @param distance The distance that Alfie should cover. If 0, Alfie 
+	 * goes until he hits a wall.
 	 */
-	public static void goForward(int speed) {
+	public static void goForward(int speed, int distance) {
 		assert(initialized);
 		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+		distance = SanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 		
 		pilot.setTravelSpeed(speed);
-		pilot.forward();
+		if (distance == 0) {
+			pilot.forward();
+		} else {
+			pilot.travel(distance);
+		}
 		
 		if (verbose) {
 			LCD.clear();
@@ -135,13 +152,19 @@ public class Brain {
 	 * Make Alfie go backwards.
 	 * 
 	 * @param speed The speed in cm/s
+	 * @param distance The distance that Alfie should cover. If 0, Alfie 
+	 * goes until he hits a wall.
 	 */
-	public static void goBackwards(int speed) {
+	public static void goBackwards(int speed, int distance) {
 		assert(initialized);
 		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		
 		pilot.setTravelSpeed(speed);
-		pilot.backward();
+		if (distance == 0) {
+			pilot.backward();			
+		} else {
+			pilot.travel(-distance);
+		}
 		
 		if (verbose) {
 			LCD.clear();
@@ -162,11 +185,21 @@ public class Brain {
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
-		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+		speed = SanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		angle = SanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		
 		pilot.setTravelSpeed(speed);
-		pilot.rotate(angle);
+		if (angle == 0) {
+			if (speed < 0) {
+				LEFT_WHEEL.backward();
+				RIGHT_WHEEL.forward();
+			} else {
+				LEFT_WHEEL.forward();
+				RIGHT_WHEEL.backward();
+			}
+		} else {
+			pilot.rotate(angle);
+		}
 		
 		if (verbose) {
 			LCD.clear();
@@ -177,43 +210,39 @@ public class Brain {
 		Sensor_Switch = true;
 	}
 
-	/**
-	 * spin for control 
-	 */
-	
-	public static void spinToLeft(int speed) {
-		assert (initialized);
-		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-
-		pilot.setTravelSpeed(speed);
-		LEFT_WHEEL.forward();
-		RIGHT_WHEEL.backward();
-
-		if (verbose) {
-			LCD.clear();
-			LCD.drawString(SPN, 0, 0);
-			LCD.refresh();
-		}
-		
-		Sensor_Switch = true;
-	}
-	
-	public static void spinToRight(int speed) {
-		assert (initialized);
-		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-
-		pilot.setTravelSpeed(speed);
-		RIGHT_WHEEL.forward();
-		LEFT_WHEEL.backward();
-
-		if (verbose) {
-			LCD.clear();
-			LCD.drawString(SPN, 0, 0);
-			LCD.refresh();
-		}
-		
-		Sensor_Switch = true;
-	}
+//	public static void spinToLeft(int speed) {
+//		assert (initialized);
+//		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+//
+//		pilot.setTravelSpeed(speed);
+//		LEFT_WHEEL.forward();
+//		RIGHT_WHEEL.backward();
+//
+//		if (verbose) {
+//			LCD.clear();
+//			LCD.drawString(SPN, 0, 0);
+//			LCD.refresh();
+//		}
+//		
+//		Sensor_Switch = true;
+//	}
+//	
+//	public static void spinToRight(int speed) {
+//		assert (initialized);
+//		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+//
+//		pilot.setTravelSpeed(speed);
+//		RIGHT_WHEEL.forward();
+//		LEFT_WHEEL.backward();
+//
+//		if (verbose) {
+//			LCD.clear();
+//			LCD.drawString(SPN, 0, 0);
+//			LCD.refresh();
+//		}
+//		
+//		Sensor_Switch = true;
+//	}
 
 	/**
 	 * Make Alfie stop moving.
