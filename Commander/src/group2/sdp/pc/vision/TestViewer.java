@@ -520,8 +520,8 @@ public class TestViewer extends WindowAdapter implements
 	 *            - colour as three integers
 	 */
 	public void drawLine(WritableRaster raster, Point p1, Point p2, int[] colour) {
-		int dx = Math.abs(p2.x - p1.x);
-		int dy = Math.abs(p2.y - p1.y);
+		int dx = (p2.x - p1.x);
+		int dy = (p2.y - p1.y);
 
 		drawPixel(raster, new Point(p1.x, p1.y), colour);
 
@@ -571,4 +571,14 @@ public class TestViewer extends WindowAdapter implements
 			drawPixel(raster, new Point(p1.x, i), colour);
 		}
 	}
+	
+	private ArrayList<Point> performClustering(ArrayList<Point> pixels, int distance) {
+		
+		while (calcDistanceBetweenPoints(pixels.get(0), pixels.get(pixels.size())) > distance) {
+			//Point centroid = 
+		}
+		
+		return pixels;
+	}
+	
 }
