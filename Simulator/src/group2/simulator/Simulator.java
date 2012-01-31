@@ -1,9 +1,13 @@
 package group2.simulator;
 
+import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -11,6 +15,8 @@ import java.awt.image.BufferStrategy;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
 import net.phys2d.raw.StaticBody;
@@ -22,7 +28,8 @@ import net.phys2d.raw.strategies.QuadSpaceStrategy;
 public class Simulator {
 	
 	/** The frame displaying the simulation */
-	private static Frame frame;	
+	private static Frame frame;
+	
 	
 	public static int boardWidth = 630;
 	public static int boardHeight = 330;
@@ -41,6 +48,8 @@ public class Simulator {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
+	private static int robotMovingSpeed, robotRotationSpeed;
+	private static int robotAngle;
 
 	/** The title of the simulation */
 	private String title;
@@ -57,16 +66,8 @@ public class Simulator {
 	public static int goalPost2y = (boardHeight+goalWidth)/2 + padding + wallThickness/2;
 	
 	public static void main(String args []){
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					prepareSimulator();
-					initializeArea();	
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+			prepareSimulator();
+			initializeArea();				
 	}
 
 	public Simulator(String title, Robot robot, Robot oppRobot, Ball ball) {
@@ -74,6 +75,12 @@ public class Simulator {
 		Simulator.robot = robot;
 		Simulator.oppRobot = oppRobot;
 		Simulator.ball = ball;
+		//robot is not moving yet
+		//We might need to create another initial function to inittialise values later on.
+		robotMovingSpeed = 0;
+		robotAngle = 0;
+		robotRotationSpeed = 0;
+		
 	}
 	
 	/**
@@ -98,15 +105,24 @@ public class Simulator {
 	 */
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
-		initSimulation();  // initialize the simulator
+		setControls();
+		while(running)
+		{
+			initSimulation();  // initialize the simulator
 		
+			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
+			g.setColor(Color.GREEN);
 		
-		Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-		g.setColor(Color.GREEN);
-		
-		g.fillRect(0,0,(boardWidth + 2*padding),(boardHeight + 2*padding));
-		BoardObject.draw(g, world);  // draw the object in the world
-		strategy.show();
+			g.fillRect(0,0,(boardWidth + 2*padding),(boardHeight + 2*padding));
+			BoardObject.draw(g, world);  // draw the object in the world
+			strategy.show();
+			try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                System.out.println("interrupted");
+            }
+
+		}
 	}
 	
 	/**
@@ -115,9 +131,10 @@ public class Simulator {
 	private static void initializeFrame() {
 		
 		frame = new Frame();
+		frame.setLayout(null);  
 		frame.setResizable(false);
 		frame.setIgnoreRepaint(true);
-		frame.setSize((boardWidth + 2*padding), (boardHeight + 2*padding));
+		frame.setSize((boardWidth + 2*padding), (boardHeight + 2*padding)+100);
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -126,10 +143,10 @@ public class Simulator {
 			}
 		});
 		
-		frame.setVisible(true);
 		
+		
+		frame.setVisible(true);
 		frame.createBufferStrategy(2);
-
 		strategy = frame.getBufferStrategy();
 		
 	}
@@ -140,8 +157,8 @@ public class Simulator {
 	private static void initSimulation() {
 		world.clear();
 		world.setGravity(0, 0);
-		
-		robot.setAngle(0);
+		robotAngle += robotRotationSpeed;
+		robot.setAngle(robotAngle);
 		oppRobot.setAngle(180);
 		
 		//ball.stop();
@@ -149,12 +166,14 @@ public class Simulator {
 		int newOppRobotStartX = oppRobotStartX;
 		int newBallStartX = ballStartX;
 		
+		robotStartX += robotMovingSpeed;
 		robot.setPosition(newRobotStartX, robotStartY);
 		oppRobot.setPosition(newOppRobotStartX, robotStartY);
 		ball.setPosition(newBallStartX, ballStartY);
 		
-		System.out.println("Initializing world");
+		
 		init(world);
+		
 		
 		
 	}
@@ -254,6 +273,50 @@ public class Simulator {
 		}
 		return img;
 	}
+	
+	
+	
+	public static void setControls()
+	{
+		frame.addKeyListener(new KeyListener()
+				{
+			public void keyPressed(KeyEvent event) {
+				switch(event.getKeyCode()){
+					case KeyEvent.VK_ESCAPE :
+							System.exit(0);
+							break;
+					case KeyEvent.VK_UP :	
+							robotMovingSpeed = 1;
+							break;
+					case KeyEvent.VK_DOWN :	
+							robotMovingSpeed = -1;
+							break;
+					case KeyEvent.VK_S: 
+							robotMovingSpeed = 0; 
+							robotRotationSpeed = 0;
+							break;
+					case KeyEvent.VK_RIGHT:
+							// for now just stopping the robot and checking if rotation works
+							robotMovingSpeed = 0;
+							robotRotationSpeed = 5;
+							break;
+					case KeyEvent.VK_LEFT:
+							robotMovingSpeed = 0;
+							robotRotationSpeed = -5;
+					
+					
+						
+					
+				}
+				
+			}
+			public void keyReleased(KeyEvent event) {
+				
+			}
+			public void keyTyped(KeyEvent event) {}
+
+				});
+	}	
 
 	
 }

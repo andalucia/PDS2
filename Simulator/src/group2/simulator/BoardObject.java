@@ -25,6 +25,8 @@ public class BoardObject {
 		this.color = color;
 		this.angle = angle;
 	}
+	
+	
 
 	public void setPosition(float x, float y) {
 		body.setPosition(x, y);
@@ -33,6 +35,10 @@ public class BoardObject {
 	public float getX() {
 		return body.getPosition().getX();
 	}
+	
+	
+	
+	
 
 	public float getY() {
 		return body.getPosition().getY();
@@ -58,6 +64,8 @@ public class BoardObject {
 //		System.out.println("convertAngle returned: "+d);
 		return (int) d;
 	}
+	
+	
 	
 	public void setAngle(double d){
 		angle = convertAngle(d);
@@ -98,7 +106,7 @@ public class BoardObject {
 	 */
 	private static void drawBoxBody(Graphics2D g, Body body, Box shape) {
 		Vector2f[] pts = shape.getPoints(body.getPosition(), body.getRotation());
-
+		
 		Vector2f v1 = pts[0];
 		Vector2f v2 = pts[1];
 		Vector2f v3 = pts[2];
