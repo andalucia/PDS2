@@ -346,7 +346,7 @@ public class Milestone1Brain {
 	}
 	
 	public static void backAndRotate() {
-		goBackwards(CRUISE_SPEED, 18);
+		goBackwards(CRUISE_SPEED, 5);
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
