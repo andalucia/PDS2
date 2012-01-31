@@ -1,3 +1,6 @@
+// Code is quite messy for now - im going to refactor and restructruze later on.
+
+
 package group2.simulator;
 
 import java.awt.BorderLayout;
@@ -6,6 +9,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.TextArea;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -115,6 +119,7 @@ public class Simulator {
 		
 			g.fillRect(0,0,(boardWidth + 2*padding),(boardHeight + 2*padding));
 			BoardObject.draw(g, world);  // draw the object in the world
+			displayControls(g);
 			strategy.show();
 			try {
                 Thread.sleep(10);
@@ -135,7 +140,7 @@ public class Simulator {
 		frame.setResizable(false);
 		frame.setIgnoreRepaint(true);
 		frame.setSize((boardWidth + 2*padding), (boardHeight + 2*padding)+100);
-		
+		TextArea textArea = new TextArea("Controls");
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				running = false;
@@ -159,15 +164,21 @@ public class Simulator {
 		world.setGravity(0, 0);
 		robotAngle += robotRotationSpeed;
 		robot.setAngle(robotAngle);
-		oppRobot.setAngle(180);
+		
+		
 		
 		//ball.stop();
-		int newRobotStartX = robotStartX;
+		// Formulas for robot movement to various directions
+		Float newRobotStartX = (robot.getX() + (robotMovingSpeed * (float) Math.cos(Math.toRadians(robotAngle))));
+		Float newRobotStartY = (robot.getY() + (robotMovingSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
 		int newOppRobotStartX = oppRobotStartX;
 		int newBallStartX = ballStartX;
 		
-		robotStartX += robotMovingSpeed;
-		robot.setPosition(newRobotStartX, robotStartY);
+		//robotStartX += robotMovingSpeed;
+		
+		
+		oppRobot.setAngle(180);
+		robot.setPosition(newRobotStartX, newRobotStartY);
 		oppRobot.setPosition(newOppRobotStartX, robotStartY);
 		ball.setPosition(newBallStartX, ballStartY);
 		
@@ -287,9 +298,11 @@ public class Simulator {
 							break;
 					case KeyEvent.VK_UP :	
 							robotMovingSpeed = 1;
+							robotRotationSpeed = 0;
 							break;
 					case KeyEvent.VK_DOWN :	
 							robotMovingSpeed = -1;
+							robotRotationSpeed = 0;
 							break;
 					case KeyEvent.VK_S: 
 							robotMovingSpeed = 0; 
@@ -303,6 +316,9 @@ public class Simulator {
 					case KeyEvent.VK_LEFT:
 							robotMovingSpeed = 0;
 							robotRotationSpeed = -5;
+							break;
+							
+							
 					
 					
 						
@@ -317,6 +333,23 @@ public class Simulator {
 
 				});
 	}	
+	
+	public static void displayControls(Graphics2D g){
+		g.setColor(Color.BLACK);
+		g.drawString("CONTROLS:", 10, boardHeight + 2*padding + 25);
+		g.drawString("Up - moves forward", 10, boardHeight + 2*padding + 50);
+		g.drawString("Up - moves backwards", 10, boardHeight + 2*padding + 70);
+		g.drawString("left or right - rotates robot", 10, boardHeight + 2*padding + 90);
+		
+		g.drawString("S - stops robot", 200, boardHeight + 2*padding + 50);
+		g.drawString("ESC - exits the simulator", 200, boardHeight + 2*padding + 70);
+		
+		
+		g.drawString("INCOMING UPDATES:", 450, boardHeight + 2*padding + 25);
+		g.drawString("Basic boundaries", 450, boardHeight + 2*padding + 50);
+		g.drawString("Code refactoring:", 450, boardHeight + 2*padding + 70);
+		
+	}
 
 	
 }

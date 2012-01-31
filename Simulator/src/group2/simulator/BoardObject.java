@@ -29,7 +29,24 @@ public class BoardObject {
 	
 
 	public void setPosition(float x, float y) {
+		
+		x = checkXPosition(x);
+		y = checkYPosition(y);
 		body.setPosition(x, y);
+	}
+	
+	public float checkXPosition(float x){
+		if (x < 140) return 140;
+			else if (x > 695)
+				return 695;
+		return x;
+	}
+	
+	public float checkYPosition(float y){
+		if (y < 140) return 140;
+		else if (y > 395)
+			return 395;
+	return y;
 	}
 	
 	public float getX() {

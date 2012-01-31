@@ -38,4 +38,13 @@ public class Robot extends BoardObject{
 	public BufferedImage getImage() {
 		return img;
 	}
+	
+	public void move()
+	{
+		int dist = speed * 1;
+		double tempAngle = this.getAngle();
+		float x = (this.getX() + (dist * (float) Math.cos(Math.toRadians(tempAngle))));
+		float y = (this.getY() + (dist * (float) Math.sin(Math.toRadians(tempAngle))));
+		this.body.move(x, y);
+	}
 }
