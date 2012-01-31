@@ -573,9 +573,25 @@ public class TestViewer extends WindowAdapter implements
 	}
 	
 	private ArrayList<Point> performClustering(ArrayList<Point> pixels, int distance) {
-		
+		int centroidx,centroidy = 0;
+		Point centroid = new Point(0,0);
 		while (calcDistanceBetweenPoints(pixels.get(0), pixels.get(pixels.size())) > distance) {
-			//Point centroid = 
+			pixels.trimToSize();
+			centroidx = 0;
+			centroidy = 0;
+			for (Point p : pixels) {
+				centroidx += p.x;
+				centroidy += p.y;
+			}
+			centroid.x = centroidx/pixels.size();
+			centroid.y = centroidy/pixels.size();
+			if (pixels.indexOf(centroid) == -1) {
+				System.out.println("Centroid not found in list of pixels");
+			} else if (pixels.indexOf(centroid) < pixels.size()/2) {
+				pixels.subList(0, 4).clear();
+			} else {
+				pixels.subList(pixels.size()-5,pixels.size()-1);
+			}
 		}
 		
 		return pixels;

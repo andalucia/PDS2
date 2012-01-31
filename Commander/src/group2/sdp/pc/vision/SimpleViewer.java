@@ -11,6 +11,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -54,12 +55,16 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 	private static final int redThreshForYellow = 140;
 	private static final int greenThreshForYellow = 140;
 	private static final int blueThreshForYellow = 0; //not actually used but could be needed at some point
-	private static final int redThreshForBlue = 120;
-	private static final int greenThreshForBlue = 120;
-	private static final int blueThreshForBlue = 150;
+	private static final int redThreshForBlue = 140;
+	private static final int greenThreshForBlue = 140;
+	private static final int blueThreshForBlue = 160;
 	private static final int redThreshForBlack = 2;
 	private static final int greenThreshForBlack = 2;
 	private static final int blueThreshForBlack = 2;
+	
+	//Previous centroids
+	private static Point prevYellowCentroid = new Point(-1,-1);
+	private static Point prevBlueCentroid = new Point(-1,-1);
 
 
 
@@ -305,8 +310,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 
 				Point currentPoint = new Point(x,y);
 
-				if (isSthYellow(colour))	{
-					System.out.println("Found a yellow pixel!");
+				if (isSthYellow(colour) && (calcDistanceBetweenPoints(currentPoint, prevYellowCentroid) < 100 || prevYellowCentroid.x == -1))	{
 					drawPixel(raster, currentPoint, pureYellow);
 					howManyYellows++;
 					yellowCentroid.x += currentPoint.x;
@@ -342,14 +346,17 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 					actualCentroidPosBlack.y = blackCentroid.y / howManyBlacks;}
 			}
 		}
+		prevYellowCentroid = actualCentroidPosYellow;
+		prevBlueCentroid = actualCentroidPosBlue;
+		
 		drawCross(raster,actualCentroidPosYellow,pureYellow);
 
 		double distanceBetweenCentroidsYandK = calcDistanceBetweenPoints(actualCentroidPosYellow,actualCentroidPosBlack);
 		double distanceBetweenCentroidsBandK = calcDistanceBetweenPoints(actualCentroidPosBlue,actualCentroidPosBlack);
 
-		if (distanceBetweenCentroidsYandK < 5000) drawLine(raster, actualCentroidPosYellow, actualCentroidPosBlack, firebrick);
-		else if (distanceBetweenCentroidsBandK < 5000) drawLine(raster, actualCentroidPosBlue, actualCentroidPosBlack, firebrick);
-//		drawCross(raster,actualCentroidPosBlue,pureBlue);
+		//if (distanceBetweenCentroidsYandK < 5000) drawLine(raster, actualCentroidPosYellow, actualCentroidPosBlack, firebrick);
+		//else if (distanceBetweenCentroidsBandK < 5000) drawLine(raster, actualCentroidPosBlue, actualCentroidPosBlack, firebrick);
+		drawCross(raster,actualCentroidPosBlue,pureBlue);
 		//System.out.println(actualCentroidPosYellow);
 
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
@@ -491,5 +498,32 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 		for (int i = 0; i < height; i++) {
 			drawPixel(raster, new Point(p1.x, i), colour);
 		}
+	}
+	
+	private ArrayList<Point> performClustering(ArrayList<Point> pixels, int distance) {
+		int centroidx,centroidy = 0;
+		Point centroid = new Point(0,0);
+		while (calcDistanceBetweenPoints(pixels.get(0), pixels.get(pixels.size())) > distance) {
+			pixels.trimToSize();
+			centroidx = 0;
+			centroidy = 0;
+			for (Point p : pixels) {
+				centroidx += p.x;
+				centroidy += p.y;
+			}
+			centroid.x = centroidx/pixels.size();
+			centroid.y = centroidy/pixels.size();
+			if (pixels.indexOf(centroid) == -1) {
+				System.out.println("Centroid not found in list of pixels");
+			} else if (pixels.indexOf(centroid) < pixels.size()/2) {
+				//pixels.subList(0, 4).clear();
+				pixels.remove(0);
+			} else {
+				//pixels.subList(pixels.size()-5,pixels.size()-1);
+				pixels.remove(pixels.size()-1);
+			}
+		}
+		
+		return pixels;
 	}
 }
