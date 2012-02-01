@@ -9,13 +9,16 @@ import java.awt.event.WindowListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextPane;
+import javax.swing.JCheckBox;
+
+import group2.sdp.pc.strategy.stratMain;
 
 /**
  * The terminal to oversee Alfie.
  */
 public class CommanderTerminal {
 
-	private JFrame frmAlfieCommandCentre;
+	JFrame frmAlfieCommandCentre;
 	private JTextPane txtLog;
 
 	private Server alfieServer;
@@ -26,6 +29,9 @@ public class CommanderTerminal {
 	private static final int RETRY_TIMEOUT = 3000;
 
 	private Thread init_thread, cleanup_thread;
+	
+	// Strategy object that sends commands to Alfi
+	private stratMain strategy;
 	
 	/**
 	 * Launch the application.
@@ -62,6 +68,7 @@ public class CommanderTerminal {
 					
 					try {
 						alfieServer = new Server();
+						strategy = new stratMain(alfieServer);
 						connected = true;
 						log("Connected to Alfie");
 						break;
@@ -92,7 +99,7 @@ public class CommanderTerminal {
 	private void initializeFrame() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 443, 391);
+		frmAlfieCommandCentre.setBounds(100, 100, 443, 415);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
@@ -100,47 +107,27 @@ public class CommanderTerminal {
 		txtLog.setBounds(12, 12, 415, 305);
 		frmAlfieCommandCentre.getContentPane().add(txtLog);
 		
-		JButton btnTakePenalty = new JButton("Take Penalty");
-		btnTakePenalty.addActionListener(new ActionListener() {
+		JButton btnGameMode = new JButton("Start Game");
+		btnGameMode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(connected == true) {
-					alfieServer.sendKick(1000);
-					log("Sending Penalty Code");
+					log("Starting Alfie in game mode");
+					strategy.getReady();					
 				} else {
-					log("Unable to send Penalty Code: Alfie not connected");
+					log("Unable to start Game Mode: Alfie not connected");
 				}
 			}
 		});
-		btnTakePenalty.setBounds(12, 329, 142, 25);
-		frmAlfieCommandCentre.getContentPane().add(btnTakePenalty);
+		btnGameMode.setBounds(12, 324, 142, 25);
+		frmAlfieCommandCentre.getContentPane().add(btnGameMode);
 		
-		JButton btnGoForward = new JButton("Go Forward");
-		btnGoForward.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent argo) {
-				if(connected == true) {
-					alfieServer.sendGoForward(25, 0);
-					log("Sending Go Forward code");
-				} else {
-					log("Unable to send Go Forward code: Alfie not connected");
-				}
-			}
-		});
-		btnGoForward.setBounds(166, 329, 118, 25);
-		frmAlfieCommandCentre.getContentPane().add(btnGoForward);
+		JButton btnPenalty = new JButton("Take Penalty");
+		btnPenalty.setBounds(166, 324, 142, 25);
+		frmAlfieCommandCentre.getContentPane().add(btnPenalty);
 		
-		JButton btnStop = new JButton("Stop");
-		btnStop.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent argo) {
-				if(connected == true) {
-					alfieServer.sendStop();
-					log("Sending Stop code");
-				} else {
-					log("Unable to send Stop code: Alfie not connected");
-				}
-			}
-		});
-		btnStop.setBounds(296, 329, 75, 25);
-		frmAlfieCommandCentre.getContentPane().add(btnStop);
+		JCheckBox chkGameAfterPenaltyMode = new JCheckBox("Initialise game mode after penalty");
+		chkGameAfterPenaltyMode.setBounds(12, 357, 296, 23);
+		frmAlfieCommandCentre.getContentPane().add(chkGameAfterPenaltyMode);
 		
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);

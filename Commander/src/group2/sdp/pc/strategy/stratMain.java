@@ -2,20 +2,20 @@ package group2.sdp.pc.strategy;
 
 import group2.sdp.pc.objects.pitchInfo;
 import group2.sdp.pc.vision.SimpleViewer;
+import group2.sdp.pc.commander.Server;
 
 import java.awt.Point;
 
-
-
-/*
+/**
  * this code is not complete the robot class that is used for Alfi and opponent
  * is not made yet needs to be implemented.
  * 
  * i have yet to correctly implement the function to make the robot move forward and turn etc
  */
-
 public class stratMain extends Thread {
-
+	
+	// Server for controlling Alfi
+	private Server alfiServer;
 	
 	private SimpleViewer viewer;
 	public Point ball;
@@ -33,20 +33,48 @@ public class stratMain extends Thread {
 	public int NorthWall = 0;
 	public int southWall = 0;
 	public int eastWall = 0;
-	public int westWall =0;
+	public int westWall = 0;
 	
+	// Constants for movement speed
+	private static final int MOVEMENT_SPEED = 40;
 	
+	/**
+	 * If no Server object is passed then we initialise a new one here, this can be used to test the
+	 * strategy as a standalone program
+	 * 
+	 * If no connection is made then the program will exit, this could ammended to make multiple 
+	 * connection attempts.
+	 */
+	public stratMain() {
+		try {
+			alfiServer = new Server();
+		} catch (Exception e) {
+			System.out.println("Unable to connect to Alfie");
+			System.exit(1);
+		}	
+	}
+	
+	/**
+	 * If a Server object is passed then we simply pass that object to alfiServer, this will
+	 * happen if the Strategy is initialised from the GUI
+	 * 
+	 * @param alfieServer The initialised server object
+	 */
+	public stratMain(Server alfiServer) {
+		this.alfiServer = alfiServer; 
+	}	
 	
 	public void getReady(){
 		//@todo
-		//set up connection with the robot and camera or simulator
+		//set up connection with the camera or simulator
+		
+		
 		target.x = 0;
 		target.y = 0;
 		
 		getPitchInfo();
 		start();
-	}
-	
+	}	
 	
 	public void start(){
 		while(true){
@@ -112,18 +140,23 @@ public class stratMain extends Thread {
 		
 		if(anti_clockwise){
 			//send the signal that is equivalent to brain function below
-			// Brain.spinToLeft(speed, angleToRotate);
+			// Currently spins at max speed, this could cause accuracy problems
+			alfiServer.sendSpinLeft(1024, (int) angleToRotate);
 		}else{
 			//send the signal that is equivalent to brain function below
-			// Brain.spinToRight(speed, angleToRotate);
-		
+			// Currently spins at max speed, this could cause accuracy problems
+			alfiServer.sendSpinRight(1024, (int) angleToRotate);		
 		}
 	
 		//Alfi should be facing the correct way. send forward signal
 		while(!closeToTarget()){
 			// Brain.goForward();
+			// Just now Alfi is moving as fast as he can, this probably isn't ideal in the long run
+			alfiServer.sendGoForward(MOVEMENT_SPEED, 0);
 		}
-		 // Brain.stop();
+		
+		// Alfi is close to target so stop moving
+		alfiServer.sendStop();
 	}
 	
 	
