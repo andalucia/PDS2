@@ -27,11 +27,20 @@ public class Ball extends BoardObject {
 		float x = (force * (float) Math.cos(Math.toRadians(angle)));
 		float y = (force * (float) Math.sin(Math.toRadians(angle)));
 		this.body.addForce(new Vector2f(x,y));
+		this.body.setForce(4, 4);
 	}
 	
 	public void stop() {
 		this.body.setForce(0, 0);
 		this.body.adjustVelocity(((Vector2f)this.body.getVelocity()).negate());
+	}
+	
+	public void move(double angle)
+	{
+		int dist = 3;
+		float x = (this.getX() + (dist * (float) Math.cos(Math.toRadians(angle))));
+		float y = (this.getY() + (dist * (float) Math.sin(Math.toRadians(angle))));
+		this.body.setPosition(x,y);
 	}
 	
 	public void setGoalLines(Body leftGL, Body rightGL) {

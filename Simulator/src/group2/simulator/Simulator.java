@@ -3,13 +3,9 @@
 
 package group2.simulator;
 
-import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.Graphics2D;
-import java.awt.TextArea;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -19,7 +15,6 @@ import java.awt.image.BufferStrategy;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import javax.swing.JPanel;
 
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
@@ -28,12 +23,10 @@ import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
-
 public class Simulator {
 	
 	/** The frame displaying the simulation */
 	private static Frame frame;
-	
 	
 	public static int boardWidth = 630;
 	public static int boardHeight = 330;
@@ -140,7 +133,7 @@ public class Simulator {
 		frame.setResizable(false);
 		frame.setIgnoreRepaint(true);
 		frame.setSize((boardWidth + 2*padding), (boardHeight + 2*padding)+100);
-		TextArea textArea = new TextArea("Controls");
+		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				running = false;
@@ -166,13 +159,14 @@ public class Simulator {
 		robot.setAngle(robotAngle);
 		
 		
-		
 		//ball.stop();
 		// Formulas for robot movement to various directions
 		Float newRobotStartX = (robot.getX() + (robotMovingSpeed * (float) Math.cos(Math.toRadians(robotAngle))));
 		Float newRobotStartY = (robot.getY() + (robotMovingSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
+		Float newBallStartX = (ball.getX() + (robotMovingSpeed * (float) Math.cos(Math.toRadians(robotAngle))));
+		Float newBallStartY = (ball.getY() + (robotMovingSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
 		int newOppRobotStartX = oppRobotStartX;
-		int newBallStartX = ballStartX;
+		//int newBallStartX = ballStartX;
 		
 		//robotStartX += robotMovingSpeed;
 		
@@ -180,7 +174,9 @@ public class Simulator {
 		oppRobot.setAngle(180);
 		robot.setPosition(newRobotStartX, newRobotStartY);
 		oppRobot.setPosition(newOppRobotStartX, robotStartY);
-		ball.setPosition(newBallStartX, ballStartY);
+		
+		if(robot.isCloseToFront(ball) && robotMovingSpeed>0)
+			ball.setPosition(newBallStartX, newBallStartY);
 		
 		
 		init(world);
@@ -255,7 +251,7 @@ public class Simulator {
 		leftGoalLine.setPosition((padding), (padding + boardHeight/2));
 		leftGoalLine.setRestitution(1.0f);
 		world.add(leftGoalLine);
-		rightGoalLine = new StaticBody("BackRightGoal", new Box(1, (goalWidth + 2*wallThickness)));
+		rightGoalLine = new StaticBody("BackRightGoalrobot.setAngle(180);", new Box(1, (goalWidth + 2*wallThickness)));
 		rightGoalLine.setPosition((boardWidth + padding + 1), (padding + boardHeight/2));
 		rightGoalLine.setRestitution(1.0f);
 		world.add(rightGoalLine);
@@ -306,17 +302,30 @@ public class Simulator {
 							break;
 					case KeyEvent.VK_S: 
 							robotMovingSpeed = 0; 
-							robotRotationSpeed = 0;
+							robotRotationSpeed = 0;robot.setAngle(180);
 							break;
 					case KeyEvent.VK_RIGHT:
 							// for now just stopping the robot and checking if rotation works
 							robotMovingSpeed = 0;
-							robotRotationSpeed = 5;
+							robotRotationSpeed = 1;
 							break;
 					case KeyEvent.VK_LEFT:
 							robotMovingSpeed = 0;
-							robotRotationSpeed = -5;
+							robotRotationSpeed = -1;
 							break;
+					case KeyEvent.VK_R:
+							// Resetting Simulation
+							// restoring coordinates and angles, disabling movements
+							
+							robotAngle = 0;
+							robotMovingSpeed = 0;
+							robotRotationSpeed = 0;
+							robot.setPosition(padding + wallThickness, boardHeight/2 + padding);
+							ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
+							break;
+							
+							
+					
 							
 							
 					
@@ -343,10 +352,11 @@ public class Simulator {
 		
 		g.drawString("S - stops robot", 200, boardHeight + 2*padding + 50);
 		g.drawString("ESC - exits the simulator", 200, boardHeight + 2*padding + 70);
+		g.drawString("R - resets the simulation", 200, boardHeight + 2*padding + 90);
 		
 		
-		g.drawString("INCOMING UPDATES:", 450, boardHeight + 2*padding + 25);
-		g.drawString("Basic boundaries", 450, boardHeight + 2*padding + 50);
+		g.drawString("INCOMING NEXT EVENING UPDATES:", 450, boardHeight + 2*padding + 25);
+		g.drawString("Kicker implementation", 450, boardHeight + 2*padding + 50);
 		g.drawString("Code refactoring:", 450, boardHeight + 2*padding + 70);
 		
 	}

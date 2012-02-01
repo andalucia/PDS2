@@ -1,6 +1,8 @@
 package group2.simulator;
 
 import java.awt.Color;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
 import net.phys2d.raw.shapes.Box;
@@ -34,6 +36,21 @@ public class Robot extends BoardObject{
 	public int getWidth() {
 		return ySize;
 	}
+	
+	public Boolean isCloseToFront(Ball ball){
+		AffineTransform at = AffineTransform.getRotateInstance(
+				(Math.toRadians(this.getAngle()*(-1))), getX(), getY());
+		Point2D.Double p = new Point2D.Double((double) ball.getX(), (double) ball.getY());
+		at.transform(p,p);
+		int kickDist = 10;
+		if ( (Math.abs(p.getX() - getX() - (xSize/2)) <= kickDist) && (Math.abs(p.getY() - getY()) <= (ySize/2)) ) {
+			
+			return true;
+		}
+		return false;
+	}
+	
+	
 	
 	public BufferedImage getImage() {
 		return img;
