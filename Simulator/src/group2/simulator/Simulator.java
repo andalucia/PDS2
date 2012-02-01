@@ -45,8 +45,9 @@ public class Simulator {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
-	private static int robotMovingSpeed, robotRotationSpeed;
-	private static int robotAngle;
+	private static int robotMovingSpeed, robotRotationSpeed,kickedBallSpeed;
+	private static int robotAngle, ballAngle = 0;;
+	private static boolean isBallKicked;
 
 	/** The title of the simulation */
 	private String title;
@@ -77,6 +78,9 @@ public class Simulator {
 		robotMovingSpeed = 0;
 		robotAngle = 0;
 		robotRotationSpeed = 0;
+		kickedBallSpeed = 0;
+		ballAngle = 0;
+		isBallKicked = false;
 		
 	}
 	
@@ -165,6 +169,7 @@ public class Simulator {
 		Float newRobotStartY = (robot.getY() + (robotMovingSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
 		Float newBallStartX = (ball.getX() + (robotMovingSpeed * (float) Math.cos(Math.toRadians(robotAngle))));
 		Float newBallStartY = (ball.getY() + (robotMovingSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
+		
 		int newOppRobotStartX = oppRobotStartX;
 		//int newBallStartX = ballStartX;
 		
@@ -177,6 +182,20 @@ public class Simulator {
 		
 		if(robot.isCloseToFront(ball) && robotMovingSpeed>0)
 			ball.setPosition(newBallStartX, newBallStartY);
+		
+		if (isBallKicked){
+			kickedBallSpeed = 8;
+		}
+		
+		 newBallStartX = (ball.getX() + (kickedBallSpeed * (float) Math.cos(Math.toRadians(robotAngle))));
+		 newBallStartY = (ball.getY() + (kickedBallSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
+		 ball.setPosition(newBallStartX, newBallStartY);
+		 if (ball.DoesItHitWall()){
+			 kickedBallSpeed = 0;
+			 isBallKicked = false;
+			
+		 }
+			 
 		
 		
 		init(world);
@@ -307,21 +326,27 @@ public class Simulator {
 					case KeyEvent.VK_RIGHT:
 							// for now just stopping the robot and checking if rotation works
 							robotMovingSpeed = 0;
-							robotRotationSpeed = 1;
+							robotRotationSpeed = 3;
 							break;
 					case KeyEvent.VK_LEFT:
 							robotMovingSpeed = 0;
-							robotRotationSpeed = -1;
+							robotRotationSpeed = -3;
 							break;
 					case KeyEvent.VK_R:
 							// Resetting Simulation
 							// restoring coordinates and angles, disabling movements
-							
 							robotAngle = 0;
 							robotMovingSpeed = 0;
 							robotRotationSpeed = 0;
 							robot.setPosition(padding + wallThickness, boardHeight/2 + padding);
 							ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
+							isBallKicked = false;
+							kickedBallSpeed = 0;
+							break;
+					case KeyEvent.VK_ENTER:
+							
+							if(robot.canRobotKick(ball))
+								isBallKicked = true;
 							break;
 							
 							
@@ -350,14 +375,16 @@ public class Simulator {
 		g.drawString("Up - moves backwards", 10, boardHeight + 2*padding + 70);
 		g.drawString("left or right - rotates robot", 10, boardHeight + 2*padding + 90);
 		
+		g.drawString("Enter - kick the ball", 200, boardHeight + 2*padding + 25);
 		g.drawString("S - stops robot", 200, boardHeight + 2*padding + 50);
 		g.drawString("ESC - exits the simulator", 200, boardHeight + 2*padding + 70);
 		g.drawString("R - resets the simulation", 200, boardHeight + 2*padding + 90);
 		
 		
 		g.drawString("INCOMING NEXT EVENING UPDATES:", 450, boardHeight + 2*padding + 25);
-		g.drawString("Kicker implementation", 450, boardHeight + 2*padding + 50);
-		g.drawString("Code refactoring:", 450, boardHeight + 2*padding + 70);
+		g.drawString("Code ReFactoring - sorry ive made real mess in the code ", 450, boardHeight + 2*padding + 50);
+		g.drawString("Ball bounces to wall and obstacles:", 450, boardHeight + 2*padding + 70);
+		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
 		
 	}
 

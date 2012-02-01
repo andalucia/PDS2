@@ -27,7 +27,7 @@ public class Ball extends BoardObject {
 		float x = (force * (float) Math.cos(Math.toRadians(angle)));
 		float y = (force * (float) Math.sin(Math.toRadians(angle)));
 		this.body.addForce(new Vector2f(x,y));
-		this.body.setForce(4, 4);
+		
 	}
 	
 	public void stop() {
@@ -56,6 +56,29 @@ public class Ball extends BoardObject {
 	public void stayInGoal() {
 		this.body.removeExcludedBody(leftGoalLine);
 		this.body.removeExcludedBody(rightGoalLine);
+	}
+	
+	public boolean DoesItHitWall(){
+			float x = this.getX();
+			float y = this.getY();
+			
+			if (x < 107 || x > 720 || y < 110 || y > 420) 
+				return true;
+					else return false;
+	}
+	
+	public float checkXPosition(float x){
+		if (x < 105) return 110;
+			else if (x > 720)
+				return 720;
+		return x;
+	}
+	
+	public float checkYPosition(float y){
+		if (y < 107) return 107;
+		else if (y > 420)
+			return 420;
+	return y;
 	}
 	
 }
