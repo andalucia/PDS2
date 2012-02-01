@@ -8,6 +8,14 @@ import net.phys2d.raw.shapes.Circle;
 
 public class Ball extends BoardObject {
 
+	public static int boardWidth = 630;
+	public static int boardHeight = 330;
+	public static int padding = 100;
+	public static int wallThickness = 20;
+	public static int goalWidth = 144;
+	public static int goalThickness = 50;
+
+	
 	float radius;
 	Body leftGoalLine;
 	Body rightGoalLine;
@@ -66,7 +74,7 @@ public class Ball extends BoardObject {
 		float x = this.getX();
 		float y = this.getY();
 
-		if (x < 107 || x > 720 || y < 110 || y > 420)
+		if (x < 107 || x > 720 || y < 112 || y > 420 )
 			return true;
 		else
 			return false;
@@ -74,17 +82,17 @@ public class Ball extends BoardObject {
 
 	public float checkXPosition(float x) {
 		if (x < 105)
-			return 110;
+			return 105;
 		else if (x > 720)
 			return 720;
 		return x;
 	}
 
 	public float checkYPosition(float y) {
-		if (y < 107)
-			return 107;
-		else if (y > 420)
-			return 420;
+		if (y < 110 )
+			return 110;
+		else if (y > 422)
+			return 422;
 		return y;
 	}
 

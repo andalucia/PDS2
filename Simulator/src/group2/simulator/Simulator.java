@@ -46,7 +46,8 @@ public class Simulator {
 	private static Robot oppRobot;
 	private static Ball ball;
 	private static int robotMovingSpeed, robotRotationSpeed,kickedBallSpeed;
-	private static int robotAngle, ballAngle = 0;;
+	private static int robotAngle;
+	private static double kickedBallAngle = 0; // an angle for fixed ball movement
 	private static boolean isBallKicked;
 
 	/** The title of the simulation */
@@ -79,7 +80,7 @@ public class Simulator {
 		robotAngle = 0;
 		robotRotationSpeed = 0;
 		kickedBallSpeed = 0;
-		ballAngle = 0;
+		kickedBallAngle = 0;
 		isBallKicked = false;
 
 	}
@@ -184,10 +185,11 @@ public class Simulator {
 
 		if (isBallKicked){
 			kickedBallSpeed = 8;
+			
 		}
 
-		 newBallStartX = (ball.getX() + (kickedBallSpeed * (float) Math.cos(Math.toRadians(robot.getAngle()))));
-		 newBallStartY = (ball.getY() + (kickedBallSpeed * (float) Math.sin(Math.toRadians(robot.getAngle()))));
+		 newBallStartX = (ball.getX() + (kickedBallSpeed * (float) Math.cos(Math.toRadians(kickedBallAngle))));
+		 newBallStartY = (ball.getY() + (kickedBallSpeed * (float) Math.sin(Math.toRadians(kickedBallAngle))));
 		 ball.setPosition(newBallStartX, newBallStartY);
 		 if (ball.DoesItHitWall()){
 			 kickedBallSpeed = 0;
@@ -338,7 +340,10 @@ public class Simulator {
 					case KeyEvent.VK_ENTER:
 
 							if(robot.canRobotKick(ball))
+							{
 								isBallKicked = true;
+								kickedBallAngle = robot.getAngle();
+							}
 							else
 								System.out.println("Too far away from the ball");
 							
