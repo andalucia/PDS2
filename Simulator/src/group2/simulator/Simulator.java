@@ -119,7 +119,7 @@ public class Simulator {
 			displayControls(g);
 			strategy.show();
 			try {
-                Thread.sleep(10);
+                Thread.sleep(5);
             } catch (InterruptedException e) {
                 System.out.println("interrupted");
             }
@@ -179,8 +179,8 @@ public class Simulator {
 
 		ball.setPosition(newBallStartX, newBallStartY);
 		
-		if(robot.isCloseToFront(ball) )
-			ball.setPosition(newBallStartX, newBallStartY);
+		//if(robot.isCloseToFront(ball) )
+		//	ball.setPosition(newBallStartX, newBallStartY);
 
 		if (isBallKicked){
 			kickedBallSpeed = 8;
@@ -309,11 +309,10 @@ public class Simulator {
 							System.exit(0);
 							break;
 					case KeyEvent.VK_UP :	
-							robot.moveForward(world, ball.getBody());
-						
+							robot.moveForward(world, ball);
 							break;
 					case KeyEvent.VK_DOWN :	
-							robot.moveBackwards(world, ball.getBody());
+							robot.moveBackwards(world, ball);
 							break;
 					case KeyEvent.VK_S: 
 							robotMovingSpeed = 0; 

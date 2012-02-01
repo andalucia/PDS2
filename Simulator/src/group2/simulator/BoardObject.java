@@ -24,6 +24,7 @@ public class BoardObject {
 		setPosition(x, y);
 		this.color = color;
 		this.angle = angle;
+		
 	}
 
 

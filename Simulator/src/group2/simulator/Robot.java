@@ -51,7 +51,7 @@ public class Robot extends BoardObject{
 		at.transform(p,p);
 		int kickDist = 10;
 		if ( (Math.abs(p.getX() - getX() - (xSize/2)) <= kickDist) && (Math.abs(p.getY() - getY()) <= (ySize/2)) ) {
-
+			
 			return true;
 		}
 		return false;
@@ -65,8 +65,9 @@ public class Robot extends BoardObject{
 		at.transform(p,p);
 		int kickDist = 20;
 		if ( (Math.abs(p.getX() - getX() - (xSize/2)) <= kickDist) && (Math.abs(p.getY() - getY()) <= (ySize/2)) ) {
-
+			
 			return true;
+			
 		}
 		return false;
 	}
@@ -85,60 +86,68 @@ public class Robot extends BoardObject{
 		return img;
 	}
 
-	public void moveForward(World w, Body b) {
+	public void moveForward(World w, Ball b) {
 		move(w,b, 3);
 	}
 	
-	public void moveBackwards(World w, Body b) {
+	public void moveBackwards(World w, Ball b) {
 		move(w,b,-3);
 	}
 	
-	public void move(World world, Body ball, int mult)
+	/*
+	 * Calculating robot' next position
+	 * 
+	 */
+	
+	public float countNextPositionX(float x, int dist, double angle)
 	{
-		boolean squashingBall =false;
-		Ball b = (Ball)ball.getUserData();
-		// This bit is not working - it's supposed to detect another body
-		if (isCloseToFront(b)) {
-			//An arbiter resolves conflicts between a pair of bodies
-			ArbiterList arbs = world.getArbiters();
-			for (int i=0;i<arbs.size();i++) {
-				Arbiter arb = arbs.get(i);
-				System.out.println(arb);
-				if (arb.concerns(this.body) && (arb.concerns(ball))) {
-					float x = arb.getContacts()[0].getPosition().getX();
-					float y = arb.getContacts()[0].getPosition().getY();
-					x = b.getX() + (x-b.getX());
-					y = b.getY() + (y-b.getY());
-					for (int j=0;j<arbs.size(); j++) {
-						Arbiter a = arbs.get(j);
-						if (a.concerns(ball) && (!(a.concerns(this.body)))) {
-							if (Math.abs(a.getContacts()[0].getPosition().getX() - x) < 2) {
-					            if (Math.abs(a.getContacts()[0].getPosition().getY() - y) < 2) {
-								    squashingBall = true;
-								    System.out.println("over the ball");
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		if(squashingBall==false)
-		{
+		return x + (dist * (float) Math.cos(Math.toRadians(angle)));
+	}
+	
+	public float countNextPositionY(float y, int dist, double angle)
+	{
+		return y + (dist * (float) Math.sin(Math.toRadians(angle)));
+	}
+	
+	
+	/*
+	 * 
+	 *  Deleted a large part of move fucntion as i found it faulty
+	 *  Counting next position of the ball.
+	 *  
+	 *  Function moves robot and ball provided 
+	 *  it is moving forward and ball is in front
+	 *  
+	 *  TO DO: PUSHING BACKWARDS AND SIDES
+	 */
+	public void move(World world, Ball ball, int mult)
+	{
+		
 		int dist = speed * mult;
 		double tempAngle = this.getAngle();
-		float x = (this.getX() + (dist * (float) Math.cos(Math.toRadians(tempAngle))));
-		float y = (this.getY() + (dist * (float) Math.sin(Math.toRadians(tempAngle))));
-		this.body.move(x, y);
+		float x = countNextPositionX(this.getX(),dist,tempAngle);
+		float y = countNextPositionY(this.getY(),dist,tempAngle);
+		
+		if (isCloseToFront(ball) && dist > 0) {
+			
+		
+			float ballCoordX = countNextPositionX(ball.getX(),dist,tempAngle);
+			float ballCoordY = countNextPositionY(ball.getY(),dist,tempAngle);
+			this.body.move(x, y);
+			ball.body.move(ballCoordX, ballCoordY);
+		}
+			else
+		{
+				this.body.move(x, y);
 		}
 	}
 	
 	// negative for right, positive for left
 	public void turn(int value) {
 		if (value > 0) {
-			this.setAngle(this.getAngle() - 1);
+			this.setAngle(this.getAngle() - 5);
 		} else if (value < 0) {
-			this.setAngle(this.getAngle() + 1);
+			this.setAngle(this.getAngle() + 5);
 		}
 		// rotates the body
 		this.getBody().setRotation((float) Math.toRadians(getAngle()));
