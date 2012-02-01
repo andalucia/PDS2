@@ -26,13 +26,36 @@ public class BoardObject {
 		this.angle = angle;
 	}
 
+
+
 	public void setPosition(float x, float y) {
+
+		x = checkXPosition(x);
+		y = checkYPosition(y);
 		body.setPosition(x, y);
 	}
-	
+
+	public float checkXPosition(float x){
+		if (x < 140) return 140;
+			else if (x > 695)
+				return 695;
+		return x;
+	}
+
+	public float checkYPosition(float y){
+		if (y < 140) return 140;
+		else if (y > 395)
+			return 395;
+	return y;
+	}
+
 	public float getX() {
 		return body.getPosition().getX();
 	}
+
+
+
+
 
 	public float getY() {
 		return body.getPosition().getY();
@@ -41,11 +64,11 @@ public class BoardObject {
 	public Color getColor() {
 		return color;
 	}
-	
+
 	public double getAngle() {
 		return angle;
 	}
-	
+
 	// keeps the angle between 0 and 359 degrees
 	public int convertAngle(double d) {
 //		System.out.println("convertAngle received: "+d);
@@ -58,15 +81,17 @@ public class BoardObject {
 //		System.out.println("convertAngle returned: "+d);
 		return (int) d;
 	}
-	
+
+
+
 	public void setAngle(double d){
 		angle = convertAngle(d);
 	}
-	
+
 	public Body getBody() {
 		return body;
 	}
-	
+
 	/**
 	 * Draw an object into the world 
 	 * @param g The graphics contact on which to draw
@@ -74,7 +99,7 @@ public class BoardObject {
 	 */
 	protected static void draw(Graphics2D g, World world) {
 		BodyList bodies = world.getBodies();
-		
+
 		for (int i=0;i<bodies.size();i++) {
             Body body = bodies.get(i);
             
@@ -118,7 +143,7 @@ public class BoardObject {
 					(int) (v3.getX() - v1.getX()),
 					(int) (v4.getY() - v2.getY()));
 		}
-		
+
 	}
 
 	/**
