@@ -30,6 +30,35 @@ git clone git@github.com:andalucia/PDS2.git
 
 2. Committing instructions
 
+a) Using scripts:
+- first rule of fight club is do not commit .class files
+- second rule of fight club is do not commit .class files
+- a typical development cycle looks like this:
+   = do
+./ss.sh branch_name [ss stands for start session]
+   = while unsatisfied:
+   =    think how to implement the cool feature
+   =    do
+./cs.sh branch_name [cs stands for continue session]
+   =    modify some .java files to implement the cool feature
+   =    [if you create a new file there is an EXTRA STEP later - FUN!]
+   =    compile 
+   =    do
+git add -u [this adds only the files you changed; refer to the first two rules]
+   = [EXTRA STEP] if you created new files do
+git add mynewfile.java
+   =    think of a comment explaining what you did
+   =    do
+./p.sh "an intelligent and explanatory comment of what you did" branch_name [p stands for push]
+   = reiterate
+   = do
+./es.sh branch_name [es stands for end session]
+   = cross fingers but if there are conflicts, get someone to resolve them
+   = clean up after yourself by doing
+./cu.sh [cu stands for clean-up]
+   = eat
+
+b) Pure git:
 - first rule of fight club is do not commit .class files
 - second rule of fight club is do not commit .class files
 - a typical development cycle looks like this:
