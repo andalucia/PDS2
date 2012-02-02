@@ -7,6 +7,9 @@ import group2.sdp.pc.commander.Server;
 import java.awt.Point;
 
 /**
+ * This class is the main point of call for all strategy related functionality, all decisions are
+ * made here and commands are sent to Alfi from here
+ * 
  * this code is not complete the robot class that is used for Alfi and opponent
  * is not made yet needs to be implemented.
  * 
@@ -14,9 +17,9 @@ import java.awt.Point;
  */
 public class stratMain extends Thread {
 	
-	// Server for controlling Alfi
+	// Server for sending commands to Alfi
 	private Server alfiServer;
-	
+		
 	private SimpleViewer viewer;
 	public Point ball = new Point();
 	public robot Alfi;
@@ -27,7 +30,6 @@ public class stratMain extends Thread {
 	public boolean areWeBlue = true;
 	
 	public Point target = new Point();
-	
 	
 	//to be updated to show the location on the boundaries of the pitch
 	public int NorthWall = 0;
@@ -69,8 +71,7 @@ public class stratMain extends Thread {
 		//set up connection with the camera or simulator
 		
 		
-		target.x = 0;
-		target.y = 0;
+		target.setLocation(0, 0);
 		
 		getPitchInfo();
 		start();
@@ -96,14 +97,13 @@ public class stratMain extends Thread {
 			
 			anglePointing = (float) Alfi.getAngle();
 			moveTo(Alfi, target, anglePointing);*/
-			
-			
+						
 		}
 	}
 	
 	
 	
-	public void getPitchInfo(){
+	public void getPitchInfo() {
 				  
 		pitchInfo PitchInfo = new pitchInfo();
 		
@@ -112,19 +112,15 @@ public class stratMain extends Thread {
 		
 		ball.setLocation(PitchInfo.getBallCoors().getX(), PitchInfo.getBallCoors().getY());
 		
-		if(areWeBlue){
-			//Alfi.setRoboInfo(PitchInfo.getBlueBot());
-			//opponent.setRoboInfo(PitchInfo.getYellowBot());
-		}else{
-			//Alfi.setRoboInfo(PitchInfo.getYellowBot());
-			//opponent.setRoboInfo(PitchInfo.getBlueBot());
+		if(areWeBlue) {
+			Alfi.setRoboInfo(PitchInfo.getBlueBot());
+			opponent.setRoboInfo(PitchInfo.getYellowBot());
+		} else {
+			Alfi.setRoboInfo(PitchInfo.getYellowBot());
+			opponent.setRoboInfo(PitchInfo.getBlueBot());
 		}
 		
-
-		
-	}
-	
-	
+	}	
 	
 	public void moveTo(robot Alfi,  Point target, float angleFace ){
 		
