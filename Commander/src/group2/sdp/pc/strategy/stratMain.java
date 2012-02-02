@@ -18,7 +18,7 @@ public class stratMain extends Thread {
 	private Server alfiServer;
 	
 	private SimpleViewer viewer;
-	public Point ball;
+	public Point ball = new Point();
 	public robot Alfi;
 	public robot opponent;
 	float anglePointing = 0;
@@ -83,7 +83,10 @@ public class stratMain extends Thread {
 			
 			//we are closer to the ball than other robo and the ball is not in the corner
 			//need to make that if bracket a lot smaller
-			if( Math.sqrt( Math.abs(Alfi.getCoors().x - ball.x) + Math.abs(Alfi.getCoors().y - ball.y)) < Math.sqrt(Math.abs(opponent.getCoors().x-ball.x) + Math.abs(opponent.getCoors().x-ball.x)) ||
+			/*if( Math.sqrt( Math.abs(Alfi.getCoors().x - ball.x) + Math.abs(Alfi.getCoors().y - 
+					ball.y)) < Math.sqrt(Math.abs(opponent.getCoors().x-ball.x) + 
+					Math.abs(opponent.getCoors().x-ball.x)) ||
+					
 					(Math.abs(NorthWall - ball.y) > 10) ||
 					(Math.abs(southWall - ball.y) > 10) ||
 					(Math.abs(eastWall - ball.x)>10) ||
@@ -92,7 +95,7 @@ public class stratMain extends Thread {
 			}
 			
 			anglePointing = (float) Alfi.getAngle();
-			moveTo(Alfi, target, anglePointing);
+			moveTo(Alfi, target, anglePointing);*/
 			
 			
 		}
@@ -107,15 +110,14 @@ public class stratMain extends Thread {
 		//getObject info has yet to written
 		// PitchInfo = viewer.getObjectInfo();
 		
-		ball.x = PitchInfo.getBallCoors().x;
-		ball.y = PitchInfo.getBallCoors().y;
+		ball.setLocation(PitchInfo.getBallCoors().getX(), PitchInfo.getBallCoors().getY());
 		
 		if(areWeBlue){
-			Alfi.setRoboInfo(PitchInfo.getBlueBot());
-			opponent.setRoboInfo(PitchInfo.getYellowBot());
+			//Alfi.setRoboInfo(PitchInfo.getBlueBot());
+			//opponent.setRoboInfo(PitchInfo.getYellowBot());
 		}else{
-			Alfi.setRoboInfo(PitchInfo.getYellowBot());
-			opponent.setRoboInfo(PitchInfo.getBlueBot());
+			//Alfi.setRoboInfo(PitchInfo.getYellowBot());
+			//opponent.setRoboInfo(PitchInfo.getBlueBot());
 		}
 		
 
