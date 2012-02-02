@@ -2,7 +2,6 @@ package group2.sdp.pc.commander;
 
 import group2.sdp.common.candypacket.CandyPacket;
 
-import java.awt.geom.Point2D;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -20,6 +19,8 @@ public class Server {
 	private NXTConnector conn;
 	private DataOutputStream dos;
 	private DataInputStream dis;	
+	
+	private boolean isConnected;
 
 	/**
 	 * Default constructor. Initialises the blue-tooth connection and adds a 
@@ -43,8 +44,11 @@ public class Server {
 		boolean connected = conn.connectTo(nxtAddress);
 	
 		if (!connected) {
+			isConnected = false;
 			System.err.println("Failed to connect to Alfie");
 			throw new Exception();
+		} else {
+			isConnected = true;
 		}
 		
 		dos = conn.getDataOut();
@@ -177,5 +181,13 @@ public class Server {
 		} while (!success) ;
 		
 		//System.out.println(System.currentTimeMillis() - start);
+	}
+	
+	/**
+	 * Checks whether a connection to Alfi has been established
+	 * @return
+	 */
+	public boolean alfiConnected() {
+		return isConnected;
 	}
 }
