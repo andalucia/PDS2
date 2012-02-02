@@ -1,8 +1,8 @@
 echo "Did you add the files you changed, using git add -u or git add [new files]? [y/n]"
 read choice
-if [ choice -eq 'y' ]
+if [ $choice = 'y' ]
 then
-if [ $# -eq 2 ]
+if [ $# -eq 3 ]
 then
 git commit -m "$1"
 git push origin $2
@@ -11,5 +11,6 @@ echo "First argument should your commit message and the second one should be the
 exit 1
 fi
 else
-echo "Well, do so first."
+echo $choice
+echo "Well, do so first!"
 fi
