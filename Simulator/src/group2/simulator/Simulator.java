@@ -69,6 +69,13 @@ public class Simulator {
 			initializeArea();				
 	}
 
+	/**
+	 * Fully initialises the simulator constructor
+	 * @param title
+	 * @param robot
+	 * @param oppRobot
+	 * @param ball
+	 */
 	public Simulator(String title, Robot robot, Robot oppRobot, Ball ball) {
 		this.title = title;
 		Simulator.robot = robot;
@@ -87,6 +94,7 @@ public class Simulator {
 
 	/**
 	 * Create a simulator for our world
+	 * Load the images that are going to be used for the robots' appearance 
 	 */
 	public static void prepareSimulator() {
 
@@ -110,7 +118,7 @@ public class Simulator {
 		setControls();
 		while(running)
 		{
-			initSimulation();  // initialize the simulator
+			initSimulation();  // initialise the simulator
 
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			g.setColor(Color.GREEN);
@@ -153,7 +161,7 @@ public class Simulator {
 	}
 
 	/**
-	 * Initialize the simulator and place the robots and the ball
+	 * Initialise the simulator and place the robots and the ball
 	 */
 	private static void initSimulation() {
 		world.clear();
@@ -300,7 +308,9 @@ public class Simulator {
 	}
 
 
-
+	/**
+	 * Set the command for the key controls
+	 */
 	public static void setControls()
 	{
 		frame.addKeyListener(new KeyListener()
@@ -318,19 +328,16 @@ public class Simulator {
 							break;
 					case KeyEvent.VK_S: 
 							robotMovingSpeed = 0; 
-							robotRotationSpeed = 0;robot.setAngle(180);
-						
+							robotRotationSpeed = 0;robot.setAngle(180);					
 							break;
 					case KeyEvent.VK_RIGHT:
-							robot.turn(-20);
+							robot.turn(20);
 							break;
 					case KeyEvent.VK_LEFT:
-							robot.turn(20);
-						
+							robot.turn(-20);					
 							break;
 					case KeyEvent.VK_R:
 							// Resetting Simulation
-
 							robot.setAngle(0);
 							robot.setPosition(padding + wallThickness, boardHeight/2 + padding);
 							ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
@@ -338,25 +345,13 @@ public class Simulator {
 							kickedBallSpeed = 0;
 							break;
 					case KeyEvent.VK_ENTER:
-
-							if(robot.canRobotKick(ball))
-							{
+							if(robot.canRobotKick(ball)){
 								isBallKicked = true;
 								kickedBallAngle = robot.getAngle();
 							}
 							else
 								System.out.println("Too far away from the ball");
-							
 							break;
-
-
-
-
-
-
-
-
-
 				}
 
 			}
@@ -379,7 +374,6 @@ public class Simulator {
 		g.drawString("S - stops robot", 200, boardHeight + 2*padding + 50);
 		g.drawString("ESC - exits the simulator", 200, boardHeight + 2*padding + 70);
 		g.drawString("R - resets the simulation", 200, boardHeight + 2*padding + 90);
-
 
 		g.drawString("INCOMING NEXT EVENING UPDATES:", 450, boardHeight + 2*padding + 25);
 		g.drawString("Code ReFactoring - sorry ive made real mess in the code ", 450, boardHeight + 2*padding + 50);
