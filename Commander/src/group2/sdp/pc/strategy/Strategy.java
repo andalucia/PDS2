@@ -32,5 +32,4 @@ public class Strategy {
 		Simulator.prepareSimulator();
 		Simulator.initializeArea();
 	}
-	
 }
