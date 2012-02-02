@@ -142,12 +142,12 @@ public class Robot extends BoardObject{
 		}
 	}
 	
-	// negative for right, positive for left
+	// negative for left, positive for right
 	public void turn(int value) {
 		if (value > 0) {
-			this.setAngle(this.getAngle() - 5);
-		} else if (value < 0) {
 			this.setAngle(this.getAngle() + 5);
+		} else if (value < 0) {
+			this.setAngle(this.getAngle() - 5);
 		}
 		// rotates the body
 		this.getBody().setRotation((float) Math.toRadians(getAngle()));
