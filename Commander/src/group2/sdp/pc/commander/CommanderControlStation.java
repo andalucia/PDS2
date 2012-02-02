@@ -1,18 +1,27 @@
 package group2.sdp.pc.commander;
 
+import group2.sdp.pc.vision.SimpleViewer;
+
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
+import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
 
+/**
+ * The main GUI program to control Alfie during match or testing.
+ */
 public class CommanderControlStation implements KeyListener {
 
+	// GUI elements
 	private JFrame frmAlfieCommandCentre;
 	private JTextPane txtLog;
 	private JEditorPane Alfie_Speed;
@@ -23,16 +32,36 @@ public class CommanderControlStation implements KeyListener {
 
 	private JLabel Info;
 	private JLabel Info2;
+	
+	private JButton startVisionButton;
 
-	private Server alfie;
+	/**
+	 * The server that sends commands to Alfie.
+	 */
+	private Server alfieServer;
 
-	// No of connection attempts before giving up
+	/**
+	 *  Number of connection attempts before giving up.
+	 */
 	private static final int CONNECTION_ATTEMPTS = 5;
+	/**
+	 * Timeout between retries of connecting to Alfie.
+	 */
 	private static final int RETRY_TIMEOUT = 3000;
 
+	// This is actually used in a child thread, but eclipse is being silly.
 	@SuppressWarnings("unused")
 	private int key_pressed = 0;
-
+	/**
+	 * True if the main window was closed.
+	 */
+	private boolean exiting = false;
+	
+	/**
+	 * The threads for starting and stopping the communication to Alfie.
+	 */
+	private Thread init_thread, cleanup_thread;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -42,7 +71,6 @@ public class CommanderControlStation implements KeyListener {
 				try {
 					CommanderControlStation window = new CommanderControlStation();
 					window.frmAlfieCommandCentre.setVisible(true);
-
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -54,13 +82,46 @@ public class CommanderControlStation implements KeyListener {
 	 * Create the application.
 	 */
 	public CommanderControlStation() {
-		initialize();
+		initializeConnectionThreads();
+		initializeFrame();
 	}
 
 	/**
+	 * Initialise the threads for connecting to and disconnecting from Alfie.
+	 */
+	private void initializeConnectionThreads() {
+		init_thread = new Thread() {		
+			public void run() {
+				for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
+					log("Connection attempt: " + i);
+					
+					try {
+						alfieServer = new Server();
+						log("Connected to Alfie");
+						break;
+					} catch(Exception e) {
+						log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
+						try {
+							Thread.sleep(RETRY_TIMEOUT);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					}
+				}
+			}
+		};
+		
+		cleanup_thread = new Thread() {		
+			public void run() {
+				alfieServer.sendReset();
+			}
+		};
+	}
+	
+	/**
 	 * Initialize the contents of the frame.
 	 */
-	private void initialize() {
+	private void initializeFrame() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
 		frmAlfieCommandCentre.setBounds(100, 100, 500, 440);
@@ -99,10 +160,22 @@ public class CommanderControlStation implements KeyListener {
 		Angle.setText("Angle");
 		Angle.setBounds(10, 373, 40, 25);
 
+		startVisionButton = new JButton();
+		startVisionButton.setText("Start Vision");
+		startVisionButton.setBounds(240, 373, 160, 25);
+		startVisionButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new SimpleViewer();
+				startVisionButton.setEnabled(false);
+			}
+		});
+		
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
 		frmAlfieCommandCentre.getContentPane().add(Angle);
 		frmAlfieCommandCentre.getContentPane().add(Speed);
+		frmAlfieCommandCentre.getContentPane().add(startVisionButton);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {
@@ -114,6 +187,8 @@ public class CommanderControlStation implements KeyListener {
 			}
 
 			public void windowClosing(WindowEvent arg0) {
+				exiting = true;
+				cleanup_thread.start();
 			}
 
 			public void windowDeactivated(WindowEvent arg0) {
@@ -126,46 +201,16 @@ public class CommanderControlStation implements KeyListener {
 			}
 
 			public void windowOpened(WindowEvent arg0) {
-				init();
+				init_thread.start();
 			}
 		});
 
-		// Check whether Al
 	}
-
-	private void init() {
-		// Attempt to initialise the bluetooth connection
-
-		init_thread.start();
-	}
-
-	Thread init_thread = new Thread() {
-
-		public void run() {
-
-			for (int i = 1; i < CONNECTION_ATTEMPTS; ++i) {
-
-				log("Connection attempt: " + i);
-
-				try {
-					alfie = new Server();
-					log("Connected to Alfie");
-					break;
-				} catch (Exception e) {
-					log("Failed to connect... Retrying in "
-							+ (RETRY_TIMEOUT / 5) + " seconds");
-					try {
-						Thread.sleep(RETRY_TIMEOUT);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-			}
-		}
-
-	};
-
+	
+	/**
+	 * Adds a string and a new line to the log text box.
+	 * @param logString The string to add.
+	 */
 	private void log(String logString) {
 		txtLog.setText(txtLog.getText() + logString + "\n");
 		txtLog.repaint();
@@ -173,33 +218,34 @@ public class CommanderControlStation implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent key) {
+		
 		switch (key.getKeyCode()) {
 
 		// when pressed "up" key the robot move forward
 		case KeyEvent.VK_UP:
 
-			alfie.sendGoForward(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
+			alfieServer.sendGoForward(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
 			key_pressed = KeyEvent.VK_UP;
 			break;
 
 		// when pressed "left" key the robot turn left
 		case KeyEvent.VK_LEFT:
 			
-			alfie.sendSpinLeft(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
+			alfieServer.sendSpinLeft(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
 			key_pressed = KeyEvent.VK_LEFT;
 			break;
 
 		// when pressed "right" key the robot turn right
 		case KeyEvent.VK_RIGHT:
 
-			alfie.sendSpinRight(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
+			alfieServer.sendSpinRight(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
 			key_pressed = KeyEvent.VK_RIGHT;
 			break;
 
 		// when pressed "up" key the robot move backward
 		case KeyEvent.VK_DOWN:
 
-			alfie.sendGoBackwards(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
+			alfieServer.sendGoBackwards(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
 			key_pressed = KeyEvent.VK_DOWN;
 			break;
 		}
@@ -215,11 +261,11 @@ public class CommanderControlStation implements KeyListener {
 	public void keyTyped(KeyEvent key) {
 		System.out.println(key.getKeyChar());
 		if (key.getKeyChar() == 's') {
-			alfie.sendKick(1000);
+			alfieServer.sendKick(1000);
 
 		}
 		if (key.getKeyChar() == 'd') {
-			alfie.sendStop();
+			alfieServer.sendStop();
 			System.out.println("ok");
 		}
 
@@ -241,10 +287,10 @@ public class CommanderControlStation implements KeyListener {
 					+ "");
 		}
 		if (key.getKeyChar() == ',') {
-			alfie.sendSpinLeft(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
+			alfieServer.sendSpinLeft(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
 		}
 		if (key.getKeyChar() == '.') {
-			alfie.sendSpinRight(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
+			alfieServer.sendSpinRight(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
 			
 		}
 

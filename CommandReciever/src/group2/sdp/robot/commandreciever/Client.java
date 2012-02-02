@@ -12,9 +12,18 @@ import lejos.nxt.comm.Bluetooth;
 
 public class Client {
 	
+	/**
+	 * The bluetooth connection that Alfie uses for communication.
+	 */
 	private static BTConnection btc;
 
+	/**
+	 * The input stream of the BT communication.
+	 */
 	private static DataInputStream dis;
+	/**
+	 * The output stream of the BT communication.
+	 */
 	private static DataOutputStream dos;
 	
 	public static void main(String [] args)  throws Exception 
@@ -66,7 +75,6 @@ public class Client {
 		}
 	}
 	
-
 	/**
 	 * Receives a packet full of candy over the blue-tooth connection. 
 	 * @return The CandyPacket that was received.
@@ -97,7 +105,8 @@ public class Client {
 			dos.write(candy.getSweets(), 0, CandyPacket.PACKET_SIZE);
 			dos.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			LCD.clear();
+			LCD.drawString("Could not give candy", 0, 0);
 		}
 	}
 	
