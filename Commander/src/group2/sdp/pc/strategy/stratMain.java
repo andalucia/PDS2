@@ -150,7 +150,6 @@ public class stratMain extends Thread {
 	
 		//Alfi should be facing the correct way. send forward signal
 		while(!closeToTarget()){
-			// Brain.goForward();
 			// Just now Alfi is moving as fast as he can, this probably isn't ideal in the long run
 			alfiServer.sendGoForward(MOVEMENT_SPEED, 0);
 		}
