@@ -113,7 +113,7 @@ public class ImageGrabber implements CaptureCallback {
 
 	@Override
 	public void nextFrame(VideoFrame frame) {
-		ImageProcessor.process(frame.getBufferedImage());
+		ImageProcessor.process(frame.getBufferedImage(),null);
 		
 	}
 
