@@ -27,23 +27,33 @@ import au.edu.jcu.v4l4j.VideoFrame;
 import au.edu.jcu.v4l4j.exceptions.StateException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
-public class SimpleViewer extends WindowAdapter implements CaptureCallback{
-	private static int      width = 640, height = 480, std = V4L4JConstants.STANDARD_WEBCAM, channel = 0,
-	width_margin = 20, height_margin = 60, ball_box_radius = 50;
+public class SimpleViewer extends WindowAdapter implements CaptureCallback {
+	private static int width = 640, height = 480;
+	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0,
+	width_margin = 20, height_margin = 60; 
 	private static String   device = "/dev/video0";
-
+	
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;
 
-	private JLabel          label;
-	private JFrame          frame;
-	private int[] red = new int[] { 255, 0, 0 };
-	Point ball_pos = new Point(-1,-1);
 	private static final int SATURATION = 100;
 	private static final int BRIGHTNESS = 128;
 	private static final int CONTRAST = 64;
 	private static final int HUE = 0;
 
+	private static final boolean VERBOSE = false;
+	
+	private JLabel          label;
+	private JFrame          frame;	
+	
+	private int[] red = new int[] { 255, 0, 0 };
+	private static int ball_box_radius = 50;
+	Point ball_pos = new Point(-1,-1);
+	
+	//Previous centroids
+	private static Point prevYellowCentroid = new Point(-1,-1);
+	private static Point prevBlueCentroid = new Point(-1,-1);
+	
 	// int values for the pure colours 
 	private static final int[] pureRed = new int[] { 255, 0, 0 };
 	private static final int[] pureYellow = new int[] {255, 255, 0};
@@ -61,12 +71,6 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 	private static final int redThreshForBlack = 2;
 	private static final int greenThreshForBlack = 2;
 	private static final int blueThreshForBlack = 2;
-	
-	//Previous centroids
-	private static Point prevYellowCentroid = new Point(-1,-1);
-	private static Point prevBlueCentroid = new Point(-1,-1);
-
-
 
 	public static void main(String args[]){
 
@@ -125,11 +129,18 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 					c.setValue(HUE);
 				if(c.getName().equals("Saturation"))
 					c.setValue(SATURATION);
-
 			}
-			controls = videoDevice.getControlList().getList();
-			for(Control c2: controls)
-				System.out.println("control name: "+c2.getName()+" - min: "+c2.getMinValue()+" - max: "+c2.getMaxValue()+" - step: "+c2.getStepValue()+" - value: "+c2.getValue());
+			
+			if (VERBOSE) {
+				for(Control c2: controls)
+					System.out.println(
+							"control name: " + c2.getName() + 
+							" - min: " + c2.getMinValue() + 
+							" - max: " + c2.getMaxValue() + 
+							" - step: " + c2.getStepValue() + 
+							" - value: " + c2.getValue()
+					);
+			}
 			videoDevice.releaseControlList();
 		}
 		catch(V4L4JException e) {
@@ -140,7 +151,8 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback{
 		frameGrabber.setCaptureCallback(this);
 		width = frameGrabber.getWidth();
 		height = frameGrabber.getHeight();
-		System.out.println("Starting capture at "+width+"x"+height);
+		if (VERBOSE)
+			System.out.println("Starting capture at " + width + "x" + height);
 	}
 
 	/** 

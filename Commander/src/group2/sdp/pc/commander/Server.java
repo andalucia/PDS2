@@ -2,6 +2,7 @@ package group2.sdp.pc.commander;
 
 import group2.sdp.common.candypacket.CandyPacket;
 
+import java.awt.geom.Point2D;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -27,7 +28,6 @@ public class Server {
 	 */
 	public Server() throws Exception {
 		conn = new NXTConnector();
-		
 		conn.addLogListener(new NXTCommLogListener() {
 			public void logEvent(String message) {
 				System.out.println("BTSend Log.listener: " + message);				
