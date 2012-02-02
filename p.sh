@@ -11,6 +11,5 @@ echo "First argument should your commit message and the second one should be the
 exit 1
 fi
 else
-echo $choice
 echo "Well, do so first!"
 fi
