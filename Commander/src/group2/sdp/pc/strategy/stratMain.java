@@ -17,7 +17,7 @@ public class stratMain extends Thread {
 	// Server for controlling Alfi
 	private Server alfiServer;
 	
-	//private SimpleViewer viewer;
+	private SimpleViewer viewer;
 	public Point ball;
 	public robot Alfi;
 	public robot opponent;
@@ -150,6 +150,7 @@ public class stratMain extends Thread {
 	
 		//Alfi should be facing the correct way. send forward signal
 		while(!closeToTarget()){
+			// Brain.goForward();
 			// Just now Alfi is moving as fast as he can, this probably isn't ideal in the long run
 			alfiServer.sendGoForward(MOVEMENT_SPEED, 0);
 		}
@@ -162,7 +163,7 @@ public class stratMain extends Thread {
 	
 	
 	public boolean closeToTarget(){
-		int distance = (int) SimpleViewer.calcDistanceBetweenPoints(Alfi.getCoors(), target);
+		int distance = (int) viewer.calcDistanceBetweenPoints(Alfi.getCoors(), target);
 		if(distance> 10){
 			return true;
 		}else{
