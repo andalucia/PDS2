@@ -20,6 +20,14 @@ public class Ball extends BoardObject {
 	Body leftGoalLine;
 	Body rightGoalLine;
 
+	/**
+	 * Constructor that fully initialises the ball object
+	 * @param x
+	 * @param y
+	 * @param radius
+	 * @param color
+	 * @param angle
+	 */
 	public Ball(float x, float y, float radius, Color color, int angle) {
 		super(x, y, "Ball", new Circle(radius), 5, color, angle);
 		this.body.setUserData(this);
@@ -30,8 +38,10 @@ public class Ball extends BoardObject {
 	}
 	
 	
-	
-
+	/**
+	 * Function to kick the ball
+	 * @param d angle at which the ball is kicked
+	 */
 	public void kick(double d) {
 		int force = 10000;
 		double angle = d;

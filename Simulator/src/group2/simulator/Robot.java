@@ -1,7 +1,5 @@
 package group2.simulator;
 
-
-
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -23,6 +21,16 @@ public class Robot extends BoardObject{
 	int speed = 3;
 	BufferedImage img = null;
 
+	/**
+	 * Constructor that fully initiliases the Robot player
+	 * @param x is the x coordinate position for the robot
+	 * @param y is the y coordinate position for the robot
+	 * @param xSize is the width of a robot
+	 * @param ySize is the height of the robot
+	 * @param color is the colour of the robot
+	 * @param img the image of the robot
+	 * @param angle the initial angle at which the robot is placed
+	 */
 	public Robot(int x, int y, int xSize, int ySize, Color color, BufferedImage img,
 			int angle) {
 		super(x, y, "Robot", new Box(xSize, ySize), 10000000, color, angle);
@@ -35,16 +43,25 @@ public class Robot extends BoardObject{
 		this.body.setDamping(2f);
 		this.body.setRotatable(false);
 	}
+	
 
-	public int getLength() {
+	public int getWidth() {
 		return xSize;
 	}
 
-	public int getWidth() {
+	public int getHeight() {
 		return ySize;
 	}
 
+	/**
+	 * Check is the robot is close to the ball
+	 * @param ball the object which is going to be checked if it's close to the robot
+	 * @return true or false, depending whether the robot is close to the ball
+	 */
 	public Boolean isCloseToFront(Ball ball){
+		
+		// performs a linear mapping from 2D coordinates to other 2D coordinates 
+		//that preserves the 'parallelism' and 'perpendicularity' of lines
 		AffineTransform at = AffineTransform.getRotateInstance(
 				(Math.toRadians(this.getAngle()*(-1))), getX(), getY());
 		Point2D.Double p = new Point2D.Double((double) ball.getX(), (double) ball.getY());
@@ -72,6 +89,10 @@ public class Robot extends BoardObject{
 		return false;
 	}
 
+	/**
+	 * Check is the robot can kick the ball
+	 * @param ball is the object the the robot could kick
+	 */
 	public void kick(Ball ball) {
 		if (isCloseToFront(ball)){
 			ball.kick(getAngle());
@@ -94,16 +115,26 @@ public class Robot extends BoardObject{
 		move(w,b,-3);
 	}
 	
-	/*
-	 * Calculating robot' next position
-	 * 
+
+	/**
+	 * Computing robot's next position for the x-coordinate
+	 * @param x is the current x-coordinate
+	 * @param dist is value added to the initial position
+	 * @param angle 
+	 * @return the next x-coordinate position
 	 */
-	
 	public float countNextPositionX(float x, int dist, double angle)
 	{
 		return x + (dist * (float) Math.cos(Math.toRadians(angle)));
 	}
 	
+	/**
+	 * Computing robot's next position for the y-coordinate
+	 * @param y is the current y-coordinate
+	 * @param dist is value added to the initial position
+	 * @param angle
+	 * @return the next y-coordinate postion
+	 */
 	public float countNextPositionY(float y, int dist, double angle)
 	{
 		return y + (dist * (float) Math.sin(Math.toRadians(angle)));
@@ -120,8 +151,7 @@ public class Robot extends BoardObject{
 	 *  
 	 *  TO DO: PUSHING BACKWARDS AND SIDES
 	 */
-	public void move(World world, Ball ball, int mult)
-	{
+	public void move(World world, Ball ball, int mult){
 		
 		int dist = speed * mult;
 		double tempAngle = this.getAngle();
@@ -137,12 +167,18 @@ public class Robot extends BoardObject{
 			ball.body.move(ballCoordX, ballCoordY);
 		}
 			else
-		{
+			{
 				this.body.move(x, y);
-		}
+			}
 	}
 	
-	// negative for left, positive for right
+	
+	/**
+	 * Turn the angle 
+	 * Negative number turns to left
+	 * Positive number turns to right
+	 * @param value
+	 */
 	public void turn(int value) {
 		if (value > 0) {
 			this.setAngle(this.getAngle() + 5);
