@@ -11,8 +11,6 @@ import javax.swing.JFrame;
 import javax.swing.JTextPane;
 import javax.swing.JCheckBox;
 
-import group2.sdp.pc.strategy.stratMain;
-
 /**
  * The terminal to oversee Alfie.
  */
@@ -31,7 +29,6 @@ public class CommanderTerminal {
 	private Thread init_thread, cleanup_thread;
 	
 	// Strategy object that sends commands to Alfi
-	private stratMain strategy;
 	
 	/**
 	 * Launch the application.
@@ -68,7 +65,6 @@ public class CommanderTerminal {
 					
 					try {
 						alfieServer = new Server();
-						strategy = new stratMain(alfieServer);
 						connected = true;
 						log("Connected to Alfie");
 						break;
@@ -111,8 +107,7 @@ public class CommanderTerminal {
 		btnGameMode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(connected == true) {
-					log("Starting Alfie in game mode");
-					strategy.getReady();					
+					log("Starting Alfie in game mode");	
 				} else {
 					log("Unable to start Game Mode: Alfie not connected");
 				}
