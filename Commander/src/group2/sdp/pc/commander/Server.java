@@ -77,7 +77,7 @@ public class Server {
 	/**
 	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.
-	 * @param distance 
+	 * @param distance The distance to travel in an inspecified unit, 0 to travel indefinitely
 	 */
 	public void sendGoForward(int speed, int distance) {
 		sendCandyPacket(new CandyPacket(CandyPacket.GO_FORWARD_CANDY, speed, distance), true);
