@@ -87,6 +87,7 @@ git push origin mycoolnewfeature
 git checkout master
 git pull
 git merge mycoolnewfeature
+git push
    = cross fingers but if there are conflicts, get someone to resolve them
    = look at cool pictrues by doing
 gitk
