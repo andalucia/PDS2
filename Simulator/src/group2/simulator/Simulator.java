@@ -23,7 +23,7 @@ import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
-public class Simulator {
+public class Simulator  {
 
 	/** The frame displaying the simulation */
 	private static Frame frame;
@@ -45,10 +45,13 @@ public class Simulator {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
-	private static int robotMovingSpeed, robotRotationSpeed,kickedBallSpeed;
-	private static int robotAngle;
-	private static double kickedBallAngle = 0; // an angle for fixed ball movement
-	private static boolean isBallKicked;
+
+	static Thread actionThread = new Thread() {
+		public void run() {
+			//Doesn't do anything for now. But hopefully, it will get commands from the planner :)
+			System.out.println("Thread for simulator");
+		}
+	};
 
 	/** The title of the simulation */
 	private String title;
@@ -66,7 +69,8 @@ public class Simulator {
 
 	public static void main(String args []){
 			prepareSimulator();
-			initializeArea();				
+			initializeArea();		
+			
 	}
 
 	/**
@@ -81,15 +85,6 @@ public class Simulator {
 		Simulator.robot = robot;
 		Simulator.oppRobot = oppRobot;
 		Simulator.ball = ball;
-		//robot is not moving yet
-		//We might need to create another initial function to inittialise values later on.
-		robotMovingSpeed = 0;
-		robotAngle = 0;
-		robotRotationSpeed = 0;
-		kickedBallSpeed = 0;
-		kickedBallAngle = 0;
-		isBallKicked = false;
-
 	}
 
 	/**
@@ -105,7 +100,7 @@ public class Simulator {
 		int newOppRobotStartX = oppRobotStartX;
 		int newBallStartX = ballStartX;
 
-		final Simulator sim = new Simulator("SDP World",new Robot(newRobotStartX, robotStartY+60, 70, 50, Color.BLUE, blueImage, 0),
+		final Simulator sim = new Simulator("SDP World",new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY, 9, Color.RED, 0));
 	}
@@ -152,6 +147,12 @@ public class Simulator {
 				running = false;
 				System.exit(0);
 			}
+			
+			public void windowOpened(WindowEvent arg0) {
+            	actionThread.start();
+            	//This tread doesn't do anything for now. It will be used for communicating with the Strategy
+            	//and receiving commands from them.
+            }
 		});
 
 		frame.setVisible(true);
@@ -166,49 +167,29 @@ public class Simulator {
 	private static void initSimulation() {
 		world.clear();
 		world.setGravity(0, 0);
-		robotAngle += robotRotationSpeed;
-		robot.setAngle(robot.getAngle());
+		
+		robot.setAngle(180);
 
-		float newRobotStartX = robot.getX();
-		float newRobotStartY = robot.getY();
-		int newOppRobotStartX = oppRobotStartX;
+		float newOppRobotStartX = oppRobot.getX();
+		float newOppRobotStartY = oppRobot.getY();
+		
+		int newRobotStartX = robotStartX;
 	
-		ball.stop();
+		//ball.stop();
 		
-		
-		Float newBallStartX = (ball.getX() + (robotMovingSpeed * (float) Math.cos(Math.toRadians(robotAngle))));
-		Float newBallStartY = (ball.getY() + (robotMovingSpeed * (float) Math.sin(Math.toRadians(robotAngle))));
+		oppRobot.setPosition(newOppRobotStartX, newOppRobotStartY);
+		robot.setPosition(newRobotStartX, robotStartY);
 
-
-		oppRobot.setAngle(180);
+		float newBallStartX = ball.getX();
+		float newBallStartY = ball.getY();
 		
-		robot.setPosition(newRobotStartX, newRobotStartY);
-		
-		oppRobot.setPosition(newOppRobotStartX, robotStartY);
-
 		ball.setPosition(newBallStartX, newBallStartY);
-		
-		//if(robot.isCloseToFront(ball) )
-		//	ball.setPosition(newBallStartX, newBallStartY);
-
-		if (isBallKicked){
-			kickedBallSpeed = 8;
-			
-		}
-
-		 newBallStartX = (ball.getX() + (kickedBallSpeed * (float) Math.cos(Math.toRadians(kickedBallAngle))));
-		 newBallStartY = (ball.getY() + (kickedBallSpeed * (float) Math.sin(Math.toRadians(kickedBallAngle))));
-		 ball.setPosition(newBallStartX, newBallStartY);
-		 if (ball.DoesItHitWall()){
-			 kickedBallSpeed = 0;
-			 isBallKicked = false;
-
+		 			
+		 if (ball.doesItHitWall()){
+			 ball.stop();
 		 }
 
 		init(world);
-
-
-
 	}
 
 	/**
@@ -282,9 +263,9 @@ public class Simulator {
 		rightGoalLine.setRestitution(1.0f);
 		world.add(rightGoalLine);
 
-
-		ball.setGoalLines(leftGoalLine, rightGoalLine);
-		ball.ignoreGoalLines();
+		//This doesn't do anything ???
+		//ball.setGoalLines(leftGoalLine, rightGoalLine);
+		//ball.ignoreGoalLines();
 
 		world.add(robot.getBody());
 		world.add(oppRobot.getBody());
@@ -313,41 +294,34 @@ public class Simulator {
 	 */
 	public static void setControls()
 	{
-		frame.addKeyListener(new KeyListener()
-				{
+		frame.addKeyListener(new KeyListener(){
 			public void keyPressed(KeyEvent event) {
 				switch(event.getKeyCode()){
 					case KeyEvent.VK_ESCAPE :
 							System.exit(0);
 							break;
 					case KeyEvent.VK_UP :	
-							robot.moveForward(world, ball);
+							oppRobot.moveForward(world, ball);
 							break;
 					case KeyEvent.VK_DOWN :	
-							robot.moveBackwards(world, ball);
-							break;
-					case KeyEvent.VK_S: 
-							robotMovingSpeed = 0; 
-							robotRotationSpeed = 0;robot.setAngle(180);					
+							oppRobot.moveBackwards(world, ball);
 							break;
 					case KeyEvent.VK_RIGHT:
-							robot.turn(20);
+							oppRobot.turn(20);
 							break;
 					case KeyEvent.VK_LEFT:
-							robot.turn(-20);					
+							oppRobot.turn(-20);					
 							break;
 					case KeyEvent.VK_R:
 							// Resetting Simulation
-							robot.setAngle(0);
-							robot.setPosition(padding + wallThickness, boardHeight/2 + padding);
+							oppRobot.setAngle(180);
+							oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 							ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
-							isBallKicked = false;
-							kickedBallSpeed = 0;
 							break;
 					case KeyEvent.VK_ENTER:
-							if(robot.canRobotKick(ball)){
-								isBallKicked = true;
-								kickedBallAngle = robot.getAngle();
+							if(oppRobot.canRobotKick(ball)){
+								oppRobot.kick(ball);
+								System.out.println("Kicked ball");
 							}
 							else
 								System.out.println("Too far away from the ball");
@@ -355,12 +329,15 @@ public class Simulator {
 				}
 
 			}
+			
 			public void keyReleased(KeyEvent event) {
 
 			}
-			public void keyTyped(KeyEvent event) {}
+			public void keyTyped(KeyEvent event) {
+				
+			}
 
-				});
+		});
 	}	
 
 	public static void displayControls(Graphics2D g){

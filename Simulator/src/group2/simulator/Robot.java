@@ -44,7 +44,6 @@ public class Robot extends BoardObject{
 		this.body.setRotatable(false);
 	}
 	
-
 	public int getWidth() {
 		return xSize;
 	}
@@ -90,7 +89,7 @@ public class Robot extends BoardObject{
 	}
 
 	/**
-	 * Check is the robot can kick the ball
+	 * Check if the robot can kick the ball
 	 * @param ball is the object the the robot could kick
 	 */
 	public void kick(Ball ball) {
@@ -101,55 +100,33 @@ public class Robot extends BoardObject{
 		}
 	}
 
-
-
-	public BufferedImage getImage() {
-		return img;
-	}
-
-	public void moveForward(World w, Ball b) {
-		move(w,b, 3);
-	}
-	
-	public void moveBackwards(World w, Ball b) {
-		move(w,b,-3);
-	}
-	
-
 	/**
-	 * Computing robot's next position for the x-coordinate
-	 * @param x is the current x-coordinate
-	 * @param dist is value added to the initial position
-	 * @param angle 
-	 * @return the next x-coordinate position
+	 * Robot moves forward and takes into account if it finds the ball in front of him
+	 * if so, it will push the ball as it goes along
+	 * @param world is the world where the action happens
+	 * @param ball is the ball that can be encountered 
 	 */
-	public float countNextPositionX(float x, int dist, double angle)
-	{
-		return x + (dist * (float) Math.cos(Math.toRadians(angle)));
+	public void moveForward(World world, Ball ball) {
+		move(world,ball, 4);
 	}
-	
-	/**
-	 * Computing robot's next position for the y-coordinate
-	 * @param y is the current y-coordinate
-	 * @param dist is value added to the initial position
-	 * @param angle
-	 * @return the next y-coordinate postion
+	/**TODO
+	 * Robot moves backwards BUT NOW does NOT take into account if it finds the ball behind him
+	 * if so, it will push the ball as it goes along
+	 * @param world is the world where the action happens
+	 * @param ball is the ball that can be encountered 
 	 */
-	public float countNextPositionY(float y, int dist, double angle)
-	{
-		return y + (dist * (float) Math.sin(Math.toRadians(angle)));
+	public void moveBackwards(World world, Ball ball) {
+		move(world,ball,-4);
 	}
 	
 	
-	/*
+	/**Function moves robot and ball provided that it is moving forward and ball is in front
+	 * Counting next position of the ball.
 	 * 
-	 *  Deleted a large part of move fucntion as i found it faulty
-	 *  Counting next position of the ball.
-	 *  
-	 *  Function moves robot and ball provided 
-	 *  it is moving forward and ball is in front
-	 *  
-	 *  TO DO: PUSHING BACKWARDS AND SIDES
+	 * TODO: PUSHING BACKWARDS AND SIDES!
+	 * @param world the world where the move occurs 
+	 * @param ball the ball that will be moved along with the robot
+	 * @param mult
 	 */
 	public void move(World world, Ball ball, int mult){
 		
@@ -159,8 +136,6 @@ public class Robot extends BoardObject{
 		float y = countNextPositionY(this.getY(),dist,tempAngle);
 		
 		if (isCloseToFront(ball) && dist > 0) {
-			
-		
 			float ballCoordX = countNextPositionX(ball.getX(),dist,tempAngle);
 			float ballCoordY = countNextPositionY(ball.getY(),dist,tempAngle);
 			this.body.move(x, y);
@@ -172,9 +147,32 @@ public class Robot extends BoardObject{
 			}
 	}
 	
+	/**
+	 * Computing the next position for the x-coordinate
+	 * @param x is the current x-coordinate
+	 * @param dist is value added to the initial position
+	 * @param angle 
+	 * @return the next x-coordinate position
+	 */
+	public float countNextPositionX(float x, int dist, double angle)
+	{
+		return x + (dist * (float) Math.cos(Math.toRadians(angle)));
+	}
 	
 	/**
-	 * Turn the angle 
+	 * Computing the next position for the y-coordinate
+	 * @param y is the current y-coordinate
+	 * @param dist is value added to the initial position
+	 * @param angle
+	 * @return the next y-coordinate position
+	 */
+	public float countNextPositionY(float y, int dist, double angle)
+	{
+		return y + (dist * (float) Math.sin(Math.toRadians(angle)));
+	}
+		
+	/**
+	 * Turn the robot at the given angle 
 	 * Negative number turns to left
 	 * Positive number turns to right
 	 * @param value
@@ -188,5 +186,9 @@ public class Robot extends BoardObject{
 		// rotates the body
 		this.getBody().setRotation((float) Math.toRadians(getAngle()));
 	
+	}
+	
+	public BufferedImage getImage() {
+		return img;
 	}
 }

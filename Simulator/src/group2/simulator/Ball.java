@@ -39,32 +39,40 @@ public class Ball extends BoardObject {
 	
 	
 	/**
-	 * Function to kick the ball
-	 * @param d angle at which the ball is kicked
+	 * Function to kick the ball and change its position 
+	 * @param angle is angle at which the ball is kicked
 	 */
-	public void kick(double d) {
-		int force = 10000;
-		double angle = d;
+	public void kick(double angle) {
+		int force = 1000;
 		float x = (force * (float) Math.cos(Math.toRadians(angle)));
 		float y = (force * (float) Math.sin(Math.toRadians(angle)));
 		this.body.addForce(new Vector2f(x, y));
+		this.move(angle);
 
 	}
-
-	public void stop() {
-		this.body.setForce(0, 0);
-		this.body.adjustVelocity(((Vector2f) this.body.getVelocity()).negate());
-	}
-
+		
+	/**
+	 * Move the ball forward by distance dist
+	 * @param angle
+	 */
 	public void move(double angle) {
-		int dist = 3;
+		int dist = 300;
 		float x = (this.getX() + (dist * (float) Math
 				.cos(Math.toRadians(angle))));
 		float y = (this.getY() + (dist * (float) Math
 				.sin(Math.toRadians(angle))));
 		this.body.setPosition(x, y);
+		
 	}
 
+	/**
+	 * Function that stops the ball
+	 */
+	public void stop() {
+		this.body.setForce(0, 0);
+		this.body.adjustVelocity(((Vector2f) this.body.getVelocity()).negate());
+	}
+	
 	public void setGoalLines(Body leftGL, Body rightGL) {
 		this.leftGoalLine = leftGL;
 		this.rightGoalLine = rightGL;
@@ -80,7 +88,7 @@ public class Ball extends BoardObject {
 		this.body.removeExcludedBody(rightGoalLine);
 	}
 
-	public boolean DoesItHitWall() {
+	public boolean doesItHitWall() {
 		float x = this.getX();
 		float y = this.getY();
 
