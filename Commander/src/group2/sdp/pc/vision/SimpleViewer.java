@@ -32,7 +32,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0,
 	width_margin = 20, height_margin = 60; 
 	private static String   device = "/dev/video0";
-	
+
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;
 
@@ -42,22 +42,22 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 	private static final int HUE = 0;
 
 	private static final boolean VERBOSE = false;
-	
+
 	private JLabel          label;
 	private JFrame          frame;	
-	
+
 	private int[] red = new int[] { 255, 0, 0 };
 	private static int ball_box_radius = 50;
 	Point ball_pos = new Point(-1,-1);
-	
+
 	//Previous centroids
 	private static Point prevYellowCentroid = new Point(-1,-1);
 	private static Point prevBlueCentroid = new Point(-1,-1);
-	
+
 	// int values for the pure colours 
 	private static final int[] pureRed = new int[] { 255, 0, 0 };
 	private static final int[] pureYellow = new int[] {255, 255, 0};
-	private static final int[] pureBlue = new int[] {0, 0, 255};
+	private static final int[] pureBlue = new int[] {0, 0, 200};
 	private static final int[] pureBlack = new int[] {0, 0, 0};
 	private static final int[] firebrick = new int[] {178, 34, 34};
 
@@ -67,7 +67,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 	private static final int blueThreshForYellow = 0; //not actually used but could be needed at some point
 	private static final int redThreshForBlue = 140;
 	private static final int greenThreshForBlue = 140;
-	private static final int blueThreshForBlue = 160;
+	private static final int blueThreshForBlue = 90;
 	private static final int redThreshForBlack = 2;
 	private static final int greenThreshForBlack = 2;
 	private static final int blueThreshForBlack = 2;
@@ -130,7 +130,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 				if(c.getName().equals("Saturation"))
 					c.setValue(SATURATION);
 			}
-			
+
 			if (VERBOSE) {
 				for(Control c2: controls)
 					System.out.println(
@@ -274,7 +274,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		return thisFrame;
 
 	}
-	
+
 	/**
 	 * Finds position of robots
 	 * 
@@ -361,7 +361,14 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		prevYellowCentroid = actualCentroidPosYellow;
 		prevBlueCentroid = actualCentroidPosBlue;
 		
-		drawCross(raster,actualCentroidPosYellow,pureYellow);
+		int x = actualCentroidPosBlue.x;
+		int y = actualCentroidPosBlue.y;
+		
+		int[] xpoints = new int[] {x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20};
+		int[] ypoints = new int[] {y-12,y-12,y-12,y-12,y-5,y-5,y-5,y-5,y,y,y,y,y+5,y+5,y+5,y+5,y+15,y+15,y+15,y+15};
+		int[] checkpoints = new int[] {0,0,0,0,0,0,1,0,1,1,1,2,0,0,1,0,0,0,0,0};
+
+		//drawCross(raster,actualCentroidPosYellow,pureYellow);
 
 		double distanceBetweenCentroidsYandK = calcDistanceBetweenPoints(actualCentroidPosYellow,actualCentroidPosBlack);
 		double distanceBetweenCentroidsBandK = calcDistanceBetweenPoints(actualCentroidPosBlue,actualCentroidPosBlack);
@@ -369,8 +376,47 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		//if (distanceBetweenCentroidsYandK < 5000) drawLine(raster, actualCentroidPosYellow, actualCentroidPosBlack, firebrick);
 		//else if (distanceBetweenCentroidsBandK < 5000) drawLine(raster, actualCentroidPosBlue, actualCentroidPosBlack, firebrick);
 		drawCross(raster,actualCentroidPosBlue,pureBlue);
-		//System.out.println(actualCentroidPosYellow);
 
+		Color c = null;
+		int cur_score = 0;
+		int best_score = 0;
+		int best_angle = 0;
+		if (actualCentroidPosBlue.x != 0){
+			for (int j = 0; j < 360;j++) {
+				for (int i = 0; i < xpoints.length;i++) {
+					cur_score = 0;
+					Point rot_point = new Point(rotatePoint(actualCentroidPosBlue,new Point(xpoints[i],ypoints[i]),j));
+
+					try {
+						c = new Color(image.getRGB(rot_point.x,rot_point.y));
+					} catch(Exception e) {
+						System.out.println(actualCentroidPosBlue + "" + (new Point(xpoints[i],ypoints[i])) + "" + rot_point);					e.printStackTrace();
+					}
+					switch(checkpoints[i]) {
+					case(0):
+						if (isSthGreen(new int[] {c.getRed(),c.getGreen(),c.getBlue()})) {
+							cur_score++;
+						}
+					case(1):
+						if (isSthBlue(new int[] {c.getRed(),c.getGreen(),c.getBlue()})) {
+							cur_score++;
+						}
+					case(2):
+						if (isSthBlack(new int[] {c.getRed(),c.getGreen(),c.getBlue()})) {
+							cur_score++;
+						}
+					}
+					//drawPixel(raster, new Point(xpoints[i],ypoints[i]), pureRed);
+
+				}
+				if (cur_score > best_score) {
+					best_score = cur_score;
+					best_angle = j;
+				}
+			}
+		}
+		System.out.println(best_angle);
+		
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -422,8 +468,9 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 	 */
 
 	public boolean isSthBlue(int[] colour){
-		int[] blueSim = calcColourDifferences(pureBlue, colour);
-		return (blueSim[0] < redThreshForBlue && blueSim[1] < greenThreshForBlue && blueSim[2] < blueThreshForBlue);
+//		int[] blueSim = calcColourDifferences(pureBlue, colour);
+//		return (blueSim[0] < redThreshForBlue && blueSim[1] < greenThreshForBlue && blueSim[2] < blueThreshForBlue);
+		return (colour[0] < 50 && colour[1] >90 && colour[2] >90);
 	}
 
 	/**
@@ -434,6 +481,10 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 	public boolean isSthBlack(int[] colour){
 		int[] blackSim = calcColourDifferences(pureBlack, colour);
 		return (blackSim[0] < redThreshForBlack && blackSim[1] < greenThreshForBlack && blackSim[2] < blueThreshForBlack);
+	}
+	
+	public boolean isSthGreen(int[] colour) {
+		return (colour[0] < 50 && colour[1] > 100 && colour[2] < 50);
 	}
 
 
@@ -511,7 +562,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 			drawPixel(raster, new Point(p1.x, i), colour);
 		}
 	}
-	
+
 	private ArrayList<Point> performClustering(ArrayList<Point> pixels, int distance) {
 		int centroidx,centroidy = 0;
 		Point centroid = new Point(0,0);
@@ -535,7 +586,18 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 				pixels.remove(pixels.size()-1);
 			}
 		}
-		
+
 		return pixels;
+	}
+	public Point rotatePoint(Point p1, Point p2, int deg)
+	{
+		p2.x -= p1.x;
+		p2.y -= p1.y;
+		double rad = (double) Math.toRadians(deg);
+		int xtemp;
+		xtemp = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
+		p2.y = (int) Math.round((p2.x * (double)Math.sin(rad)) + (p2.y * (double)Math.cos(rad)));
+		p2.x = xtemp;
+		return new Point (p2.x+p1.x, p2.y+p1.y);
 	}
 }
