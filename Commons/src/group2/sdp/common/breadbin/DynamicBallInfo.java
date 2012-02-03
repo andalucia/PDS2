@@ -24,14 +24,14 @@ public class DynamicBallInfo extends StaticBallInfo {
 	/**
 	 * Construct a dynamic ball info giving all the information that is required for a complete object.
 	 * @param position The position of the ball w.r.t. the centre of the pitch. Units are cm.
+	 * @param rollingSpeed The speed at which the ball is moving. Units are cm/s.
 	 * @param rollingDirection The direction in which the ball is moving.
 	 *  Units are degrees.
 	 *  The range is [0, 360)
 	 *  3 o'clock is 0 degrees, the angle grows counter clock-wise.
 	 *  Thus 12 o'clock is 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
-	 * @param rollingSpeed The speed at which the ball is moving. Units are cm/s.
 	 */
-	public DynamicBallInfo(Point2D position, double rollingDirection, double rollingSpeed) {
+	public DynamicBallInfo(Point2D position, double rollingSpeed, double rollingDirection) {
 		super(position);
 		this.rollingDirection = rollingDirection;
 		this.rollingSpeed = rollingSpeed;

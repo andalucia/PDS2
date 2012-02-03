@@ -31,6 +31,10 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 	 * @param alfie Indicates if the robot is Alfie or his opponent.
 	 * @param travelSpeed The speed at which the robot is travelling. Units are cm/s.
 	 * @param travelDirection The speed at which the robot is travelling. Units are cm/s.
+	 * Units are degrees.
+	 * The range is [0, 360)
+	 * 3 o'clock is 0 degrees, the angle grows counter clock-wise.
+	 * Thus 12 o'clock is 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
 	 */
 	public DynamicRobotInfo(Point2D position, double facingDirection, 
 			boolean alfie, double travelSpeed, double travelDirection) {
@@ -39,7 +43,21 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 		this.travelDirection = travelDirection;
 	}
 	
-	
+	/**
+	 * A constructor that builds on a given static robot info.
+	 * @param info The info to build on.
+	 * @param travelSpeed The speed at which the robot is travelling. Units are cm/s.
+	 * @param travelDirection The speed at which the robot is travelling. Units are cm/s.
+	 * Units are degrees.
+	 * The range is [0, 360)
+	 * 3 o'clock is 0 degrees, the angle grows counter clock-wise.
+	 * Thus 12 o'clock is 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
+	 */
+	public DynamicRobotInfo(StaticRobotInfo info, double travelSpeed, double travelDirection) {
+		super(info);
+		this.travelSpeed = travelSpeed;
+		this.travelDirection = travelDirection;
+	}
 
 	/**
 	 * Get the speed at which the robot is travelling. Units are cm/s.

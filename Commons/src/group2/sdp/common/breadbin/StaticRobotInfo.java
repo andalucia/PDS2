@@ -32,6 +32,7 @@ public class StaticRobotInfo {
 	 */
 	protected boolean alfie;
 	
+	
 	/**
 	 * A constructor that takes all the needed information for a complete object as arguments.
 	 * @param position The position of the robot w.r.t. the centre of the pitch. Units are in cm.
@@ -39,12 +40,22 @@ public class StaticRobotInfo {
 	 * @param alfie Indicates if the robot is Alfie or his opponent.
 	 */
 	public StaticRobotInfo(Point2D position, double facingDirection, boolean alfie) {
-		super();
 		this.position = position;
 		this.facingDirection = facingDirection;
 		this.alfie = alfie;
 	}
 
+	/**
+	 * A copy constructor.
+	 * @param info The info to copy.
+	 */
+	public StaticRobotInfo(StaticRobotInfo info) {
+		this.position = info.position;
+		this.facingDirection = info.facingDirection;
+		this.alfie = info.alfie;
+	}
+
+	
 	/**
 	 * Get the position of the robot w.r.t. the centre of the pitch. Units are in cm.
 	 * @return The position of the robot w.r.t. the centre of the pitch. Units are in cm.

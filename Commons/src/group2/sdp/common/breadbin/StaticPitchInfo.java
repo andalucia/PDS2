@@ -1,7 +1,7 @@
 package group2.sdp.common.breadbin;
 
 /**
- * A class containing all the needed information about the pitch at a given moment. 
+ * A class containing all the static information about the pitch at a given moment. 
  */
 public class StaticPitchInfo {
 	/**
