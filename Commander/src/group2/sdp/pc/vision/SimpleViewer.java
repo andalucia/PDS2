@@ -360,13 +360,13 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		}
 		prevYellowCentroid = actualCentroidPosYellow;
 		prevBlueCentroid = actualCentroidPosBlue;
-		
+
 		int x = actualCentroidPosBlue.x;
 		int y = actualCentroidPosBlue.y;
-		
-		int[] xpoints = new int[] {x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20};
-		int[] ypoints = new int[] {y-12,y-12,y-12,y-12,y-5,y-5,y-5,y-5,y,y,y,y,y+5,y+5,y+5,y+5,y+15,y+15,y+15,y+15};
-		int[] checkpoints = new int[] {0,0,0,0,0,0,1,0,1,1,1,2,0,0,1,0,0,0,0,0};
+
+		//		int[] xpoints = new int[] {x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20,x-10,x,x+5,x+20};
+		//		int[] ypoints = new int[] {y-12,y-12,y-12,y-12,y-5,y-5,y-5,y-5,y,y,y,y,y+5,y+5,y+5,y+5,y+15,y+15,y+15,y+15};
+		//		int[] checkpoints = new int[] {0,0,0,0,0,0,1,0,1,1,1,2,0,0,1,0,0,0,0,0};
 
 		//drawCross(raster,actualCentroidPosYellow,pureYellow);
 
@@ -382,41 +382,18 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		int best_score = 0;
 		int best_angle = 0;
 		if (actualCentroidPosBlue.x != 0){
-			for (int j = 0; j < 360;j++) {
-				for (int i = 0; i < xpoints.length;i++) {
-					cur_score = 0;
-					Point rot_point = new Point(rotatePoint(actualCentroidPosBlue,new Point(xpoints[i],ypoints[i]),j));
+			for (int i = 0; i < 360; i++) {
+				Point nextPixel = new Point(actualCentroidPosBlue.x,actualCentroidPosBlue.y);
 
-					try {
-						c = new Color(image.getRGB(rot_point.x,rot_point.y));
-					} catch(Exception e) {
-						System.out.println(actualCentroidPosBlue + "" + (new Point(xpoints[i],ypoints[i])) + "" + rot_point);					e.printStackTrace();
-					}
-					switch(checkpoints[i]) {
-					case(0):
-						if (isSthGreen(new int[] {c.getRed(),c.getGreen(),c.getBlue()})) {
-							cur_score++;
-						}
-					case(1):
-						if (isSthBlue(new int[] {c.getRed(),c.getGreen(),c.getBlue()})) {
-							cur_score++;
-						}
-					case(2):
-						if (isSthBlack(new int[] {c.getRed(),c.getGreen(),c.getBlue()})) {
-							cur_score++;
-						}
-					}
-					//drawPixel(raster, new Point(xpoints[i],ypoints[i]), pureRed);
-
-				}
-				if (cur_score > best_score) {
-					best_score = cur_score;
-					best_angle = j;
-				}
+				//rotatePoint(actualCentroidPosBlue, new Point (actualCentroidPosBlue.x,actualCentroidPosBlue.y), i))
+//				while (c = new Color(image.getRGB())) {
+//
+//
+//
+//				}
 			}
 		}
-		System.out.println(best_angle);
-		
+
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -468,8 +445,8 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 	 */
 
 	public boolean isSthBlue(int[] colour){
-//		int[] blueSim = calcColourDifferences(pureBlue, colour);
-//		return (blueSim[0] < redThreshForBlue && blueSim[1] < greenThreshForBlue && blueSim[2] < blueThreshForBlue);
+		//		int[] blueSim = calcColourDifferences(pureBlue, colour);
+		//		return (blueSim[0] < redThreshForBlue && blueSim[1] < greenThreshForBlue && blueSim[2] < blueThreshForBlue);
 		return (colour[0] < 50 && colour[1] >90 && colour[2] >90);
 	}
 
@@ -482,7 +459,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		int[] blackSim = calcColourDifferences(pureBlack, colour);
 		return (blackSim[0] < redThreshForBlack && blackSim[1] < greenThreshForBlack && blackSim[2] < blueThreshForBlack);
 	}
-	
+
 	public boolean isSthGreen(int[] colour) {
 		return (colour[0] < 50 && colour[1] > 100 && colour[2] < 50);
 	}
