@@ -82,6 +82,7 @@ public class Brain {
 	
 	private static boolean initialized = false;
 	
+	// PID controller
 	private static DifferentialPilot pilot;
 	
 	// Indicates whether messages should be output to the LCD or not.
@@ -89,6 +90,7 @@ public class Brain {
 	
 	// If set to true, Alfie will stop when one of his touch sensors fires.
 	private static boolean stopOnTouch = false;
+	
 	// These flags are true during the period after the corresponding touch 
 	// sensor was fired and before a command was issued to Alfie. When Alfie 
 	// drools on a candy packet, he returns these flags and sets them to false.
@@ -147,6 +149,7 @@ public class Brain {
 		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		distance = SanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 		
+		stopOnTouch = true;
 		pilot.setTravelSpeed(speed);
 		if (distance == 0) {
 			pilot.forward();
@@ -163,8 +166,6 @@ public class Brain {
 			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 			LCD.refresh();
 		}
-		
-		stopOnTouch = true;
 	}
 	
 	/**
@@ -178,6 +179,7 @@ public class Brain {
 		assert(initialized);
 		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		
+		stopOnTouch = false;
 		pilot.setTravelSpeed(speed);
 		if (distance == 0) {
 			pilot.backward();			
@@ -194,8 +196,6 @@ public class Brain {
 			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 			LCD.refresh();
 		}
-		
-		stopOnTouch = false;
 	}
 	
 	/**
@@ -211,6 +211,7 @@ public class Brain {
 		speed = SanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		angle = SanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		
+		stopOnTouch = true;
 		pilot.setTravelSpeed(speed);
 		if (angle == 0) {
 			if (speed < 0) {
@@ -229,8 +230,6 @@ public class Brain {
 			LCD.drawString(SPN, 0, 0);
 			LCD.refresh();
 		}
-		
-		stopOnTouch = true;
 	}
 
 	/**
@@ -239,6 +238,7 @@ public class Brain {
 	public static void stop() {
 		assert(initialized);
 		
+		stopOnTouch = false;
 		pilot.stop();
 		
 		if (verbose) {
@@ -246,8 +246,6 @@ public class Brain {
 			LCD.drawString(STP, 0, 0);
 			LCD.refresh();
 		}
-		
-		stopOnTouch = false;
 	}
 	
 	/**

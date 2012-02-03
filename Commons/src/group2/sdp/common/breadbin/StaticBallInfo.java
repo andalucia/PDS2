@@ -20,7 +20,8 @@ public class StaticBallInfo {
 
 	
 	/**
-	 * A constructor that sets the position of the ball. Units are in cm.
+	 * A constructor that sets the position of the ball w.r.t. the centre of 
+	 * the pitch. Units are in cm.
 	 * @param position The position of the ball. Units are in cm.
 	 */
 	public StaticBallInfo(Point2D position) {

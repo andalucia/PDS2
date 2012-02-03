@@ -1,5 +1,7 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
+
 import java.util.List;
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
@@ -12,21 +14,30 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 public class ImageGrabber implements CaptureCallback {
 	
-	private static int width = 640, height = 480;
+	private int width = 640, height = 480;
 	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0;
 	private static String   device = "/dev/video0";
 	
-	private static final int SATURATION = 100;
-	private static final int BRIGHTNESS = 128;
-	private static final int CONTRAST = 64;
-	private static final int HUE = 0;
+	private int saturation;
+	private int brightness;
+	private int contrast;
+	private int hue;
 
 	private static final boolean VERBOSE = false;
 	
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;
 	
-	public ImageGrabber() {
+	private ImageProcessorSkeleton processor;
+	
+	public ImageGrabber(ImageProcessorSkeleton processor) {
+		this.processor = processor;
+		
+		saturation = 100;
+		brightness = 128;
+		contrast = 64;
+		hue = 0;
+
 		// Initialise video device and frame grabber
 		try {
 			initFrameGrabber();
@@ -59,13 +70,13 @@ public class ImageGrabber implements CaptureCallback {
 			System.out.println("Got list");
 			for(Control c: controls) {
 				if(c.getName().equals("Contrast"))
-					c.setValue(CONTRAST);
+					c.setValue(contrast);
 				if(c.getName().equals("Brightness"))
-					c.setValue(BRIGHTNESS);
+					c.setValue(brightness);
 				if(c.getName().equals("Hue"))
-					c.setValue(HUE);
+					c.setValue(hue);
 				if(c.getName().equals("Saturation"))
-					c.setValue(SATURATION);
+					c.setValue(saturation);
 			}
 			
 			if (VERBOSE) {
@@ -113,8 +124,6 @@ public class ImageGrabber implements CaptureCallback {
 
 	@Override
 	public void nextFrame(VideoFrame frame) {
-		ImageProcessor.process(frame.getBufferedImage(),null);
-		
+		processor.process(frame.getBufferedImage());
 	}
-
 }
