@@ -26,7 +26,7 @@ public class ImageGrabber implements CaptureCallback {
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;
 	
-	public ImageGrabber(){
+	public ImageGrabber() {
 		// Initialise video device and frame grabber
 		try {
 			initFrameGrabber();
