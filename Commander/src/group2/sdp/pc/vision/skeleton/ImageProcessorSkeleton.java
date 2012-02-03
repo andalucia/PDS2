@@ -1,4 +1,4 @@
-package group2.sdp.pc.vision.stan;
+package group2.sdp.pc.vision.skeleton;
 
 import group2.sdp.common.breadbin.StaticBallInfo;
 import group2.sdp.common.breadbin.StaticPitchInfo;
@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 /**
  * An abstract implementation of the class processing image data and producing static pitch info.
  */
-public abstract class AbstractImageProcessor {
+public abstract class ImageProcessorSkeleton {
 	
 	/**
 	 * The object that is going to consume the output of the Vision class.
@@ -26,7 +26,7 @@ public abstract class AbstractImageProcessor {
 	 * A constructor that takes the object that is going to consume the output.
 	 * @param consumer The object that is going to consume the output.
 	 */
-	public AbstractImageProcessor (StaticInfoConsumer consumer) {
+	public ImageProcessorSkeleton (StaticInfoConsumer consumer) {
 		this.consumer = consumer;
 	}
 	
@@ -48,7 +48,8 @@ public abstract class AbstractImageProcessor {
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
-		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);  
+		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);
+		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		consumer.consumeInfo(spi);
 	}

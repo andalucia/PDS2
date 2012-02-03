@@ -21,6 +21,7 @@ public class DynamicBallInfo extends StaticBallInfo {
 	 */
 	private double rollingDirection;
 
+	
 	/**
 	 * Construct a dynamic ball info giving all the information that is required for a complete object.
 	 * @param position The position of the ball w.r.t. the centre of the pitch. Units are cm.
@@ -37,6 +38,7 @@ public class DynamicBallInfo extends StaticBallInfo {
 		this.rollingSpeed = rollingSpeed;
 	}
 
+	
 	/**
 	 * Get the speed at which the ball is moving. Units are cm/s.
 	 * @return The speed at which the ball is moving. Units are cm/s.
@@ -64,7 +66,6 @@ public class DynamicBallInfo extends StaticBallInfo {
 	public double getRollingDirection() {
 		return rollingDirection;
 	}
-	
 
 	/**
 	 * Set the direction at which the ball is moving. 

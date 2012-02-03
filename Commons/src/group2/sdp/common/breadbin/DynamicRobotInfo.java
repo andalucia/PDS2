@@ -20,6 +20,7 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 	 */
 	private double travelDirection;
 	
+	
 	/**
 	 * A constructor taking all the information needed to build a complete object as arguments.
 	 * @param position The position of the robot w.r.t. the centre of the field. Units are cm.
@@ -59,6 +60,7 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 		this.travelDirection = travelDirection;
 	}
 
+	
 	/**
 	 * Get the speed at which the robot is travelling. Units are cm/s.
 	 * @return The speed at which the robot is travelling. Units are cm/s.

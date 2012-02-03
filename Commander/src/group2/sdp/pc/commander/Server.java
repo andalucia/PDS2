@@ -23,8 +23,7 @@ public class Server {
 	private boolean isConnected;
 
 	/**
-	 * Default constructor. Initialises the blue-tooth connection and adds a 
-	 * log listener.
+	 * Default constructor. Initialises the blue-tooth connection.
 	 * @throws Exception 
 	 */
 	public Server() throws Exception {

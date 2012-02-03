@@ -17,6 +17,7 @@ public class StaticPitchInfo {
 	 */
 	protected StaticRobotInfo opponentInfo;
 
+	
 	/**
 	 * A constructor that takes all required data as arguments.	
 	 * @param ballInfo The information about the ball.
@@ -32,8 +33,6 @@ public class StaticPitchInfo {
 	}
 	
 	
-	
-
 	/**
 	 * Get the information about the ball.
 	 * @return The information about the ball.

@@ -1,11 +1,15 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
+import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
+
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 
-public class ImageProcessor {
+public class ImageProcessor extends ImageProcessorSkeleton {
 	
 	private static int width = 640, height = 480,
 	width_margin = 20, height_margin = 60;
@@ -44,7 +48,7 @@ public class ImageProcessor {
 	 * @return
 	 */
 	
-	public static void process(BufferedImage image, WritableRaster raster) {
+	public void process(BufferedImage image, WritableRaster raster) {
 		BALL_POS = findBallPosition(image);
 		if (raster != null) {
 			//draw!
@@ -260,5 +264,28 @@ public class ImageProcessor {
 		}
 		
 		return pixels;
+	}
+
+	public ImageProcessor(StaticInfoConsumer consumer) {
+		super(consumer);
+	}
+	
+	@Override
+	protected Point2D extractBallPosition(BufferedImage image) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected double extractRobotFacingDirection(BufferedImage image,
+			boolean yellow) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

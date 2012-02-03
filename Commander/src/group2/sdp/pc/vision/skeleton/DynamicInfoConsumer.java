@@ -1,4 +1,4 @@
-package group2.sdp.pc.vision.stan;
+package group2.sdp.pc.vision.skeleton;
 
 import group2.sdp.common.breadbin.DynamicPitchInfo;
 
