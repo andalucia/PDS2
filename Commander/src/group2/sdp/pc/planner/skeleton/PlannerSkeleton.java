@@ -40,7 +40,7 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	 * @return True if the current command is null, false otherwise. 
 	 * WARNING: Override in children classes and call this method first thing.
 	 */
-	private boolean commandSuccessful(DynamicPitchInfo dpi) {
+	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
 		if (currentCommand == null)
 			return true;
 		return false;
@@ -52,7 +52,7 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	 * @return True if the current command is null, false otherwise. 
 	 * WARNING: Override in children classes and call this method first thing.
 	 */
-	private boolean problemExists(DynamicPitchInfo dpi) {
+	protected boolean problemExists(DynamicPitchInfo dpi) {
 		if (currentCommand == null)
 			return true;
 		return false;
