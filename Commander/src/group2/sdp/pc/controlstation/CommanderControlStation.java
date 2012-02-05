@@ -9,6 +9,8 @@ import group2.sdp.pc.vision.ImagePreviewer;
 import group2.sdp.pc.vision.ImageProcessor;
 import group2.sdp.pc.vision.SimpleViewer;
 
+import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +32,17 @@ public class CommanderControlStation implements KeyListener {
 
 	// GUI elements
 	private JFrame frmAlfieCommandCentre;
+	
+	private Checkbox connectToAlfieCheckbox;
+	private Checkbox grabImageCheckbox;
+	private Checkbox processImageCheckbox;
+	private Checkbox bakeInfoCheckbox;
+	private Checkbox previewImageCheckbox;
+	private Checkbox planCheckbox;
+	private Checkbox executePlanCheckbox;
+
+	private Button runButton;
+	
 	private JTextPane txtLog;
 	private JEditorPane Alfie_Speed;
 	private JEditorPane Alfie_Angle;
@@ -40,18 +53,15 @@ public class CommanderControlStation implements KeyListener {
 	private JLabel Info;
 	private JLabel Info2;
 	
-	private JButton startVisionButton;
-
 	/**
 	 * The server that sends commands to Alfie.
 	 */
 	private Server alfieServer;
-	private ImageProcessor processor;
 
 	/**
 	 *  Number of connection attempts before giving up.
 	 */
-	private static final int CONNECTION_ATTEMPTS = 5;
+	private static final int CONNECTION_ATTEMPTS = 2;
 	/**
 	 * Timeout between retries of connecting to Alfie.
 	 */
@@ -90,7 +100,6 @@ public class CommanderControlStation implements KeyListener {
 	 * Create the application.
 	 */
 	public CommanderControlStation() {
-		initializeConnectionThreads();
 		initializeFrame();
 	}
 
@@ -101,28 +110,33 @@ public class CommanderControlStation implements KeyListener {
 		init_thread = new Thread() {		
 			
 			public void run() {
-				for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
-					log("Connection attempt: " + i);
-					
-					try {
-						alfieServer = new Server();
-						log("Connected to Alfie");
-						break;
-					} catch(Exception e) {
-						log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
+				if (connectToAlfieCheckbox.getState()) {
+					for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
+						log("Connection attempt: " + i);
+						
 						try {
-							Thread.sleep(RETRY_TIMEOUT);
-						} catch (InterruptedException e1) {
-							e1.printStackTrace();
+							alfieServer = new Server();
+							log("Connected to Alfie");
+							break;
+						} catch(Exception e) {
+							log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
+							try {
+								Thread.sleep(RETRY_TIMEOUT);
+							} catch (InterruptedException e1) {
+								e1.printStackTrace();
+							}
 						}
 					}
 				}
 				PlanExecutor executor = new PlanExecutor(alfieServer);
 				Planner planner = new Planner(executor);
 				Bakery bakery = new Bakery(planner);
-				ImageProcessor processor = new ImageProcessor(bakery);
-				ImagePreviewer previewer = new ImagePreviewer(processor);
-				//new ImageGrabber(previewer);
+				ImagePreviewer previewer = new ImagePreviewer();
+				ImageProcessor processor = new ImageProcessor(bakery, previewer);
+				new ImageGrabber(processor);
+				if (planCheckbox.getState()) {
+					planner.run();
+				}
 			}
 		};
 		
@@ -139,19 +153,67 @@ public class CommanderControlStation implements KeyListener {
 	private void initializeFrame() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 500, 440);
+		frmAlfieCommandCentre.setBounds(100, 100, 700, 440);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
-
+		
+		connectToAlfieCheckbox = new Checkbox();
+		connectToAlfieCheckbox.setLabel("Connect to Alfie");
+		connectToAlfieCheckbox.setBounds(12, 12, 160, 25);
+		connectToAlfieCheckbox.setState(true);
+		
+		grabImageCheckbox = new Checkbox();
+		grabImageCheckbox.setLabel("Grab image");
+		grabImageCheckbox.setBounds(12, 40, 160, 25);
+		grabImageCheckbox.setState(true);
+		
+		processImageCheckbox = new Checkbox();
+		processImageCheckbox.setLabel("Process image");
+		processImageCheckbox.setBounds(12, 68, 160, 25);
+		processImageCheckbox.setState(true);
+		
+		previewImageCheckbox = new Checkbox();
+		previewImageCheckbox.setLabel("Preview image");
+		previewImageCheckbox.setBounds(12, 96, 160, 25);
+		previewImageCheckbox.setState(true);
+		
+		bakeInfoCheckbox = new Checkbox();
+		bakeInfoCheckbox.setLabel("Bake dynamic info");
+		bakeInfoCheckbox.setBounds(12, 124, 160, 25);
+		bakeInfoCheckbox.setState(true);
+		
+		planCheckbox = new Checkbox();
+		planCheckbox.setLabel("Plan");
+		planCheckbox.setBounds(12, 152, 160, 25);
+		planCheckbox.setState(true);
+		
+		executePlanCheckbox = new Checkbox();
+		executePlanCheckbox.setLabel("Execute plan");
+		executePlanCheckbox.setBounds(12, 180, 160, 25);
+		executePlanCheckbox.setState(true);
+		
+		runButton = new Button();
+		runButton.setLabel("RUN!");
+		runButton.setBounds(42, 208, 100, 25);
+		runButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				initializeConnectionThreads();
+				init_thread.start();
+			}
+		});
+		
+		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
-		txtLog.setBounds(12, 12, 472, 305);
+		txtLog.setBounds(212, 12, 472, 305);
 		frmAlfieCommandCentre.getContentPane().add(txtLog);
 		txtLog.addKeyListener(this);
 		Info = new JLabel();
 		Info2 = new JLabel();
-		Info.setBounds(12, 329, 500, 25);
-		Info2.setBounds(12, 345, 500, 25);
+		Info.setBounds(212, 329, 500, 25);
+		Info2.setBounds(212, 345, 500, 25);
 		Info.setText("UP: forward; DOWN: backward; LEFT: trun left; RIGHT: trun right");
 
 		Info2.setText("1: +speed; 2: -speed; 3: +angle; 4: -angle");
@@ -160,37 +222,33 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(Info2);
 
 		Alfie_Speed = new JEditorPane();
-		Alfie_Speed.setBounds(180, 373, 40, 25);
+		Alfie_Speed.setBounds(380, 373, 40, 25);
 		Alfie_Speed.setText("0");
 
 		Alfie_Angle = new JEditorPane();
-		Alfie_Angle.setBounds(60, 373, 40, 25);
+		Alfie_Angle.setBounds(260, 373, 40, 25);
 		Alfie_Angle.setText("0");
 
 		Speed = new JLabel();
 		Speed.setText("Speed");
-		Speed.setBounds(120, 373, 60, 25);
+		Speed.setBounds(320, 373, 60, 25);
 
 		Angle = new JLabel();
 		Angle.setText("Angle");
-		Angle.setBounds(10, 373, 40, 25);
-
-		startVisionButton = new JButton();
-		startVisionButton.setText("Start Vision");
-		startVisionButton.setBounds(240, 373, 160, 25);
-		startVisionButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				new SimpleViewer();
-				startVisionButton.setEnabled(false);
-			}
-		});
+		Angle.setBounds(210, 373, 40, 25);
 		
+		frmAlfieCommandCentre.getContentPane().add(connectToAlfieCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(grabImageCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(previewImageCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(bakeInfoCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(planCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(executePlanCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(runButton);
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
 		frmAlfieCommandCentre.getContentPane().add(Angle);
 		frmAlfieCommandCentre.getContentPane().add(Speed);
-		frmAlfieCommandCentre.getContentPane().add(startVisionButton);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {
@@ -216,7 +274,7 @@ public class CommanderControlStation implements KeyListener {
 			}
 
 			public void windowOpened(WindowEvent arg0) {
-				init_thread.start();
+				
 			}
 		});
 

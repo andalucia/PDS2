@@ -6,13 +6,19 @@ import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
 public class Planner extends PlannerSkeleton {
 
+	private boolean verbose;
+	
 	public Planner(PlanExecutor executor) {
 		super(executor);
+		verbose = true;
 	}
 
 	@Override
 	protected ComplexCommand planNextCommand(DynamicPitchInfo dpi) {
-		// TODO Auto-generated method stub
+		if (verbose) {
+			System.out.println("Planning next command.");
+		}
+		// TODO: Implement the planning here
 		return null;
 	}
 

@@ -15,19 +15,28 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	/**
 	 * The object that is going to consume the output of the Vision class.
 	 */
-	private StaticInfoConsumer consumer;
+	private StaticInfoConsumer staticInfoConsumer;
+	
+	private ImageConsumer imageConsumer;
+	private BufferedImage internalImage;
+	
 	
 	/**
 	 * Is Alfie's T yellow?
 	 */
 	private boolean yellowAlfie;
-	
+
 	/**
 	 * A constructor that takes the object that is going to consume the output.
 	 * @param consumer The object that is going to consume the output.
 	 */
 	public ImageProcessorSkeleton (StaticInfoConsumer consumer) {
-		this.consumer = consumer;
+		this.staticInfoConsumer = consumer;
+	}
+	
+	public ImageProcessorSkeleton (StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
+		this.staticInfoConsumer = consumer;
+		this.imageConsumer = imageConsumer;
 	}
 	
 	@Override
@@ -41,6 +50,7 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * @param image The image to process.
 	 */
 	public void process (BufferedImage image) {
+		internalImage = image;
 		// Do processing here
 		
 		Point2D ballPosition = extractBallPosition(image);
@@ -55,7 +65,11 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);
 		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
-		consumer.consumeInfo(spi);
+		
+		if (imageConsumer != null) {
+			imageConsumer.consume(internalImage);
+		}
+		staticInfoConsumer.consumeInfo(spi);
 	}
 
 	

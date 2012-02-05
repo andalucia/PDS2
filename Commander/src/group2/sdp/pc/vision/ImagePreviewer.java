@@ -22,15 +22,20 @@ public class ImagePreviewer extends WindowAdapter implements ImageConsumer {
 	@Override
 	public void consume(BufferedImage image) {
 		label.getGraphics().drawImage(image, 0, 0, width, height, null);
-		consumer.consume(image);
+		if (consumer != null)
+			consumer.consume(image);
+	}
+
+	public ImagePreviewer() {
+		// create and initialise UI
+		initGUI();
 	}
 	
 	public ImagePreviewer(ImageConsumer consumer) {
-		// create and initialise UI
-		initGUI();
+		this();
 		this.consumer = consumer;
 	}
-	
+
 	/** 
 	 * Creates the UI components and initialises them
 	 */

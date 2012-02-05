@@ -28,6 +28,7 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 			if (success || problem) {
 				// Wait for worker to finish. 
 				ComplexCommand command = planNextCommand(dpi);
+				assert(command != null);
 				currentCommand = command;
 				executor.execute(currentCommand);
 			}

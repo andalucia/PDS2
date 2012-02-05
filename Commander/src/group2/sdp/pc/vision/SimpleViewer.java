@@ -214,7 +214,7 @@ public class SimpleViewer extends WindowAdapter implements CaptureCallback {
 		ball_cross_drawn = findBallPosition(frame.getBufferedImage());
 		ball_cross_drawn = detectRobots(ball_cross_drawn);
 		label.getGraphics().drawImage(ball_cross_drawn, 0, 0, width, height, null);
-
+		
 		// recycle the frame
 		frame.recycle();
 	}

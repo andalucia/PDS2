@@ -14,7 +14,6 @@ import au.edu.jcu.v4l4j.exceptions.StateException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
 public class ImageGrabber implements CaptureCallback {
-	
 	private int width = 640, height = 480;
 	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0;
 	private static String   device = "/dev/video0";
@@ -59,6 +58,17 @@ public class ImageGrabber implements CaptureCallback {
 			e.printStackTrace();
 		}
 	}
+	
+	
+
+	@Override
+	protected void finalize() throws Throwable {
+		// TODO Auto-generated method stub
+		cleanupCapture();
+		super.finalize();
+	}
+
+
 
 	/**
 	 * Initialises the FrameGrabber object
@@ -126,5 +136,6 @@ public class ImageGrabber implements CaptureCallback {
 	@Override
 	public void nextFrame(VideoFrame frame) {
 		consumer.consume(frame.getBufferedImage());
+		frame.recycle();
 	}
 }

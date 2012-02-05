@@ -1,5 +1,6 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
@@ -47,13 +48,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param colour2 - RGB values
 	 * @return
 	 */
-	
-	public void process(BufferedImage image, WritableRaster raster) {
-		BALL_POS = findBallPosition(image);
-		if (raster != null) {
-			//draw!
-		}
-	}
 	
 	private static Point findBallPosition(BufferedImage thisFrame) {
 
@@ -270,6 +264,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		super(consumer);
 	}
 	
+	public ImageProcessor(StaticInfoConsumer consumer,
+			ImageConsumer imageConsumer) {
+		super(consumer, imageConsumer);
+	}
+
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
 		// TODO Auto-generated method stub
