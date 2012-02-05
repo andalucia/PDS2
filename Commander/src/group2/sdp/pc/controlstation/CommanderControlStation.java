@@ -1,6 +1,12 @@
 package group2.sdp.pc.controlstation;
 
+import group2.sdp.pc.planner.PlanExecutor;
+import group2.sdp.pc.planner.Planner;
 import group2.sdp.pc.server.Server;
+import group2.sdp.pc.vision.Bakery;
+import group2.sdp.pc.vision.ImageGrabber;
+import group2.sdp.pc.vision.ImagePreviewer;
+import group2.sdp.pc.vision.ImageProcessor;
 import group2.sdp.pc.vision.SimpleViewer;
 
 import java.awt.EventQueue;
@@ -40,6 +46,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The server that sends commands to Alfie.
 	 */
 	private Server alfieServer;
+	private ImageProcessor processor;
 
 	/**
 	 *  Number of connection attempts before giving up.
@@ -92,6 +99,7 @@ public class CommanderControlStation implements KeyListener {
 	 */
 	private void initializeConnectionThreads() {
 		init_thread = new Thread() {		
+			
 			public void run() {
 				for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
 					log("Connection attempt: " + i);
@@ -109,6 +117,12 @@ public class CommanderControlStation implements KeyListener {
 						}
 					}
 				}
+				PlanExecutor executor = new PlanExecutor(alfieServer);
+				Planner planner = new Planner(executor);
+				Bakery bakery = new Bakery(planner);
+				ImageProcessor processor = new ImageProcessor(bakery);
+				ImagePreviewer previewer = new ImagePreviewer(processor);
+				//new ImageGrabber(previewer);
 			}
 		};
 		

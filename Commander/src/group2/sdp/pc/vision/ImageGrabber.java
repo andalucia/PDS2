@@ -1,8 +1,9 @@
 package group2.sdp.pc.vision;
 
-import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
+import group2.sdp.pc.vision.skeleton.ImageConsumer;
 
 import java.util.List;
+
 import au.edu.jcu.v4l4j.CaptureCallback;
 import au.edu.jcu.v4l4j.Control;
 import au.edu.jcu.v4l4j.FrameGrabber;
@@ -28,10 +29,10 @@ public class ImageGrabber implements CaptureCallback {
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;
 	
-	private ImageProcessorSkeleton processor;
+	private ImageConsumer consumer;
 	
-	public ImageGrabber(ImageProcessorSkeleton processor) {
-		this.processor = processor;
+	public ImageGrabber(ImageConsumer consumer) {
+		this.consumer = consumer;
 		
 		saturation = 100;
 		brightness = 128;
@@ -124,6 +125,6 @@ public class ImageGrabber implements CaptureCallback {
 
 	@Override
 	public void nextFrame(VideoFrame frame) {
-		processor.process(frame.getBufferedImage());
+		consumer.consume(frame.getBufferedImage());
 	}
 }

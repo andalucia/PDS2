@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 /**
  * An abstract implementation of the class processing image data and producing static pitch info.
  */
-public abstract class ImageProcessorSkeleton {
+public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	
 	/**
 	 * The object that is going to consume the output of the Vision class.
@@ -30,6 +30,10 @@ public abstract class ImageProcessorSkeleton {
 		this.consumer = consumer;
 	}
 	
+	@Override
+	public void consume (BufferedImage image) {
+		process(image);
+	}
 	
 	/**
 	 * Call this method to process a frame of video. It calls the consumer's 
