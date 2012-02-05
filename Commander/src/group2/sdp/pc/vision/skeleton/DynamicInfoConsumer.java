@@ -1,6 +1,6 @@
 package group2.sdp.pc.vision.skeleton;
 
-import group2.sdp.common.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicPitchInfo;
 
 /**
  * Classes implementing this interface can consume dynamic information about the pitch.

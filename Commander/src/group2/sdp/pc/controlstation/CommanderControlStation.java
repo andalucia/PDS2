@@ -1,5 +1,6 @@
-package group2.sdp.pc.commander;
+package group2.sdp.pc.controlstation;
 
+import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.SimpleViewer;
 
 import java.awt.EventQueue;

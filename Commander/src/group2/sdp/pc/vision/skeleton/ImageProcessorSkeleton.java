@@ -1,8 +1,8 @@
 package group2.sdp.pc.vision.skeleton;
 
-import group2.sdp.common.breadbin.StaticBallInfo;
-import group2.sdp.common.breadbin.StaticPitchInfo;
-import group2.sdp.common.breadbin.StaticRobotInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticPitchInfo;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;

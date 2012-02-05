@@ -1,6 +1,6 @@
 package group2.sdp.pc.planner.skeleton;
 
-import group2.sdp.common.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.planner.PlanExecutor;
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;

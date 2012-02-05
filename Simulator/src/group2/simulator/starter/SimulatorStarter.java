@@ -1,7 +1,16 @@
 // Code is quite messy for now - im going to refactor and restructruze later on.
 
 
-package group2.simulator;
+package group2.simulator.starter;
+
+import group2.sdp.pc.planner.PlanExecutor;
+import group2.sdp.pc.planner.Planner;
+import group2.sdp.pc.vision.Bakery;
+import group2.simulator.core.Simulator;
+import group2.simulator.core.SimulatorDoughProvider;
+import group2.simulator.physical.Ball;
+import group2.simulator.physical.BoardObject;
+import group2.simulator.physical.Robot;
 
 import java.awt.Color;
 import java.awt.Frame;
@@ -23,7 +32,7 @@ import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
-public class Simulator  {
+public class SimulatorStarter  {
 
 	/** The frame displaying the simulation */
 	private static Frame frame;
@@ -69,8 +78,13 @@ public class Simulator  {
 
 	public static void main(String args []){
 			prepareSimulator();
-			initializeArea();		
+			initializeArea();
 			
+			Simulator simulator = new Simulator(world, robot, oppRobot, ball);
+			PlanExecutor executor = new PlanExecutor(simulator);
+			Planner planner = new Planner(executor);
+			Bakery bakery = new Bakery(planner);
+			new SimulatorDoughProvider(bakery); // This starts its own thread, so it should just work.
 	}
 
 	/**
@@ -80,11 +94,11 @@ public class Simulator  {
 	 * @param oppRobot
 	 * @param ball
 	 */
-	public Simulator(String title, Robot robot, Robot oppRobot, Ball ball) {
+	public SimulatorStarter(String title, Robot robot, Robot oppRobot, Ball ball) {
 		this.title = title;
-		Simulator.robot = robot;
-		Simulator.oppRobot = oppRobot;
-		Simulator.ball = ball;
+		SimulatorStarter.robot = robot;
+		SimulatorStarter.oppRobot = oppRobot;
+		SimulatorStarter.ball = ball;
 	}
 
 	/**
@@ -100,7 +114,7 @@ public class Simulator  {
 		int newOppRobotStartX = oppRobotStartX;
 		int newBallStartX = ballStartX;
 
-		final Simulator sim = new Simulator("SDP World",new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
+		final SimulatorStarter sim = new SimulatorStarter("SDP World",new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY, 9, Color.RED, 0));
 	}

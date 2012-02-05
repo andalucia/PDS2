@@ -1,4 +1,4 @@
-package group2.simulator;
+package group2.simulator.physical;
 
 import java.awt.Color;
 

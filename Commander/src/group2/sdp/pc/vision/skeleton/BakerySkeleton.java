@@ -1,12 +1,12 @@
 package group2.sdp.pc.vision.skeleton;
 
-import group2.sdp.common.breadbin.DynamicBallInfo;
-import group2.sdp.common.breadbin.DynamicPitchInfo;
-import group2.sdp.common.breadbin.DynamicRobotInfo;
-import group2.sdp.common.breadbin.StaticBallInfo;
-import group2.sdp.common.breadbin.StaticPitchInfo;
-import group2.sdp.common.breadbin.StaticPitchInfoHistory;
-import group2.sdp.common.breadbin.StaticRobotInfo;
+import group2.sdp.pc.breadbin.DynamicBallInfo;
+import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticPitchInfo;
+import group2.sdp.pc.breadbin.StaticPitchInfoHistory;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.util.Queue;
 

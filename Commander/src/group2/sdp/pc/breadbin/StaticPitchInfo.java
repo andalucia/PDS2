@@ -1,4 +1,4 @@
-package group2.sdp.common.breadbin;
+package group2.sdp.pc.breadbin;
 
 /**
  * A class containing all the static information about the pitch at a given moment. 

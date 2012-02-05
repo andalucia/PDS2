@@ -1,4 +1,4 @@
-package group2.simulator;
+package group2.simulator.physical;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -98,7 +98,7 @@ public class BoardObject {
 	 * @param g The graphics contact on which to draw
 	 * @param world The world where the object will be drawn 
 	 */
-	protected static void draw(Graphics2D g, World world) {
+	public static void draw(Graphics2D g, World world) {
 		BodyList bodies = world.getBodies();
 
 		for (int i=0;i<bodies.size();i++) {

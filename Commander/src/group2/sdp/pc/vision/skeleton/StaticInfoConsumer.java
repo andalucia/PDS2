@@ -1,6 +1,6 @@
 package group2.sdp.pc.vision.skeleton;
 
-import group2.sdp.common.breadbin.StaticPitchInfo;
+import group2.sdp.pc.breadbin.StaticPitchInfo;
 
 /**
  * Classes implementing this interface can consume static information about the pitch.

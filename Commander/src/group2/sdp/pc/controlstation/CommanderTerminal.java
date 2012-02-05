@@ -1,4 +1,6 @@
-package group2.sdp.pc.commander;
+package group2.sdp.pc.controlstation;
+
+import group2.sdp.pc.server.Server;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;

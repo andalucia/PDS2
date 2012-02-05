@@ -1,4 +1,4 @@
-package group2.simulator;
+package group2.simulator.physical;
 
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
@@ -13,7 +13,7 @@ import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 
 
-public class Robot extends BoardObject{
+public class Robot extends BoardObject {
 
 	final int xSize;
 	final int ySize;

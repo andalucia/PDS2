@@ -1,6 +1,9 @@
-package group2.simulator;
+package group2.simulator.testing;
 
 import static org.junit.Assert.*;
+
+import group2.simulator.physical.Ball;
+import group2.simulator.physical.Robot;
 
 import java.awt.Color;
 import net.phys2d.raw.World;

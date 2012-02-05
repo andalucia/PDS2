@@ -2,8 +2,8 @@ package group2.sdp.pc.vision;
 
 import java.util.Queue;
 
-import group2.sdp.common.breadbin.StaticBallInfo;
-import group2.sdp.common.breadbin.StaticRobotInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.vision.skeleton.BakerySkeleton;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 

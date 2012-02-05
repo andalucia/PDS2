@@ -1,6 +1,7 @@
-package group2.sdp.pc.commander;
+package group2.sdp.pc.server;
 
 import group2.sdp.common.candypacket.CandyPacket;
+import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -12,7 +13,7 @@ import lejos.pc.comm.NXTConnector;
 /**
  * Connects to the robot and can send commands to it.
  */
-public class Server {
+public class Server implements ServerSkeleton {
 		
 	private String nxtAddress = "btspp://group2";
 	

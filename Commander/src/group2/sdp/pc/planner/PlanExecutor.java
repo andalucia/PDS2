@@ -1,9 +1,10 @@
 package group2.sdp.pc.planner;
 
-import group2.sdp.pc.commander.Server;
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
+import group2.sdp.pc.server.Server;
+import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 /**
  * Under construction...
@@ -13,9 +14,9 @@ public class PlanExecutor {
 	/**
 	 * The server to use for executing the commands.
 	 */
-	private Server alfieServer; 
+	private ServerSkeleton alfieServer; 
 	
-	public PlanExecutor(Server alfieServer) {
+	public PlanExecutor(ServerSkeleton alfieServer) {
 		this.alfieServer = alfieServer;
 	}
 	
