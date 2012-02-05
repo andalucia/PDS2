@@ -160,7 +160,7 @@ public class CommanderControlStation implements KeyListener {
 		connectToAlfieCheckbox = new Checkbox();
 		connectToAlfieCheckbox.setLabel("Connect to Alfie");
 		connectToAlfieCheckbox.setBounds(12, 12, 160, 25);
-		connectToAlfieCheckbox.setState(true);
+		connectToAlfieCheckbox.setState(false);
 		
 		grabImageCheckbox = new Checkbox();
 		grabImageCheckbox.setLabel("Grab image");
@@ -185,7 +185,7 @@ public class CommanderControlStation implements KeyListener {
 		planCheckbox = new Checkbox();
 		planCheckbox.setLabel("Plan");
 		planCheckbox.setBounds(12, 152, 160, 25);
-		planCheckbox.setState(true);
+		planCheckbox.setState(false);
 		
 		executePlanCheckbox = new Checkbox();
 		executePlanCheckbox.setLabel("Execute plan");
