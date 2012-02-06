@@ -8,6 +8,7 @@ import group2.sdp.pc.breadbin.StaticPitchInfo;
 import group2.sdp.pc.breadbin.StaticPitchInfoHistory;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
+import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -92,7 +93,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * @param ballHistoryInfos The history of ball infos to use when computing the rolling speed.
 	 * @return The rolling speed of the ball.
 	 */
-	protected abstract double computeBallRollingSpeed(Queue<StaticBallInfo> ballHistoryInfos);
+	protected abstract double computeBallRollingSpeed(LinkedList<StaticBallInfo> ballHistoryInfos);
 
 	/**
 	 * Computes the rolling direction of the ball.
@@ -103,7 +104,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * @param ballHistoryInfos The history of ball infos to use when computing the rolling direction. 
 	 * @return The rolling direction of the ball.
 	 */
-	protected abstract double computeBallRollingDirection(Queue<StaticBallInfo> ballHistoryInfos);
+	protected abstract double computeBallRollingDirection(LinkedList<StaticBallInfo> ballHistoryInfos);
 
 	/**
 	 * Computes the travel speed of Alfie. Units are cm/s.
@@ -151,7 +152,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * @param historyInfos The list of infos to use to compute the travel speed of the robot.
 	 * @return The travel speed of the robot.
 	 */
-	protected abstract double computeRobotTravelSpeed(Queue<StaticRobotInfo> historyInfos);
+	protected abstract double computeRobotTravelSpeed(LinkedList<StaticRobotInfo> historyInfos);
 	
 	/**
 	 * Computes the travel direction of a robot. Note that this might be different than the
@@ -163,5 +164,5 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * @param historyInfos The list of infos to use to compute the travel direction of the robot.
 	 * @return The travel direction of the robot.
 	 */
-	protected abstract double computeRobotTravelDirection(Queue<StaticRobotInfo> historyInfos);
+	protected abstract double computeRobotTravelDirection(LinkedList<StaticRobotInfo> historyInfos);
 }

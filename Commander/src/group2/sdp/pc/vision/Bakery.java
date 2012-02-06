@@ -1,6 +1,6 @@
 package group2.sdp.pc.vision;
 
-import java.util.Queue;
+import java.util.LinkedList;
 
 import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
@@ -23,27 +23,26 @@ public class Bakery extends BakerySkeleton {
 
 	@Override
 	protected double computeBallRollingSpeed(
-			Queue<StaticBallInfo> ballHistoryInfos) {
-		// TODO Auto-generated method stub
+			LinkedList<StaticBallInfo> ballHistoryInfos) {
 		return 0;
 	}
 
 	@Override
 	protected double computeBallRollingDirection(
-			Queue<StaticBallInfo> ballHistoryInfos) {
+			LinkedList<StaticBallInfo> ballHistoryInfos) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	protected double computeRobotTravelSpeed(Queue<StaticRobotInfo> historyInfos) {
+	protected double computeRobotTravelSpeed(LinkedList<StaticRobotInfo> historyInfos) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	protected double computeRobotTravelDirection(
-			Queue<StaticRobotInfo> historyInfos) {
+			LinkedList<StaticRobotInfo> historyInfos) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
