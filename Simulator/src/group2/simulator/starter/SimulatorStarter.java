@@ -15,8 +15,11 @@ import group2.simulator.physical.Robot;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.TextField;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -180,6 +183,7 @@ public class SimulatorStarter  {
             	//and receiving commands from them.
             }
 		});
+		
 
 		frame.setVisible(true);
 		frame.createBufferStrategy(2);
@@ -212,7 +216,7 @@ public class SimulatorStarter  {
 		ball.setPosition(newBallStartX, newBallStartY);
 		
 		kickedBallMovements();
-
+		goalCheck();
 		init(world);
 	}
 
@@ -322,6 +326,7 @@ public class SimulatorStarter  {
 	public static void kickedBallMovements(){
 		if (isBallKicked)
 		{
+			
 			ball.move(fixedBallAngle);
 			if (ball.doesItHitWall()){
 			 ball.stop();
@@ -357,9 +362,7 @@ public class SimulatorStarter  {
 							break;
 					case KeyEvent.VK_R:
 							// Resetting Simulation
-							oppRobot.setAngle(180);
-							oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
-							ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
+							resetSimulation();
 							break;
 					case KeyEvent.VK_ENTER:
 							if(oppRobot.canRobotKick(ball)){
@@ -384,7 +387,23 @@ public class SimulatorStarter  {
 			}
 
 		});
-	}	
+	}
+	
+	public static void goalCheck()
+	{
+		if (ball.didItScore()){
+			ball.stop();
+			 isBallKicked = false;
+			 fixedBallAngle = 0;
+		}
+	}
+	
+	public static void resetSimulation(){
+		oppRobot.setAngle(180);
+		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
+		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
+		isBallKicked = false;
+	}
 
 	public static void displayControls(Graphics2D g){
 		g.setColor(Color.BLACK);
@@ -399,7 +418,7 @@ public class SimulatorStarter  {
 		g.drawString("R - resets the simulation", 200, boardHeight + 2*padding + 90);
 
 		g.drawString("INCOMING NEXT EVENING UPDATES:", 450, boardHeight + 2*padding + 25);
-		
+		g.drawString("Ability to score a goal", 450, boardHeight + 2*padding + 50);
 		g.drawString("Ball bounces to wall and obstacles:", 450, boardHeight + 2*padding + 70);
 		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
 

@@ -14,11 +14,14 @@ public class Ball extends BoardObject {
 	public static int wallThickness = 20;
 	public static int goalWidth = 144;
 	public static int goalThickness = 50;
-
+	
+	private static int scoreTimeCounter;
+	
 	
 	float radius;
 	Body leftGoalLine;
 	Body rightGoalLine;
+	
 
 	/**
 	 * Constructor that fully initialises the ball object
@@ -35,6 +38,8 @@ public class Ball extends BoardObject {
 		this.body.setRestitution(0.8f);
 		this.body.setCanRest(true);
 		this.radius = radius;
+		scoreTimeCounter = 0;
+		
 	}
 	
 	
@@ -91,27 +96,72 @@ public class Ball extends BoardObject {
 	public boolean doesItHitWall() {
 		float x = this.getX();
 		float y = this.getY();
+		
 
-		if (x < 107 || x > 720 || y < 112 || y > 420 )
-			return true;
-		else
+		
+		if ( x < 100 && y > 113 && y < 421)
+		{
+			
+			incrScoreTime();
 			return false;
+		}
+		else
+			if( x > 719 && y > 111 && y < 420)
+			{
+				
+				incrScoreTime();
+				return false;	
+			}
+			else
+			
+			if (x < 101 || x > 720 || y < 112 || y > 420 ){
+				
+				return true;
+			}
+			else
+			return false;
+			
+		
 	}
 
-	public float checkXPosition(float x) {
-		if (x < 105)
-			return 105;
-		else if (x > 720)
-			return 720;
+	public float checkXPosition(float x, float y) {
+		if ((x < 105 && y < 192) || ( x < 105 && y > 338)){
+			return 105;	
+		}
+		else if (x > 720 &&  y < 110 & y > 420)
+		{	
+			return 720;	
+		}
 		return x;
 	}
 
-	public float checkYPosition(float y) {
+	public float checkYPosition(float x, float y) {
 		if (y < 110 )
 			return 110;
 		else if (y > 422)
 			return 422;
 		return y;
 	}
+	
+	public static void incrScoreTime(){
+		scoreTimeCounter++;
+	}
+	
+	
+	public boolean didItScore(){
+		if (scoreTimeCounter == 10){
+			scoreTimeCounter = 0;
+			System.out.println("Score!!!!");
+			return true;
+		}
+		return false;
+		
+		
+		
+			
+		
+	}
+	
+	
 
 }

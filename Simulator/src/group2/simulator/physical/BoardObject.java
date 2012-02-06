@@ -31,19 +31,19 @@ public class BoardObject {
 
 	public void setPosition(float x, float y) {
 
-		x = checkXPosition(x);
-		y = checkYPosition(y);
+		x = checkXPosition(x,y);
+		y = checkYPosition(x,y);
 		body.setPosition(x, y);
 	}
 
-	public float checkXPosition(float x){
+	public float checkXPosition(float x, float y){
 		if (x < 140) return 140;
 			else if (x > 695)
 				return 695;
 		return x;
 	}
 
-	public float checkYPosition(float y){
+	public float checkYPosition(float x, float y){
 		if (y < 140) return 140;
 		else if (y > 395)
 			return 395;
