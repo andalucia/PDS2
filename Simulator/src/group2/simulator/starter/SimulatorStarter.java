@@ -54,6 +54,11 @@ public class SimulatorStarter  {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
+	
+	// an variable to hold for kicked ball angle
+	private static double fixedBallAngle;
+	// holds true if ball is kicked
+	private static boolean isBallKicked;
 
 	static Thread actionThread = new Thread() {
 		public void run() {
@@ -125,6 +130,7 @@ public class SimulatorStarter  {
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
 		setControls();
+		setVariableValues();
 		while(running)
 		{
 			initSimulation();  // initialise the simulator
@@ -143,6 +149,12 @@ public class SimulatorStarter  {
             }
 
 		}
+	}
+	
+	private static void setVariableValues()
+	{
+		fixedBallAngle = 0;
+		isBallKicked = false;
 	}
 
 	/**
@@ -182,7 +194,7 @@ public class SimulatorStarter  {
 		world.clear();
 		world.setGravity(0, 0);
 		
-		robot.setAngle(180);
+		robot.setAngle(0);
 
 		float newOppRobotStartX = oppRobot.getX();
 		float newOppRobotStartY = oppRobot.getY();
@@ -198,10 +210,8 @@ public class SimulatorStarter  {
 		float newBallStartY = ball.getY();
 		
 		ball.setPosition(newBallStartX, newBallStartY);
-		 			
-		 if (ball.doesItHitWall()){
-			 ball.stop();
-		 }
+		
+		kickedBallMovements();
 
 		init(world);
 	}
@@ -301,6 +311,25 @@ public class SimulatorStarter  {
 		}
 		return img;
 	}
+	
+	/*
+	 * Checks if the ball was kicked.
+	 * Moves by ten every loop in fixed angle
+	 * until was was hit
+	 * TO DO: Bounces, collision with other robot
+	 * 
+	 */
+	public static void kickedBallMovements(){
+		if (isBallKicked)
+		{
+			ball.move(fixedBallAngle);
+			if (ball.doesItHitWall()){
+			 ball.stop();
+			 isBallKicked = false;
+			 fixedBallAngle = 0;
+			}
+		}
+	}
 
 
 	/**
@@ -335,6 +364,9 @@ public class SimulatorStarter  {
 					case KeyEvent.VK_ENTER:
 							if(oppRobot.canRobotKick(ball)){
 								oppRobot.kick(ball);
+								isBallKicked = true;
+								fixedBallAngle = oppRobot.getAngle();
+								
 								System.out.println("Kicked ball");
 							}
 							else
@@ -367,7 +399,7 @@ public class SimulatorStarter  {
 		g.drawString("R - resets the simulation", 200, boardHeight + 2*padding + 90);
 
 		g.drawString("INCOMING NEXT EVENING UPDATES:", 450, boardHeight + 2*padding + 25);
-		g.drawString("Code ReFactoring - sorry ive made real mess in the code ", 450, boardHeight + 2*padding + 50);
+		
 		g.drawString("Ball bounces to wall and obstacles:", 450, boardHeight + 2*padding + 70);
 		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
 

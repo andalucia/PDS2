@@ -56,7 +56,7 @@ public class Ball extends BoardObject {
 	 * @param angle
 	 */
 	public void move(double angle) {
-		int dist = 300;
+		int dist = 5;
 		float x = (this.getX() + (dist * (float) Math
 				.cos(Math.toRadians(angle))));
 		float y = (this.getY() + (dist * (float) Math
