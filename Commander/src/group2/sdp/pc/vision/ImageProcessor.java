@@ -35,24 +35,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	
 	// BLUE thresholds
 	private static final int RThreshBlueLow = 1;
-	private static final int RThreshBlueHigh = 35;
+	private static final int RThreshBlueHigh = 50;
 	
-	private static final int GThreshBlueLow = 110;
+	private static final int GThreshBlueLow = 70;
 	private static final int GThreshBlueHigh = 150;
 	
 	private static final int BThreshBlueLow = 70;
-	private static final int BThreshBlueHigh = 200;
+	private static final int BThreshBlueHigh = 255;
 	
 	
 	// YELLOW thresholds
-	private static final int RThreshYellowLow = 120;
+	private static final int RThreshYellowLow = 110;
 	private static final int RThreshYellowHigh = 160;
 	
 	private static final int GThreshYellowLow = 110;
 	private static final int GThreshYellowHigh = 170;
 	
 	private static final int BThreshYellowLow = 20;
-	private static final int BThreshYellowHigh = 85;
+	private static final int BThreshYellowHigh = 100;
 	
 	
 	// Ball thresholds
@@ -80,12 +80,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	}
 	
 	
-	//Please call super method after done processing
+	//Please call super.process after done processing
 	@Override
 	public void process(BufferedImage image) {
 		
 		image = detectRobotsAndBall(image);
-		System.out.println(findFacingDirection(image, blueCentroid, false));
+		System.out.println(findFacingDirection(image, yellowCentroid, true));
 		
 		super.process(image);
 	}
@@ -160,7 +160,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				Point current = yellowpoints.get(i);
 				double dist1 = calcDistanceBetweenPoints(current, lastyellow);
 	
-				if (dist1 > 10){
+				if (dist1 > 50){
 					/**
 					 * if the current pixel is unusually further away from previous ones
 					 * then it's fake, therefore delete it from the robot pixels and add
@@ -219,7 +219,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				Point current = bluepoints.get(i);
 				double dist = calcDistanceBetweenPoints(current, lastblue);
 	
-				if (dist > 15){
+				if (dist > 50){
 					bluepoints.remove(i);
 					fakeblues.add(current);
 					i--;
