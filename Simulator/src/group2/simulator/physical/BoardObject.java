@@ -31,19 +31,19 @@ public class BoardObject {
 
 	public void setPosition(float x, float y) {
 
-		x = checkXPosition(x);
-		y = checkYPosition(y);
+		x = checkXPosition(x,y);
+		y = checkYPosition(x,y);
 		body.setPosition(x, y);
 	}
 
-	public float checkXPosition(float x){
+	public float checkXPosition(float x, float y){
 		if (x < 140) return 140;
 			else if (x > 695)
 				return 695;
 		return x;
 	}
 
-	public float checkYPosition(float y){
+	public float checkYPosition(float x, float y){
 		if (y < 140) return 140;
 		else if (y > 395)
 			return 395;
@@ -53,10 +53,6 @@ public class BoardObject {
 	public float getX() {
 		return body.getPosition().getX();
 	}
-
-
-
-
 
 	public float getY() {
 		return body.getPosition().getY();
@@ -183,4 +179,8 @@ public class BoardObject {
         g.drawLine((int) v3.x,(int) v3.y,(int) v4.x,(int) v4.y);
         g.drawLine((int) v4.x,(int) v4.y,(int) v1.x,(int) v1.y);
 	}
+	
+	
+	
+	
 }

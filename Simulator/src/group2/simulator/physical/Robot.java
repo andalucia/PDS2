@@ -191,4 +191,7 @@ public class Robot extends BoardObject {
 	public BufferedImage getImage() {
 		return img;
 	}
+	
+	
+	
 }
