@@ -179,4 +179,8 @@ public class BoardObject {
         g.drawLine((int) v3.x,(int) v3.y,(int) v4.x,(int) v4.y);
         g.drawLine((int) v4.x,(int) v4.y,(int) v1.x,(int) v1.y);
 	}
+	
+	
+	
+	
 }

@@ -13,13 +13,11 @@ import group2.simulator.physical.BoardObject;
 import group2.simulator.physical.Robot;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Graphics2D;
-import java.awt.TextField;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -57,6 +55,8 @@ public class SimulatorStarter  {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
+	private static int scoreRobot;
+	private static int scoreOppRobot;
 	
 	// an variable to hold for kicked ball angle
 	private static double fixedBallAngle;
@@ -158,6 +158,8 @@ public class SimulatorStarter  {
 	{
 		fixedBallAngle = 0;
 		isBallKicked = false;
+		scoreRobot = 0;
+		scoreOppRobot = 0;
 	}
 
 	/**
@@ -395,6 +397,7 @@ public class SimulatorStarter  {
 			ball.stop();
 			 isBallKicked = false;
 			 fixedBallAngle = 0;
+			 scoreOppRobot++;
 		}
 	}
 	
@@ -403,6 +406,7 @@ public class SimulatorStarter  {
 		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
 		isBallKicked = false;
+		scoreOppRobot = 0;
 	}
 
 	public static void displayControls(Graphics2D g){
@@ -421,6 +425,10 @@ public class SimulatorStarter  {
 		g.drawString("Ability to score a goal", 450, boardHeight + 2*padding + 50);
 		g.drawString("Ball bounces to wall and obstacles:", 450, boardHeight + 2*padding + 70);
 		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
+		
+		Font font1 = new Font("Book Antiqua", Font.PLAIN, 50);
+		g.setFont(font1);
+		g.drawString(scoreRobot + " : " + scoreOppRobot, 360 ,75);
 
 	}
 

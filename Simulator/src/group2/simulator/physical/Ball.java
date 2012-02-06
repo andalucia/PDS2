@@ -25,6 +25,12 @@ public class Ball extends BoardObject {
 	
 	private static int scoreTimeCounter;
 	
+	private static int leftGateCordX = 100;
+	private static int rightGateCordX = 720;
+	private static int gateTopCordY = 112;
+	private static int gateDownCordY = 420;
+
+	
 	
 	float radius;
 	Body leftGoalLine;
@@ -100,7 +106,7 @@ public class Ball extends BoardObject {
 		this.body.removeExcludedBody(leftGoalLine);
 		this.body.removeExcludedBody(rightGoalLine);
 	}
-
+	
 	
 	/**
 	 *  Checks if the ball has hit the wall
@@ -114,25 +120,25 @@ public class Ball extends BoardObject {
 		float x = this.getX();
 		float y = this.getY();
 		
-		if ( x < 100 && y > 113 && y < 421)
+		if ( x < leftGateCordX && y > gateTopCordY+1 && y < gateDownCordY+1)
 		{
 			
 			incrScoreTime();
 			return false;
 		}
 		else
-			if( x > 719 && y > 111 && y < 420)
+			if( x > rightGateCordX-1 && y > gateTopCordY-1 && y < gateDownCordY)
 			{
 				incrScoreTime();
 				return false;	
 			}
 			else
 			
-			if (x < 101 || x > 720 || y < 112 || y > 420 ){
-				
+			if (x < leftGateCordX+1 || x > rightGateCordX || y < gateTopCordY || y > gateDownCordY ){
 				return true;
 			}
 			else
+			
 			return false;
 			
 		
