@@ -20,6 +20,7 @@ public class Robot extends BoardObject {
 	Double rectangle;
 	int speed = 3;
 	BufferedImage img = null;
+	private int score;
 
 	/**
 	 * Constructor that fully initiliases the Robot player
@@ -192,6 +193,18 @@ public class Robot extends BoardObject {
 		return img;
 	}
 	
+	public int getScore(){
+		return score;
+	}
+	
+	public void setScore(int score){
+		this.score = score;
+	}
+	
+	public void incrScore()
+	{
+		score++;
+	}
 	
 	
 }
