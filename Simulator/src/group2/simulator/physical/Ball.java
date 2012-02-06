@@ -6,6 +6,14 @@ import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
 import net.phys2d.raw.shapes.Circle;
 
+/**
+ * @author s0923534
+ *
+ */
+/**
+ * @author s0923534
+ *
+ */
 public class Ball extends BoardObject {
 
 	public static int boardWidth = 630;
@@ -93,11 +101,18 @@ public class Ball extends BoardObject {
 		this.body.removeExcludedBody(rightGoalLine);
 	}
 
+	
+	/**
+	 *  Checks if the ball has hit the wall
+	 *  If it does - increments ScoreTimeCounter.
+	 *  First 'if' statement checks if the the ball is in left gate
+	 *  First 'if' statement checks if the the ball is in right gate
+	 *  Third 'if' statement checks if the the ball is in pitch
+	 * @return true if it hits the wall 
+	 */
 	public boolean doesItHitWall() {
 		float x = this.getX();
 		float y = this.getY();
-		
-
 		
 		if ( x < 100 && y > 113 && y < 421)
 		{
@@ -108,7 +123,6 @@ public class Ball extends BoardObject {
 		else
 			if( x > 719 && y > 111 && y < 420)
 			{
-				
 				incrScoreTime();
 				return false;	
 			}
@@ -143,11 +157,17 @@ public class Ball extends BoardObject {
 		return y;
 	}
 	
+	
 	public static void incrScoreTime(){
 		scoreTimeCounter++;
 	}
 	
-	
+
+	/**
+	 * Check is the ball has scored
+	 * @param scoreTimeCounter hold the number of frames of ball being in gates
+	 * @return true if the robot scored
+	 */
 	public boolean didItScore(){
 		if (scoreTimeCounter == 10){
 			scoreTimeCounter = 0;

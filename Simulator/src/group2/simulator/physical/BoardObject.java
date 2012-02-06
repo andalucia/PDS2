@@ -54,10 +54,6 @@ public class BoardObject {
 		return body.getPosition().getX();
 	}
 
-
-
-
-
 	public float getY() {
 		return body.getPosition().getY();
 	}
