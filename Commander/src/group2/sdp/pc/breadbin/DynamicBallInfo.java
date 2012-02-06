@@ -20,6 +20,8 @@ public class DynamicBallInfo extends StaticBallInfo {
 	 * Thus 12 o'clock is 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
 	 */
 	private double rollingDirection;
+	
+
 
 	
 	/**
@@ -36,6 +38,7 @@ public class DynamicBallInfo extends StaticBallInfo {
 		super(position);
 		this.rollingDirection = rollingDirection;
 		this.rollingSpeed = rollingSpeed;
+		
 	}
 
 	

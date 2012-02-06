@@ -17,6 +17,12 @@ public class StaticBallInfo {
 	 * The units are cm.
 	 */
 	protected Point2D position;
+	
+	/**
+	 * The time at which Info was recorded . Units are milliseconds. Set automatically
+	 * in constructor and if position is updated
+	 */
+	private long timeStamp;
 
 	
 	/**
@@ -27,6 +33,7 @@ public class StaticBallInfo {
 	public StaticBallInfo(Point2D position) {
 		super();
 		this.position = position;
+		this.timeStamp=System.currentTimeMillis();
 	}
 
 	/**
@@ -35,6 +42,7 @@ public class StaticBallInfo {
 	 */
 	public void setPosition(Point2D position) {
 		this.position = position;
+		this.timeStamp=System.currentTimeMillis();
 	}
 	
 	/**
