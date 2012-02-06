@@ -55,8 +55,6 @@ public class SimulatorStarter  {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
-	private static int scoreRobot;
-	private static int scoreOppRobot;
 	
 	// an variable to hold for kicked ball angle
 	private static double fixedBallAngle;
@@ -143,7 +141,7 @@ public class SimulatorStarter  {
 
 			g.fillRect(0,0,(boardWidth + 2*padding),(boardHeight + 2*padding));
 			BoardObject.draw(g, world);  // draw the object in the world
-			displayControls(g);
+			displayControlsAndScore(g);
 			strategy.show();
 			try {
                 Thread.sleep(5);
@@ -158,8 +156,6 @@ public class SimulatorStarter  {
 	{
 		fixedBallAngle = 0;
 		isBallKicked = false;
-		scoreRobot = 0;
-		scoreOppRobot = 0;
 	}
 
 	/**
@@ -397,7 +393,7 @@ public class SimulatorStarter  {
 			ball.stop();
 			 isBallKicked = false;
 			 fixedBallAngle = 0;
-			 scoreOppRobot++;
+			 oppRobot.incrScore();
 		}
 	}
 	
@@ -406,10 +402,10 @@ public class SimulatorStarter  {
 		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
 		isBallKicked = false;
-		scoreOppRobot = 0;
+		oppRobot.setScore(0);
 	}
 
-	public static void displayControls(Graphics2D g){
+	public static void displayControlsAndScore(Graphics2D g){
 		g.setColor(Color.BLACK);
 		g.drawString("CONTROLS:", 10, boardHeight + 2*padding + 25);
 		g.drawString("Up - moves forward", 10, boardHeight + 2*padding + 50);
@@ -426,9 +422,9 @@ public class SimulatorStarter  {
 		g.drawString("Ball bounces to wall and obstacles:", 450, boardHeight + 2*padding + 70);
 		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
 		
-		Font font1 = new Font("Book Antiqua", Font.PLAIN, 50);
-		g.setFont(font1);
-		g.drawString(scoreRobot + " : " + scoreOppRobot, 360 ,75);
+		
+		g.setFont(new Font("Book Antiqua", Font.BOLD, 50));
+		g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 360 ,75);
 
 	}
 
