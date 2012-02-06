@@ -327,9 +327,11 @@ public class SimulatorStarter  {
 			
 			ball.move(fixedBallAngle);
 			if (ball.doesItHitWall()){
+				
 			 ball.stop();
 			 isBallKicked = false;
-			 fixedBallAngle = 0;
+			fixedBallAngle = 0;
+			fixedBallAngle = 180 - fixedBallAngle;
 			}
 		}
 	}

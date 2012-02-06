@@ -16,19 +16,16 @@ import net.phys2d.raw.shapes.Circle;
  */
 public class Ball extends BoardObject {
 
-	public static int boardWidth = 630;
-	public static int boardHeight = 330;
-	public static int padding = 100;
-	public static int wallThickness = 20;
-	public static int goalWidth = 144;
-	public static int goalThickness = 50;
 	
 	private static int scoreTimeCounter;
 	
 	private static int leftGateCordX = 100;
-	private static int rightGateCordX = 720;
-	private static int gateTopCordY = 112;
-	private static int gateDownCordY = 420;
+	private static int rightGateCordX = 700;
+	private static int pitchTopCordY = 112;
+	private static int pitchDownCordY = 420;
+	
+	private static int gateTopCordY = 193;
+	private static int gateDownCordY = 338;
 
 	
 	
@@ -127,14 +124,15 @@ public class Ball extends BoardObject {
 			return false;
 		}
 		else
-			if( x > rightGateCordX-1 && y > gateTopCordY-1 && y < gateDownCordY)
+			if( x > rightGateCordX+1 && y > gateTopCordY && y < gateDownCordY)
 			{
 				incrScoreTime();
 				return false;	
 			}
 			else
 			
-			if (x < leftGateCordX+1 || x > rightGateCordX || y < gateTopCordY || y > gateDownCordY ){
+			if (x < 101 || x > 720 || y < pitchTopCordY || y > pitchDownCordY ){
+				System.out.println(x +" "+ y);
 				return true;
 			}
 			else
@@ -146,20 +144,22 @@ public class Ball extends BoardObject {
 
 	public float checkXPosition(float x, float y) {
 		if ((x < 105 && y < 192) || ( x < 105 && y > 338)){
+			
 			return 105;	
 		}
-		else if (x > 720 &&  y < 110 & y > 420)
+		else if (x > rightGateCordX &&  y < pitchTopCordY & y > gateDownCordY)
 		{	
-			return 720;	
+			
+			return rightGateCordX;	
 		}
 		return x;
 	}
 
 	public float checkYPosition(float x, float y) {
-		if (y < 110 )
-			return 110;
-		else if (y > 422)
-			return 422;
+		if (y < pitchTopCordY-2 )
+			return pitchTopCordY-2;
+		else if (y > pitchDownCordY+2)
+			return pitchDownCordY+2;
 		return y;
 	}
 	
@@ -180,13 +180,10 @@ public class Ball extends BoardObject {
 			System.out.println("Score!!!!");
 			return true;
 		}
-		return false;
-		
-		
-		
-			
+		return false;				
 		
 	}
+	
 	
 	
 
