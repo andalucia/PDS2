@@ -29,8 +29,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int[] Aqua = new int[] {0, 255, 255};
 	private static final int[] Coral = new int[] {255, 127, 80};
 	
-	//centroids
-	private Point blueCentroid, yellowCentroid;
+	//values to return
+	private Point blueCentroid, yellowCentroid, ballCentroid;
+	private int blueDir, yellowDir;
 
 	
 	// BLUE thresholds
@@ -85,7 +86,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	public void process(BufferedImage image) {
 		
 		image = detectRobotsAndBall(image);
-		System.out.println(findFacingDirection(image, yellowCentroid, true));
+		yellowDir = (findFacingDirection(image, yellowCentroid, true));
+		blueDir = (findFacingDirection(image, blueCentroid, false));
 		
 		super.process(image);
 	}
@@ -292,6 +294,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		else {System.out.println("No ball on pitch");}
 		
+		this.ballCentroid = ballCentroid;
 		this.blueCentroid = blueCentroid;
 		this.yellowCentroid = yellowCentroid;
 
@@ -524,20 +527,31 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
-		// TODO Auto-generated method stub
-		return null;
+		return convertPixelsToCm(ballCentroid);
 	}
 
 	@Override
 	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
-		// TODO Auto-generated method stub
-		return null;
+		if (yellow) {
+			return convertPixelsToCm(yellowCentroid);
+		} else {
+			return convertPixelsToCm(blueCentroid);
+		}
 	}
 
 	@Override
 	protected double extractRobotFacingDirection(BufferedImage image,
 			boolean yellow) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (yellow) {
+			return yellowDir;
+		} else {
+			return blueDir;
+		}
+	}
+	
+	private Point2D convertPixelsToCm(Point2D points) {
+		//TODO: Should convert pixel coordinates into centimetre coordinates
+		// w.r.t centre of the pitch
+		return null;
 	}
 }
