@@ -182,7 +182,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				Point current = yellowpoints.get(i);
 				double dist1 = calcDistanceBetweenPoints(current, lastyellow);
 	
-				if (dist1 > 50){
+				if (dist1 > 20){
 					/**
 					 * if the current pixel is unusually further away from previous ones
 					 * then it's fake, therefore delete it from the robot pixels and add
@@ -209,12 +209,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			// DRAW cross through the proper yellow centroid 
 			if (yellowpoints.size() > fakeyellows.size()){
 				yellowCentroid = calcCentroid(yellowpoints);
-				drawCross(raster, yellowCentroid, Aqua);
+				drawCross(raster, yellowCentroid, pureYellow);
 				
 			}
 			else {
 				yellowCentroid = calcCentroid(fakeyellows);
-				drawCross(raster, yellowCentroid, Aqua);
+				drawCross(raster, yellowCentroid, pureYellow);
 			}
 			
 			// DRAW what the vision system thinks the yellow robot is
@@ -241,7 +241,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				Point current = bluepoints.get(i);
 				double dist = calcDistanceBetweenPoints(current, lastblue);
 	
-				if (dist > 50){
+				if (dist > 20){
 					bluepoints.remove(i);
 					fakeblues.add(current);
 					i--;
@@ -251,12 +251,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			}
 			if (bluepoints.size() > fakeblues.size()){
 				blueCentroid = calcCentroid(bluepoints);
-				drawCross(raster, blueCentroid, Aqua);
+				drawCross(raster, blueCentroid, pureBlue);
 				
 			}
 			else {
 				blueCentroid = calcCentroid(fakeblues);
-				drawCross(raster, blueCentroid, Aqua);
+				drawCross(raster, blueCentroid, pureBlue);
 			}
 			
 			if (bluepoints.size() > fakeblues.size()){
