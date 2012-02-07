@@ -184,6 +184,14 @@ public class Ball extends BoardObject {
 		
 	}
 	
+	public Boolean CollidesVerticalWall(){
+		float x = this.getX();
+		if (x < 101 || x > 720){
+			return true;
+		}
+		else return false;
+	}
+	
 	
 	
 

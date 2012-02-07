@@ -336,10 +336,12 @@ public class SimulatorStarter  {
 			ball.move(fixedBallAngle);
 			if (ball.doesItHitWall()){
 				
-			 ball.stop();
-			 isBallKicked = false;
-			fixedBallAngle = 0;
-			fixedBallAngle = 180 - fixedBallAngle;
+			//ball.stop();
+			//isBallKicked = false;
+				if(ball.CollidesVerticalWall()){
+					fixedBallAngle = fixedBallAngle + 180;
+				}
+				else fixedBallAngle = -fixedBallAngle;
 			}
 		}
 	}
@@ -373,15 +375,8 @@ public class SimulatorStarter  {
 							resetSimulation();
 							break;
 					case KeyEvent.VK_ENTER:
-							if(oppRobot.canRobotKick(ball)){
-								oppRobot.kick(ball);
-								isBallKicked = true;
-								fixedBallAngle = oppRobot.getAngle();
-								
-								System.out.println("Kicked ball");
-							}
-							else
-								System.out.println("Too far away from the ball");
+							tryToKickBall();
+							
 							break;
 				}
 
@@ -395,6 +390,18 @@ public class SimulatorStarter  {
 			}
 
 		});
+	}
+	
+	public static void tryToKickBall(){
+		if(oppRobot.canRobotKick(ball)){
+			oppRobot.kick(ball);
+			isBallKicked = true;
+			fixedBallAngle = oppRobot.getAngle();
+			
+			System.out.println("Kicked ball");
+		}
+		else
+			System.out.println("Too far away from the ball");
 	}
 	
 	public static void goalCheck()
@@ -412,6 +419,7 @@ public class SimulatorStarter  {
 		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
 		isBallKicked = false;
+		fixedBallAngle = 0;
 		oppRobot.setScore(0);
 	}
 
