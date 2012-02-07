@@ -66,6 +66,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int BThreshRedLow = 0;
 	private static final int BThreshRedHigh = 30;
 	
+	// Pitch thresholds
+	private static final int RThreshPitchLow = 50;
+	private static final int RThreshPitchHigh = 110;
+	
+	private static final int GThreshPitchLow = 70;
+	private static final int GThreshPitchHigh = 170;
+	
+	private static final int BThreshPitchLow = 15;
+	private static final int BThreshPitchHigh = 65;
+	
 	// pure colours - used for drawing pixels
 	private static final int[] pureRed = new int[] { 255, 0, 0 };
 	private static final int[] pureYellow = {255, 255, 0};
@@ -114,6 +124,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		ArrayList<Point> fakeblues = new ArrayList<Point>();
 		ArrayList<Point> ball = new ArrayList<Point>();
 		ArrayList<Point> nope_not_ball = new ArrayList<Point>();
+		ArrayList<Point> pitch = new ArrayList<Point>();
 		
 		
 		// for every point on the image
@@ -141,9 +152,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				if (isBall(colour)){
 					ball.add(currentPoint);
 				}
+				if (isPitch(colour)){
+					pitch.add(currentPoint);
+				}
 			}
 		}
 	
+		System.out.println("tl:" + getBoundaries(pitch)[0] + " tr:" + getBoundaries(pitch)[1] + " bl:" + 
+				getBoundaries(pitch)[2] + " br:" + getBoundaries(pitch)[3]);
+		
+		
 		/** 
 		 * Find the yellow and the blue robots; draw a cross through their centroids
 		 */
@@ -471,6 +489,35 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int B = colour[2];
 		return (R > RThreshRedLow && R < RThreshRedHigh && G > GThreshRedLow && G < GThreshRedHigh
 				&& B > BThreshRedLow && B < BThreshRedHigh);
+	}
+	
+	// Pitch
+	public boolean isPitch(int[] colour) {
+		int R = colour[0];
+		int G = colour[1];
+		int B = colour[2];
+		return (R > RThreshPitchLow && R < RThreshPitchHigh && G > GThreshPitchLow && G < GThreshPitchHigh
+				&& B > BThreshPitchLow && B < BThreshPitchHigh);
+	}
+	
+	public Point[] getBoundaries(ArrayList<Point> fixels){
+		Point topleft = new Point();
+		Point topright = new Point();
+		Point bottomleft = new Point();
+		Point bottomright = new Point();
+		
+		for (int i = 0; i < fixels.size(); i++){
+				topleft.x = fixels.get(0).x;
+				topleft.y = fixels.get(0).y;
+				topright.x = fixels.get(fixels.size()-1).x;
+				topright.y = fixels.get(0).y;
+				bottomleft.x = fixels.get(0).x;
+				bottomleft.y = fixels.get(fixels.size()-1).y;
+				bottomright.x = fixels.get(fixels.size()-1).x;
+				bottomright.y = fixels.get(fixels.size()-1).y;
+		}
+		Point[] result = new Point[]{topleft, topright, bottomleft, bottomright};
+		return result;
 	}
 
 	/**

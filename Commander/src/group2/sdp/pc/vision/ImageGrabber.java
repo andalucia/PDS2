@@ -16,7 +16,8 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 public class ImageGrabber implements CaptureCallback {
 	private int width = 640, height = 480;
 	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0;
-	private static String   device = "/dev/video0"; //kilmore:5544/sdp.rtsp may work
+	private static String device = "/dev/video0";
+		//"kilmore:5544/sdp.rtsp"; // "/dev/video0";may work
 	
 	private int saturation;
 	private int brightness;
