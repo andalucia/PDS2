@@ -329,8 +329,32 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		this.ballCentroid = ballCentroid;
 		this.blueCentroid = blueCentroid;
 		this.yellowCentroid = yellowCentroid;
-
 		
+// for regression
+		
+		double allx = 0;
+		double ally = 0;
+		double allxy = 0;
+		double allx_sqr = 0;
+		double ally_sqr = 0;
+		int n = bluepoints.size();
+
+		for (int i = 0; i < bluepoints.size(); i++) {
+			allx += bluepoints.get(i).x;
+			ally += bluepoints.get(i).y;
+			allxy += bluepoints.get(i).x * bluepoints.get(i).y;
+			allx_sqr += bluepoints.get(i).x * bluepoints.get(i).x;
+			ally_sqr += bluepoints.get(i).y * bluepoints.get(i).y;
+
+		}
+		
+		double mx = regression(allx, ally, n, allxy, allx_sqr);
+		double my = regression(ally, allx, n, allxy, ally_sqr);
+		System.out.println("X:" + mx + " Y: " + my);
+		drawLine_X(raster, new Point((int) (allx / n), (int) (ally / n)), mx,
+				red);
+		drawLine_Y(raster, new Point((int) (allx / n), (int) (ally / n)), my,
+				pureYellow);
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -692,7 +716,57 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param targetRange
 	 * @return
 	 */
+	
+	/*
+	 * draw line in X direction
+	 * */
+	
+	private void drawLine_X(WritableRaster raster, Point c, double m,
+			int[] colour) {
+		int xh = c.x + 100;
+		int x = c.x;
+		int y = c.y;
+
+		double b = c.y - m * c.x;
+		x = x - 100;
+		while (x < xh) {
+			drawPixel(raster, new Point(x, (int) (m * x + b)), colour);
+			x++;
+		}
+
+	}
+
+	/*
+	 * draw line in Y direction
+	 * */
+	
+	private void drawLine_Y(WritableRaster raster, Point c, double m,
+			int[] colour) {
+		int xh = c.y + 100;
+		int x = c.y;
+		int y = c.x;
+
+		double b = c.x - m * c.y;
+		x = x - 100;
+		while (x < xh) {
+			drawPixel(raster, new Point((int) (m * x + b), x), colour);
+			x++;
+		}
+
+	}
 	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
 		return (x - x0) * (targetRange / domainRange) + y0;
 	}
+	
+	/*
+	 * regression function 
+	 * */
+	
+	protected double regression(double allx, double ally, int n, double allxy,
+			double allx_sqr) {
+
+		return (n * allxy - allx * ally) / (n * allx_sqr - allx * allx);
+	}
 }
+
+
