@@ -48,7 +48,7 @@ public class Ball extends BoardObject {
 		this.body.setCanRest(true);
 		this.radius = radius;
 		scoreTimeCounter = 0;
-		dist = 5;
+		dist = 4;
 		isBallKicked = false;
 		fixedAngle = 0;
 		
@@ -224,8 +224,9 @@ public class Ball extends BoardObject {
 	public void performKickedBallMovements(){
 		if (isBallKicked()){
 			move(fixedAngle);
+			decreaseDistance();
 			if (doesItHitWall()){
-				setDistance(getDistance()-1f);
+				
 				if(CollidesVerticalWall()){
 					setFixedAngle(fixedAngle + 180 + getRandomNumber());	
 				}
@@ -239,10 +240,21 @@ public class Ball extends BoardObject {
 	 * It generates random number needed for bouncing ball system.
 	 * @return return random number between 0 and 10
 	 */
-	public static int getRandomNumber(){
+	public int getRandomNumber(){
 		Random randomGenerator = new Random();
 		int randomNumber = randomGenerator.nextInt(10);
 		return randomNumber;
+	}
+	
+	public void decreaseDistance(){
+		if (dist > 0.1){
+			setDistance(getDistance()-0.01f);
+		}
+		else
+		{
+			setBallKicked(false);
+			setFixedAngle(0);
+		}
 	}
 	
 	
