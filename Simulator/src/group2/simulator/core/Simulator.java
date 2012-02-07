@@ -6,12 +6,13 @@ import java.util.TimerTask;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.Robot;
+import group2.simulator.starter.SimulatorStarter;
 import net.phys2d.raw.World;
 
 public class Simulator  implements ServerSkeleton {
 
 	private static World world;
-	private Robot robot;
+	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
 	
@@ -31,46 +32,33 @@ public class Simulator  implements ServerSkeleton {
 			  @Override
 			  public void run() {
 			    System.out.println("test-stuff updated every two seconds");
-			    initDriverThread();
+			    
+			    switch (robotState.getCurrentMovement()) {
+				case DO_NOTHING:
+					break;
+				case GOING_FORWARD:
+					Simulator.robot.move(Simulator.world, Simulator.ball, (int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+					break;
+				case GOING_BACKWARDS:
+					Simulator.robot.move(Simulator.world, Simulator.ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+					break;
+				case KICK:
+					SimulatorStarter.tryToKickBall();// TODO: to move function in Robot class!
+					break;
+				case SPIN_RIGHT:
+					Simulator.robot.turn(-(int)robotState.getAngleOfRotation());
+					break;
+				case SPIN_LEFT:
+					Simulator.robot.turn((int)robotState.getAngleOfRotation());
+					break;
+				}
 			  }
 			}, 0, 2000);
 		
 	
 	}
 
-	private void initDriverThread() {
-		
-		// TODO: Change to timer to control the number of updates per second
-		driver_thread = new Thread() {
-			public void run() {
-				while (true) {
-					switch (robotState.getCurrentMovement()) {
-					case DO_NOTHING:
-						break;
-					case GOING_FORWARD:
-						robot.move(world, ball, (int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
-						break;
-					case GOING_BACKWARDS:
-						robot.move(world, ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
-						break;
-					case KICK:
-						if(robot.canRobotKick(ball)){
-							robot.kick(ball);
-						}
-						break;
-					case SPIN_RIGHT:
-						robot.turn(-(int)robotState.getAngleOfRotation());
-						break;
-					case SPIN_LEFT:
-						robot.turn((int)robotState.getAngleOfRotation());
-						break;
-					}
-					
-				}
-			}
-		};
-		driver_thread.start();
-	}
+
 
 	@Override
 	public void sendStop() {
