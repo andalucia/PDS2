@@ -132,7 +132,7 @@ public class Ball extends BoardObject {
 			}
 			else
 			
-			if (x < 101 || x > 720 || y < pitchTopCordY || y > pitchDownCordY ){
+			if (x < 103 || x > 720 || y < pitchTopCordY || y > pitchDownCordY ){
 				System.out.println(x +" "+ y);
 				return true;
 			}
@@ -191,7 +191,7 @@ public class Ball extends BoardObject {
 	 */
 	public Boolean CollidesVerticalWall(){
 		float x = this.getX();
-		if (x < 101 || x > 720){
+		if (x < 105 || x > 720){
 			return true;
 		}
 		else return false;
@@ -223,6 +223,7 @@ public class Ball extends BoardObject {
 	
 	public void performKickedBallMovements(){
 		if (isBallKicked()){
+			System.out.println("Ball is kicked " + fixedAngle);
 			move(fixedAngle);
 			decreaseDistance();
 			if (doesItHitWall()){
@@ -254,6 +255,7 @@ public class Ball extends BoardObject {
 		{
 			setBallKicked(false);
 			setFixedAngle(0);
+			dist = 4;
 		}
 	}
 	

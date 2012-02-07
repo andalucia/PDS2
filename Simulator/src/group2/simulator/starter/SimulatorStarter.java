@@ -141,6 +141,7 @@ public class SimulatorStarter  {
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
 		setControls();
+		resetSimulation();
 		while(running)
 		{
 			initSimulation();  // initialise the simulator
