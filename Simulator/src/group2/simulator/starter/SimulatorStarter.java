@@ -59,9 +59,9 @@ public class SimulatorStarter  {
 	private static Ball ball;
 	
 	// an variable to hold for kicked ball angle
-	private static double fixedBallAngle;
+
 	// holds true if ball is kicked
-	private static boolean isBallKicked;
+
 
 	static Thread actionThread = new Thread() {
 		public void run() {
@@ -141,7 +141,6 @@ public class SimulatorStarter  {
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
 		setControls();
-		setVariableValues();
 		while(running)
 		{
 			initSimulation();  // initialise the simulator
@@ -160,12 +159,6 @@ public class SimulatorStarter  {
             }
 
 		}
-	}
-	
-	private static void setVariableValues()
-	{
-		fixedBallAngle = 0;
-		isBallKicked = false;
 	}
 
 	/**
@@ -223,7 +216,8 @@ public class SimulatorStarter  {
 		
 		ball.setPosition(newBallStartX, newBallStartY);
 		
-		kickedBallMovements();
+		ball.performKickedBallMovements();
+		//kickedBallMovements();
 		goalCheck();
 		init(world);
 	}
@@ -324,30 +318,6 @@ public class SimulatorStarter  {
 		return img;
 	}
 	
-	/*
-	 * Checks if the ball was kicked.
-	 * Moves by ten every loop in fixed angle
-	 * until was was hit
-	 * TO DO: Bounces, collision with other robot
-	 * 
-	 */
-	public static void kickedBallMovements(){
-		if (isBallKicked)
-		{
-			
-			ball.move(fixedBallAngle);
-			if (ball.doesItHitWall()){
-				
-			//ball.stop();
-			//isBallKicked = false;
-				if(ball.CollidesVerticalWall()){
-					fixedBallAngle = fixedBallAngle + 180 + getRandomNumber();
-				}
-				else fixedBallAngle = -fixedBallAngle - getRandomNumber();
-			}
-		}
-	}
-
 
 	/**
 	 * Set the command for the key controls
@@ -377,7 +347,7 @@ public class SimulatorStarter  {
 							resetSimulation();
 							break;
 					case KeyEvent.VK_ENTER:
-							tryToKickBall();
+							oppRobot.kick(ball);
 							
 							break;
 				}
@@ -394,24 +364,12 @@ public class SimulatorStarter  {
 		});
 	}
 	
-	public static void tryToKickBall(){
-		if(oppRobot.canRobotKick(ball)){
-			oppRobot.kick(ball);
-			isBallKicked = true;
-			fixedBallAngle = oppRobot.getAngle();
-			
-			System.out.println("Kicked ball");
-		}
-		else
-			System.out.println("Too far away from the ball");
-	}
-	
 	public static void goalCheck()
 	{
 		if (ball.didItScore()){
 			ball.stop();
-			 isBallKicked = false;
-			 fixedBallAngle = 0;
+			 ball.setBallKicked(false);
+			 ball.setFixedAngle(0);
 			 oppRobot.incrScore();
 		}
 	}
@@ -420,9 +378,10 @@ public class SimulatorStarter  {
 		oppRobot.setAngle(180);
 		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
-		isBallKicked = false;
-		fixedBallAngle = 0;
+		ball.setBallKicked(false);
+		ball.setFixedAngle(0);
 		oppRobot.setScore(0);
+		ball.setDistance(5);
 	}
 
 	public static void displayControlsAndScore(Graphics2D g){
@@ -448,16 +407,5 @@ public class SimulatorStarter  {
 
 	}
 	
-	/**
-	 * It generates random number needed for bouncing ball system.
-	 * @return return random number between 0 and 10
-	 */
-	public static int getRandomNumber(){
-		Random randomGenerator = new Random();
-		int randomNumber = randomGenerator.nextInt(10);
-		return randomNumber;
-	}
-	
-
 
 }

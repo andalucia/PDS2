@@ -43,7 +43,7 @@ public class Simulator  implements ServerSkeleton {
 					Simulator.robot.move(Simulator.world, Simulator.ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
 					break;
 				case KICK:
-					SimulatorStarter.tryToKickBall();// TODO: to move function in Robot class!
+					Simulator.robot.kick(Simulator.ball);// TODO: to move function in Robot class!
 					break;
 				case SPIN_RIGHT:
 					Simulator.robot.turn(-(int)robotState.getAngleOfRotation());

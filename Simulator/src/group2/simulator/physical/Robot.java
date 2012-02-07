@@ -6,9 +6,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
 
-import net.phys2d.raw.Arbiter;
-import net.phys2d.raw.ArbiterList;
-import net.phys2d.raw.Body;
+
 import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 
@@ -21,6 +19,7 @@ public class Robot extends BoardObject {
 	int speed = 3;
 	BufferedImage img = null;
 	private int score;
+	
 
 	/**
 	 * Constructor that fully initiliases the Robot player
@@ -93,6 +92,7 @@ public class Robot extends BoardObject {
 	 * Check if the robot can kick the ball
 	 * @param ball is the object the the robot could kick
 	 */
+	/*
 	public void kick(Ball ball) {
 		if (isCloseToFront(ball)){
 			ball.kick(getAngle());
@@ -100,6 +100,7 @@ public class Robot extends BoardObject {
 			System.out.println("Cannot kick - the ball is too far away");
 		}
 	}
+	*/
 
 	/**
 	 * Robot moves forward and takes into account if it finds the ball in front of him
@@ -204,6 +205,20 @@ public class Robot extends BoardObject {
 	public void incrScore()
 	{
 		score++;
+	}
+	
+	public void kick(Ball ball){
+		if (canRobotKick(ball)){
+			ball.setBallKicked(true);
+			System.out.println("Ball is kicked");
+			ball.setFixedAngle(this.getAngle());
+			System.out.println("angle is set");
+			
+		}
+		else
+		{
+		System.out.println("Too far away from the ball");
+		}
 	}
 	
 	

@@ -7,18 +7,8 @@ import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
 import net.phys2d.raw.shapes.Circle;
 
-/**
- * @author s0923534
- *
- */
-/**
- * @author s0923534
- *
- */
-/**
- * @author s0923534
- *
- */
+
+ 
 public class Ball extends BoardObject {
 
 	
@@ -34,7 +24,10 @@ public class Ball extends BoardObject {
 
 	
 	
-	float radius;
+	private float radius;
+	private float  dist;
+	private Boolean isBallKicked;
+	private double fixedAngle;
 	Body leftGoalLine;
 	Body rightGoalLine;
 	
@@ -55,6 +48,9 @@ public class Ball extends BoardObject {
 		this.body.setCanRest(true);
 		this.radius = radius;
 		scoreTimeCounter = 0;
+		dist = 5;
+		isBallKicked = false;
+		fixedAngle = 0;
 		
 	}
 	
@@ -77,7 +73,7 @@ public class Ball extends BoardObject {
 	 * @param angle
 	 */
 	public void move(double angle) {
-		int dist = 5;
+		
 		float x = (this.getX() + (dist * (float) Math
 				.cos(Math.toRadians(angle))));
 		float y = (this.getY() + (dist * (float) Math
@@ -199,6 +195,54 @@ public class Ball extends BoardObject {
 			return true;
 		}
 		else return false;
+	}
+	
+	public void setDistance(float dist){
+		this.dist = dist;
+	}
+	
+	public float getDistance(){
+		return dist;
+	}
+	
+	public boolean isBallKicked(){
+		return isBallKicked;
+	}
+
+	public void setBallKicked(Boolean value){
+		isBallKicked = value;
+	}
+	
+	public double getFixedAngle(){
+		return fixedAngle;
+	}
+	
+	public void setFixedAngle(double angle){
+		fixedAngle = angle;
+	}
+	
+	public void performKickedBallMovements(){
+		if (isBallKicked()){
+			move(fixedAngle);
+			if (doesItHitWall()){
+				setDistance(getDistance()-1f);
+				if(CollidesVerticalWall()){
+					setFixedAngle(fixedAngle + 180 + getRandomNumber());	
+				}
+				else setFixedAngle(-fixedAngle - getRandomNumber());
+			}
+		}
+	}
+	
+	
+	/**
+	 * It generates random number needed for bouncing ball system.
+	 * @return return random number between 0 and 10
+	 */
+	public static int getRandomNumber(){
+		Random randomGenerator = new Random();
+		int randomNumber = randomGenerator.nextInt(10);
+		return randomNumber;
 	}
 	
 	
