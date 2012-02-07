@@ -1,11 +1,16 @@
 package group2.simulator.physical;
 
 import java.awt.Color;
+import java.util.Random;
 
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
 import net.phys2d.raw.shapes.Circle;
 
+/**
+ * @author s0923534
+ *
+ */
 /**
  * @author s0923534
  *
@@ -184,6 +189,10 @@ public class Ball extends BoardObject {
 		
 	}
 	
+	/**
+	 * It checks if it hits Vertical(left or right) wall. Needed for bouncing ball mechanism.
+	 * @return true if ball hits left or right wall and false if it hits upper or bottom wall
+	 */
 	public Boolean CollidesVerticalWall(){
 		float x = this.getX();
 		if (x < 101 || x > 720){
@@ -191,6 +200,7 @@ public class Ball extends BoardObject {
 		}
 		else return false;
 	}
+	
 	
 	
 	

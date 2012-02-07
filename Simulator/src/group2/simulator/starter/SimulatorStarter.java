@@ -24,6 +24,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.BufferStrategy;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
+
 import javax.imageio.ImageIO;
 
 import net.phys2d.math.Vector2f;
@@ -339,9 +341,9 @@ public class SimulatorStarter  {
 			//ball.stop();
 			//isBallKicked = false;
 				if(ball.CollidesVerticalWall()){
-					fixedBallAngle = fixedBallAngle + 180;
+					fixedBallAngle = fixedBallAngle + 180 + getRandomNumber();
 				}
-				else fixedBallAngle = -fixedBallAngle;
+				else fixedBallAngle = -fixedBallAngle - getRandomNumber();
 			}
 		}
 	}
@@ -445,6 +447,17 @@ public class SimulatorStarter  {
 		g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 360 ,75);
 
 	}
+	
+	/**
+	 * It generates random number needed for bouncing ball system.
+	 * @return return random number between 0 and 10
+	 */
+	public static int getRandomNumber(){
+		Random randomGenerator = new Random();
+		int randomNumber = randomGenerator.nextInt(10);
+		return randomNumber;
+	}
+	
 
 
 }
