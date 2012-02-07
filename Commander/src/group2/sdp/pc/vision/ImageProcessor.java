@@ -1,5 +1,7 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.common.util.KeyValuePair;
+import group2.sdp.common.util.Pair;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
@@ -17,6 +19,8 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ImageProcessor extends ImageProcessorSkeleton {
 	
@@ -100,10 +104,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		image = detectRobotsAndBall(image);
 		yellowDir = (findFacingDirection(image, yellowCentroid, true));
 		blueDir = (findFacingDirection(image, blueCentroid, false));
+		System.out.println(yellowDir + " " + blueDir);
 		
 		super.process(image);
 	}
-	
 	
 	
 	public BufferedImage detectRobotsAndBall(BufferedImage image) {
@@ -340,6 +344,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int best_score = 0;
 		int best_angle = 0;
 		if (centroid.x != 0) {
+			// To store all distances
+			List<KeyValuePair<Integer,Integer>> pairs = new ArrayList<KeyValuePair<Integer, Integer>>();
+			
 			for (int i = 0; i < 360; i++) {
 				cur_score = 0;
 				Point nextPixel = new Point();
@@ -354,7 +361,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				// the centroid.
 				while (isBlueYellow(colour, isYellow)) {
 					//System.out.println("rot_pixel = " + rot_pixel + " and isYellow = " + isYellow);
-					cur_score++;
+					
+					cur_score--; // Since we sort in ascending order, lower score is longer segments
+					
 					nextPixel = new Point(centroid.x + cur_score,centroid.y);
 					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
 					try {
@@ -367,13 +376,39 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					colour[0] = c.getRed();
 					colour[1] = c.getGreen();
 					colour[2] = c.getBlue();
-	
 				}
-				if (cur_score > best_score) {
+				
+				if (cur_score < best_score) {
 					best_angle = i;
 					best_score = cur_score;
 				}
+				
+				pairs.add(new KeyValuePair<Integer, Integer>(cur_score, i));
 			}
+			Collections.sort(pairs);
+			
+			int thresh_sim = 1;
+			
+			int best = 0, i, secondBest;
+			for (i = 1; i < pairs.size(); ++i) {
+				if (pairs.get(i).getFirst() - pairs.get(best).getFirst() > thresh_sim) {
+					break;
+				}
+			}
+			best = i / 2;
+			secondBest = i;
+			
+			for (; i < pairs.size(); ++i) {
+				if (pairs.get(i).getFirst() - pairs.get(secondBest).getFirst() > thresh_sim) {
+					break;
+				}
+			}
+			secondBest = (secondBest + i) / 2;
+			
+			if (best == pairs.size()) best = 0;
+			if (secondBest == pairs.size()) secondBest = 0;
+			
+			best_angle = (pairs.get(best).getSecond() + pairs.get(secondBest).getSecond()) / 2; 
 		}
 		return 360 - best_angle;
 	}
@@ -555,17 +590,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * WARNING: DO NOT USE p2 AFTER THIS FUNCTION HAS BEEN CALLED.
 	 * This function will change the values of p2. Use the returned point 
 	 * and create a copy of p2 if you want to use it.
-	 */
-	
-	public Point rotatePoint(Point pivot, Point p2, int deg)
+	 */	
+	public Point rotatePoint(Point pivot, Point p3, int deg)
 	{
+		Point p2 = (Point) p3.clone();
 		p2.x -= pivot.x;
 		p2.y -= pivot.y;
 		double rad = (double) Math.toRadians(deg);
-		int xtemp;
-		xtemp = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
+		
 		p2.y = (int) Math.round((p2.x * (double)Math.sin(rad)) + (p2.y * (double)Math.cos(rad)));
-		p2.x = xtemp;
+		p2.x = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
 		return new Point (p2.x+pivot.x, p2.y+pivot.y);
 	}
 
