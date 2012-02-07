@@ -41,8 +41,8 @@ public class RobotTest {
 	public final void testTurnRight() {
 
 		double originalAngle = robot.getAngle();
-		robot.turn(+5);
-		assertTrue(robot.convertAngle((originalAngle + 5)) == robot.getAngle());
+		robot.turn(-5);
+		assertTrue(robot.convertAngle((originalAngle - 5)) == robot.getAngle());
 		}
 	
 	@Test
@@ -50,8 +50,8 @@ public class RobotTest {
 	public final void testTurnLeft() {
 
 		double originalAngle = robot.getAngle();
-		robot.turn(-5);
-		assertTrue(robot.convertAngle((originalAngle - 5)) == robot.getAngle());
+		robot.turn(+5);
+		assertTrue(robot.convertAngle((originalAngle + 5)) == robot.getAngle());
 		}
 	
 	@Test

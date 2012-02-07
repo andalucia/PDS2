@@ -174,15 +174,15 @@ public class Robot extends BoardObject {
 		
 	/**
 	 * Turn the robot at the given angle 
-	 * Negative number turns to left
-	 * Positive number turns to right
+	 * Negative number turns to right - rotates clock-wise direction
+	 * Positive number turns to left - rotates counter-clock wise direction
 	 * @param value
 	 */
 	public void turn(int value) {
-		if (value > 0) {
-			this.setAngle(this.getAngle() + 5);
-		} else if (value < 0) {
+		if (value < 0) {
 			this.setAngle(this.getAngle() - 5);
+		} else if (value > 0) {
+			this.setAngle(this.getAngle() + 5);
 		}
 		// rotates the body
 		this.getBody().setRotation((float) Math.toRadians(getAngle()));

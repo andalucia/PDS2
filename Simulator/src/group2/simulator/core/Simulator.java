@@ -1,16 +1,19 @@
 package group2.simulator.core;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.Robot;
 import net.phys2d.raw.World;
 
-public class Simulator implements ServerSkeleton {
+public class Simulator  implements ServerSkeleton {
 
-	private World world;
+	private static World world;
 	private Robot robot;
-	private Robot oppRobot;
-	private Ball ball;
+	private static Robot oppRobot;
+	private static Ball ball;
 	
 	private Thread driver_thread;
 	
@@ -23,8 +26,16 @@ public class Simulator implements ServerSkeleton {
 		this.ball = ball;
 		
 		robotState = new RobotState();
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			  @Override
+			  public void run() {
+			    System.out.println("test-stuff updated every two seconds");
+			    initDriverThread();
+			  }
+			}, 0, 2000);
 		
-		initDriverThread();
+	
 	}
 
 	private void initDriverThread() {
@@ -36,10 +47,25 @@ public class Simulator implements ServerSkeleton {
 					switch (robotState.getCurrentMovement()) {
 					case DO_NOTHING:
 						break;
-					case GOING_FORWARDS:
+					case GOING_FORWARD:
 						robot.move(world, ball, (int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
 						break;
+					case GOING_BACKWARDS:
+						robot.move(world, ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+						break;
+					case KICK:
+						if(robot.canRobotKick(ball)){
+							robot.kick(ball);
+						}
+						break;
+					case SPIN_RIGHT:
+						robot.turn(-(int)robotState.getAngleOfRotation());
+						break;
+					case SPIN_LEFT:
+						robot.turn((int)robotState.getAngleOfRotation());
+						break;
 					}
+					
 				}
 			}
 		};
@@ -48,39 +74,43 @@ public class Simulator implements ServerSkeleton {
 
 	@Override
 	public void sendStop() {
-		// TODO Auto-generated method stub
-
+		robotState.setCurrentMovement(RobotState.Movement.DO_NOTHING);
 	}
 
 	@Override
 	public void sendGoForward(int speed, int distance) {
 		// TODO: synchronize access to the RobotState
-		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARDS);
+		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
 		robotState.setSpeedOfTravel(speed);
 	}
 
 	@Override
 	public void sendGoBackwards(int speed, int distance) {
-		// TODO Auto-generated method stub
+		robotState.setCurrentMovement(RobotState.Movement.GOING_BACKWARDS);
+		robotState.setSpeedOfTravel(-speed);
 
 	}
 
 	@Override
 	public void sendKick(int power) {
-		// TODO Auto-generated method stub
+		robotState.setCurrentMovement(RobotState.Movement.KICK);
+		robotState.setPowerOfKick(power);
 
 	}
 
 	@Override
 	public void sendSpinLeft(int speed, int angle) {
-		// TODO Auto-generated method stub
+		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);
+		robotState.setAngleOfRotation(angle);
 
 	}
 
 	@Override
 	public void sendSpinRight(int speed, int angle) {
-		// TODO Auto-generated method stub
+		robotState.setCurrentMovement(RobotState.Movement.SPIN_RIGHT);
+		robotState.setAngleOfRotation(-angle);
 
 	}
+
 
 }

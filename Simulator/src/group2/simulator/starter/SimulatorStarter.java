@@ -63,8 +63,15 @@ public class SimulatorStarter  {
 
 	static Thread actionThread = new Thread() {
 		public void run() {
-			//Doesn't do anything for now. But hopefully, it will get commands from the planner :)
+			
 			System.out.println("Thread for simulator");
+			
+			
+			Simulator simulator = new Simulator(world, robot, oppRobot, ball);
+			PlanExecutor executor = new PlanExecutor(simulator);
+			Planner planner = new Planner(executor);
+			Bakery bakery = new Bakery(planner);
+			new SimulatorDoughProvider(bakery); 
 		}
 	};
 
@@ -86,11 +93,11 @@ public class SimulatorStarter  {
 			prepareSimulator();
 			initializeArea();
 			
-			Simulator simulator = new Simulator(world, robot, oppRobot, ball);
-			PlanExecutor executor = new PlanExecutor(simulator);
-			Planner planner = new Planner(executor);
-			Bakery bakery = new Bakery(planner);
-			new SimulatorDoughProvider(bakery); // This starts its own thread, so it should just work.
+			//Simulator simulator = new Simulator(world, robot, oppRobot, ball);
+			//PlanExecutor executor = new PlanExecutor(simulator);
+			//Planner planner = new Planner(executor);
+			//Bakery bakery = new Bakery(planner);
+			//new SimulatorDoughProvider(bakery); // This starts its own thread, so it should just work.
 	}
 
 	/**
@@ -105,6 +112,7 @@ public class SimulatorStarter  {
 		SimulatorStarter.robot = robot;
 		SimulatorStarter.oppRobot = oppRobot;
 		SimulatorStarter.ball = ball;
+	
 	}
 
 	/**
