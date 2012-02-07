@@ -1,7 +1,6 @@
 package group2.sdp.pc.vision;
 
 import group2.sdp.common.util.KeyValuePair;
-import group2.sdp.common.util.Pair;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
@@ -38,6 +37,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
 	private int blueDir, yellowDir;
+	
+	// pitch2 colours
+	private static final int[] yellow = new int[] {246,181,0};
+	private static final int[] blue = new int[] {133,149,138};
 
 	
 	// BLUE thresholds
@@ -55,11 +58,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int RThreshYellowLow = 110;
 	private static final int RThreshYellowHigh = 160;
 	
-	private static final int GThreshYellowLow = 110;
-	private static final int GThreshYellowHigh = 170;
+	private static final int GThreshYellowLow = 170;
+	private static final int GThreshYellowHigh = 250;
 	
-	private static final int BThreshYellowLow = 20;
-	private static final int BThreshYellowHigh = 100;
+	private static final int BThreshYellowLow = 0;
+	private static final int BThreshYellowHigh = 30;
 	
 	
 	// Ball thresholds
@@ -104,10 +107,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		image = detectRobotsAndBall(image);
 		yellowDir = (findFacingDirection(image, yellowCentroid, true));
 		blueDir = (findFacingDirection(image, blueCentroid, false));
-		System.out.println(yellowDir + " " + blueDir);
+		//System.out.println("blue dir = " + blueDir);
 		
 		super.process(image);
 	}
+	
 	
 	
 	public BufferedImage detectRobotsAndBall(BufferedImage image) {
@@ -225,13 +229,15 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			if (yellowpoints.size() > fakeyellows.size()){
 				for (int i = 0; i < yellowpoints.size(); i++){
 					Point current = yellowpoints.get(i);
-					drawPixel(raster, current, pureYellow);}
+					drawPixel(raster, current, pureYellow);
+					}
 			}
 			// it might be the case that the "fake" robot is the proper one
 			else {
 				for (int i = 0; i < fakeyellows.size(); i++){
 					Point current = fakeyellows.get(i);
-					drawPixel(raster, current, Aqua);}
+					drawPixel(raster, current, Aqua);
+					}
 			}
 		}
 		else {System.out.println("No yellow robot on pitch");}
@@ -239,19 +245,20 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		// Same for blue robot and ball
 		// Blue robot
 		if (bluepoints.size() != 0){
+			Point curBlueCentroid = calcCentroid(bluepoints);
 			Point lastblue = bluepoints.get(0);
 			for (int i = 0; i < bluepoints.size(); i++){
 				
 				Point current = bluepoints.get(i);
-				double dist = calcDistanceBetweenPoints(current, lastblue);
+				double dist = calcDistanceBetweenPoints(current, curBlueCentroid);
 	
-				if (dist > 20){
+				if (dist > 50){
 					bluepoints.remove(i);
 					fakeblues.add(current);
 					i--;
 					
 				}
-				else lastblue = current;
+				//else lastblue = current;
 			}
 			if (bluepoints.size() > fakeblues.size()){
 				blueCentroid = calcCentroid(bluepoints);
@@ -271,7 +278,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			else {
 				for (int i = 0; i < fakeblues.size(); i++){
 					Point current = fakeblues.get(i);
-					drawPixel(raster, current, pureBlue);}
+					drawPixel(raster, current, Aqua);
+					}
 			}
 		}
 		else {System.out.println("No blue robot on pitch");}
@@ -413,6 +421,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return 360 - best_angle;
 	}
 
+
 	/**
 	 * 
 	 * @param colour The colour you are checking
@@ -501,17 +510,19 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int R = colour[0];
 		int G = colour[1];
 		int B = colour[2];
-		return (R > RThreshYellowLow && R < RThreshYellowHigh && G > GThreshYellowLow && G < GThreshYellowHigh
-				&& B > BThreshYellowLow && B < BThreshYellowHigh || (R == 255 && G == 255 && B == 0));
-	}
+		int[] differences = calcColourDifferences(yellow, colour);
+		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 50)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
+}
 
 	//Blue robot
 	public boolean isSthBlue(int[] colour) {
 		int R = colour[0];
 		int G = colour[1];
 		int B = colour[2];
-		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
-				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
+		int[] differences = calcColourDifferences(blue, colour);
+		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 50) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
+//		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
+//				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
 	}
 
 	// Ball
@@ -590,16 +601,17 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * WARNING: DO NOT USE p2 AFTER THIS FUNCTION HAS BEEN CALLED.
 	 * This function will change the values of p2. Use the returned point 
 	 * and create a copy of p2 if you want to use it.
-	 */	
-	public Point rotatePoint(Point pivot, Point p3, int deg)
+	 */
+	
+	public Point rotatePoint(Point pivot, Point p2, int deg)
 	{
-		Point p2 = (Point) p3.clone();
 		p2.x -= pivot.x;
 		p2.y -= pivot.y;
 		double rad = (double) Math.toRadians(deg);
-		
+		int xtemp;
+		xtemp = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
 		p2.y = (int) Math.round((p2.x * (double)Math.sin(rad)) + (p2.y * (double)Math.cos(rad)));
-		p2.x = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
+		p2.x = xtemp;
 		return new Point (p2.x+pivot.x, p2.y+pivot.y);
 	}
 
