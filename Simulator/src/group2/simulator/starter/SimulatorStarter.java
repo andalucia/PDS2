@@ -30,8 +30,14 @@ import javax.imageio.ImageIO;
 
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
+import net.phys2d.raw.CollisionEvent;
+import net.phys2d.raw.Contact;
 import net.phys2d.raw.StaticBody;
 import net.phys2d.raw.World;
+import net.phys2d.raw.collide.BoxCircleCollider;
+import net.phys2d.raw.collide.Collider;
+import net.phys2d.raw.collide.ColliderFactory;
+import net.phys2d.raw.collide.ColliderUnavailableException;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
@@ -218,7 +224,6 @@ public class SimulatorStarter  {
 		ball.setPosition(newBallStartX, newBallStartY);
 		
 		ball.performKickedBallMovements();
-		//kickedBallMovements();
 		goalCheck();
 		init(world);
 	}
@@ -349,8 +354,8 @@ public class SimulatorStarter  {
 							break;
 					case KeyEvent.VK_ENTER:
 							oppRobot.kick(ball);
-							
 							break;
+					
 				}
 
 			}
@@ -407,6 +412,7 @@ public class SimulatorStarter  {
 		g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 360 ,75);
 
 	}
+	
 	
 
 }
