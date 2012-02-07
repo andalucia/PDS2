@@ -6,9 +6,11 @@ import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ComponentColorModel;
@@ -158,8 +160,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			}
 		}
 	
-		System.out.println("tl:" + getBoundaries(pitch)[0] + " tr:" + getBoundaries(pitch)[1] + " bl:" + 
-				getBoundaries(pitch)[2] + " br:" + getBoundaries(pitch)[3]);
+//		System.out.println("tl:" + getBoundaries(pitch)[0] + " tr:" + getBoundaries(pitch)[1] + " bl:" + 
+//				getBoundaries(pitch)[2] + " br:" + getBoundaries(pitch)[3]);
 		
 		
 		/** 
@@ -332,7 +334,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param isYellow If the robot is yellow
 	 * @return Angle of robot in degrees w.r.t x-axis. Increases CCW.
 	 */
-	
 	public int findFacingDirection(BufferedImage image, Point centroid, boolean isYellow) {
 		Color c = null;
 		int cur_score = 0;
@@ -383,7 +384,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param isYellow If you are looking for yellow (the other option is blue)
 	 * @return
 	 */
-	
 	private boolean isBlueYellow(int[] colour, boolean isYellow) {
 		if (isYellow) {
 			return isSthYellow(colour);
@@ -398,7 +398,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param colour2 - RGB values
 	 * @return
 	 */
-
 	public int[] calcColourDifferences(int[] colour1, int[] colour2){
 
 		int channel1R = colour1[0];
@@ -462,9 +461,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * 		match...
 	 * @param colour
 	 * @return
-	 */
-
-	// Yellow robot
+	 */	// Yellow robot
 	public boolean isSthYellow(int[] colour) {
 		int R = colour[0];
 		int G = colour[1];
@@ -595,10 +592,61 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			return blueDir;
 		}
 	}
+
+	/**
+	 * The boundaries of the pitch rectangle (yeah, right) on the image. In pixels.
+	 */
+	private final Rectangle pitchImageRectangle = new Rectangle(37, 92, 601 - 37, 386 - 92);
+	/**
+	 * The boundaries of the pitch rectangle in the real world. In cm.
+	 */
+	private final Rectangle2D pitchPhysicalRectangle = new Rectangle2D.Float(-122, -60.5f, 244, 121);
 	
-	private Point2D convertPixelsToCm(Point2D points) {
+	/**
+	 * Converts from the image coordinate system (in pixels) to a coordinate system
+	 * centred at the physical centre of the pitch (in cm), where y grows upwards and 
+	 * x to the right.
+	 * @param point The point to convert.
+	 * @return The point, converted.
+	 */
+	private Point2D convertPixelsToCm(Point2D point) {
 		//TODO: Should convert pixel coordinates into centimetre coordinates
 		// w.r.t centre of the pitch
-		return null;
+		double x = linearRemap(point.getX(), 
+				pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
+				pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
+		double y = linearRemap(point.getY(), 
+				pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
+				pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
+		Point2D p = new Point2D.Float();
+		p.setLocation(x, y);
+		return p;
+	}
+
+	/**
+	 * Changes the coordinate system of a 1-dimensional variable.
+	 * E.g. if you want to move your starting point from 1 to 3, and to
+	 * dilate your range from 3 to 6, this would move 2 to 5:
+	 * 
+	 *         1 2 3 4 5 6 7 8 9
+	 * Input : > .   <
+	 * Output:     >   .       <
+	 * 
+	 * There is a side-effect of 'flipping' the image if you give negative range
+	 * to either of the range arguments:
+	 * 
+	 *         1 2 3 4 5 6 7 8 9
+	 * Input : < .   >
+	 * Output:     >       .   <
+	 * 
+	 * @param x
+	 * @param x0
+	 * @param domainRange
+	 * @param y0
+	 * @param targetRange
+	 * @return
+	 */
+	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
+		return (x - x0) * (targetRange / domainRange) + y0;
 	}
 }
