@@ -39,9 +39,13 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private int blueDir, yellowDir;
 	
 	// pitch2 colours
-	private static final int[] yellow = new int[] {246,181,0};
-	private static final int[] blue = new int[] {133,149,138};
-
+	private static final int[] yellow2 = new int[] {246,181,0};
+	private static final int[] blue2 = new int[] {133,149,138};
+	
+	//pitch1 colours
+	private static final int[] yellow1 = new int[] {127,125,69};
+	private static final int[] blue1 = new int[] {72,136,188};
+	//private static final int[] blue1 = new int[] {0,0,0};
 	
 	// BLUE thresholds
 	private static final int RThreshBlueLow = 1;
@@ -102,12 +106,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	
 	//Please call super.process after done processing
 	@Override
-	public void process(BufferedImage image) {
-		
+	public void process(BufferedImage image) {		
 		image = detectRobotsAndBall(image);
-		yellowDir = (findFacingDirection(image, yellowCentroid, true));
-		blueDir = (findFacingDirection(image, blueCentroid, false));
-		//System.out.println("blue dir = " + blueDir);
+		//yellowDir = (findFacingDirection(image, yellowCentroid, true));
+		//blueDir = (findFacingDirection(image, blueCentroid, false));
 		
 		super.process(image);
 	}
@@ -240,7 +242,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					}
 			}
 		}
-		else {System.out.println("No yellow robot on pitch");}
+		else {System.out.println("No yellow robot on pitch");
+		}
 		
 		// Same for blue robot and ball
 		// Blue robot
@@ -262,18 +265,19 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			}
 			if (bluepoints.size() > fakeblues.size()){
 				blueCentroid = calcCentroid(bluepoints);
-				drawCross(raster, blueCentroid, pureBlue);
+				//drawCross(raster, blueCentroid, pureBlue);
 				
 			}
 			else {
 				blueCentroid = calcCentroid(fakeblues);
-				drawCross(raster, blueCentroid, pureBlue);
+				//drawCross(raster, blueCentroid, pureBlue);
 			}
 			
 			if (bluepoints.size() > fakeblues.size()){
 				for (int i = 0; i < bluepoints.size(); i++){
 					Point current = bluepoints.get(i);
-					drawPixel(raster, current, pureBlue);}
+					drawPixel(raster, current, pureBlue);
+					}
 			}
 			else {
 				for (int i = 0; i < fakeblues.size(); i++){
@@ -282,7 +286,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					}
 			}
 		}
-		else {System.out.println("No blue robot on pitch");}
+		else {System.out.println("No blue robot on pitch");
+		}
 		
 		// ball detection
 		if (ball.size() != 0){
@@ -316,22 +321,25 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			if (ball.size() > nope_not_ball.size()){
 				for (int i = 0; i < ball.size(); i++){
 					Point current = ball.get(i);
-					drawPixel(raster, current, pureRed);}
+					drawPixel(raster, current, pureRed);
+					}
 			}
 			else {
 				for (int i = 0; i < nope_not_ball.size(); i++){
 					Point current = nope_not_ball.get(i);
-					drawPixel(raster, current, pureRed);}
+					drawPixel(raster, current, pureRed);
+					}
 			}
 		}
-		else {System.out.println("No ball on pitch");}
+		else {System.out.println("No ball on pitch");
+		}
 		
 		this.ballCentroid = ballCentroid;
 		this.blueCentroid = blueCentroid;
 		this.yellowCentroid = yellowCentroid;
 		
 // for regression
-		
+		double end_angle = 0;
 		double allx = 0;
 		double ally = 0;
 		double allxy = 0;
@@ -350,11 +358,53 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		
 		double mx = regression(allx, ally, n, allxy, allx_sqr);
 		double my = regression(ally, allx, n, allxy, ally_sqr);
-		System.out.println("X:" + mx + " Y: " + my);
+		
+		double mtheta = Math.abs((mx*my-1)/(mx+my));
+//		System.out.println("X:" + mx + " Y: " + my);
+		blueDir = (findFacingDirection(image, blueCentroid, false));
+		double mx_degrees = Math.toDegrees(Math.atan(mx));
+		double my_degrees = Math.toDegrees(Math.atan(my));
+
+		// Using the direction found with findFacingDirection we decide
+		// which regression value to take
+		if (blueDir > 45 && blueDir < 135) {
+			end_angle = 90 + my_degrees;
+		} else if (blueDir > 135 && blueDir < 225) {
+			end_angle = 180 - mx_degrees;
+		} else if (blueDir > 225 && blueDir < 315) {
+			end_angle = 270 + my_degrees;
+		} else {
+			end_angle = (360 - mx_degrees) % 360;
+		}
 		drawLine_X(raster, new Point((int) (allx / n), (int) (ally / n)), mx,
 				red);
 		drawLine_Y(raster, new Point((int) (allx / n), (int) (ally / n)), my,
 				pureYellow);
+		
+		// We check if the difference between both values is less than a certain amount
+		// and if it is we use the average of both values (this is because regression only 
+		// works on X OR Y axis: NOT BOTH
+		if(mtheta<Math.tan(Math.toRadians(20))){
+//			double mxy = (my*mx+1)/(2*my);
+			double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
+			drawLine_XY(raster, new Point((int) (allx / n), (int) (ally / n)), mxy2,
+					Aqua);
+			
+			// Using blueDir again we decide how to use the regression value
+			double mxy2_degrees = Math.toDegrees(Math.atan(mxy2));
+			if (blueDir < 90) {
+				end_angle = 0 - mxy2_degrees;
+			} else if (blueDir < 180) {
+				end_angle = 180 - mxy2_degrees;
+			} else if (blueDir < 270) {
+				end_angle = 180 - mxy2_degrees;
+			} else {
+				end_angle = 360 - mxy2_degrees;
+			}
+			System.out.println("average of both regressions = " + end_angle);
+		}
+		
+		System.out.println("end_angle = " + end_angle);
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -377,7 +427,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int best_angle = 0;
 		if (centroid.x != 0) {
 			// To store all distances
-			List<KeyValuePair<Integer,Integer>> pairs = new ArrayList<KeyValuePair<Integer, Integer>>();
+			//List<KeyValuePair<Integer,Integer>> pairs = new ArrayList<KeyValuePair<Integer, Integer>>();
 			
 			for (int i = 0; i < 360; i++) {
 				cur_score = 0;
@@ -394,7 +444,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				while (isBlueYellow(colour, isYellow)) {
 					//System.out.println("rot_pixel = " + rot_pixel + " and isYellow = " + isYellow);
 					
-					cur_score--; // Since we sort in ascending order, lower score is longer segments
+					cur_score++; // Since we sort in ascending order, lower score is longer segments
 					
 					nextPixel = new Point(centroid.x + cur_score,centroid.y);
 					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
@@ -409,38 +459,38 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					colour[1] = c.getGreen();
 					colour[2] = c.getBlue();
 				}
-				
-				if (cur_score < best_score) {
+
+				if (cur_score > best_score) {
 					best_angle = i;
 					best_score = cur_score;
 				}
 				
-				pairs.add(new KeyValuePair<Integer, Integer>(cur_score, i));
+//				pairs.add(new KeyValuePair<Integer, Integer>(cur_score, i));
 			}
-			Collections.sort(pairs);
-			
-			int thresh_sim = 1;
-			
-			int best = 0, i, secondBest;
-			for (i = 1; i < pairs.size(); ++i) {
-				if (pairs.get(i).getFirst() - pairs.get(best).getFirst() > thresh_sim) {
-					break;
-				}
-			}
-			best = i / 2;
-			secondBest = i;
-			
-			for (; i < pairs.size(); ++i) {
-				if (pairs.get(i).getFirst() - pairs.get(secondBest).getFirst() > thresh_sim) {
-					break;
-				}
-			}
-			secondBest = (secondBest + i) / 2;
-			
-			if (best == pairs.size()) best = 0;
-			if (secondBest == pairs.size()) secondBest = 0;
-			
-			best_angle = (pairs.get(best).getSecond() + pairs.get(secondBest).getSecond()) / 2; 
+//			Collections.sort(pairs);
+//			
+//			int thresh_sim = 1;
+//			
+//			int best = 0, i, secondBest;
+//			for (i = 1; i < pairs.size(); ++i) {
+//				if (pairs.get(i).getFirst() - pairs.get(best).getFirst() > thresh_sim) {
+//					break;
+//				}
+//			}
+//			best = i / 2;
+//			secondBest = i;
+//			
+//			for (; i < pairs.size(); ++i) {
+//				if (pairs.get(i).getFirst() - pairs.get(secondBest).getFirst() > thresh_sim) {
+//					break;
+//				}
+//			}
+//			secondBest = (secondBest + i) / 2;
+//			
+//			if (best == pairs.size()) best = 0;
+//			if (secondBest == pairs.size()) secondBest = 0;
+//			
+//			best_angle = (pairs.get(best).getSecond() + pairs.get(secondBest).getSecond()) / 2; 
 		}
 		return 360 - best_angle;
 	}
@@ -529,13 +579,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * 		match...
 	 * @param colour
 	 * @return
-	 */	// Yellow robot
+	 */
+	// Yellow robot
 	public boolean isSthYellow(int[] colour) {
 		int R = colour[0];
 		int G = colour[1];
 		int B = colour[2];
-		int[] differences = calcColourDifferences(yellow, colour);
-		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 50)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
+		int[] differences = calcColourDifferences(yellow1, colour);
+		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
 }
 
 	//Blue robot
@@ -543,8 +594,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int R = colour[0];
 		int G = colour[1];
 		int B = colour[2];
-		int[] differences = calcColourDifferences(blue, colour);
-		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 50) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
+		int[] differences = calcColourDifferences(blue1, colour);
+		return (differences[0] < 70 && differences[1] < 70 && differences[2] < 70) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
 //		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
 //				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
 	}
@@ -717,11 +768,30 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return
 	 */
 	
+	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
+		return (x - x0) * (targetRange / domainRange) + y0;
+	}
+	
 	/*
 	 * draw line in X direction
 	 * */
 	
 	private void drawLine_X(WritableRaster raster, Point c, double m,
+			int[] colour) {
+		int xh = c.x + 100;
+		int x = c.x;
+		int y = c.y;
+
+		double b = c.y - m * c.x;
+		x = x - 100;
+		while (x < xh) {
+			drawPixel(raster, new Point(x, (int) (m * x + b)), colour);
+			x++;
+		}
+
+	}
+	
+	private void drawLine_XY(WritableRaster raster, Point c, double m,
 			int[] colour) {
 		int xh = c.x + 100;
 		int x = c.x;
@@ -754,9 +824,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 	}
-	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
-		return (x - x0) * (targetRange / domainRange) + y0;
-	}
 	
 	/*
 	 * regression function 
@@ -767,6 +834,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		return (n * allxy - allx * ally) / (n * allx_sqr - allx * allx);
 	}
+
 }
 
 
