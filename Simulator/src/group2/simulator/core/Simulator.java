@@ -61,40 +61,39 @@ public class Simulator  implements ServerSkeleton {
 
 
 	@Override
-	public void sendStop() {
+	public synchronized void sendStop() {
 		robotState.setCurrentMovement(RobotState.Movement.DO_NOTHING);
 	}
 
 	@Override
-	public void sendGoForward(int speed, int distance) {
-		// TODO: synchronize access to the RobotState
+	public synchronized void sendGoForward(int speed, int distance) {
 		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
 		robotState.setSpeedOfTravel(speed);
 	}
 
 	@Override
-	public void sendGoBackwards(int speed, int distance) {
+	public synchronized void sendGoBackwards(int speed, int distance) {
 		robotState.setCurrentMovement(RobotState.Movement.GOING_BACKWARDS);
 		robotState.setSpeedOfTravel(-speed);
 
 	}
 
 	@Override
-	public void sendKick(int power) {
+	public synchronized void sendKick(int power) {
 		robotState.setCurrentMovement(RobotState.Movement.KICK);
 		robotState.setPowerOfKick(power);
 
 	}
 
 	@Override
-	public void sendSpinLeft(int speed, int angle) {
+	public synchronized void sendSpinLeft(int speed, int angle) {
 		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);
 		robotState.setAngleOfRotation(angle);
 
 	}
 
 	@Override
-	public void sendSpinRight(int speed, int angle) {
+	public synchronized void sendSpinRight(int speed, int angle) {
 		robotState.setCurrentMovement(RobotState.Movement.SPIN_RIGHT);
 		robotState.setAngleOfRotation(-angle);
 
