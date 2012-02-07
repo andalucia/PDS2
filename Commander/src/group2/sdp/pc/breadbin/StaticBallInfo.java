@@ -22,7 +22,7 @@ public class StaticBallInfo {
 	 * The time at which Info was recorded . Units are milliseconds. Set automatically
 	 * in constructor and if position is updated
 	 */
-	private long timeStamp;
+	protected long timeStamp;
 
 	
 	/**
@@ -51,6 +51,14 @@ public class StaticBallInfo {
 	 */
 	public Point2D getPosition() {
 		return position;
+	}
+	
+	/**
+	 * Get the timeStamp at which info was recorded. milliseconds
+	 * @return The timeStamp at which info was recorded. Units ar milliseconds
+	 */
+	public long getTimeStamp(){
+		return timeStamp;
 	}
 	
 	/**

@@ -24,7 +24,7 @@ public class StaticRobotInfo {
 	 * The time at which Info was recorded . Units are milliseconds. Set automatically
 	 * in constructor
 	 */
-	private long timeStamp;
+	protected long timeStamp;
 	
 	/**
 	 * The direction at which the T shape on top of the robot is pointing.
@@ -111,6 +111,14 @@ public class StaticRobotInfo {
 	 */
 	public static double getLength() {
 		return LENGTH;
+	}
+	
+	/**
+	 * Get the timeStamp at which info was recorded. units are miliseconds
+	 * @return The timeStamp at which info was recorded. Units are milliseconds
+	 */
+	public long getTimeStamp(){
+		return timeStamp;
 	}
 	
 	/**

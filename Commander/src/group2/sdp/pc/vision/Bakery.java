@@ -24,7 +24,6 @@ public class Bakery extends BakerySkeleton {
 	@Override
 	protected double computeBallRollingSpeed(
 			LinkedList<StaticBallInfo> ballHistoryInfos) {
-		
 		return 0;
 	}
 
