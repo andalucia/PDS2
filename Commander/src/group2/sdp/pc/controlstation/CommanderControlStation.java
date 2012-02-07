@@ -261,7 +261,8 @@ public class CommanderControlStation implements KeyListener {
 
 			public void windowClosing(WindowEvent arg0) {
 				exiting = true;
-				cleanup_thread.start();
+				if (cleanup_thread != null)
+					cleanup_thread.start();
 			}
 
 			public void windowDeactivated(WindowEvent arg0) {
