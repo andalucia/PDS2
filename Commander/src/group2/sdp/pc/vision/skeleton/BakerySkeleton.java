@@ -42,6 +42,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		staticInfoHistory = new StaticPitchInfoHistory();
 	}
 	
+	
 	@Override
 	public void consumeInfo(StaticPitchInfo spi) {
 		addInfoToHistory(spi);
