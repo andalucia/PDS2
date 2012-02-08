@@ -1,5 +1,6 @@
 package group2.sdp.pc.vision;
 
+
 import java.util.LinkedList;
 
 import group2.sdp.pc.breadbin.StaticBallInfo;
@@ -20,6 +21,8 @@ public class Bakery extends BakerySkeleton {
 	public Bakery(DynamicInfoConsumer consumer) {
 		super(consumer);
 	}
+	
+	
 
 	@Override
 	protected double computeBallRollingSpeed(
@@ -33,7 +36,7 @@ public class Bakery extends BakerySkeleton {
 		int numCalcs=0;
 		//iterates through last (up to)5 positions and finds total of speeds 
 		//w.r.t most recent	frame
-		for(int i=recent-1; i>recent-5 && i>0 ; i--){
+		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets distance between points			
 			double distance=ballHistoryInfos.get(recent).getPosition().distance(ballHistoryInfos.get(i).getPosition());
 			//gets time difference 
@@ -62,7 +65,7 @@ public class Bakery extends BakerySkeleton {
 		int numCalcs=0;
 		//iterates through last (up to)5 positions and finds total of angles 
 		//w.r.t most recent	frame
-		for(int i=recent-1; i>recent-5 && i>0 ; i--){
+		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets difference in  y and x			
 			double yDiff=ballHistoryInfos.get(recent).getPosition().getY()-ballHistoryInfos.get(i).getPosition().getY();
 			double xDiff=ballHistoryInfos.get(recent).getPosition().getX()-ballHistoryInfos.get(i).getPosition().getX();
@@ -90,7 +93,7 @@ public class Bakery extends BakerySkeleton {
 		int numCalcs=0;
 		//iterates through last (up to)5 positions and finds total of speeds 
 		//w.r.t most recent	frame
-		for(int i=recent-1; i>recent-5 && i>0 ; i--){
+		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets distance between points			
 			double distance=historyInfos.get(recent).getPosition().distance(historyInfos.get(i).getPosition());
 			//gets time difference 
@@ -117,7 +120,7 @@ public class Bakery extends BakerySkeleton {
 		int numCalcs=0;
 		//iterates through last (up to)5 positions and finds total of angles 
 		//w.r.t most recent	frame
-		for(int i=recent-1; i>recent-5 && i>0 ; i--){
+		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets difference in  y and x			
 			double yDiff=historyInfos.get(recent).getPosition().getY()-historyInfos.get(i).getPosition().getY();
 			double xDiff=historyInfos.get(recent).getPosition().getX()-historyInfos.get(i).getPosition().getX();
