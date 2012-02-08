@@ -31,7 +31,7 @@ public class Simulator  implements ServerSkeleton {
 		timer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
-			    System.out.println("test-stuff updated every two seconds");
+			    //System.out.println("test-stuff updated every two seconds");
 			    
 			    switch (robotState.getCurrentMovement()) {
 				case DO_NOTHING:

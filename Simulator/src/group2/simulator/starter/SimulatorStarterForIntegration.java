@@ -44,7 +44,7 @@ import net.phys2d.raw.collide.ColliderUnavailableException;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
-public class SimulatorStarter  {
+public class SimulatorStarterForIntegration  {
 
 	/** The frame displaying the simulation */
 	private static Frame frame;
@@ -80,6 +80,16 @@ public class SimulatorStarter  {
 			
 			System.out.println("Thread for simulator");
 			
+			//Simulator simulator = new Simulator(world, new Robot(120, 265, 80, 90, Color.BLUE,blueImage, 0),
+			//		oppRobot, new Ball(500,225, 9, Color.BLUE, 0));
+			//simulator.sendGoForward(10, 30);
+			//PlanExecutorSimulatorTest executor = new PlanExecutorSimulatorTest(simulator);
+			//simulator.sendGoForward(10, 30);
+			//System.out.println(currentCommand.REACH_DESTINATION);
+			//executor.execute2(currentCommand.REACH_DESTINATION);
+			//Planner planner = new Planner(executor);
+			//Bakery bakery = new Bakery(planner);
+			//new SimulatorDoughProvider(bakery); 
 		}
 	};
 
@@ -110,11 +120,11 @@ public class SimulatorStarter  {
 	 * @param oppRobot
 	 * @param ball
 	 */
-	public SimulatorStarter(String title, Robot robot, Robot oppRobot, Ball ball) {
+	public SimulatorStarterForIntegration(String title, Robot robot, Robot oppRobot, Ball ball) {
 		this.title = title;
-		SimulatorStarter.robot = robot;
-		SimulatorStarter.oppRobot = oppRobot;
-		SimulatorStarter.ball = ball;
+		SimulatorStarterForIntegration.robot = robot;
+		SimulatorStarterForIntegration.oppRobot = oppRobot;
+		SimulatorStarterForIntegration.ball = ball;
 		
 	}
 
@@ -132,10 +142,13 @@ public class SimulatorStarter  {
 		int newBallStartX = ballStartX;
 
 		
-		final SimulatorStarter sim = new SimulatorStarter("SDP World",new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
+		final SimulatorStarterForIntegration sim = new SimulatorStarterForIntegration("SDP World",new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY, 9, Color.RED, 0));
 		
+		Simulator simulator = new Simulator(world, new Robot(120, 265, 80, 90, Color.BLUE,blueImage, 0),
+				oppRobot, new Ball(500,225, 9, Color.BLUE, 0));
+		simulator.sendGoForward(10, 30);
 	}
 
 	/**
