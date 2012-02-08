@@ -24,8 +24,8 @@ public class RobotState {
 		
 		public RobotState() {
 			currentMovement = Movement.DO_NOTHING;
-			speedOfTravel = 40;
-			angleOfRotation = 0;
+			speedOfTravel = 60;
+			angleOfRotation = 20;
 			power = 0;
 		}
 		

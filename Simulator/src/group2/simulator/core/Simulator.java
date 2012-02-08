@@ -21,17 +21,17 @@ public class Simulator  implements ServerSkeleton {
 	private volatile RobotState robotState;
 	
 	public Simulator(World world, Robot robot, Robot oppRobot, Ball ball) {
-		this.world = world;
-		this.robot = robot;
-		this.oppRobot = oppRobot;
-		this.ball = ball;
+		Simulator.world = world;
+		Simulator.robot = robot;
+		Simulator.oppRobot = oppRobot;
+		Simulator.ball = ball;
 		
 		robotState = new RobotState();
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
-			    //System.out.println("test-stuff updated every two seconds");
+			    System.out.println("test-stuff updated every two seconds");
 			    
 			    switch (robotState.getCurrentMovement()) {
 				case DO_NOTHING:

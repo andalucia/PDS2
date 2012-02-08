@@ -96,7 +96,7 @@ public class Robot extends BoardObject {
 	 * @param ball is the ball that can be encountered 
 	 */
 	public void moveForward(World world, Ball ball) {
-		move(world,ball, 4);
+		move(world,ball, 3);
 	}
 	/**TODO
 	 * Robot moves backwards BUT NOW does NOT take into account if it finds the ball behind him

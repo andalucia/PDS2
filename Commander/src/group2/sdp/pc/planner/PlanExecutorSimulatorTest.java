@@ -32,7 +32,7 @@ public class PlanExecutorSimulatorTest {
 
 	private void executeReachDestinationCommand(ReachDestinationCommand currentCommand) {
 		simulator.sendGoForward(3,10);
-		System.out.println("Reach destination");
+		System.out.println("Reach destination command");
 		
 	}
 
@@ -49,7 +49,7 @@ public class PlanExecutorSimulatorTest {
 			System.out.println("Reach destination");
 			break;
 		case KICK:
-			//executeKickCommand((KickCommand)currentCommand);
+			//
 			break;
 		}
 		
