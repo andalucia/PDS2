@@ -24,7 +24,7 @@ public class Bakery extends BakerySkeleton {
 	@Override
 	protected double computeBallRollingSpeed(
 			LinkedList<StaticBallInfo> ballHistoryInfos) {
-		//at begining when no history speed cannot be calculated
+		//at beginning when no history speed cannot be calculated
 		if (ballHistoryInfos.size()<2){
 			return 0;
 		}
@@ -53,7 +53,7 @@ public class Bakery extends BakerySkeleton {
 	@Override
 	protected double computeBallRollingDirection(
 			LinkedList<StaticBallInfo> ballHistoryInfos) {
-		//at begining when no history angle cannot be calculated
+		//at beginning when no history angle cannot be calculated
 		if (ballHistoryInfos.size()<2){
 			return 0;
 		}
@@ -108,7 +108,7 @@ public class Bakery extends BakerySkeleton {
 	@Override
 	protected double computeRobotTravelDirection(
 			LinkedList<StaticRobotInfo> historyInfos) {
-		//at begining when no history angle cannot be calculated
+		//at begininng when no history angle cannot be calculated
 		if (historyInfos.size()<2){
 			return 0;
 		}
