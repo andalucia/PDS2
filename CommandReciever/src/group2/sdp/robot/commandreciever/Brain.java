@@ -213,15 +213,7 @@ public class Brain {
 		
 		stopOnTouch = true;
 		pilot.setTravelSpeed(speed);
-		if (angle == 0) {
-			if (speed < 0) {
-				LEFT_WHEEL.backward();
-				RIGHT_WHEEL.forward();
-			} else {
-				LEFT_WHEEL.forward();
-				RIGHT_WHEEL.backward();
-			}
-		} else {
+		if (angle != 0) {
 			pilot.rotate(-angle);
 		}
 		
