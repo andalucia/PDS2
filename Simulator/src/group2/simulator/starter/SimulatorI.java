@@ -1,19 +1,4 @@
-// Code is quite messy for now - im going to refactor and restructruze later on.
-
-
 package group2.simulator.starter;
-import group2.sdp.pc.planner.commands.ComplexCommand;
-import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.planner.commands.ComplexCommand.Type;
-import group2.sdp.pc.planner.PlanExecutor;
-import group2.sdp.pc.planner.PlanExecutorSimulatorTest;
-import group2.sdp.pc.planner.Planner;
-import group2.sdp.pc.vision.Bakery;
-import group2.simulator.core.Simulator;
-import group2.simulator.core.SimulatorDoughProvider;
-import group2.simulator.physical.Ball;
-import group2.simulator.physical.BoardObject;
-import group2.simulator.physical.Robot;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -23,32 +8,34 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
-import net.phys2d.raw.CollisionEvent;
-import net.phys2d.raw.Contact;
 import net.phys2d.raw.StaticBody;
 import net.phys2d.raw.World;
-import net.phys2d.raw.collide.BoxCircleCollider;
-import net.phys2d.raw.collide.Collider;
-import net.phys2d.raw.collide.ColliderFactory;
-import net.phys2d.raw.collide.ColliderUnavailableException;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
+import group2.sdp.pc.planner.PlanExecutorSimulatorTest;
+import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.server.skeleton.ServerSkeleton;
+import group2.simulator.core.RobotState;
+import group2.simulator.core.Simulator;
+import group2.simulator.physical.Ball;
+import group2.simulator.physical.BoardObject;
+import group2.simulator.physical.Robot;
 
-public class SimulatorStarter  {
+public class SimulatorI implements ServerSkeleton {
 
 	/** The frame displaying the simulation */
 	private static Frame frame;
-
 	public static int boardWidth = 630;
 	public static int boardHeight = 330;
 	public static int padding = 100;
@@ -68,18 +55,16 @@ public class SimulatorStarter  {
 	private static Ball ball;
 	public static ComplexCommand.Type currentCommand;
 	
-	public static String currentCommands=null;
+	public static ComplexCommand currentCommands=null;
 	
-	// an variable to hold for kicked ball angle
-
-	// holds true if ball is kicked
 
 
+	private static volatile RobotState robotState;
 	static Thread actionThread = new Thread() {
 		public void run() {
 			
 			System.out.println("Thread for simulator");
-			
+		
 		}
 	};
 
@@ -98,23 +83,57 @@ public class SimulatorStarter  {
 	public static int goalPost2y = (boardHeight+goalWidth)/2 + padding + wallThickness/2;
 
 	public static void main(String args []){
-			prepareSimulator();
-			initializeArea();
+			prepareSimulator(); // this function will create and start the simulator and create a planner executor for the simulator
+			initializeArea(); // this function will initialize the GUI frame, set controls for the keyboard
+							// and will initialise the world where the robots and the ball will "perform" 
 			
 	}
 
 	/**
-	 * Fully initialises the simulator constructor
+	 * Fully initialises the simulator constructor, together with the timer
+	 * that updates the RobotState (every one second-for now)
 	 * @param title
 	 * @param robot
 	 * @param oppRobot
 	 * @param ball
 	 */
-	public SimulatorStarter(String title, Robot robot, Robot oppRobot, Ball ball) {
-		this.title = title;
-		SimulatorStarter.robot = robot;
-		SimulatorStarter.oppRobot = oppRobot;
-		SimulatorStarter.ball = ball;
+	public SimulatorI( World world, Robot robot, Robot oppRobot, Ball ball) {
+		SimulatorI.world = world;
+		SimulatorI.robot = robot;
+		SimulatorI.oppRobot = oppRobot;
+		SimulatorI.ball = ball;
+		
+		SimulatorI.robotState = new RobotState();
+		System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
+		Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			  @Override
+			  public void run() {
+			    //System.out.println("test-stuff updated every two seconds");
+			    
+			    switch (SimulatorI.robotState.getCurrentMovement()) {
+				case DO_NOTHING:
+					break;
+				case GOING_FORWARD:
+					SimulatorI.robot.move(SimulatorI.world, SimulatorI.ball, (int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+					//SimulatorI.robot.moveForward(SimulatorI.world, SimulatorI.ball);
+					break;
+				case GOING_BACKWARDS:
+					SimulatorI.robot.move(SimulatorI.world, SimulatorI.ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+					break;
+				case KICK:
+					SimulatorI.robot.kick(SimulatorI.ball);// TODO: to move function in Robot class!
+					break;
+				case SPIN_RIGHT:
+					SimulatorI.robot.turn(-(int)robotState.getAngleOfRotation());
+					break;
+				case SPIN_LEFT:
+					SimulatorI.robot.turn((int)robotState.getAngleOfRotation());
+					break;
+				}
+			  }
+			}, 0, 1000);
+		
 		
 	}
 
@@ -131,10 +150,22 @@ public class SimulatorStarter  {
 		int newOppRobotStartX = oppRobotStartX;
 		int newBallStartX = ballStartX;
 
-		
-		final SimulatorStarter sim = new SimulatorStarter("SDP World",new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
+	
+		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY, 9, Color.RED, 0));
+		System.out.println("simulator created");
+		
+		
+		PlanExecutorSimulatorTest executor = new PlanExecutorSimulatorTest(simulatoor);
+		
+		executor.execute2(currentCommand.REACH_DESTINATION);
+		
+		
+		// TO BE IMPLEMENTED!!!
+		//Planner planner = new Planner(executor);
+		//Bakery bakery = new Bakery(planner);
+		//new SimulatorDoughProvider(bakery); 
 		
 	}
 
@@ -144,7 +175,7 @@ public class SimulatorStarter  {
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
 		setControls();
-		//resetSimulation();
+		resetSimulation();
 		while(running)
 		{
 			initSimulation();  // initialise the simulator
@@ -157,7 +188,7 @@ public class SimulatorStarter  {
 			displayControlsAndScore(g);
 			strategy.show();
 			try {
-                Thread.sleep(5);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 System.out.println("interrupted");
             }
@@ -205,16 +236,17 @@ public class SimulatorStarter  {
 		world.setGravity(0, 0);
 		
 		robot.setAngle(0);
+		
 
 		float newOppRobotStartX = oppRobot.getX();
 		float newOppRobotStartY = oppRobot.getY();
 		
-		int newRobotStartX = robotStartX;
-	
-		//ball.stop();
+		float newRobotStartX = robot.getX();
+		float newRobotStartY = robot.getY();
+		
 		
 		oppRobot.setPosition(newOppRobotStartX, newOppRobotStartY);
-		robot.setPosition(newRobotStartX, robotStartY);
+		robot.setPosition(newRobotStartX, newRobotStartY);
 
 		float newBallStartX = ball.getX();
 		float newBallStartY = ball.getY();
@@ -301,7 +333,7 @@ public class SimulatorStarter  {
 		//ball.setGoalLines(leftGoalLine, rightGoalLine);
 		//ball.ignoreGoalLines();
 
-		world.add(robot.getBody());
+		world.add(SimulatorI.robot.getBody());
 		world.add(oppRobot.getBody());
 		world.add(ball.getBody());
 	}
@@ -324,7 +356,7 @@ public class SimulatorStarter  {
 	
 
 	/**
-	 * Set the command for the key controls
+	 * Set the command for the key controls -- oppRobot controlled by the keyboard
 	 */
 	public static void setControls()
 	{
@@ -410,7 +442,44 @@ public class SimulatorStarter  {
 		g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 360 ,75);
 
 	}
+		
 	
-	
+	@Override
+	public void sendStop() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendGoForward(int speed, int distance) {
+		
+		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
+		robotState.setSpeedOfTravel(speed);
+		
+	}
+
+	@Override
+	public void sendGoBackwards(int speed, int distance) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendKick(int power) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendSpinLeft(int speed, int angle) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sendSpinRight(int speed, int angle) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

@@ -88,19 +88,6 @@ public class Robot extends BoardObject {
 		return false;
 	}
 
-	/**
-	 * Check if the robot can kick the ball
-	 * @param ball is the object the the robot could kick
-	 */
-	/*
-	public void kick(Ball ball) {
-		if (isCloseToFront(ball)){
-			ball.kick(getAngle());
-		} else {
-			System.out.println("Cannot kick - the ball is too far away");
-		}
-	}
-	*/
 
 	/**
 	 * Robot moves forward and takes into account if it finds the ball in front of him
@@ -109,7 +96,7 @@ public class Robot extends BoardObject {
 	 * @param ball is the ball that can be encountered 
 	 */
 	public void moveForward(World world, Ball ball) {
-		move(world,ball, 4);
+		move(world,ball, 3);
 	}
 	/**TODO
 	 * Robot moves backwards BUT NOW does NOT take into account if it finds the ball behind him
@@ -207,6 +194,9 @@ public class Robot extends BoardObject {
 		score++;
 	}
 	
+	/** It checks if the ball is in front sends kick command and fixed angle to Ball class
+	 * @param ball is the ball you are kicking
+	 */
 	public void kick(Ball ball){
 		if (canRobotKick(ball)){
 			ball.setBallKicked(true);

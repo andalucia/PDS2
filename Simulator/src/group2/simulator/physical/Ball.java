@@ -118,7 +118,7 @@ public class Ball extends BoardObject {
 		float x = this.getX();
 		float y = this.getY();
 		
-		if ( x < leftGateCordX && y > gateTopCordY+1 && y < gateDownCordY+1)
+		if ( x < leftGateCordX+4 && y > gateTopCordY+1 && y < gateDownCordY+1)
 		{
 			
 			incrScoreTime();
@@ -221,9 +221,11 @@ public class Ball extends BoardObject {
 		fixedAngle = angle;
 	}
 	
+	/**
+	 * It initialises ball movements when it is kicked
+	 */
 	public void performKickedBallMovements(){
 		if (isBallKicked()){
-			System.out.println("Ball is kicked " + fixedAngle);
 			move(fixedAngle);
 			decreaseDistance();
 			if (doesItHitWall()){
@@ -247,10 +249,15 @@ public class Ball extends BoardObject {
 		return randomNumber;
 	}
 	
+	/**
+	 * This function decrease the speed (distance) steadily, when ball is kicked.
+	 */
 	public void decreaseDistance(){
-		if (dist > 0.1){
-			setDistance(getDistance()-0.01f);
+		if (dist > 0.5){
+			setDistance(getDistance()-0.015f);
 		}
+		else if(dist > 0.1)
+			setDistance(getDistance()-0.001f);
 		else
 		{
 			setBallKicked(false);
@@ -258,9 +265,7 @@ public class Ball extends BoardObject {
 			dist = 4;
 		}
 	}
-	
-	
-	
+
 	
 
 }
