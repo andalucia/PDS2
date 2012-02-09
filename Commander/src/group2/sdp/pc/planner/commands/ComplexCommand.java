@@ -5,6 +5,7 @@ public interface ComplexCommand {
 	public enum Type {
 		REACH_DESTINATION,
 		KICK,
+		DRIBBLE
 		// ADD OTHERS
 	}
 	

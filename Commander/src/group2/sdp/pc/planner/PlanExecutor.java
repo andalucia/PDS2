@@ -78,17 +78,15 @@ public class PlanExecutor {
 		}
 		
 		alfieServer.sendGoForward(512, distance);
-		
-		
+				
 	}
 
 	
 
 	private void executeKickCommand(KickCommand currentCommand) {
-		// TODO Auto-generated method stub
-		
+		alfieServer.sendKick(512);
 	}
-	
+		
 	/**
 	 * this function finds the smallest angle between Alfie and his target
 	 * uses arc tan 2 function that gives it's result in rads
