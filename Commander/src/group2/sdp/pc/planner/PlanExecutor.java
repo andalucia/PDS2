@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 
 import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
 import group2.sdp.pc.server.Server;
@@ -56,7 +57,8 @@ public class PlanExecutor {
 			executeReachDestinationCommand((ReachDestinationCommand)currentCommand);
 			break;
 		case DRIBBLE:
-			executeDribbleCommand((DribbleCOmmand)currentComand);
+			executeDribbleCommand((DribbleCommand) currentCommand);
+			break;
 		case KICK:
 			executeKickCommand((KickCommand)currentCommand);
 			break;
