@@ -6,6 +6,7 @@ import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
 import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
@@ -47,11 +48,9 @@ public class Planner extends PlannerSkeleton {
 			ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
 			return reachDestination;
 		}else{
-			//TODO: create command for dribbling command and return it
+			DribbleCommand dribble = new DribbleCommand(ball, Alfie, facing);
+			return dribble;
 		}
-		
-		ReachDestinationCommand reachDestination = new ReachDestinationCommand(Alfie, Alfie, facing);
-		return reachDestination;
 	}
 
 
