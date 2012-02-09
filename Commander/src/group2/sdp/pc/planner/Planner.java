@@ -18,7 +18,13 @@ public class Planner extends PlannerSkeleton {
 		verbose = true;
 	}
 
+	
+	
 	@Override
+	/**
+	 * plans the next move of our robot this is where the majority
+	 * of our high level situational analysis happens
+	 */
 	protected ComplexCommand planNextCommand(DynamicPitchInfo dpi) {
 		if (verbose) {
 			System.out.println("Planning next command.");
@@ -30,18 +36,22 @@ public class Planner extends PlannerSkeleton {
 		
 		
 		Point2D ball = ballInfo.getPosition();
+		//System.out.print("the position of the ball is : " + ball + "\n");
 		Point2D Alfie = AlfieInfo.getPosition();
+		//System.out.print("the position of Alfie is : " + Alfie + "\n");
 		double facing = AlfieInfo.getFacingDirection();
+		//System.out.print("the angle were are being told we are facing is : " + facing  + "\n");
 		
 		
-		if( getDistance(ball, Alfie)> 30){
+		if( executor.getDistance(ball, Alfie) > 30){
 			ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
 			return reachDestination;
+		}else{
+			//TODO: create command for dribbling command and return it
 		}
 		
-		
-		
-		return null;
+		ReachDestinationCommand reachDestination = new ReachDestinationCommand(Alfie, Alfie, facing);
+		return reachDestination;
 	}
 
 
@@ -63,18 +73,5 @@ public class Planner extends PlannerSkeleton {
 		} else {
 			return true;
 		}
-	}
-	
-	private int getDistance(Point2D ball, Point2D alfie) {
-
-		double diffInX = (ball.getX() - alfie.getX());
-		double diffInY = (ball.getY() - alfie.getY());
-		
-		double xSquared = Math.pow(diffInX, 2);
-		double ySquared = Math.pow(diffInY, 2);
-		
-		int distance = (int) Math.sqrt(xSquared + ySquared);
-		
-		return distance;
 	}
 }

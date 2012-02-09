@@ -9,7 +9,7 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	
 	private boolean running = false;
 	
-	private PlanExecutor executor;
+	protected PlanExecutor executor;
 	private ComplexCommand currentCommand;
 	
 	public PlannerSkeleton(PlanExecutor executor) {
