@@ -40,11 +40,12 @@ import group2.simulator.core.Simulator;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.BoardObject;
 import group2.simulator.physical.Robot;
-import group2.simulator.physical.SimulatorCheckBox;
+
 
 public class SimulatorI implements ServerSkeleton {
 
 	/** The frame displaying the simulation */
+	
 	static JFrame frame;
 	public static int boardWidth = 630;
 	public static int boardHeight = 330;
