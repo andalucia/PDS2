@@ -18,7 +18,7 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	private StaticInfoConsumer staticInfoConsumer;
 	
 	private ImageConsumer imageConsumer;
-	private BufferedImage internalImage;
+	protected BufferedImage internalImage;
 	
 	
 	/**
@@ -45,6 +45,7 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 */
 	@Override
 	public final void consume (BufferedImage image) {
+		internalImage = null;
 		process(image);
 	}
 	
@@ -54,7 +55,6 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * @param image The image to process.
 	 */
 	public void process (BufferedImage image) {
-		internalImage = image;
 		// Do processing here
 		
 		Point2D ballPosition = extractBallPosition(image);
@@ -71,10 +71,13 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		spi.printAllStaticInfo();
 		
+		if (internalImage == null) {
+			internalImage = image;
+		}
 		if (imageConsumer != null) {
 			imageConsumer.consume(internalImage);
 		}
-		staticInfoConsumer.consumeInfo(spi);
+		//staticInfoConsumer.consumeInfo(spi);
 	}
 
 	

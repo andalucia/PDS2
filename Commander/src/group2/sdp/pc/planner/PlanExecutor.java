@@ -151,7 +151,8 @@ public class PlanExecutor {
 		double diffInY = (target.getY() - alfie.getY() );
 		
 		if(VERBOSE) {
-			System.out.print("the distance from Alfi to the ball is : X " + diffInX + " Y " + diffInY  + "\n");
+			System.out.print(
+					"the distance from Alfie to the ball is : X " + diffInX + " Y " + diffInY  + "\n");
 		}
 		
 		/*
