@@ -65,6 +65,7 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);
 		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
+		spi.printAllStaticInfo();
 		
 		if (imageConsumer != null) {
 			imageConsumer.consume(internalImage);
