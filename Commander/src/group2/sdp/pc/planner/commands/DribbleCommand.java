@@ -8,15 +8,14 @@ public class DribbleCommand implements ComplexCommand{
 	Point2D alfie;
 	double facing;
 	
+	
 	public DribbleCommand(Point2D ball, Point2D alfie, double facing) {
-		
 		this.ball = ball;
 		this.alfie = alfie;
-		this.facing = facing;
-		
+		this.facing = facing;	
 	}
-
 	
+
 	public Point2D getBall(){
 		return ball;
 	}

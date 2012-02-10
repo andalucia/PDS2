@@ -1,15 +1,13 @@
 
 package group2.sdp.pc.planner;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.server.Server;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
+
+import java.awt.geom.Point2D;
 
 /**
  * Takes a command from the planner and executes it. This class is responsible for sending the "physical"
@@ -99,7 +97,7 @@ public class PlanExecutor {
 			angleToTurn =  360 - angleToTurn;
 			
 			if(VERBOSE) {
-				System.out.print("Alie must turn Right at angle of : " + angleToTurn  + "\n");
+				System.out.print("Alfie must turn Right at angle of : " + angleToTurn  + "\n");
 			}
 			
 			alfieServer.sendSpinRight(512, angleToTurn);
@@ -109,7 +107,7 @@ public class PlanExecutor {
 			alfieServer.sendSpinLeft(512, angleToTurn);
 			
 			if(VERBOSE) {
-				System.out.print("Alie must turn left at angle of : " + angleToTurn  + "\n");
+				System.out.print("Alfie must turn left at angle of : " + angleToTurn  + "\n");
 			}
 		}
 		
