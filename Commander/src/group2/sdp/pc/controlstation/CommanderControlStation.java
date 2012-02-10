@@ -7,7 +7,7 @@ import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
 import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.SimpleViewer;
+import group2.sdp.pc.vision.ImageProcessor2;
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -19,7 +19,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
