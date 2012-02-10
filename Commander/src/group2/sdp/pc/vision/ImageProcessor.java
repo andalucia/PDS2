@@ -95,9 +95,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	@Override
 	public void process(BufferedImage image) {		
 		image = detectRobotsAndBall(image);
-		//yellowDir = (findFacingDirection(image, yellowCentroid, true));
-		//blueDir = (findFacingDirection(image, blueCentroid, false));
-
 		super.process(image);
 	}
 
@@ -127,12 +124,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				// test if the pixel belongs to either of the robots or the ball
 				if (isYellow(colour, false)) {
 					yellowpoints.add(currentPoint);
-					drawPixel(raster, currentPoint, pureYellow);
 				}
 
 				if (isBlue(colour, false)) {
 					bluepoints.add(currentPoint);
-					drawPixel(raster, currentPoint, pureBlue);
 				}
 				if (isBall(colour, false)){
 					ball.add(currentPoint);
@@ -143,16 +138,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		ArrayList <Point> bluePointsClean = noiseRemove(bluepoints, false);
 		ArrayList <Point> yellowPointsClean = noiseRemove(yellowpoints, true);
+		for (int i = 0; i < bluePointsClean.size();i++) {
+			drawPixel(raster,bluePointsClean.get(i),pureBlue);
+		}
+		for (int i = 0; i < yellowPointsClean.size();i++) {
+			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
+		}
 
 		this.ballCentroid = calcCentroid(ball);
 		this.blueCentroid = calcCentroid(bluePointsClean);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
 
+
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
 		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
 
-		System.out.println("blue direction = " + blueDir);
-		System.out.println("yellow direction = " + yellowDir);
+		drawCross(raster,blueCentroid,Coral);
+		drawCross(raster,yellowCentroid,Aqua);
+		drawCross(raster,ballCentroid,pureRed);
 
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
@@ -187,13 +190,13 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		Point fixelsCentroid = new Point();
 
 		if (fixels.size() != 0){
-			Point currCentroid = fixels.get(0);
+			Point currCentroid = calcCentroid(fixels);
 			for (int i = 0; i < fixels.size(); i++){
 
 				Point current = fixels.get(i);
 				double dist = calcDistanceBetweenPoints(current, currCentroid);
 
-				if (dist > 1000){
+				if (dist > 50){
 					/**
 					 * if the current pixel is unusually further away from previous ones
 					 * then it's fake, therefore delete it from the robot pixels and add
@@ -217,12 +220,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			// DRAW cross through the proper yellow centroid 
 			if (fixels.size() > fakes.size()){
 				fixelsCentroid = calcCentroid(fixels);
-				//drawCross(raster, fixelsCentroid, pureYellow);
 
 			}
 			else {
 				fixelsCentroid = calcCentroid(fakes);
-				//drawCross(raster, fixelsCentroid, pureYellow);
 			}
 		}
 		else {System.out.println("No robot on pitch");
@@ -258,15 +259,15 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		double mtheta = Math.abs((mx*my-1)/(mx+my));
 
-		blueDir = (findFacingDirection(image, fixelsCentroid, false));
-		yellowDir = (findFacingDirection(image, fixelsCentroid, true));
+
 		double actualDir;
 		if (isYellow) {
-			actualDir = yellowDir;
+			actualDir = (findFacingDirection(image, fixelsCentroid, true));
 		} else {
-			actualDir = blueDir;
+			actualDir = (findFacingDirection(image, fixelsCentroid, false));
 		}
 
+		
 
 		double mx_degrees = Math.toDegrees(Math.atan(mx));
 		double my_degrees = Math.toDegrees(Math.atan(my));
@@ -282,10 +283,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		} else {
 			end_angle = (360 - mx_degrees) % 360;
 		}
-		drawLine_X(raster, new Point((int) (allx / n), (int) (ally / n)), mx,
-				Coral);
-		drawLine_Y(raster, new Point((int) (allx / n), (int) (ally / n)), my,
-				Coral);
 
 
 		/**
@@ -297,8 +294,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		if(mtheta<Math.tan(Math.toRadians(20))){
 
 			double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
-			drawLine_XY(raster, new Point((int) (allx / n), (int) (ally / n)), mxy2,
-					Coral);
 
 			// Using the direction again we decide how to use the regression value
 			double mxy2_degrees = Math.toDegrees(Math.atan(mxy2));
@@ -312,6 +307,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				end_angle = 360 - mxy2_degrees;
 			}
 		}
+		
 
 		return end_angle;
 	}
@@ -354,7 +350,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				// negative x direction and then rotating the point i degrees around
 				// the centroid.
 				while (isBlueYellow(colour, isYellow)) {
-					//System.out.println("rot_pixel = " + rot_pixel + " and isYellow = " + isYellow);
 
 					cur_score++; // Since we sort in ascending order, lower score is longer segments
 
@@ -416,9 +411,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private boolean isBlueYellow(int[] colour, boolean isYellow) {
 		if (isYellow) {
-			return isYellow(colour, true);
+			return isYellow(colour, false);
 		} else {
-			return isBlue(colour, true);
+			return isBlue(colour, false);
 		}
 	}
 
@@ -510,9 +505,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	//Blue robot
 	public boolean isBlue(int[] colour, boolean pitchOne) {
-		int R = colour[0];
-		int G = colour[1];
-		int B = colour[2];
 		int[] differences = new int[3];
 		if (pitchOne){
 			differences = calcColourDifferences(blue1, colour);
@@ -521,8 +513,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			differences = calcColourDifferences(blue2, colour);
 		}
 		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
-		//		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
-		//				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
 	}
 
 	// Ball
@@ -670,7 +660,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		double y = linearRemap(point.getY(), 
 				pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
 				pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
-		p.setLocation(x, y);
+		p.setLocation(x, -y);
 		return p;
 	}
 
