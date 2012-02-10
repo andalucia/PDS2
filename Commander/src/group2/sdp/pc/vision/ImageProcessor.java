@@ -22,89 +22,89 @@ import java.util.Collections;
 import java.util.List;
 
 public class ImageProcessor extends ImageProcessorSkeleton {
-	
+
 	private static int width = 640, height = 480,
 	width_margin = 20, height_margin = 60;
 
-	
+
 	private static final int[] firebrick = new int[] { 178, 34, 34 };
 	private static final int[] Aqua = new int[] {0, 255, 255};
 	private static final int[] Coral = new int[] {255, 127, 80};
-	
+
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
 	private int blueDir, yellowDir;
-	
+
 	// pitch2 colours
 	private static final int[] yellow2 = new int[] {230,200,7};
 	private static final int[] blue2 = new int[] {92,140,121};
-	
+
 	//pitch1 colours
 	private static final int[] yellow1 = new int[] {127,125,69};
 	private static final int[] blue1 = new int[] {92,140,121};
-	
+
 	// BLUE thresholds
 	private static final int RThreshBlueLow = 1;
 	private static final int RThreshBlueHigh = 50;
-	
+
 	private static final int GThreshBlueLow = 70;
 	private static final int GThreshBlueHigh = 150;
-	
+
 	private static final int BThreshBlueLow = 70;
 	private static final int BThreshBlueHigh = 255;
-	
-	
+
+
 	// YELLOW thresholds
 	private static final int RThreshYellowLow = 110;
 	private static final int RThreshYellowHigh = 160;
-	
+
 	private static final int GThreshYellowLow = 170;
 	private static final int GThreshYellowHigh = 250;
-	
+
 	private static final int BThreshYellowLow = 0;
 	private static final int BThreshYellowHigh = 30;
-	
-	
+
+
 	// Ball thresholds
 	private static final int RThreshRedLow = 140;
 	private static final int RThreshRedHigh = 255;
-	
+
 	private static final int GThreshRedLow = 15;
 	private static final int GThreshRedHigh = 35;
-	
+
 	private static final int BThreshRedLow = 0;
 	private static final int BThreshRedHigh = 30;
 
-	
+
 	// pure colours - used for drawing pixels
 	private static final int[] pureRed = new int[] { 255, 0, 0 };
 	private static final int[] pureYellow = {255, 255, 0};
 	private static final int[] pureBlue = new int[] {0, 0, 255};
-	
+
 	public ImageProcessor(StaticInfoConsumer consumer) {
 		super(consumer);
 	}
-	
+
 	public ImageProcessor(StaticInfoConsumer consumer,
 			ImageConsumer imageConsumer) {
 		super(consumer, imageConsumer);
 	}
-	
-	
+
+
 	//Please call super.process after done processing
 	@Override
 	public void process(BufferedImage image) {		
 		image = detectRobotsAndBall(image);
 		//yellowDir = (findFacingDirection(image, yellowCentroid, true));
 		//blueDir = (findFacingDirection(image, blueCentroid, false));
-		
+
 		super.process(image);
 	}
-	
-	
-	
+
+
+
 	public BufferedImage detectRobotsAndBall(BufferedImage image) {
-		
+
 		// create a new blank raster of the same size
 		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 		ColorModel cm = new ComponentColorModel(cs, false, false,
@@ -116,7 +116,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		ArrayList<Point> yellowpoints = new ArrayList<Point>();
 		ArrayList<Point> bluepoints = new ArrayList<Point>();
 		ArrayList<Point> ball = new ArrayList<Point>();
-		
+
 		// for every point on the image
 		for (int x = width_margin; x < image.getWidth() - width_margin; x++) {
 			for (int y = height_margin; y < image.getHeight() - height_margin; y++) {
@@ -139,8 +139,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				}
 			}
 		}
-	
-	
+
+
 		this.ballCentroid = calcCentroid(ball);
 		this.blueCentroid = calcCentroid(regression(image, noiseRemove(bluepoints, false), false));
 		this.yellowCentroid = calcCentroid(regression(image, noiseRemove(yellowpoints, true), true));
@@ -149,7 +149,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return img;
 
 	}
-	
+
 	/**
 	 * Collect the colour of a certain pixel on the image
 	 * @param image
@@ -166,24 +166,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		colour[2] = c.getBlue();
 		return colour;
 	}
-	
+
 	/**
 	 * Noise removal: if a pixel is a a certain distance away from the last
 	 * pixel known to belong to the yellow robot, then remove that pixel from
 	 * the collection of robot pixels and say it's a "fake" robot, i.e. noise
 	 */
-	
+
 	public ArrayList<Point> noiseRemove(ArrayList<Point> fixels, boolean isYellow){
 		ArrayList<Point> fakes = new ArrayList<Point>();
 		Point fixelsCentroid = new Point();
-		
-			if (fixels.size() != 0){
+
+		if (fixels.size() != 0){
 			Point currCentroid = fixels.get(0);
 			for (int i = 0; i < fixels.size(); i++){
-				
+
 				Point current = fixels.get(i);
 				double dist = calcDistanceBetweenPoints(current, currCentroid);
-	
+
 				if (dist > 1000){
 					/**
 					 * if the current pixel is unusually further away from previous ones
@@ -195,10 +195,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					fixels.remove(i);
 					fakes.add(current);
 					i--;
-					
+
 				}
 			}
-			
+
 			/**
 			 * we cannot be sure which list consist the proper robots but chances
 			 * are the pixels in the larger list form the yellow robot
@@ -209,22 +209,22 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			if (fixels.size() > fakes.size()){
 				fixelsCentroid = calcCentroid(fixels);
 				//drawCross(raster, fixelsCentroid, pureYellow);
-				
+
 			}
 			else {
 				fixelsCentroid = calcCentroid(fakes);
 				//drawCross(raster, fixelsCentroid, pureYellow);
 			}
-			}
+		}
 		else {System.out.println("No robot on pitch");
 		}
-			return fixels;
+		return fixels;
 	}
-	
+
 	public ArrayList<Point> regression(BufferedImage image, ArrayList<Point> fixels, boolean isYellow){
-		
+
 		WritableRaster raster = image.getRaster();
-	
+
 		// for regression
 		double end_angle = 0;
 		double allx = 0;
@@ -234,110 +234,80 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		double ally_sqr = 0;
 		int n = fixels.size();
 		Point fixelsCentroid = calcCentroid(fixels);
-	
+
 		for (int i = 0; i < fixels.size(); i++) {
 			allx += fixels.get(i).x;
 			ally += fixels.get(i).y;
 			allxy += fixels.get(i).x * fixels.get(i).y;
 			allx_sqr += fixels.get(i).x * fixels.get(i).x;
 			ally_sqr += fixels.get(i).y * fixels.get(i).y;
-	
+
 		}
-		
+
 		double mx = regression(allx, ally, n, allxy, allx_sqr);
 		double my = regression(ally, allx, n, allxy, ally_sqr);
-		
+
 		double mtheta = Math.abs((mx*my-1)/(mx+my));
 
 		blueDir = (findFacingDirection(image, fixelsCentroid, false));
 		yellowDir = (findFacingDirection(image, fixelsCentroid, true));
-		
-		
+		double actualDir;
+		if (isYellow) {
+			actualDir = yellowDir;
+		} else {
+			actualDir = blueDir;
+		}
+
+
 		double mx_degrees = Math.toDegrees(Math.atan(mx));
 		double my_degrees = Math.toDegrees(Math.atan(my));
-	
+
 		// Using the direction found with findFacingDirection we decide
 		// which regression value to take
-		if (isYellow){
-			if (yellowDir > 45 && yellowDir < 135) {
-				end_angle = 90 + my_degrees;
-			} else if (yellowDir > 135 && yellowDir < 225) {
-				end_angle = 180 - mx_degrees;
-			} else if (yellowDir > 225 && yellowDir < 315) {
-				end_angle = 270 + my_degrees;
-			} else {
-				end_angle = (360 - mx_degrees) % 360;
-			}
-			drawLine_X(raster, new Point((int) (allx / n), (int) (ally / n)), mx,
-					Coral);
-			drawLine_Y(raster, new Point((int) (allx / n), (int) (ally / n)), my,
-					Coral);
-			
-			
-			/**
-			 *  We check if the difference between both values is less than a certain amount
-			 *  and if it is we use the average of both values (this is because regression only 
-			 *   works on X OR Y axis: NOT BOTH
-			 */
-
-			if(mtheta<Math.tan(Math.toRadians(20))){
-
-				double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
-				drawLine_XY(raster, new Point((int) (allx / n), (int) (ally / n)), mxy2,
-						Coral);
-				
-				// Using the direction again we decide how to use the regression value
-				double mxy2_degrees = Math.toDegrees(Math.atan(mxy2));
-				if (yellowDir < 90) {
-					end_angle = 0 - mxy2_degrees;
-				} else if (yellowDir < 180) {
-					end_angle = 180 - mxy2_degrees;
-				} else if (yellowDir < 270) {
-					end_angle = 180 - mxy2_degrees;
-				} else {
-					end_angle = 360 - mxy2_degrees;
-				}
-			}
-			System.out.println("yellow direction = " + end_angle);
+		if (actualDir > 45 && actualDir < 135) {
+			end_angle = 90 + my_degrees;
+		} else if (actualDir > 135 && actualDir < 225) {
+			end_angle = 180 - mx_degrees;
+		} else if (actualDir > 225 && actualDir < 315) {
+			end_angle = 270 + my_degrees;
+		} else {
+			end_angle = (360 - mx_degrees) % 360;
 		}
-		else {
-			if (blueDir > 45 && blueDir < 135) {
-				end_angle = 90 + my_degrees;
-			} else if (blueDir > 135 && blueDir < 225) {
-				end_angle = 180 - mx_degrees;
-			} else if (blueDir > 225 && blueDir < 315) {
-				end_angle = 270 + my_degrees;
-			} else {
-				end_angle = (360 - mx_degrees) % 360;
-			}
-			drawLine_X(raster, new Point((int) (allx / n), (int) (ally / n)), mx,
-					Aqua);
-			drawLine_Y(raster, new Point((int) (allx / n), (int) (ally / n)), my,
-					Aqua);
-			
-			if(mtheta<Math.tan(Math.toRadians(20))){
+		drawLine_X(raster, new Point((int) (allx / n), (int) (ally / n)), mx,
+				Coral);
+		drawLine_Y(raster, new Point((int) (allx / n), (int) (ally / n)), my,
+				Coral);
 
-				double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
-				drawLine_XY(raster, new Point((int) (allx / n), (int) (ally / n)), mxy2,
-						Aqua);
-				
-				// Using blueDir again we decide how to use the regression value
-				double mxy2_degrees = Math.toDegrees(Math.atan(mxy2));
-				if (blueDir < 90) {
-					end_angle = 0 - mxy2_degrees;
-				} else if (blueDir < 180) {
-					end_angle = 180 - mxy2_degrees;
-				} else if (blueDir < 270) {
-					end_angle = 180 - mxy2_degrees;
-				} else {
-					end_angle = 360 - mxy2_degrees;
-				}
-				System.out.println("blue direction = " + end_angle);
+
+		/**
+		 *  We check if the difference between both values is less than a certain amount
+		 *  and if it is we use the average of both values (this is because regression only 
+		 *   works on X OR Y axis: NOT BOTH
+		 */
+
+		if(mtheta<Math.tan(Math.toRadians(20))){
+
+			double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
+			drawLine_XY(raster, new Point((int) (allx / n), (int) (ally / n)), mxy2,
+					Coral);
+
+			// Using the direction again we decide how to use the regression value
+			double mxy2_degrees = Math.toDegrees(Math.atan(mxy2));
+			if (actualDir < 90) {
+				end_angle = 0 - mxy2_degrees;
+			} else if (actualDir < 180) {
+				end_angle = 180 - mxy2_degrees;
+			} else if (actualDir < 270) {
+				end_angle = 180 - mxy2_degrees;
+			} else {
+				end_angle = 360 - mxy2_degrees;
 			}
 		}
+		System.out.println("direction = " + end_angle);
+
 		return fixels;
 	}
-	
+
 	/**
 	 * Cycles through all (360) possible angles and finds the longest unbroken line
 	 * from the centroid. The angle at which this line was found is the angle which 
@@ -356,24 +326,30 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		if (centroid.x != 0) {
 			// To store all distances
 			//List<KeyValuePair<Integer,Integer>> pairs = new ArrayList<KeyValuePair<Integer, Integer>>();
-			
+
 			for (int i = 0; i < 360; i++) {
+				int[] colour;
 				cur_score = 0;
 				Point nextPixel = new Point();
 				nextPixel.x = centroid.x;
 				nextPixel.y = centroid.y;
 				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
-				c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
-				int[] colour = new int[] {c.getRed(),c.getGreen(),c.getBlue()};
-				// Do not stop until the next pixel colour is not the colour we are 
-				// looking for. The next pixel is determined by travelling in the 
-				// negative x direction and then rotating the point i degrees around 
+				try {
+					c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
+					colour = new int[] {c.getRed(),c.getGreen(),c.getBlue()};
+				} catch (Exception e) {
+					colour = new int[] {0,0,0};
+					System.out.println("rot_pixel = " + rot_pixel);
+				}
+				// Do not stop until the next pixel colour is not the colour we are
+				// looking for. The next pixel is determined by travelling in the
+				// negative x direction and then rotating the point i degrees around
 				// the centroid.
 				while (isBlueYellow(colour, isYellow)) {
 					//System.out.println("rot_pixel = " + rot_pixel + " and isYellow = " + isYellow);
-					
+
 					cur_score++; // Since we sort in ascending order, lower score is longer segments
-					
+
 					nextPixel = new Point(centroid.x + cur_score,centroid.y);
 					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
 					try {
@@ -392,7 +368,33 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					best_angle = i;
 					best_score = cur_score;
 				}
+
+				// pairs.add(new KeyValuePair<Integer, Integer>(cur_score, i));
 			}
+			// Collections.sort(pairs);
+			//
+			// int thresh_sim = 1;
+			//
+			// int best = 0, i, secondBest;
+			// for (i = 1; i < pairs.size(); ++i) {
+			// if (pairs.get(i).getFirst() - pairs.get(best).getFirst() > thresh_sim) {
+			// break;
+			// }
+			// }
+			// best = i / 2;
+			// secondBest = i;
+			//
+			// for (; i < pairs.size(); ++i) {
+			// if (pairs.get(i).getFirst() - pairs.get(secondBest).getFirst() > thresh_sim) {
+			// break;
+			// }
+			// }
+			// secondBest = (secondBest + i) / 2;
+			//
+			// if (best == pairs.size()) best = 0;
+			// if (secondBest == pairs.size()) secondBest = 0;
+			//
+			// best_angle = (pairs.get(best).getSecond() + pairs.get(secondBest).getSecond()) / 2;
 		}
 		return 360 - best_angle;
 	}
@@ -411,7 +413,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			return isBlue(colour, true);
 		}
 	}
-	
+
 	/**
 	 * The function calculates the difference in colour values of two pixels
 	 * @param colour1 - RGB values
@@ -449,7 +451,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	{
 		return Math.sqrt((double)(Math.pow(p1.x-p2.x,2)+(Math.pow(p1.y-p2.y,2))));
 	}
-	
+
 	/**
 	 * 
 	 * @param fixels - for every ArrayList<Point> robot/ball,
@@ -496,7 +498,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			differences = calcColourDifferences(yellow2, colour);
 		}
 		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 70)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
-}
+	}
 
 	//Blue robot
 	public boolean isBlue(int[] colour, boolean pitchOne) {
@@ -511,8 +513,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			differences = calcColourDifferences(blue2, colour);
 		}
 		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
-//		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
-//				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
+		//		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
+		//				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
 	}
 
 	// Ball
@@ -521,24 +523,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int G = colour[1];
 		int B = colour[2];
 		return (R > RThreshRedLow && R < RThreshRedHigh && G > GThreshRedLow && G < GThreshRedHigh
-				&& B > BThreshRedLow && B < BThreshRedHigh);
+		&& B > BThreshRedLow && B < BThreshRedHigh);
 	}
-	
+
 	public Point[] getBoundaries(ArrayList<Point> fixels){
 		Point topleft = new Point();
 		Point topright = new Point();
 		Point bottomleft = new Point();
 		Point bottomright = new Point();
-		
+
 		for (int i = 0; i < fixels.size(); i++){
-				topleft.x = fixels.get(0).x;
-				topleft.y = fixels.get(0).y;
-				topright.x = fixels.get(fixels.size()-1).x;
-				topright.y = fixels.get(0).y;
-				bottomleft.x = fixels.get(0).x;
-				bottomleft.y = fixels.get(fixels.size()-1).y;
-				bottomright.x = fixels.get(fixels.size()-1).x;
-				bottomright.y = fixels.get(fixels.size()-1).y;
+			topleft.x = fixels.get(0).x;
+			topleft.y = fixels.get(0).y;
+			topright.x = fixels.get(fixels.size()-1).x;
+			topright.y = fixels.get(0).y;
+			bottomleft.x = fixels.get(0).x;
+			bottomleft.y = fixels.get(fixels.size()-1).y;
+			bottomright.x = fixels.get(fixels.size()-1).x;
+			bottomright.y = fixels.get(fixels.size()-1).y;
 		}
 		Point[] result = new Point[]{topleft, topright, bottomleft, bottomright};
 		return result;
@@ -577,13 +579,13 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			drawPixel(raster, new Point(p1.x, i), colour);
 		}
 	}
-	
+
 	/**
 	 * WARNING: DO NOT USE p2 AFTER THIS FUNCTION HAS BEEN CALLED.
 	 * This function will change the values of p2. Use the returned point 
 	 * and create a copy of p2 if you want to use it.
 	 */
-	
+
 	public Point rotatePoint(Point pivot, Point p2, int deg)
 	{
 		p2.x -= pivot.x;
@@ -620,22 +622,22 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 	}
 
-	
-	
+
+
 	/**
 	 * The boundaries of the pitch rectangle (yeah, right) on the image. In pixels.
 	 */
 	private final Rectangle pitchImageRectangle1 = new Rectangle(37, 92, 601 - 37, 386 - 92);
 	private final Rectangle pitchImageRectangle2 = new Rectangle(67, 150, 565 - 67, 404 - 150);
-	
-	
-	
+
+
+
 	/**
 	 * The boundaries of the pitch rectangle in the real world. In cm.
 	 */
 	private final Rectangle2D pitchPhysicalRectangle1 = new Rectangle2D.Float(-122, -60.5f, 244, 121);
 	private final Rectangle2D pitchPhysicalRectangle2 = new Rectangle2D.Float(-122, -60.5f, 244, 121);
-	
+
 	/**
 	 * Converts from the image coordinate system (in pixels) to a coordinate system
 	 * centred at the physical centre of the pitch (in cm), where y grows upwards and 
@@ -644,27 +646,23 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return The point, converted.
 	 */
 	private Point2D convertPixelsToCm(Point2D point, boolean pitchOne) {
-		//TODO: Should convert pixel coordinates into centimetre coordinates
-		// w.r.t centre of the pitch
 		Point2D p = new Point2D.Float();
-		if (pitchOne){
-			double x = linearRemap(point.getX(), 
-					pitchImageRectangle1.getMinX(), pitchImageRectangle1.getWidth(), 
-					pitchPhysicalRectangle1.getMinX(), pitchPhysicalRectangle1.getWidth());
-			double y = linearRemap(point.getY(), 
-					pitchImageRectangle1.getMinY(), pitchImageRectangle1.getHeight(), 
-					pitchPhysicalRectangle1.getMinY(), pitchPhysicalRectangle1.getHeight());
-			p.setLocation(x, y);
+		Rectangle pitchImageRectangle;
+		Rectangle2D pitchPhysicalRectangle;
+		if (pitchOne) {
+			pitchImageRectangle = pitchImageRectangle1;
+			pitchPhysicalRectangle = pitchPhysicalRectangle1;
+		} else {
+			pitchImageRectangle = pitchImageRectangle2;
+			pitchPhysicalRectangle = pitchPhysicalRectangle2;
 		}
-		else {
 			double x = linearRemap(point.getX(), 
-					pitchImageRectangle2.getMinX(), pitchImageRectangle2.getWidth(), 
-					pitchPhysicalRectangle2.getMinX(), pitchPhysicalRectangle2.getWidth());
+					pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
+					pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
 			double y = linearRemap(point.getY(), 
-					pitchImageRectangle2.getMinY(), pitchImageRectangle2.getHeight(), 
-					pitchPhysicalRectangle2.getMinY(), pitchPhysicalRectangle2.getHeight());
+					pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
+					pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
 			p.setLocation(x, y);
-		}
 		return p;
 	}
 
@@ -691,15 +689,15 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param targetRange
 	 * @return
 	 */
-	
+
 	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
 		return (x - x0) * (targetRange / domainRange) + y0;
 	}
-	
+
 	/*
 	 * draw line in X direction
 	 * */
-	
+
 	private void drawLine_X(WritableRaster raster, Point c, double m,
 			int[] colour) {
 		int xh = c.x + 100;
@@ -714,7 +712,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 	}
-	
+
 	private void drawLine_XY(WritableRaster raster, Point c, double m,
 			int[] colour) {
 		int xh = c.x + 100;
@@ -733,7 +731,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	/*
 	 * draw line in Y direction
 	 * */
-	
+
 	private void drawLine_Y(WritableRaster raster, Point c, double m,
 			int[] colour) {
 		int xh = c.y + 100;
@@ -748,11 +746,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 	}
-	
+
 	/*
 	 * regression function 
 	 * */
-	
+
 	protected double regression(double allx, double ally, int n, double allxy,
 			double allx_sqr) {
 
