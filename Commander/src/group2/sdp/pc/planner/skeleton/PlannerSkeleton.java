@@ -1,5 +1,7 @@
 package group2.sdp.pc.planner.skeleton;
 
+import java.awt.geom.Rectangle2D;
+
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.planner.PlanExecutor;
 import group2.sdp.pc.planner.commands.ComplexCommand;
@@ -11,6 +13,8 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	
 	protected PlanExecutor executor;
 	private ComplexCommand currentCommand;
+	
+	protected static final float[] PITCH_BOUNDARIES = new float[]{-122, -60.5f, 244, 121};
 	
 	public PlannerSkeleton(PlanExecutor executor) {
 		this.executor = executor;
