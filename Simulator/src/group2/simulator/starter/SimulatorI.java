@@ -161,7 +161,7 @@ public class SimulatorI implements ServerSkeleton {
 		int newBallStartX = ballStartX;
 
 	
-		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY , 70, 50, Color.BLUE, blueImage, -190),
+		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY-60 , 70, 50, Color.BLUE, blueImage, -190),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY+30, 10, Color.RED, 15));
 		System.out.println("simulator created");
