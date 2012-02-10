@@ -39,8 +39,12 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		this.imageConsumer = imageConsumer;
 	}
 	
+	/**
+	 * See parent's comment.
+	 * Note: If you want to override this, then you want to override process.
+	 */
 	@Override
-	public void consume (BufferedImage image) {
+	public final void consume (BufferedImage image) {
 		process(image);
 	}
 	
