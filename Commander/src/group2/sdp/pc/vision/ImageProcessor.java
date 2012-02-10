@@ -34,14 +34,18 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
 	private double blueDir, yellowDir;
+	
+	private final static boolean pitchOne = true;
 
+	//pitch1 colours
+	private static final int[] yellow1 = new int[] {173,180,129};
+	private static final int[] blue1 = new int[] {60,166,187};
+	private static final int[] ball1 = new int[] {253, 56, 25};
+	
 	// pitch2 colours
 	private static final int[] yellow2 = new int[] {230,200,7};
 	private static final int[] blue2 = new int[] {92,140,121};
-
-	//pitch1 colours
-	private static final int[] yellow1 = new int[] {127,125,69};
-	private static final int[] blue1 = new int[] {92,140,121};
+	private static final int[] ball2 = new int[] {253, 56, 25};
 
 	// BLUE thresholds
 	private static final int RThreshBlueLow = 1;
@@ -80,6 +84,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int[] pureRed = new int[] { 255, 0, 0 };
 	private static final int[] pureYellow = {255, 255, 0};
 	private static final int[] pureBlue = new int[] {0, 0, 255};
+
+
+	
 
 	public ImageProcessor(StaticInfoConsumer consumer) {
 		super(consumer);
@@ -122,14 +129,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				int[] colour = getColour(image, currentPoint);
 
 				// test if the pixel belongs to either of the robots or the ball
-				if (isYellow(colour, false)) {
+				if (isYellow(colour, pitchOne)) {
 					yellowpoints.add(currentPoint);
 				}
 
-				if (isBlue(colour, false)) {
+				if (isBlue(colour, pitchOne)) {
 					bluepoints.add(currentPoint);
 				}
-				if (isBall(colour, false)){
+				if (isBall(colour, pitchOne)){
 					ball.add(currentPoint);
 				}
 			}
@@ -179,6 +186,15 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return colour;
 	}
 
+//	public ArrayList<Point> mindFuck(BufferedImage image, ArrayList<Point> fixels, boolean isYellow){
+//		Point fixelsCentroid = calcCentroid(fixels);
+//		int[] colour = getColour(image, fixelsCentroid);
+//		
+//		if (isYellow(colour, pitchOne)){
+//			while (colour )
+//		}
+//	}
+	
 	/**
 	 * Noise removal: if a pixel is a a certain distance away from the last
 	 * pixel known to belong to the yellow robot, then remove that pixel from
@@ -190,13 +206,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		Point fixelsCentroid = new Point();
 
 		if (fixels.size() != 0){
-			Point currCentroid = calcCentroid(fixels);
 			for (int i = 0; i < fixels.size(); i++){
-
+				Point currCentroid = calcCentroid(fixels);
 				Point current = fixels.get(i);
 				double dist = calcDistanceBetweenPoints(current, currCentroid);
 
-				if (dist > 50){
+				if (dist > 35){
 					/**
 					 * if the current pixel is unusually further away from previous ones
 					 * then it's fake, therefore delete it from the robot pixels and add
@@ -411,9 +426,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private boolean isBlueYellow(int[] colour, boolean isYellow) {
 		if (isYellow) {
-			return isYellow(colour, false);
+			return isYellow(colour, pitchOne);
 		} else {
-			return isBlue(colour, false);
+			return isBlue(colour, pitchOne);
 		}
 	}
 
@@ -517,11 +532,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	// Ball
 	public boolean isBall(int[] colour, boolean pitchOne) {
-		int R = colour[0];
-		int G = colour[1];
-		int B = colour[2];
-		return (R > RThreshRedLow && R < RThreshRedHigh && G > GThreshRedLow && G < GThreshRedHigh
-		&& B > BThreshRedLow && B < BThreshRedHigh);
+		int[] differences = new int[3];
+		if (pitchOne){
+			differences = calcColourDifferences(ball1, colour);
+		}
+		else {
+			differences = calcColourDifferences(ball2, colour);
+		}
+		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 255 && colour[1] == 0 && colour[2] == 0);
 	}
 
 	public Point[] getBoundaries(ArrayList<Point> fixels){
@@ -598,15 +616,15 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
-		return convertPixelsToCm(ballCentroid, false);
+		return convertPixelsToCm(ballCentroid);
 	}
 
 	@Override
 	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
 		if (yellow) {
-			return convertPixelsToCm(yellowCentroid, false);
+			return convertPixelsToCm(yellowCentroid);
 		} else {
-			return convertPixelsToCm(blueCentroid, false);
+			return convertPixelsToCm(blueCentroid);
 		}
 	}
 
@@ -643,7 +661,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param point The point to convert.
 	 * @return The point, converted.
 	 */
-	private Point2D convertPixelsToCm(Point2D point, boolean pitchOne) {
+	private Point2D convertPixelsToCm(Point2D point) {
 		Point2D p = new Point2D.Float();
 		Rectangle pitchImageRectangle;
 		Rectangle2D pitchPhysicalRectangle;
