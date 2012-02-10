@@ -6,6 +6,7 @@ import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
+import group2.sdp.pc.vision.ImageProcessor;
 import group2.sdp.pc.vision.ImageProcessor2;
 
 import java.awt.Button;
@@ -130,7 +131,7 @@ public class CommanderControlStation implements KeyListener {
 				Planner planner = new Planner(executor);
 				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
-				ImageProcessor2 processor = new ImageProcessor2(bakery, previewer);
+				ImageProcessor processor = new ImageProcessor(bakery, previewer);
 				new ImageGrabber(processor);
 				if (planCheckbox.getState()) {
 					planner.run();

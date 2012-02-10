@@ -1,16 +1,23 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.pc.vision.LCHColour.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Stan's image processing candy. Background extraction and colour detection.
+ * Room for improvement: Pattern match the T-shapes and circles (red and gray)
+ * and draw regular ones on top. 
+ */
 public class ImageProcessor2 extends ImageProcessorSkeleton {
 
 	/**
@@ -23,7 +30,15 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	 */
 	private BufferedImage backgroundImage;
 	
+	/**
+	 * New pixels in the last frame that was processed.
+	 */
 	private List<Point> newPixels;
+	
+	/**
+	 * The rectangle that contains the whole pitch.
+	 */
+	private final Rectangle pitchCrop = new Rectangle(5, 80, 635 - 5, 400 - 80);
 	
 	/**
 	 * See parent's comment.
@@ -69,14 +84,13 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	public void process(BufferedImage image) {
 		if (extractBackground) {
 			backgroundImage = image;
-			System.out.println(backgroundImage != null);
 			extractBackground = false;
 			// Note that the super.process(image) is not called.
 			// This is the case, since we expect that the background
 			// contains no objects worth of detection.
 		} else {
 			newPixels = getDifferentPixels(image);
-			internalImage = drawPixels(newPixels);
+			internalImage = drawPixels(image, newPixels);
 			super.process(image);			
 		}
 	}
@@ -89,12 +103,17 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	 * @see isDifferent
 	 */
 	private List<Point> getDifferentPixels(BufferedImage image) {
-		int maxX = image.getMinX() - image.getWidth();
-		int maxY = image.getMinY() - image.getWidth();
+		int minX = Math.max(pitchCrop.x, image.getMinX());
+		int minY = Math.max(pitchCrop.y, image.getMinY());
+		int w = Math.min(pitchCrop.width, image.getWidth());
+		int h = Math.min(pitchCrop.height, image.getHeight());
+		
+		int maxX = minX + w;
+		int maxY = minY + h;
 		
 		List<Point> result = new ArrayList<Point>(); 
-		for (int x = image.getMinX(); x < maxX; ++x) {
-			for (int y = image.getMinY(); y < maxY; ++y) {
+		for (int y = minY; y < maxY; ++y) {
+			for (int x = minX; x < maxX; ++x) {
 				if (isDifferent(image, x, y)) {
 					result.add(new Point(x, y));
 				}
@@ -114,15 +133,15 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold = 50;
-//		image.getRGB(x, y) - backgroundImage.getRGB(x, y);
+		int threshold = 40;
+
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
 		
 		int [] delta = new int [] {
-				imagePixel.getRed() - backPixel.getRed(),
-				imagePixel.getGreen() - backPixel.getGreen(),
-				imagePixel.getBlue() - backPixel.getBlue()
+				Math.abs(imagePixel.getRed() - backPixel.getRed()),
+				Math.abs(imagePixel.getGreen() - backPixel.getGreen()),
+				Math.abs(imagePixel.getBlue() - backPixel.getBlue())
 		};
 		
 		return delta[0] + delta[1] + delta[2] > threshold;
@@ -130,23 +149,47 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 
 	/**
 	 * This function is supposed to be *slow*. Do not use apart from testing.
-	 * @param newPixels2
+	 * @param pixels The pixels to draw on a new image.
 	 * @return
 	 */
-	private BufferedImage drawPixels(List<Point> newPixels) {
+	private BufferedImage drawPixels(BufferedImage image, List<Point> pixels) {
 		int w = backgroundImage.getWidth();
 		int h = backgroundImage.getHeight();
-		BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+		BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
 		for (Point p : newPixels) {
-			result.setRGB(p.x, p.y, Color.WHITE.getRGB());
+			Color c = new Color(image.getRGB(p.x, p.y));
+			ColourClass cc = new LCHColour(c).getColourClass();
+			
+			Color dc = null;
+			switch (cc) {
+			case RED:
+				dc = Color.RED;
+				break;
+			case GREEN_PLATE:
+				dc = Color.GREEN;
+				break;
+			case GREEN_PITCH:
+				dc = Color.LIGHT_GRAY;
+				break;
+			case BLUE:
+				dc = Color.BLUE;
+				break;
+			case YELLOW:
+				dc = Color.YELLOW;
+				break;
+			case GRAY:
+				dc = Color.DARK_GRAY;
+				break;
+			default:
+				//System.out.println(c);
+				dc = Color.CYAN;
+				break;
+			}
+			result.setRGB(p.x, p.y, dc.getRGB());
 		}
 		return result;
 	}
-	
-	private int[] convertRGBtoLCh(int red, int green, int blue) {
-		return null;
-	}
-	
+
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
 		// TODO Auto-generated method stub
