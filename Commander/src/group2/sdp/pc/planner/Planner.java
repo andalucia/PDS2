@@ -7,6 +7,7 @@ import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
+import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
 import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
