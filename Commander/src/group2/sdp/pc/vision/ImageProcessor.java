@@ -34,14 +34,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
 	private double blueDir, yellowDir;
-	
+
 	private final static boolean pitchOne = true;
 
 	//pitch1 colours
 	private static final int[] yellow1 = new int[] {173,180,129};
 	private static final int[] blue1 = new int[] {60,166,187};
 	private static final int[] ball1 = new int[] {253, 56, 25};
-	
+
 	// pitch2 colours
 	private static final int[] yellow2 = new int[] {230,200,7};
 	private static final int[] blue2 = new int[] {92,140,121};
@@ -86,7 +86,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int[] pureBlue = new int[] {0, 0, 255};
 
 
-	
+
 
 	public ImageProcessor(StaticInfoConsumer consumer) {
 		super(consumer);
@@ -121,6 +121,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		ArrayList<Point> bluepoints = new ArrayList<Point>();
 		ArrayList<Point> ball = new ArrayList<Point>();
 
+		ArrayList<Point> testGreen= new ArrayList<Point>();
+
 		// for every point on the image
 		for (int x = width_margin; x < image.getWidth() - width_margin; x++) {
 			for (int y = height_margin; y < image.getHeight() - height_margin; y++) {
@@ -136,6 +138,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				if (isBlue(colour, pitchOne)) {
 					bluepoints.add(currentPoint);
 				}
+				if (isGreen(colour)) {
+					testGreen.add(currentPoint);
+					drawPixel(raster, currentPoint, pureRed);
+				}
 				if (isBall(colour, pitchOne)){
 					ball.add(currentPoint);
 				}
@@ -145,16 +151,33 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		ArrayList <Point> bluePointsClean = noiseRemove(bluepoints, false);
 		ArrayList <Point> yellowPointsClean = noiseRemove(yellowpoints, true);
+		Point yellowPointsCleanCentroid = calcCentroid(yellowPointsClean);
+		//		ArrayList<Point> mindFucked = mindFuck(image, yellowPointsCleanCentroid, true);
+
+
 		for (int i = 0; i < bluePointsClean.size();i++) {
 			drawPixel(raster,bluePointsClean.get(i),pureBlue);
 		}
-		for (int i = 0; i < yellowPointsClean.size();i++) {
-			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
-		}
+		//		for (int i = 0; i < mindFucked.size();i++) {
+		//			drawPixel(raster,mindFucked.get(i),pureYellow);
+		//		}
 
 		this.ballCentroid = calcCentroid(ball);
 		this.blueCentroid = calcCentroid(bluePointsClean);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
+		int green_for_yellow_x = 0;
+		int green_for_yellow_y = 0;
+		int count = 0;
+		for(int i = 0;i<testGreen.size();i++){
+
+			if(calcDistanceBetweenPoints(blueCentroid,testGreen.get(i))>50){
+				green_for_yellow_x+=testGreen.get(i).x;
+				green_for_yellow_y+=testGreen.get(i).y;
+				count++;
+			}
+
+		}
+
 
 
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
@@ -163,7 +186,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		drawCross(raster,blueCentroid,Coral);
 		drawCross(raster,yellowCentroid,Aqua);
 		drawCross(raster,ballCentroid,pureRed);
-
+		if (count != 0) {
+			drawCross(raster,new Point(green_for_yellow_x/count,green_for_yellow_y/count),pureBlue);
+			System.out.println(green_for_yellow_x/count+" "+green_for_yellow_y/count);
+		}
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -186,15 +212,23 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return colour;
 	}
 
-//	public ArrayList<Point> mindFuck(BufferedImage image, ArrayList<Point> fixels, boolean isYellow){
-//		Point fixelsCentroid = calcCentroid(fixels);
-//		int[] colour = getColour(image, fixelsCentroid);
-//		
-//		if (isYellow(colour, pitchOne)){
-//			while (colour )
-//		}
-//	}
-	
+	public ArrayList<Point> mindFuck(BufferedImage image, Point fixel, boolean isYellow){
+
+		ArrayList<Point> fixels = new ArrayList<Point>();
+
+		int[] colour = getColour(image, fixel);
+
+		if (isYellow(colour, pitchOne)){
+			fixels.addAll(mindFuck(image, new Point(fixel.x+1, fixel.y),isYellow));
+			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y+1),isYellow));
+			fixels.addAll(mindFuck(image, new Point(fixel.x-1, fixel.y),isYellow));
+			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y-1),isYellow));
+
+		}
+		System.out.println(fixels.size());
+		return fixels;
+	}
+
 	/**
 	 * Noise removal: if a pixel is a a certain distance away from the last
 	 * pixel known to belong to the yellow robot, then remove that pixel from
@@ -282,7 +316,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			actualDir = (findFacingDirection(image, fixelsCentroid, false));
 		}
 
-		
+
 
 		double mx_degrees = Math.toDegrees(Math.atan(mx));
 		double my_degrees = Math.toDegrees(Math.atan(my));
@@ -322,7 +356,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				end_angle = 360 - mxy2_degrees;
 			}
 		}
-		
+		drawLine_Robot_Facing(raster, new Point((int) (allx / n),
+				(int) (ally / n)), end_angle);
 
 		return end_angle;
 	}
@@ -343,8 +378,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int best_score = 0;
 		int best_angle = 0;
 		if (centroid.x != 0) {
-			// To store all distances
-			//List<KeyValuePair<Integer,Integer>> pairs = new ArrayList<KeyValuePair<Integer, Integer>>();
 
 			for (int i = 0; i < 360; i++) {
 				int[] colour;
@@ -360,10 +393,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					colour = new int[] {0,0,0};
 					System.out.println("rot_pixel = " + rot_pixel);
 				}
-				// Do not stop until the next pixel colour is not the colour we are
-				// looking for. The next pixel is determined by travelling in the
-				// negative x direction and then rotating the point i degrees around
-				// the centroid.
+				/**
+				 *  Do not stop until the next pixel colour is not the colour we are
+				 *  looking for. The next pixel is determined by travelling in the
+				 *  negative x direction and then rotating the point i degrees around
+				 *  the centroid.
+				 */
+
+
 				while (isBlueYellow(colour, isYellow)) {
 
 					cur_score++; // Since we sort in ascending order, lower score is longer segments
@@ -529,6 +566,13 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
 	}
+
+	public boolean isGreen(int[] colour) {
+
+
+		return (colour[0] < 60 && colour[1] >150 && colour[2]<90);
+	}
+
 
 	// Ball
 	public boolean isBall(int[] colour, boolean pitchOne) {
@@ -762,6 +806,50 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 	}
+	
+	/*
+	 * draw line robot facing direction
+	 */
+
+	private void drawLine_Robot_Facing(WritableRaster raster, Point c,
+			double angle) {
+		angle = 360 - angle;
+		int[] colour = { 0, 0, 0 };
+		if (angle < 270 && angle > 90) {
+
+			int xh = c.x - 100;
+			int x = c.x;
+			int y = c.y;
+
+			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
+			while (x > xh) {
+				drawPixel(
+						raster,
+						new Point(x,
+								(int) (Math.tan(Math.toRadians(angle)) * x + b)),
+						colour);
+				x--;
+			}
+		} else {
+
+			int xh = c.x + 100;
+			int x = c.x;
+			int y = c.y;
+
+			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
+			while (x < xh) {
+				drawPixel(
+						raster,
+						new Point(x,
+								(int) (Math.tan(Math.toRadians(angle)) * x + b)),
+						colour);
+				x++;
+			}
+		}
+
+	}
+
+	
 
 	/*
 	 * regression function 

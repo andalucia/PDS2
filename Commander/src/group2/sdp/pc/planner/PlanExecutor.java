@@ -5,6 +5,7 @@ import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
+import group2.sdp.pc.planner.commands.StopCommand;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 import java.awt.geom.Point2D;
@@ -60,6 +61,8 @@ public class PlanExecutor {
 		case KICK:
 			executeKickCommand((KickCommand)currentCommand);
 			break;
+		case STOP:
+			executeStopCommand((StopCommand)currentCommand);
 		// ADD OTHERS
 		}
 	}
@@ -133,6 +136,13 @@ public class PlanExecutor {
 	 */	
 	private void executeKickCommand(KickCommand currentCommand) {
 		alfieServer.sendKick(512);
+	}
+	
+	/**
+	 * This function stops Alfi and makes him wait for the next instruction
+	 */
+	private void executeStopCommand(StopCommand currentCommand) {
+		alfieServer.sendStop();
 	}
 		
 	/**
