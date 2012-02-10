@@ -43,8 +43,8 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	 */
 	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
 		if (currentCommand == null)
-			return true;
-		return false;
+			return false;
+		return true	;
 	}
 	
 	/**

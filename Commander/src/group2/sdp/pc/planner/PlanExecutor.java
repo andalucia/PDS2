@@ -114,7 +114,7 @@ public class PlanExecutor {
 		}
 		
 		// After we've turned start moving forward until we're at the ball		
-		alfieServer.sendGoForward(512, distance);
+		alfieServer.sendGoForward(512, 0);
 				
 	}
 	
