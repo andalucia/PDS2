@@ -1,5 +1,6 @@
 package group2.sdp.robot.commandreciever;
 
+import group2.sdp.common.util.Tools;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
@@ -146,8 +147,8 @@ public class Brain {
 	 */
 	public static void goForward(int speed, int distance) {
 		assert(initialized);
-		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-		distance = SanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
+		speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+		distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 		
 		stopOnTouch = true;
 		pilot.setTravelSpeed(speed);
@@ -177,7 +178,7 @@ public class Brain {
 	 */
 	public static void goBackwards(int speed, int distance) {
 		assert(initialized);
-		speed = SanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+		speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		
 		stopOnTouch = false;
 		pilot.setTravelSpeed(speed);
@@ -208,8 +209,8 @@ public class Brain {
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
-		speed = SanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
-		angle = SanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
+		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
+		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		
 		stopOnTouch = true;
 		pilot.setTravelSpeed(speed);
@@ -270,7 +271,7 @@ public class Brain {
 		// Alfie only has 1 leg, so he can only make 1 kick at a time
 		if (!kicking) {
 			kicking = true;
-			power = SanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
+			power = Tools.sanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
 			if (power == 0)
 				power = MAX_KICK_POWER;
 			KICKER.setSpeed(power);
@@ -284,21 +285,6 @@ public class Brain {
 				LCD.refresh();
 			}
 		}	
-	}
-
-	/**
-	 * Puts the given value in reasonable limits.
-	 * @param value The value to restrict.
-	 * @param min Lower bound.
-	 * @param max Upper bound.
-	 * @return min if value < min, max if value > max, just value otherwise.
-	 */
-	private static int SanitizeInput(int value, int min, int max) {
-		if (value > max)
-			value = max;
-		if (value < min)
-			value = min;
-		return value;
 	}
 	
 	/**
