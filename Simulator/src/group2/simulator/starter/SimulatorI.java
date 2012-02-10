@@ -1,9 +1,12 @@
 package group2.simulator.starter;
 
+import java.awt.Button;
+import java.awt.Checkbox;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Frame;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -16,6 +19,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
@@ -23,19 +27,25 @@ import net.phys2d.raw.StaticBody;
 import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
+import group2.sdp.pc.breadbin.DynamicBallInfo;
+import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.PlanExecutorSimulatorTest;
+import group2.sdp.pc.planner.PlannerSimulatorTest;
 import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.planner.commands.ReachDestinationCommand;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.core.RobotState;
 import group2.simulator.core.Simulator;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.BoardObject;
 import group2.simulator.physical.Robot;
+import group2.simulator.physical.SimulatorCheckBox;
 
 public class SimulatorI implements ServerSkeleton {
 
 	/** The frame displaying the simulation */
-	private static Frame frame;
+	static JFrame frame;
 	public static int boardWidth = 630;
 	public static int boardHeight = 330;
 	public static int padding = 100;
@@ -55,15 +65,14 @@ public class SimulatorI implements ServerSkeleton {
 	private static Ball ball;
 	public static ComplexCommand.Type currentCommand;
 	
-	public static ComplexCommand currentCommands=null;
-	
-
-
+	private boolean check =false;
+	private static Checkbox reset;
+	private static Button runButton;
 	private static volatile RobotState robotState;
 	static Thread actionThread = new Thread() {
 		public void run() {
 			
-			System.out.println("Thread for simulator");
+			//System.out.println("Thread for simulator");
 		
 		}
 	};
@@ -97,18 +106,18 @@ public class SimulatorI implements ServerSkeleton {
 	 * @param oppRobot
 	 * @param ball
 	 */
-	public SimulatorI( World world, Robot robot, Robot oppRobot, Ball ball) {
+	public  SimulatorI( World world, Robot robot, Robot oppRobot, Ball ball) {
 		SimulatorI.world = world;
 		SimulatorI.robot = robot;
 		SimulatorI.oppRobot = oppRobot;
 		SimulatorI.ball = ball;
 		
 		SimulatorI.robotState = new RobotState();
-		System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
+		//System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
-			  public void run() {
+			  public synchronized void run() {
 			    //System.out.println("test-stuff updated every two seconds");
 			    
 			    switch (SimulatorI.robotState.getCurrentMovement()) {
@@ -116,23 +125,25 @@ public class SimulatorI implements ServerSkeleton {
 					break;
 				case GOING_FORWARD:
 					SimulatorI.robot.move(SimulatorI.world, SimulatorI.ball, (int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
-					//SimulatorI.robot.moveForward(SimulatorI.world, SimulatorI.ball);
+				
 					break;
 				case GOING_BACKWARDS:
 					SimulatorI.robot.move(SimulatorI.world, SimulatorI.ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
 					break;
 				case KICK:
-					SimulatorI.robot.kick(SimulatorI.ball);// TODO: to move function in Robot class!
+					SimulatorI.robot.kick(SimulatorI.ball);
 					break;
 				case SPIN_RIGHT:
-					SimulatorI.robot.turn(-(int)robotState.getAngleOfRotation());
+					SimulatorI.robot.turn((int)SimulatorI.robotState.getAngleOfRotation());
+					System.out.println("!!!! angle to rotate is  " +(int)SimulatorI.robotState.getAngleOfRotation());
 					break;
 				case SPIN_LEFT:
-					SimulatorI.robot.turn((int)robotState.getAngleOfRotation());
+					SimulatorI.robot.turn((int)SimulatorI.robotState.getAngleOfRotation());
+					System.out.println("!!!!angle caca to rotate is  " +(int)SimulatorI.robotState.getAngleOfRotation());
 					break;
 				}
 			  }
-			}, 0, 1000);
+			}, 0, 2000);
 		
 		
 	}
@@ -151,15 +162,23 @@ public class SimulatorI implements ServerSkeleton {
 		int newBallStartX = ballStartX;
 
 	
-		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, 0),
+		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, -190),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
-				new Ball(newBallStartX, ballStartY, 9, Color.RED, 0));
+				new Ball(newBallStartX, ballStartY+30, 10, Color.RED, 15));
 		System.out.println("simulator created");
 		
 		
 		PlanExecutorSimulatorTest executor = new PlanExecutorSimulatorTest(simulatoor);
+		PlannerSimulatorTest planner = new PlannerSimulatorTest(executor);
 		
-		executor.execute2(currentCommand.REACH_DESTINATION);
+		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0);
+		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0);
+		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
+		ComplexCommand command = planner.planNextCommand(dpi);
+		executor.execute(command);
+		
+		//executor.execute2(currentCommand.REACH_DESTINATION);
 		
 		
 		// TO BE IMPLEMENTED!!!
@@ -175,20 +194,20 @@ public class SimulatorI implements ServerSkeleton {
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
 		setControls();
-		resetSimulation();
+		
 		while(running)
 		{
 			initSimulation();  // initialise the simulator
 
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-			g.setColor(Color.GREEN);
+			g.setColor(Color.pink);
 
 			g.fillRect(0,0,(boardWidth + 2*padding),(boardHeight + 2*padding));
 			BoardObject.draw(g, world);  // draw the object in the world
 			displayControlsAndScore(g);
 			strategy.show();
 			try {
-                Thread.sleep(1);
+                Thread.sleep(10);
             } catch (InterruptedException e) {
                 System.out.println("interrupted");
             }
@@ -200,20 +219,47 @@ public class SimulatorI implements ServerSkeleton {
 	 * Initialize the GUI
 	 */
 	private static void initializeFrame() {
-
-		frame = new Frame();
+		
+		frame = new JFrame();
 		frame.setLayout(null);  
 		frame.setResizable(false);
 		frame.setIgnoreRepaint(true);
 		frame.setSize((boardWidth + 2*padding), (boardHeight + 2*padding)+100);
-
+		frame.setTitle("Alfie Simulator");
+		frame.setVisible(true);
+		frame.setFocusable(true);
+		
+		
+		//Me messing with buttons, no need for them now
+		
+		/*reset = new Checkbox();
+		
+		reset.setLabel("Reset");
+		reset.setBounds(10, 30, 160, 25);
+		reset.setState(false);
+		frame.getContentPane().add(reset);
+		
+		runButton = new Button();
+		runButton.setLabel("click");
+		runButton.setBounds(42, 208, 100, 25);
+		frame.add(runButton);
+		runButton.setFocusable(false);
+		runButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				resetSimulation();
+				
+			}
+		});*/
+		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				running = false;
 				System.exit(0);
 			}
 			public void windowClosed(WindowEvent arg0) {
-	            	//System.exit(0);
+	            	
 	        }
 			public void windowOpened(WindowEvent arg0) {
             	actionThread.start();
@@ -222,7 +268,6 @@ public class SimulatorI implements ServerSkeleton {
 		});
 		
 
-		frame.setVisible(true);
 		frame.createBufferStrategy(2);
 		strategy = frame.getBufferStrategy();
 
@@ -234,8 +279,6 @@ public class SimulatorI implements ServerSkeleton {
 	private static void initSimulation() {
 		world.clear();
 		world.setGravity(0, 0);
-		
-		robot.setAngle(0);
 		
 
 		float newOppRobotStartX = oppRobot.getX();
@@ -329,9 +372,7 @@ public class SimulatorI implements ServerSkeleton {
 		rightGoalLine.setRestitution(1.0f);
 		world.add(rightGoalLine);
 
-		//This doesn't do anything ???
-		//ball.setGoalLines(leftGoalLine, rightGoalLine);
-		//ball.ignoreGoalLines();
+	
 
 		world.add(SimulatorI.robot.getBody());
 		world.add(oppRobot.getBody());
@@ -360,7 +401,9 @@ public class SimulatorI implements ServerSkeleton {
 	 */
 	public static void setControls()
 	{
+		frame.setFocusable(true);
 		frame.addKeyListener(new KeyListener(){
+			@Override
 			public void keyPressed(KeyEvent event) {
 				switch(event.getKeyCode()){
 					case KeyEvent.VK_ESCAPE :
@@ -373,10 +416,10 @@ public class SimulatorI implements ServerSkeleton {
 							oppRobot.moveBackwards(world, ball);
 							break;
 					case KeyEvent.VK_RIGHT:
-							oppRobot.turn(20);
+							oppRobot.turn(10);
 							break;
 					case KeyEvent.VK_LEFT:
-							oppRobot.turn(-20);					
+							oppRobot.turn(-10);					
 							break;
 					case KeyEvent.VK_R:
 							// Resetting Simulation
@@ -389,7 +432,7 @@ public class SimulatorI implements ServerSkeleton {
 				}
 
 			}
-			
+			@Override
 			public void keyReleased(KeyEvent event) {
 
 			}
@@ -445,41 +488,48 @@ public class SimulatorI implements ServerSkeleton {
 		
 	
 	@Override
-	public void sendStop() {
+	public synchronized void sendStop() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void sendGoForward(int speed, int distance) {
-		
+	public synchronized void  sendGoForward(int speed, int distance) {
 		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
 		robotState.setSpeedOfTravel(speed);
 		
 	}
 
 	@Override
-	public void sendGoBackwards(int speed, int distance) {
+	public synchronized void sendGoBackwards(int speed, int distance) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void sendKick(int power) {
+	public synchronized void sendKick(int power) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void sendSpinLeft(int speed, int angle) {
-		// TODO Auto-generated method stub
+	public synchronized void sendSpinLeft(int speed, int angle) {
+		robotState.setAngleOfRotation(angle);
+		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);
+		
+		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
+		robot.turn(angle);
 		
 	}
 
 	@Override
-	public void sendSpinRight(int speed, int angle) {
-		// TODO Auto-generated method stub
+	public synchronized void sendSpinRight(int speed, int angle) {
+		robotState.setAngleOfRotation(-angle);
+		robotState.setCurrentMovement(RobotState.Movement.SPIN_RIGHT);
+		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
+		robot.turn(-angle);
 		
 	}
+
 
 }

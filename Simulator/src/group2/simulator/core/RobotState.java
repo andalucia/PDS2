@@ -17,7 +17,7 @@ public class RobotState {
 			SPIN_LEFT
 		}
 			
-		private Movement currentMovement;	
+		private static Movement currentMovement;	
 		private double speedOfTravel;
 		private double angleOfRotation;
 		private int power;
@@ -25,11 +25,11 @@ public class RobotState {
 		public RobotState() {
 			currentMovement = Movement.DO_NOTHING;
 			speedOfTravel = 60;
-			angleOfRotation = 20;
+			angleOfRotation = 0;
 			power = 0;
 		}
 		
-		public Movement getCurrentMovement() {
+		public static Movement getCurrentMovement() {
 			return currentMovement;
 		}
 

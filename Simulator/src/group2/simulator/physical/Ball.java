@@ -1,6 +1,7 @@
 package group2.simulator.physical;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.util.Random;
 
 import net.phys2d.math.Vector2f;
@@ -22,7 +23,7 @@ public class Ball extends BoardObject {
 	private static int gateTopCordY = 193;
 	private static int gateDownCordY = 338;
 
-	
+	Point2D position;
 	
 	private float radius;
 	private float  dist;
@@ -51,6 +52,7 @@ public class Ball extends BoardObject {
 		dist = 4;
 		isBallKicked = false;
 		fixedAngle = 0;
+		
 		
 	}
 	
@@ -264,6 +266,13 @@ public class Ball extends BoardObject {
 			setFixedAngle(0);
 			dist = 4;
 		}
+	}
+
+
+	
+	public Point2D getPosition() {
+		Point2D.Float position = new Point2D.Float(this.getX(), this.getY());
+		return position;
 	}
 
 	

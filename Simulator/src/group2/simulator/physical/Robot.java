@@ -168,9 +168,9 @@ public class Robot extends BoardObject {
 	 */
 	public void turn(int value) {
 		if (value < 0) {
-			this.setAngle(this.getAngle() - 5);
+			this.setAngle(this.getAngle() - (-value));
 		} else if (value > 0) {
-			this.setAngle(this.getAngle() + 5);
+			this.setAngle(this.getAngle() + value);
 		}
 		// rotates the body
 		this.getBody().setRotation((float) Math.toRadians(getAngle()));
@@ -209,6 +209,15 @@ public class Robot extends BoardObject {
 		{
 		System.out.println("Too far away from the ball");
 		}
+	}
+	
+	public Point2D getPosition() {
+		Point2D.Float position = new Point2D.Float(this.getX(), this.getY());
+		return position;
+	}
+	
+	public double getFacingDirection(){
+		return this.getAngle();
 	}
 	
 	
