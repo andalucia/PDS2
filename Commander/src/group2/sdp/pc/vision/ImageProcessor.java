@@ -33,7 +33,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
-	private int blueDir, yellowDir;
+	private double blueDir, yellowDir;
 
 	// pitch2 colours
 	private static final int[] yellow2 = new int[] {230,200,7};
@@ -141,9 +141,18 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 
+		ArrayList <Point> bluePointsClean = noiseRemove(bluepoints, false);
+		ArrayList <Point> yellowPointsClean = noiseRemove(yellowpoints, true);
+
 		this.ballCentroid = calcCentroid(ball);
-		this.blueCentroid = calcCentroid(regression(image, noiseRemove(bluepoints, false), false));
-		this.yellowCentroid = calcCentroid(regression(image, noiseRemove(yellowpoints, true), true));
+		this.blueCentroid = calcCentroid(bluePointsClean);
+		this.yellowCentroid = calcCentroid(yellowPointsClean);
+
+		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
+		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
+
+		System.out.println("blue direction = " + blueDir);
+		System.out.println("yellow direction = " + yellowDir);
 
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
@@ -221,7 +230,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return fixels;
 	}
 
-	public ArrayList<Point> regression(BufferedImage image, ArrayList<Point> fixels, boolean isYellow){
+	public double regressionAndDirection(BufferedImage image, ArrayList<Point> fixels, boolean isYellow){
 
 		WritableRaster raster = image.getRaster();
 
@@ -303,9 +312,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				end_angle = 360 - mxy2_degrees;
 			}
 		}
-		System.out.println("direction = " + end_angle);
 
-		return fixels;
+		return end_angle;
 	}
 
 	/**
@@ -656,13 +664,13 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			pitchImageRectangle = pitchImageRectangle2;
 			pitchPhysicalRectangle = pitchPhysicalRectangle2;
 		}
-			double x = linearRemap(point.getX(), 
-					pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
-					pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
-			double y = linearRemap(point.getY(), 
-					pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
-					pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
-			p.setLocation(x, y);
+		double x = linearRemap(point.getX(), 
+				pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
+				pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
+		double y = linearRemap(point.getY(), 
+				pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
+				pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
+		p.setLocation(x, y);
 		return p;
 	}
 
