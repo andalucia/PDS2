@@ -9,6 +9,7 @@ import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
+import group2.sdp.pc.planner.commands.StopCommand;
 import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
 public class Planner extends PlannerSkeleton {
@@ -48,9 +49,12 @@ public class Planner extends PlannerSkeleton {
 		if( executor.getDistance(ball, Alfie) > 30){
 			ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
 			return reachDestination;
-		}else{
+		}else if(executor.getDistance(ball, Alfie) > 10) {
 			DribbleCommand dribble = new DribbleCommand(ball, Alfie, facing);
 			return dribble;
+		} else {
+			StopCommand stop = new StopCommand();
+			return stop;
 		}
 	}
 
