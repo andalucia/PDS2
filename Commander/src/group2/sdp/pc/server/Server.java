@@ -144,6 +144,8 @@ public class Server implements ServerSkeleton {
 	private void sendCandyPacket(CandyPacket packet, boolean verbose) {
 		//long start = System.currentTimeMillis();
 		
+		System.out.print("Trying to send packet");
+		
 		boolean success = false;
 		do {
 			try {

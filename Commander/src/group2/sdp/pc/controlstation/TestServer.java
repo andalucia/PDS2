@@ -7,15 +7,8 @@ public class TestServer {
 		Server s;
 		try {
 			s = new Server();
-			s.sendGoForward(10, 0);
-			
-			
-			Thread.sleep(1000);
+			s.sendGoForward(512, 0);
 
-			s.sendSpinLeft(10, 10);
-			
-			Thread.sleep(1000);
-			
 			s.sendStop();
 			s.sendReset();
 //			s.sendExit();

@@ -39,8 +39,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	//pitch1 colours
 	private static final int[] yellow1 = new int[] {173,180,129};
-	private static final int[] blue1 = new int[] {60,166,187};
-	private static final int[] ball1 = new int[] {253, 56, 25};
+	private static final int[] blue1 = new int[] {41,90,130};
+	private static final int[] ball1 = new int[] {199, 12, 15};
 
 	// pitch2 colours
 	private static final int[] yellow2 = new int[] {230,200,7};

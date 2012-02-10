@@ -31,6 +31,8 @@ public class ImageGrabber implements CaptureCallback {
 	
 	private ImageConsumer consumer;
 	
+	private int frame_counter = 0;
+	
 	public ImageGrabber(ImageConsumer consumer) {
 		this.consumer = consumer;
 		

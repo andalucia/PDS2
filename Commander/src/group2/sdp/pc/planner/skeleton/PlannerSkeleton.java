@@ -27,14 +27,16 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	@Override
 	public void consumeInfo(DynamicPitchInfo dpi) {
 		if (running) {
+			ComplexCommand command = planNextCommand(dpi);
 			boolean success = commandSuccessful(dpi);
 			boolean problem = problemExists(dpi);
 			if (success || problem) {
+				System.out.print("trying to execute");
 				// Wait for worker to finish. 
-				ComplexCommand command = planNextCommand(dpi);
-				assert(command != null);
-				currentCommand = command;
-				executor.execute(currentCommand);
+				if(command.getType() != ComplexCommand.Type.CONTINUE) { 
+					currentCommand = command;
+					executor.execute(currentCommand);
+				}
 			}
 		}
 	}

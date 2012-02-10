@@ -27,6 +27,7 @@ public class PlanExecutor {
 	/**
 	 * Default dribble speed
 	 */
+	private static final int MAX_SPEED = 50;
 	private static final int DRIBBLE_SPEED = 30;
 	
 	/**
@@ -142,6 +143,7 @@ public class PlanExecutor {
 	 * This function stops Alfi and makes him wait for the next instruction
 	 */
 	private void executeStopCommand(StopCommand currentCommand) {
+		System.out.println("executeStopCommand() called");
 		alfieServer.sendStop();
 	}
 		
