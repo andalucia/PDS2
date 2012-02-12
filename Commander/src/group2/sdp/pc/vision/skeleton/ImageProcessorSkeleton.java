@@ -77,7 +77,7 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		if (imageConsumer != null) {
 			imageConsumer.consume(internalImage);
 		}
-		//staticInfoConsumer.consumeInfo(spi);
+		staticInfoConsumer.consumeInfo(spi);
 	}
 
 	
