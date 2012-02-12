@@ -15,7 +15,7 @@ import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
 public class Planner extends PlannerSkeleton {
 
-	private boolean verbose;
+	private boolean verbose = true;
 	
 	/**
 	 * Constants for the command status
@@ -37,7 +37,6 @@ public class Planner extends PlannerSkeleton {
 	
 	public Planner(PlanExecutor executor) {
 		super(executor);
-		verbose = false;
 	}	
 	
 	@Override
@@ -70,7 +69,7 @@ public class Planner extends PlannerSkeleton {
 				System.err.println("GO!!!");
 				return reachDestination;
 			}
-		}else {
+		} else {
 			if(command_status != COMMAND_FINISHED) {
 				System.err.println("STOP!");
 				StopCommand stop = new StopCommand();
