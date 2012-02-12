@@ -34,11 +34,12 @@ public class Bakery extends BakerySkeleton {
 		int recent= ballHistoryInfos.size()-1;
 		double speed=0;
 		int numCalcs=0;
+		
 		//iterates through last (up to)5 positions and finds total of speeds 
 		//w.r.t most recent	frame
 		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets distance between points			
-			double distance=ballHistoryInfos.get(recent).getPosition().distance(ballHistoryInfos.get(i).getPosition());
+			double distance=Math.abs(ballHistoryInfos.get(recent).getPosition().distance(ballHistoryInfos.get(i).getPosition()));
 			//gets time difference 
 			double time= ballHistoryInfos.get(recent).getTimeStamp()-ballHistoryInfos.get(i).getTimeStamp();
 			//1000* converts milliseconds to seconds and calc speed in cm/s
@@ -54,6 +55,7 @@ public class Bakery extends BakerySkeleton {
 
 	
 	@Override
+	//remember algorithm calculates angle TO most recent point
 	protected double computeBallRollingDirection(
 			LinkedList<StaticBallInfo> ballHistoryInfos) {
 		//at beginning when no history angle cannot be calculated
@@ -64,9 +66,9 @@ public class Bakery extends BakerySkeleton {
 		double angle=0;
 		int numCalcs=0;
 		//iterates through last (up to)5 positions and finds total of angles 
-		//w.r.t most recent	frame
+		//to most recent frame
 		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
-			//gets difference in  y and x			
+			//gets difference in  y and x
 			double yDiff=ballHistoryInfos.get(recent).getPosition().getY()-ballHistoryInfos.get(i).getPosition().getY();
 			double xDiff=ballHistoryInfos.get(recent).getPosition().getX()-ballHistoryInfos.get(i).getPosition().getX();
 			//calculates angle and adds to total
@@ -95,7 +97,7 @@ public class Bakery extends BakerySkeleton {
 		//w.r.t most recent	frame
 		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets distance between points			
-			double distance=historyInfos.get(recent).getPosition().distance(historyInfos.get(i).getPosition());
+			double distance=Math.abs(historyInfos.get(recent).getPosition().distance(historyInfos.get(i).getPosition()));
 			//gets time difference 
 			double time=historyInfos.get(recent).getTimeStamp()-historyInfos.get(i).getTimeStamp();
 			//1000* converts milliseconds to seconds and calc speed in cm/s
@@ -119,7 +121,7 @@ public class Bakery extends BakerySkeleton {
 		double angle=0;
 		int numCalcs=0;
 		//iterates through last (up to)5 positions and finds total of angles 
-		//w.r.t most recent	frame
+		//to most recent frame
 		for(int i=recent-1; i>recent-5 && i>=0 ; i--){
 			//gets difference in  y and x			
 			double yDiff=historyInfos.get(recent).getPosition().getY()-historyInfos.get(i).getPosition().getY();

@@ -19,8 +19,7 @@ public class StaticBallInfo {
 	protected Point2D position;
 	
 	/**
-	 * The time at which Info was recorded . Units are milliseconds. Set automatically
-	 * in constructor and if position is updated
+	 * The time at which Info was recorded . Units are milliseconds. 
 	 */
 	protected long timeStamp;
 
@@ -29,11 +28,12 @@ public class StaticBallInfo {
 	 * A constructor that sets the position of the ball w.r.t. the centre of 
 	 * the pitch. Units are in cm.
 	 * @param position The position of the ball. Units are in cm.
+	 * @param timeStamp The time at which Info was recorded . Units are milliseconds.
 	 */
-	public StaticBallInfo(Point2D position) {
+	public StaticBallInfo(Point2D position, long timeStamp) {
 		super();
 		this.position = position;
-		this.timeStamp=System.currentTimeMillis();
+		this.timeStamp = timeStamp;
 	}
 
 	/**
@@ -42,7 +42,6 @@ public class StaticBallInfo {
 	 */
 	public void setPosition(Point2D position) {
 		this.position = position;
-		this.timeStamp=System.currentTimeMillis();
 	}
 	
 	/**

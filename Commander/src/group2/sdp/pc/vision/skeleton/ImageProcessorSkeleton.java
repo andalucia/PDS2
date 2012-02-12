@@ -57,16 +57,17 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	public void process (BufferedImage image) {
 		// Do processing here
 		
+		long time = System.currentTimeMillis();
 		Point2D ballPosition = extractBallPosition(image);
-		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition);
+		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition,time);
 		
 		Point2D alfiePosition = extractAlfiePosition(image);
 		double alfieFacingDirection = extractAlfieFacingDirection(image);
-		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true);
+		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true,time);
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
-		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);
+		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time);
 		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		//spi.printAllStaticInfo();

@@ -169,10 +169,10 @@ public class SimulatorI implements ServerSkeleton {
 		
 		PlanExecutor executor = new PlanExecutor(simulatoor);
 		PlannerSimulatorTest planner = new PlannerSimulatorTest(executor);
-		
-		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0);
-		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0);
+		long start = System.currentTimeMillis();
+		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
+		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
 		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
 		ComplexCommand command = planner.planNextCommand(dpi);
 		executor.execute(command);
