@@ -2,25 +2,18 @@ package group2.simulator.physical;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.util.Random;
 
 import net.phys2d.math.Vector2f;
 import net.phys2d.raw.Body;
 import net.phys2d.raw.shapes.Circle;
 
-
  
 public class Ball extends BoardObject {
-
 	
-	private static int scoreTimeCounter;
 
 	Point2D position;
-	
 	private float radius;
-	private float  dist;
-	private Boolean isBallKicked;
-	private double fixedAngle;
+
 	Body leftGoalLine;
 	Body rightGoalLine;
 	
@@ -40,10 +33,6 @@ public class Ball extends BoardObject {
 		this.body.setRestitution(0.8f);
 		this.body.setCanRest(true);
 		this.radius = radius;
-		scoreTimeCounter = 0;
-		dist = 4;
-		isBallKicked = false;
-		fixedAngle = 0;
 		
 		
 	}
@@ -84,22 +73,6 @@ public class Ball extends BoardObject {
 		this.body.removeExcludedBody(leftGoalLine);
 		this.body.removeExcludedBody(rightGoalLine);
 	}
-	
-	
-	
-
-	/**
-	 * Check is the ball has scored
-	 * @param scoreTimeCounter hold the number of frames of ball being in gates
-	 * @return true if the robot scored
-	 */
-	
-	
-	/**
-	 * It checks if it hits Vertical(left or right) wall. Needed for bouncing ball mechanism.
-	 * @return true if ball hits left or right wall and false if it hits upper or bottom wall
-	 */
-	
 	
 	
 	public Point2D getPosition() {

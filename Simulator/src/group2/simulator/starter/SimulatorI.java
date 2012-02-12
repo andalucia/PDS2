@@ -18,6 +18,7 @@ import group2.simulator.planner.TestingPlanner;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -77,6 +78,8 @@ public class SimulatorI implements ServerSkeleton {
 	private PlanExecutor executor;
 	private final Lock commandLock = new ReentrantLock();
 	
+	
+	private static Boolean isGoal;
 
 	/** The title of the simulation */
 	private String title;
@@ -218,6 +221,7 @@ public class SimulatorI implements ServerSkeleton {
 			for (int i=0;i<5;i++) {
 				world.step();
 			}
+			checkForGoal();
 			try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -298,13 +302,13 @@ public class SimulatorI implements ServerSkeleton {
 		float newRobotStartX = robot.getX();
 		float newRobotStartY = robot.getY();
 		
-		
+		isGoal = false;
 		
 		oppRobot.setPosition(newOppRobotStartX, newOppRobotStartY);
 		robot.setPosition(newRobotStartX, newRobotStartY);
 		ball.setPosition(ball.getX(), ballStartY);
 		
-
+		
 		
 		//ball.performKickedBallMovements();
 		//goalCheck();
@@ -462,6 +466,9 @@ public class SimulatorI implements ServerSkeleton {
 		oppRobot.setAngle(180);
 		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
+		robot.setPosition(padding + wallThickness, robotStartY);
+		ball.ignoreGoalLines();
+		ball.stop();
 		
 		
 	}
@@ -483,8 +490,27 @@ public class SimulatorI implements ServerSkeleton {
 		g.drawString("Ball bounces to wall and obstacles:", 450, boardHeight + 2*padding + 70);
 		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
 		
+		Font score = new Font("Book Antiqua", Font.BOLD, 40);
+		g.setFont(score);
+		g.drawString(robot.getScore()+ " : " + oppRobot.getScore(), 350, 65);
 		
 	
+	}
+	
+	public static void checkForGoal(){
+		if(isGoal == false)
+		{
+			if (ball.getX() < (padding)){
+				oppRobot.incrScore();
+				ball.stayInGoal();
+				isGoal = true;
+			}
+		else if ((ball.getX() > (padding + boardWidth))){
+			robot.incrScore();
+			ball.stayInGoal();
+			isGoal = true;
+			}
+		}
 	}
 		
 	
@@ -541,6 +567,8 @@ public class SimulatorI implements ServerSkeleton {
 		robot.turn(-angle);
 		commandLock.unlock();
 	}
+	
+	
 
 
 }
