@@ -5,29 +5,33 @@ import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.PlanExecutor;
-import group2.sdp.pc.planner.PlannerSimulatorTest;
 import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.planner.commands.ReachDestinationCommand;
+import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.core.RobotState;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.BoardObject;
 import group2.simulator.physical.Robot;
+import group2.simulator.planner.TestingPlanner;
 
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -68,13 +72,11 @@ public class SimulatorI implements ServerSkeleton {
 	private static Checkbox reset;
 	private static Button runButton;
 	private static volatile RobotState robotState;
-	static Thread actionThread = new Thread() {
-		public void run() {
-			
-			//System.out.println("Thread for simulator");
-		
-		}
-	};
+
+	private PlannerSkeleton planner;
+	private PlanExecutor executor;
+	private final Lock commandLock = new ReentrantLock();
+	
 
 	/** The title of the simulation */
 	private String title;
@@ -90,11 +92,10 @@ public class SimulatorI implements ServerSkeleton {
 	public static int goalPost1y = (boardHeight-goalWidth)/2 + padding - wallThickness/2;
 	public static int goalPost2y = (boardHeight+goalWidth)/2 + padding + wallThickness/2;
 
-	public static void main(String args []){
-			prepareSimulator(); // this function will create and start the simulator and create a planner executor for the simulator
-			initializeArea(); // this function will initialize the GUI frame, set controls for the keyboard
-							// and will initialise the world where the robots and the ball will "perform" 
-			
+	public static void main(String args []) {
+		prepareSimulator(); // this function will create and start the simulator and create a planner executor for the simulator
+		initializeArea(); // this function will initialize the GUI frame, set controls for the keyboard
+						// and will initialise the world where the robots and the ball will "perform" 
 	}
 
 	/**
@@ -105,19 +106,38 @@ public class SimulatorI implements ServerSkeleton {
 	 * @param oppRobot
 	 * @param ball
 	 */
-	public  SimulatorI( World world, Robot robot, Robot oppRobot, Ball ball) {
+	public SimulatorI(World world, Robot robot, Robot oppRobot, Ball ball) {
 		SimulatorI.world = world;
 		SimulatorI.robot = robot;
 		SimulatorI.oppRobot = oppRobot;
 		SimulatorI.ball = ball;
-		
+
 		SimulatorI.robotState = new RobotState();
+		
+		executor = new PlanExecutor(this);
+		
 		//System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
+		
+		Timer imageGrabberTimer = new Timer();
+		imageGrabberTimer.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				DynamicPitchInfo dpi = generateDynamicInfo();
+				executor.execute(
+					new ReachDestinationCommand(
+						dpi.getBallInfo().getPosition(), 
+						dpi.getAlfieInfo().getPosition(), 
+						dpi.getAlfieInfo().getFacingDirection()
+					)
+				);
+			}
+		}, 0, 100);
+		
+		Timer timeSimulatorTimer = new Timer();
+		timeSimulatorTimer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
-			  public synchronized void run() {
-			    //System.out.println("test-stuff updated every two seconds");
+			  public void run() {
+				//System.out.println(SimulatorI.robotState.getCurrentMovement());
 			    
 			    switch (SimulatorI.robotState.getCurrentMovement()) {
 				case DO_NOTHING:
@@ -138,13 +158,22 @@ public class SimulatorI implements ServerSkeleton {
 					break;
 				case SPIN_LEFT:
 					SimulatorI.robot.turn((int)SimulatorI.robotState.getAngleOfRotation());
-					System.out.println("!!!!angle caca to rotate is  " +(int)SimulatorI.robotState.getAngleOfRotation());
+					System.out.println("!!!to rotate is  " +(int)SimulatorI.robotState.getAngleOfRotation());
 					break;
 				}
 			  }
 			}, 0, 100);
 		
 		
+	}
+	
+	private DynamicPitchInfo generateDynamicInfo() {
+		long start = System.currentTimeMillis();
+		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
+		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
+		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
+		return dpi;
 	}
 
 	/**
@@ -161,29 +190,10 @@ public class SimulatorI implements ServerSkeleton {
 		int newBallStartX = ballStartX;
 
 	
-		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY-60 , 70, 50, Color.BLUE, blueImage, -190),
+		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY , 70, 50, Color.BLUE, blueImage, 0),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY+30, 10, Color.RED, 15));
 		System.out.println("simulator created");
-		
-		
-		PlanExecutor executor = new PlanExecutor(simulatoor);
-		PlannerSimulatorTest planner = new PlannerSimulatorTest(executor);
-		long start = System.currentTimeMillis();
-		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
-		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
-		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);ComplexCommand command = planner.planNextCommand(dpi);
-		executor.execute(command);
-		
-		//executor.execute2(currentCommand.REACH_DESTINATION);
-		
-		
-		// TO BE IMPLEMENTED!!!
-		//Planner planner = new Planner(executor);
-		//Bakery bakery = new Bakery(planner);
-		//new SimulatorDoughProvider(bakery); 
-		
 	}
 
 	/**
@@ -264,7 +274,6 @@ public class SimulatorI implements ServerSkeleton {
 	            	
 	        }
 			public void windowOpened(WindowEvent arg0) {
-            	actionThread.start();
             	
             }
 		});
@@ -480,17 +489,19 @@ public class SimulatorI implements ServerSkeleton {
 		
 	
 	@Override
-	public synchronized void sendStop() {
+	public void sendStop() {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public synchronized void  sendGoForward(int speed, int distance) {
+	public void sendGoForward(int speed, int distance) {
+		while (!commandLock.tryLock());
+		
 		speed = convertSpeed(speed);
 		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
 		robotState.setSpeedOfTravel(speed);
-		
+		commandLock.unlock();
 	}
 
 	private int convertSpeed(int speed) {
@@ -498,34 +509,37 @@ public class SimulatorI implements ServerSkeleton {
 	}
 
 	@Override
-	public synchronized void sendGoBackwards(int speed, int distance) {
+	public void sendGoBackwards(int speed, int distance) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public synchronized void sendKick(int power) {
+	public void sendKick(int power) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public synchronized void sendSpinLeft(int speed, int angle) {
+	public void sendSpinLeft(int speed, int angle) {
+		while (!commandLock.tryLock());
 		robotState.setAngleOfRotation(angle);
 		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);
 		
-		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
+//		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
 		robot.turn(angle);
-		
+		commandLock.unlock();
 	}
 
 	@Override
-	public synchronized void sendSpinRight(int speed, int angle) {
+	public void sendSpinRight(int speed, int angle) {
+		while (!commandLock.tryLock());
+		
 		robotState.setAngleOfRotation(-angle);
 		robotState.setCurrentMovement(RobotState.Movement.SPIN_RIGHT);
-		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
+//		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
 		robot.turn(-angle);
-		
+		commandLock.unlock();
 	}
 
 

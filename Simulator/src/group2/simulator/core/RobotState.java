@@ -29,7 +29,7 @@ public class RobotState {
 			power = 0;
 		}
 		
-		public static Movement getCurrentMovement() {
+		public Movement getCurrentMovement() {
 			return currentMovement;
 		}
 

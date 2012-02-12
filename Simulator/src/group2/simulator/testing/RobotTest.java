@@ -63,7 +63,7 @@ public class RobotTest {
 		//computing the robot x-position as in moving forward
 		float expected_x = (robot.getX() + (speed*mult * (float) Math.cos(Math.toRadians(robot.getAngle()))));
 		// move the robot forward
-		robot.moveForward(world, ball);
+		robot.moveForwards(world, ball.getBody());
 		float actual_x = robot.getX();
 		assertTrue(actual_x==expected_x);
 		
@@ -77,7 +77,7 @@ public class RobotTest {
 		//computing the robot x-position as in moving forward
 		float expected_x = (robot.getX() + (speed*mult * (float) Math.cos(Math.toRadians(robot.getAngle()))));
 		// move the robot backward
-		robot.moveBackwards(world, ball);
+		robot.moveBackward(world, ball.getBody());
 		float actual_x = robot.getX();
 		assertTrue(actual_x==expected_x);
 		
