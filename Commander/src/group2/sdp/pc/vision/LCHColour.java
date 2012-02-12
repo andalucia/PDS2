@@ -23,7 +23,7 @@ public class LCHColour {
 	/**
 	 * Luma levels above this one are considered high.
 	 */
-	private final int HIGH_LUMA_THRESHOLD = 80;
+	private final int HIGH_LUMA_THRESHOLD = 90;
 	/**
 	 * Luma levels below this one are considered low.
 	 */
@@ -33,7 +33,7 @@ public class LCHColour {
 	/**
 	 * Lower boundary of the green hue.
 	 */
-	private final int GREEN_HUE_START = 90;
+	private final int GREEN_HUE_START = 80;
 	/**
 	 * Upper boundary of the green hue.
 	 */
@@ -66,7 +66,7 @@ public class LCHColour {
 	/**
 	 * Upper boundary of the yellow hue.
 	 */
-	private final int YELLOW_HUE_END = 90;
+	private final int YELLOW_HUE_END = 80;
 
 	
 	/**
