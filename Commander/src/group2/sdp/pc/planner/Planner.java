@@ -63,10 +63,11 @@ public class Planner extends PlannerSkeleton {
 		//System.out.print("the angle were are being told we are facing is : " + facing  + "\n");
 		
 		System.out.println(Alfie.distance(ball));
-		if( Alfie.distance(ball) > 100){
+		if( Alfie.distance(ball) > 30){
 			if(command_status != COMMAND_RUNNING){
 				ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
 				command_status = COMMAND_RUNNING;
+				System.err.println("GO!!!");
 				return reachDestination;
 			}
 		}else {

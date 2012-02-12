@@ -92,6 +92,9 @@ public class PlanExecutor {
 		}
 		
 		// Calculate the angle required to face the ball
+		if(VERBOSE){
+			System.out.println("we are facing at an angle of: " + facing);
+		}
 		int angleToTurn = (int) getAngleToTarget(target, Alfie, facing);
 		
 		// angleToTurn is always given as the anti-clockwise angle needed, if the angle is above 180
@@ -104,11 +107,11 @@ public class PlanExecutor {
 				System.out.print("Alfie must turn Right at angle of : " + angleToTurn  + "\n");
 			}
 			
-			alfieServer.sendSpinRight(512, angleToTurn);
+			alfieServer.sendSpinRight(MAX_SPEED, angleToTurn);
 			
 		} else {
 			
-			alfieServer.sendSpinLeft(512, angleToTurn);
+			alfieServer.sendSpinLeft(MAX_SPEED, angleToTurn);
 			
 			if(VERBOSE) {
 				System.out.print("Alfie must turn left at angle of : " + angleToTurn  + "\n");
@@ -116,7 +119,10 @@ public class PlanExecutor {
 		}
 		
 		// After we've turned start moving forward until we're at the ball		
-		alfieServer.sendGoForward(512, 0);
+		if(VERBOSE){
+			System.out.println("executeGoForward() called");
+		}
+		alfieServer.sendGoForward(MAX_SPEED, distance-10);
 				
 	}
 	
@@ -136,7 +142,7 @@ public class PlanExecutor {
 	 * @param currentCommand Contains absolutely no useful information at all
 	 */	
 	private void executeKickCommand(KickCommand currentCommand) {
-		alfieServer.sendKick(512);
+		alfieServer.sendKick(MAX_SPEED);
 	}
 	
 	/**
@@ -175,14 +181,16 @@ public class PlanExecutor {
 		 */
 		double angle = Math.toDegrees(Math.atan2(diffInY, diffInX));
 		
+		if(VERBOSE) {
+			System.out.print("the angle from the zero position to the ball is : " + angle  + "\n");
+		}
+		
 		if(angle < 0){
 			angle = 360 + angle;
 		}
 		angle = angle - facing;
 		
-		if(VERBOSE) {
-			System.out.print("the angle from the zero position to the ball is : " + angle  + "\n");
-		}
+		
 		
 		return angle;
 		

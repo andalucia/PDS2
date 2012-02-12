@@ -31,9 +31,9 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 			boolean success = commandSuccessful(dpi);
 			boolean problem = problemExists(dpi);
 			if (success || problem) {
-				System.out.print("trying to execute");
+				System.out.println("trying to execute");
 				// Wait for worker to finish. 
-				if(command.getType() != ComplexCommand.Type.CONTINUE) { 
+				if(command.getType() != ComplexCommand.Type.CONTINUE){
 					currentCommand = command;
 					executor.execute(currentCommand);
 				}
