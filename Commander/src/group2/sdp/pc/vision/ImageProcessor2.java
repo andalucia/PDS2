@@ -80,7 +80,6 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	@Override
 	public void process(BufferedImage image) {
 		if (extractBackground) {
-			System.out.println("asd");
 			if (!saveBackground) {
 				backgroundImage = loadBackgroundImage();
 				if (backgroundImage == null) {
@@ -99,7 +98,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 		} else {
 			newPixels = getDifferentPixels(image);
 			internalImage = drawPixels(image, newPixels);
-			super.process(image);			
+			super.process(image);
 		}
 	}
 
@@ -192,7 +191,8 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 		BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
-			ColourClass cc = new LCHColour(c).getColourClass();
+			LCHColour lch = new LCHColour(c);
+			ColourClass cc = lch.getColourClass();
 			
 			Color dc = null;
 			switch (cc) {
@@ -219,6 +219,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 				dc = Color.CYAN;
 				break;
 			}
+			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
 			result.setRGB(p.x, p.y, dc.getRGB());
 		}
 		return result;

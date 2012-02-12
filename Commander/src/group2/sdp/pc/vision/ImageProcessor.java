@@ -1,6 +1,5 @@
 package group2.sdp.pc.vision;
 
-import group2.sdp.common.util.KeyValuePair;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
@@ -18,8 +17,6 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ImageProcessor extends ImageProcessorSkeleton {
 
