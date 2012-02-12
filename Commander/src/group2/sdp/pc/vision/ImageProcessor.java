@@ -32,15 +32,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int[] Coral = new int[] {255, 127, 80};
 
 	//values to return
-	private Point blueCentroid, yellowCentroid, ballCentroid;
+	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 
-	private final static boolean pitchOne = true;
+	private final static boolean pitchOne = false;
 
 	//pitch1 colours
-	private static final int[] yellow1 = new int[] {173,180,129};
-	private static final int[] blue1 = new int[] {41,90,130};
-	private static final int[] ball1 = new int[] {199, 12, 15};
+	private static final int[] yellow1 = new int[] {125,129,73};
+	private static final int[] blue1 = new int[] {39,107,127};
+	private static final int[] ball1 = new int[] {185,15,2};
+
 
 	// pitch2 colours
 	private static final int[] yellow2 = new int[] {230,200,7};
@@ -121,7 +122,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		ArrayList<Point> bluepoints = new ArrayList<Point>();
 		ArrayList<Point> ball = new ArrayList<Point>();
 
-		ArrayList<Point> testGreen= new ArrayList<Point>();
+		ArrayList<Point> plate= new ArrayList<Point>();
 
 		// for every point on the image
 		for (int x = width_margin; x < image.getWidth() - width_margin; x++) {
@@ -139,8 +140,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					bluepoints.add(currentPoint);
 				}
 				if (isGreen(colour)) {
-					testGreen.add(currentPoint);
-					drawPixel(raster, currentPoint, pureRed);
+					plate.add(currentPoint);
 				}
 				if (isBall(colour, pitchOne)){
 					ball.add(currentPoint);
@@ -149,47 +149,36 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 
+		ArrayList<Point> GreenPlateYellowRobot = new ArrayList<Point>();
 		ArrayList <Point> bluePointsClean = noiseRemove(bluepoints, false);
 		ArrayList <Point> yellowPointsClean = noiseRemove(yellowpoints, true);
-		Point yellowPointsCleanCentroid = calcCentroid(yellowPointsClean);
-		//		ArrayList<Point> mindFucked = mindFuck(image, yellowPointsCleanCentroid, true);
-
 
 		for (int i = 0; i < bluePointsClean.size();i++) {
 			drawPixel(raster,bluePointsClean.get(i),pureBlue);
 		}
-		//		for (int i = 0; i < mindFucked.size();i++) {
-		//			drawPixel(raster,mindFucked.get(i),pureYellow);
-		//		}
-
+		
 		this.ballCentroid = calcCentroid(ball);
 		this.blueCentroid = calcCentroid(bluePointsClean);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
-		int green_for_yellow_x = 0;
-		int green_for_yellow_y = 0;
-		int count = 0;
-		for(int i = 0;i<testGreen.size();i++){
 
-			if(calcDistanceBetweenPoints(blueCentroid,testGreen.get(i))>50){
-				green_for_yellow_x+=testGreen.get(i).x;
-				green_for_yellow_y+=testGreen.get(i).y;
-				count++;
+		for(int i = 0;i<plate.size();i++){
+			if(calcDistanceBetweenPoints(blueCentroid,plate.get(i))>50){
+				GreenPlateYellowRobot.add(plate.get(i));
 			}
 
 		}
+		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
 
-
+		ArrayList<Point> mindFucked = mindFuck(image, plateCentroidYellowRobot, true);
 
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
-		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
+		this.yellowDir = regressionAndDirection(image, mindFucked, true);
 
 		drawCross(raster,blueCentroid,Coral);
 		drawCross(raster,yellowCentroid,Aqua);
 		drawCross(raster,ballCentroid,pureRed);
-		if (count != 0) {
-			drawCross(raster,new Point(green_for_yellow_x/count,green_for_yellow_y/count),pureBlue);
-			System.out.println(green_for_yellow_x/count+" "+green_for_yellow_y/count);
-		}
+		drawCross(raster,plateCentroidYellowRobot,new int[]{145, 145, 115});
+
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -212,20 +201,36 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return colour;
 	}
 
+	ArrayList<Point> checked = new ArrayList<Point>();
 	public ArrayList<Point> mindFuck(BufferedImage image, Point fixel, boolean isYellow){
 
 		ArrayList<Point> fixels = new ArrayList<Point>();
-
 		int[] colour = getColour(image, fixel);
 
-		if (isYellow(colour, pitchOne)){
-			fixels.addAll(mindFuck(image, new Point(fixel.x+1, fixel.y),isYellow));
-			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y+1),isYellow));
-			fixels.addAll(mindFuck(image, new Point(fixel.x-1, fixel.y),isYellow));
-			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y-1),isYellow));
-
+		if (fixel.x > 0 && fixel.x < image.getWidth() && fixel.y > 0 && fixel.y < image.getHeight()){
+			if (isYellow(colour, pitchOne)){
+				checked.add(fixel);
+				if (!checked.contains(new Point(fixel.x+1, fixel.y))){
+					fixels.addAll(mindFuck(image, new Point(fixel.x+1, fixel.y),isYellow));
+					checked.add(new Point(fixel.x+1, fixel.y));
+				}
+				if (!checked.contains(new Point(fixel.x, fixel.y+1))){
+					fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y+1),isYellow));
+					checked.add(new Point(fixel.x, fixel.y+1));
+				}
+				if (!checked.contains(new Point(fixel.x-1, fixel.y))){
+					fixels.addAll(mindFuck(image, new Point(fixel.x-1, fixel.y),isYellow));
+					checked.add(new Point(fixel.x-1, fixel.y));
+				}
+				if (!checked.contains(new Point(fixel.x, fixel.y-1))){
+					fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y-1),isYellow));
+					checked.add(new Point(fixel.x, fixel.y-1));
+				}
+	
+			}
 		}
-		System.out.println(fixels.size());
+		else System.out.println("not in range");
+		//if (fixels.size() == 0){System.out.println("sick of you");}
 		return fixels;
 	}
 
@@ -292,6 +297,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		double allx_sqr = 0;
 		double ally_sqr = 0;
 		int n = fixels.size();
+		double allx_45 = 0;
+		double ally_45 = 0;
+		double allxy_45 = 0;
+		double allx_45_sqr = 0;
+		double ally_45_sqr = 0;
+		
 		Point fixelsCentroid = calcCentroid(fixels);
 
 		for (int i = 0; i < fixels.size(); i++) {
@@ -300,9 +311,30 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			allxy += fixels.get(i).x * fixels.get(i).y;
 			allx_sqr += fixels.get(i).x * fixels.get(i).x;
 			ally_sqr += fixels.get(i).y * fixels.get(i).y;
+			
+			int x_for_rotate = fixels.get(i).x - blueCentroid.x;
+			int y_for_rotate = fixels.get(i).y - blueCentroid.y;
+
+			double x_rotated = y_for_rotate * Math.sin(Math.toRadians(45))
+					- x_for_rotate * Math.cos(Math.toRadians(45));
+			double y_rotated = x_for_rotate * Math.sin(Math.toRadians(45))
+					+ y_for_rotate * Math.cos(Math.toRadians(45));
+
+			x_rotated = x_rotated + blueCentroid.x;
+			y_rotated = y_rotated + blueCentroid.y;
+
+			allx_45 += x_rotated;
+			ally_45 += y_rotated;
+
+			allxy_45 += x_rotated * y_rotated;
+
+			allx_45_sqr += x_rotated * x_rotated;
+			ally_45_sqr += y_rotated * y_rotated;
 
 		}
 
+		
+		
 		double mx = regression(allx, ally, n, allxy, allx_sqr);
 		double my = regression(ally, allx, n, allxy, ally_sqr);
 
