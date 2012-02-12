@@ -122,7 +122,7 @@ public class PlanExecutor {
 		if(VERBOSE){
 			System.out.println("executeGoForward() called");
 		}
-		alfieServer.sendGoForward(MAX_SPEED, distance-10);
+		alfieServer.sendGoForward(MAX_SPEED, distance/2);
 	}
 	
 	/**
@@ -133,6 +133,7 @@ public class PlanExecutor {
 	 */	
 	private void executeDribbleCommand(DribbleCommand currentCommand) {
 		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
+		alfieServer.sendStop();
 	}
 	
 	/**

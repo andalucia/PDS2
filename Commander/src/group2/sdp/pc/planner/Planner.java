@@ -16,6 +16,7 @@ import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 public class Planner extends PlannerSkeleton {
 
 	private boolean verbose = true;
+	public boolean dribbling = false;	
 	
 	/**
 	 * Constants for the command status
@@ -63,14 +64,24 @@ public class Planner extends PlannerSkeleton {
 		
 		System.out.println(Alfie.distance(ball));
 		if( Alfie.distance(ball) > 30){
-			if(command_status != COMMAND_RUNNING){
-				ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
-				command_status = COMMAND_RUNNING;
-				System.err.println("GO!!!");
-				return reachDestination;
+			if(!dribbling){
+				if(command_status != COMMAND_RUNNING){
+					ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
+					command_status = COMMAND_RUNNING;
+					System.err.println("GO!!!");
+					return reachDestination;
+				}
+			
 			}
 		} else {
 			if(command_status != COMMAND_FINISHED) {
+				if(dribbling){
+					System.err.println("DRIBBLE");
+					DribbleCommand dribble = new DribbleCommand(ball, Alfie, facing);
+					command_status = COMMAND_FINISHED;
+					this.dribbling = false;
+					return dribble;
+				}
 				System.err.println("STOP!");
 				StopCommand stop = new StopCommand();
 				command_status = COMMAND_FINISHED;
