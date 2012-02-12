@@ -233,7 +233,7 @@ public class SimulatorI implements ServerSkeleton {
 		
 		//Me messing with buttons, no need for them now
 		
-		/*reset = new Checkbox();
+		reset = new Checkbox();
 		
 		reset.setLabel("Reset");
 		reset.setBounds(10, 30, 160, 25);
@@ -252,7 +252,8 @@ public class SimulatorI implements ServerSkeleton {
 				resetSimulation();
 				
 			}
-		});*/
+		});
+		
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
