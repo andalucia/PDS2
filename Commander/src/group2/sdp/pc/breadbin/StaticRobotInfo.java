@@ -21,8 +21,7 @@ public class StaticRobotInfo {
 	protected Point2D position;
 	
 	/**
-	 * The time at which Info was recorded . Units are milliseconds. Set automatically
-	 * in constructor
+	 * The time at which Info was recorded . Units are milliseconds.
 	 */
 	protected long timeStamp;
 	
@@ -45,12 +44,13 @@ public class StaticRobotInfo {
 	 * @param position The position of the robot w.r.t. the centre of the pitch. Units are in cm.
 	 * @param facingDirection The direction at which the T shape on top of the robot is pointing.
 	 * @param alfie Indicates if the robot is Alfie or his opponent.
+	 * @param timeStamp The time at which Info was recorded . Units are milliseconds.
 	 */
-	public StaticRobotInfo(Point2D position, double facingDirection, boolean alfie) {
+	public StaticRobotInfo(Point2D position, double facingDirection, boolean alfie, long timeStamp) {
 		this.position = position;
 		this.facingDirection = facingDirection;
 		this.alfie = alfie;
-		this.timeStamp=System.currentTimeMillis();
+		this.timeStamp=timeStamp;
 	}
 
 	/**

@@ -3,9 +3,11 @@ package group2.sdp.pc.planner.commands;
 public interface ComplexCommand {
 	
 	public enum Type {
+		CONTINUE,
 		REACH_DESTINATION,
 		KICK,
-		DRIBBLE
+		DRIBBLE,
+		STOP
 		// ADD OTHERS
 	}
 	

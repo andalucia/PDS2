@@ -72,7 +72,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		double rollingSpeed = computeBallRollingSpeed(staticInfoHistory.getBallInfos());
 		double rollingDirection = computeBallRollingDirection(staticInfoHistory.getBallInfos());
 		DynamicBallInfo ballInfo = new DynamicBallInfo(spi.getBallInfo().getPosition(), 
-				rollingSpeed, rollingDirection);
+				rollingSpeed, rollingDirection,spi.getBallInfo().getTimeStamp());
 		
 		double alfieTravelSpeed = computeAlfieTravelSpeed();
 		double alfieTravelDirection = computeAlfieTravelDirection();

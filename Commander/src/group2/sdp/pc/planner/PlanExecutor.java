@@ -1,15 +1,14 @@
 
 package group2.sdp.pc.planner;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.server.Server;
+import group2.sdp.pc.planner.commands.StopCommand;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
+
+import java.awt.geom.Point2D;
 
 /**
  * Takes a command from the planner and executes it. This class is responsible for sending the "physical"
@@ -28,12 +27,13 @@ public class PlanExecutor {
 	/**
 	 * Default dribble speed
 	 */
+	private static final int MAX_SPEED = 50;
 	private static final int DRIBBLE_SPEED = 30;
 	
 	/**
 	 * Sets verbose mode on or off, for debugging
 	 */
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 	
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfi or the simulator, make sure
@@ -62,6 +62,8 @@ public class PlanExecutor {
 		case KICK:
 			executeKickCommand((KickCommand)currentCommand);
 			break;
+		case STOP:
+			executeStopCommand((StopCommand)currentCommand);
 		// ADD OTHERS
 		}
 	}
@@ -90,6 +92,9 @@ public class PlanExecutor {
 		}
 		
 		// Calculate the angle required to face the ball
+		if(VERBOSE){
+			System.out.println("we are facing at an angle of: " + facing);
+		}
 		int angleToTurn = (int) getAngleToTarget(target, Alfie, facing);
 		
 		// angleToTurn is always given as the anti-clockwise angle needed, if the angle is above 180
@@ -99,23 +104,25 @@ public class PlanExecutor {
 			angleToTurn =  360 - angleToTurn;
 			
 			if(VERBOSE) {
-				System.out.print("Alie must turn Right at angle of : " + angleToTurn  + "\n");
+				System.out.print("Alfie must turn Right at angle of : " + angleToTurn  + "\n");
 			}
 			
-			alfieServer.sendSpinRight(512, angleToTurn);
+			alfieServer.sendSpinRight(MAX_SPEED, angleToTurn);
 			
 		} else {
 			
-			alfieServer.sendSpinLeft(512, angleToTurn);
+			alfieServer.sendSpinLeft(MAX_SPEED, angleToTurn);
 			
 			if(VERBOSE) {
-				System.out.print("Alie must turn left at angle of : " + angleToTurn  + "\n");
+				System.out.print("Alfie must turn left at angle of : " + angleToTurn  + "\n");
 			}
 		}
 		
 		// After we've turned start moving forward until we're at the ball		
-		alfieServer.sendGoForward(512, distance);
-				
+		if(VERBOSE){
+			System.out.println("executeGoForward() called");
+		}
+		alfieServer.sendGoForward(MAX_SPEED, distance-10);
 	}
 	
 	/**
@@ -134,7 +141,15 @@ public class PlanExecutor {
 	 * @param currentCommand Contains absolutely no useful information at all
 	 */	
 	private void executeKickCommand(KickCommand currentCommand) {
-		alfieServer.sendKick(512);
+		alfieServer.sendKick(MAX_SPEED);
+	}
+	
+	/**
+	 * This function stops Alfi and makes him wait for the next instruction
+	 */
+	private void executeStopCommand(StopCommand currentCommand) {
+		System.out.println("executeStopCommand() called");
+		alfieServer.sendStop();
 	}
 		
 	/**
@@ -153,7 +168,8 @@ public class PlanExecutor {
 		double diffInY = (target.getY() - alfie.getY() );
 		
 		if(VERBOSE) {
-			System.out.print("the distance from Alfi to the ball is : X " + diffInX + " Y " + diffInY  + "\n");
+			System.out.print(
+					"the distance from Alfie to the ball is : X " + diffInX + " Y " + diffInY  + "\n");
 		}
 		
 		/*
@@ -164,14 +180,16 @@ public class PlanExecutor {
 		 */
 		double angle = Math.toDegrees(Math.atan2(diffInY, diffInX));
 		
+		if(VERBOSE) {
+			System.out.print("the angle from the zero position to the ball is : " + angle  + "\n");
+		}
+		
 		if(angle < 0){
 			angle = 360 + angle;
 		}
 		angle = angle - facing;
 		
-		if(VERBOSE) {
-			System.out.print("the angle from the zero position to the ball is : " + angle  + "\n");
-		}
+		
 		
 		return angle;
 		

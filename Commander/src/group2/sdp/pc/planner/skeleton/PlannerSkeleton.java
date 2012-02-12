@@ -1,5 +1,7 @@
 package group2.sdp.pc.planner.skeleton;
 
+import java.awt.geom.Rectangle2D;
+
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.planner.PlanExecutor;
 import group2.sdp.pc.planner.commands.ComplexCommand;
@@ -12,6 +14,8 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	protected PlanExecutor executor;
 	private ComplexCommand currentCommand;
 	
+	protected static final float[] PITCH_BOUNDARIES = new float[]{-122, -60.5f, 244, 121};
+	
 	public PlannerSkeleton(PlanExecutor executor) {
 		this.executor = executor;
 	}
@@ -23,14 +27,16 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	@Override
 	public void consumeInfo(DynamicPitchInfo dpi) {
 		if (running) {
+			ComplexCommand command = planNextCommand(dpi);
 			boolean success = commandSuccessful(dpi);
 			boolean problem = problemExists(dpi);
 			if (success || problem) {
+				System.out.println("trying to execute");
 				// Wait for worker to finish. 
-				ComplexCommand command = planNextCommand(dpi);
-				assert(command != null);
-				currentCommand = command;
-				executor.execute(currentCommand);
+				if(command.getType() != ComplexCommand.Type.CONTINUE){
+					currentCommand = command;
+					executor.execute(currentCommand);
+				}
 			}
 		}
 	}
@@ -43,8 +49,8 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	 */
 	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
 		if (currentCommand == null)
-			return true;
-		return false;
+			return false;
+		return true	;
 	}
 	
 	/**

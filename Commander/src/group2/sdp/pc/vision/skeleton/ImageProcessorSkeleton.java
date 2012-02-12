@@ -18,7 +18,7 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	private StaticInfoConsumer staticInfoConsumer;
 	
 	private ImageConsumer imageConsumer;
-	private BufferedImage internalImage;
+	protected BufferedImage internalImage;
 	
 	
 	/**
@@ -39,8 +39,13 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		this.imageConsumer = imageConsumer;
 	}
 	
+	/**
+	 * See parent's comment.
+	 * Note: If you want to override this, then you want to override process.
+	 */
 	@Override
-	public void consume (BufferedImage image) {
+	public final void consume (BufferedImage image) {
+		internalImage = null;
 		process(image);
 	}
 	
@@ -50,27 +55,32 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * @param image The image to process.
 	 */
 	public void process (BufferedImage image) {
-		internalImage = image;
 		// Do processing here
 		
+		long time = System.currentTimeMillis();
 		Point2D ballPosition = extractBallPosition(image);
-		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition);
+		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition,time);
 		
 		Point2D alfiePosition = extractAlfiePosition(image);
 		double alfieFacingDirection = extractAlfieFacingDirection(image);
-		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true);
+		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true,time);
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
-		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);
+		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time);
 		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
-		spi.printAllStaticInfo();
+		//spi.printAllStaticInfo();
 		
+		if (internalImage == null) {
+			internalImage = image;
+		}
 		if (imageConsumer != null) {
 			imageConsumer.consume(internalImage);
 		}
-		staticInfoConsumer.consumeInfo(spi);
+		if (staticInfoConsumer != null) {
+			staticInfoConsumer.consumeInfo(spi);
+		}
 	}
 
 	

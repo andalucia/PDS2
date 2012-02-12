@@ -1,12 +1,23 @@
 package group2.simulator.starter;
 
+import group2.sdp.common.util.Tools;
+import group2.sdp.pc.breadbin.DynamicBallInfo;
+import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.planner.PlanExecutor;
+import group2.sdp.pc.planner.PlannerSimulatorTest;
+import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.server.skeleton.ServerSkeleton;
+import group2.simulator.core.RobotState;
+import group2.simulator.physical.Ball;
+import group2.simulator.physical.BoardObject;
+import group2.simulator.physical.Robot;
+
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -27,19 +38,6 @@ import net.phys2d.raw.StaticBody;
 import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.planner.PlanExecutorSimulatorTest;
-import group2.sdp.pc.planner.PlannerSimulatorTest;
-import group2.sdp.pc.planner.commands.ComplexCommand;
-import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
-import group2.simulator.core.RobotState;
-import group2.simulator.core.Simulator;
-import group2.simulator.physical.Ball;
-import group2.simulator.physical.BoardObject;
-import group2.simulator.physical.Robot;
 
 
 public class SimulatorI implements ServerSkeleton {
@@ -163,18 +161,18 @@ public class SimulatorI implements ServerSkeleton {
 		int newBallStartX = ballStartX;
 
 	
-		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY, 70, 50, Color.BLUE, blueImage, -190),
+		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY-60 , 70, 50, Color.BLUE, blueImage, -190),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
 				new Ball(newBallStartX, ballStartY+30, 10, Color.RED, 15));
 		System.out.println("simulator created");
 		
 		
-		PlanExecutorSimulatorTest executor = new PlanExecutorSimulatorTest(simulatoor);
+		PlanExecutor executor = new PlanExecutor(simulatoor);
 		PlannerSimulatorTest planner = new PlannerSimulatorTest(executor);
-		
-		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0);
-		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0);
+		long start = System.currentTimeMillis();
+		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
+		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
 		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
 		ComplexCommand command = planner.planNextCommand(dpi);
 		executor.execute(command);
@@ -497,9 +495,14 @@ public class SimulatorI implements ServerSkeleton {
 
 	@Override
 	public synchronized void  sendGoForward(int speed, int distance) {
+		speed = convertSpeed(speed);
 		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
 		robotState.setSpeedOfTravel(speed);
 		
+	}
+
+	private int convertSpeed(int speed) {
+		return Tools.sanitizeInput(speed, 0, 54);
 	}
 
 	@Override

@@ -6,20 +6,38 @@ import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.commands.ComplexCommand;
+import group2.sdp.pc.planner.commands.ContinueCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
+import group2.sdp.pc.planner.commands.KickCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
+import group2.sdp.pc.planner.commands.StopCommand;
 import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
 public class Planner extends PlannerSkeleton {
 
-	private boolean verbose;
+	private boolean verbose = true;
+	
+	/**
+	 * Constants for the command status
+	 */
+	private static final int COMMAND_STARTING = 0;
+	private static final int COMMAND_RUNNING = 1;
+	private static final int COMMAND_FINISHING = 2;
+	private static final int COMMAND_FINISHED = 3;
+	private static final int COMMAND_PROBLEM = 4;
+	private static final int COMMAND_STOPPED = 5;
+	
+	/**
+	 * Store the status of the most recent command
+	 */
+	private int command_status = COMMAND_STARTING;
+	
+	private boolean started = false;
+	
 	
 	public Planner(PlanExecutor executor) {
 		super(executor);
-		verbose = true;
-	}
-
-	
+	}	
 	
 	@Override
 	/**
@@ -43,34 +61,45 @@ public class Planner extends PlannerSkeleton {
 		double facing = AlfieInfo.getFacingDirection();
 		//System.out.print("the angle were are being told we are facing is : " + facing  + "\n");
 		
-		
-		if( executor.getDistance(ball, Alfie) > 30){
-			ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
-			return reachDestination;
-		}else{
-			DribbleCommand dribble = new DribbleCommand(ball, Alfie, facing);
-			return dribble;
+		System.out.println(Alfie.distance(ball));
+		if( Alfie.distance(ball) > 30){
+			if(command_status != COMMAND_RUNNING){
+				ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
+				command_status = COMMAND_RUNNING;
+				System.err.println("GO!!!");
+				return reachDestination;
+			}
+		} else {
+			if(command_status != COMMAND_FINISHED) {
+				System.err.println("STOP!");
+				StopCommand stop = new StopCommand();
+				command_status = COMMAND_FINISHED;
+				return stop;
+			}
 		}
+		
+		System.err.println("CONTINUE!");
+		
+		return new ContinueCommand();
 	}
 
 
 	@Override
 	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
-		if (!super.commandSuccessful(dpi)) {
-			//TODO: implement here and remove return false;
-			return false;
-		} else {
+		if (command_status == COMMAND_FINISHED || started != true) {
+			started = true;
 			return true;
+		} else {
+			return false;
 		}
 	}
 
 	@Override
 	protected boolean problemExists(DynamicPitchInfo dpi) {
-		if (!super.problemExists(dpi)) {
-			//TODO: implement here and remove return false;
-			return false;
-		} else {
+		if (command_status == COMMAND_PROBLEM) {
 			return true;
+		} else {
+			return false;
 		}
 	}
 }

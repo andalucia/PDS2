@@ -1,19 +1,19 @@
 package group2.sdp.pc.planner;
 
-import java.awt.geom.Point2D;
-
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.planner.skeleton.PlannerSkeletonSimulatorTest;
+import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
 
-public class PlannerSimulatorTest extends PlannerSkeletonSimulatorTest {
+import java.awt.geom.Point2D;
+
+public class PlannerSimulatorTest extends PlannerSkeleton {
 
 	private boolean verbose;
 	
-	public PlannerSimulatorTest(PlanExecutorSimulatorTest executor) {
+	public PlannerSimulatorTest(PlanExecutor executor) {
 		super(executor);
 		verbose = true;
 	}
