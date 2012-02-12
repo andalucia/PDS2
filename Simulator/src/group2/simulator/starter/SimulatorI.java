@@ -18,8 +18,6 @@ import java.awt.Checkbox;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -125,11 +123,11 @@ public class SimulatorI implements ServerSkeleton {
 				case DO_NOTHING:
 					break;
 				case GOING_FORWARD:
-					SimulatorI.robot.move(SimulatorI.world, SimulatorI.ball, (int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+					SimulatorI.robot.moveForwards(SimulatorI.world, SimulatorI.ball.getBody() /* / CM_PER_PIXEL / TIMESTEP */);
 				
 					break;
 				case GOING_BACKWARDS:
-					SimulatorI.robot.move(SimulatorI.world, SimulatorI.ball, -(int)robotState.getSpeedOfTravel() /* / CM_PER_PIXEL / TIMESTEP */);
+					SimulatorI.robot.moveBackward(SimulatorI.world, SimulatorI.ball.getBody() /* / CM_PER_PIXEL / TIMESTEP */);
 					break;
 				case KICK:
 					SimulatorI.robot.kick(SimulatorI.ball);
@@ -144,7 +142,7 @@ public class SimulatorI implements ServerSkeleton {
 					break;
 				}
 			  }
-			}, 0, 2000);
+			}, 0, 100);
 		
 		
 	}
@@ -175,8 +173,7 @@ public class SimulatorI implements ServerSkeleton {
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
 		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
 		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
-		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
-		ComplexCommand command = planner.planNextCommand(dpi);
+		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);ComplexCommand command = planner.planNextCommand(dpi);
 		executor.execute(command);
 		
 		//executor.execute2(currentCommand.REACH_DESTINATION);
@@ -195,10 +192,11 @@ public class SimulatorI implements ServerSkeleton {
 	public static void initializeArea(){
 		initializeFrame(); // initialize the GUI
 		setControls();
+		initSimulation();
 		
 		while(running)
 		{
-			initSimulation();  // initialise the simulator
+			  // initialise the simulator
 
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
 			g.setColor(Color.pink);
@@ -207,6 +205,9 @@ public class SimulatorI implements ServerSkeleton {
 			BoardObject.draw(g, world);  // draw the object in the world
 			displayControlsAndScore(g);
 			strategy.show();
+			for (int i=0;i<5;i++) {
+				world.step();
+			}
 			try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -233,7 +234,7 @@ public class SimulatorI implements ServerSkeleton {
 		
 		//Me messing with buttons, no need for them now
 		
-		reset = new Checkbox();
+		/*reset = new Checkbox();
 		
 		reset.setLabel("Reset");
 		reset.setBounds(10, 30, 160, 25);
@@ -252,8 +253,7 @@ public class SimulatorI implements ServerSkeleton {
 				resetSimulation();
 				
 			}
-		});
-		
+		});*/
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -281,7 +281,7 @@ public class SimulatorI implements ServerSkeleton {
 	private static void initSimulation() {
 		world.clear();
 		world.setGravity(0, 0);
-		
+		ball.stop();
 
 		float newOppRobotStartX = oppRobot.getX();
 		float newOppRobotStartY = oppRobot.getY();
@@ -290,16 +290,15 @@ public class SimulatorI implements ServerSkeleton {
 		float newRobotStartY = robot.getY();
 		
 		
+		
 		oppRobot.setPosition(newOppRobotStartX, newOppRobotStartY);
 		robot.setPosition(newRobotStartX, newRobotStartY);
+		ball.setPosition(ball.getX(), ballStartY);
+		
 
-		float newBallStartX = ball.getX();
-		float newBallStartY = ball.getY();
 		
-		ball.setPosition(newBallStartX, newBallStartY);
-		
-		ball.performKickedBallMovements();
-		goalCheck();
+		//ball.performKickedBallMovements();
+		//goalCheck();
 		init(world);
 	}
 
@@ -373,10 +372,13 @@ public class SimulatorI implements ServerSkeleton {
 		rightGoalLine.setPosition((boardWidth + padding + 1), (padding + boardHeight/2));
 		rightGoalLine.setRestitution(1.0f);
 		world.add(rightGoalLine);
+		
+		
+		ball.setGoalLines(leftGoalLine, rightGoalLine);
+		ball.ignoreGoalLines();
+		
 
-	
-
-		world.add(SimulatorI.robot.getBody());
+		world.add(robot.getBody());
 		world.add(oppRobot.getBody());
 		world.add(ball.getBody());
 	}
@@ -412,10 +414,10 @@ public class SimulatorI implements ServerSkeleton {
 							System.exit(0);
 							break;
 					case KeyEvent.VK_UP :	
-							oppRobot.moveForward(world, ball);
+							oppRobot.moveForwards(world, ball.getBody());
 							break;
 					case KeyEvent.VK_DOWN :	
-							oppRobot.moveBackwards(world, ball);
+							oppRobot.moveBackward(world, ball.getBody());
 							break;
 					case KeyEvent.VK_RIGHT:
 							oppRobot.turn(10);
@@ -445,24 +447,14 @@ public class SimulatorI implements ServerSkeleton {
 		});
 	}
 	
-	public static void goalCheck()
-	{
-		if (ball.didItScore()){
-			ball.stop();
-			 ball.setBallKicked(false);
-			 ball.setFixedAngle(0);
-			 oppRobot.incrScore();
-		}
-	}
+	
 	
 	public static void resetSimulation(){
 		oppRobot.setAngle(180);
 		oppRobot.setPosition(padding + boardWidth - wallThickness, boardHeight/2 + padding);
 		ball.setPosition(boardWidth/2 + padding, boardHeight/2 + padding);
-		ball.setBallKicked(false);
-		ball.setFixedAngle(0);
-		oppRobot.setScore(0);
-		ball.setDistance(5);
+		
+		
 	}
 
 	public static void displayControlsAndScore(Graphics2D g){
@@ -483,9 +475,7 @@ public class SimulatorI implements ServerSkeleton {
 		g.drawString("Score Goal Feature", 450, boardHeight + 2*padding + 90);
 		
 		
-		g.setFont(new Font("Book Antiqua", Font.BOLD, 50));
-		g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 360 ,75);
-
+	
 	}
 		
 	

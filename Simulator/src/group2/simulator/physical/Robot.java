@@ -1,15 +1,18 @@
 package group2.simulator.physical;
 
 import java.awt.Color;
+import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.Rectangle2D.Double;
 import java.awt.image.BufferedImage;
 
-
-import net.phys2d.raw.World;
+import net.phys2d.raw.Arbiter;
+import net.phys2d.raw.ArbiterList;
+import net.phys2d.raw.Body;
 import net.phys2d.raw.shapes.Box;
-
+import net.phys2d.raw.World;
 
 public class Robot extends BoardObject {
 
@@ -18,19 +21,7 @@ public class Robot extends BoardObject {
 	Double rectangle;
 	int speed = 3;
 	BufferedImage img = null;
-	private int score;
-	
 
-	/**
-	 * Constructor that fully initiliases the Robot player
-	 * @param x is the x coordinate position for the robot
-	 * @param y is the y coordinate position for the robot
-	 * @param xSize is the width of a robot
-	 * @param ySize is the height of the robot
-	 * @param color is the colour of the robot
-	 * @param img the image of the robot
-	 * @param angle the initial angle at which the robot is placed
-	 */
 	public Robot(int x, int y, int xSize, int ySize, Color color, BufferedImage img,
 			int angle) {
 		super(x, y, "Robot", new Box(xSize, ySize), 10000000, color, angle);
@@ -44,128 +35,132 @@ public class Robot extends BoardObject {
 		this.body.setRotatable(false);
 	}
 	
-	public int getWidth() {
+	public int getLength() {
 		return xSize;
 	}
-
-	public int getHeight() {
+	
+	public int getWidth() {
 		return ySize;
 	}
-
-	/**
-	 * Check is the robot is close to the ball
-	 * @param ball the object which is going to be checked if it's close to the robot
-	 * @return true or false, depending whether the robot is close to the ball
-	 */
-	public Boolean isCloseToFront(Ball ball){
-		
-		// performs a linear mapping from 2D coordinates to other 2D coordinates 
-		//that preserves the 'parallelism' and 'perpendicularity' of lines
-		AffineTransform at = AffineTransform.getRotateInstance(
-				(Math.toRadians(this.getAngle()*(-1))), getX(), getY());
-		Point2D.Double p = new Point2D.Double((double) ball.getX(), (double) ball.getY());
-		at.transform(p,p);
-		int kickDist = 10;
-		if ( (Math.abs(p.getX() - getX() - (xSize/2)) <= kickDist) && (Math.abs(p.getY() - getY()) <= (ySize/2)) ) {
-			
-			return true;
-		}
-		return false;
+	
+	public void setSpeed(int newSpeed){
+		if (speed > 50)
+			speed = 5;
+		else
+			speed = 3;
 	}
-	// a copy isCloseTofront just with changed kickDist value - must be refactored later
-	// really sorry for messy code :(
-	public boolean canRobotKick(Ball ball){
-		AffineTransform at = AffineTransform.getRotateInstance(
-				(Math.toRadians(this.getAngle()*(-1))), getX(), getY());
-		Point2D.Double p = new Point2D.Double((double) ball.getX(), (double) ball.getY());
-		at.transform(p,p);
-		int kickDist = 20;
-		if ( (Math.abs(p.getX() - getX() - (xSize/2)) <= kickDist) && (Math.abs(p.getY() - getY()) <= (ySize/2)) ) {
-			
-			return true;
-			
-		}
-		return false;
-	}
-
-
-	/**
-	 * Robot moves forward and takes into account if it finds the ball in front of him
-	 * if so, it will push the ball as it goes along
-	 * @param world is the world where the action happens
-	 * @param ball is the ball that can be encountered 
-	 */
-	public void moveForward(World world, Ball ball) {
-		move(world,ball, 3);
-	}
-	/**TODO
-	 * Robot moves backwards BUT NOW does NOT take into account if it finds the ball behind him
-	 * if so, it will push the ball as it goes along
-	 * @param world is the world where the action happens
-	 * @param ball is the ball that can be encountered 
-	 */
-	public void moveBackwards(World world, Ball ball) {
-		move(world,ball,-4);
+	// TODO not used atm
+	// finds the positions of both wheels, used for sweeping movement
+//	public void findWheelCoordinates() {
+////		Shape b = getShape();
+////		xRightWheel = (int) b.getBounds2D().getX();
+////		yRightWheel = (int) b.getBounds2D().getY();
+////		Box bb = (Box)b;
+////		bb.getPoints(pos, rotation)
+//		Box b = (Box)this.body.getShape();
+//		Vector2f[] pts = ((Box) b).getPoints(this.body.getPosition(), this.body.getRotation());
+//		xLeftWheel = (int) pts[3].getX();
+//		yLeftWheel = (int) pts[3].getY();
+//		xRightWheel = (int) pts[0].getX();
+//		yRightWheel = (int) pts[0].getY();
+//	}
+	
+	public void sweep(int direction){ // direction should be 1 or -1 only, same as for turning
+		int radius = (int) Math.sqrt((Math.pow(xSize, 2) + Math.pow(ySize, 2)))/2;
+		turn(direction);
+		double dist = (1*Math.PI*radius)/180;
+		double tempAngle = this.getAngle()+(55 * direction);
+		float x = (float) (this.getX() + (dist * Math.cos(Math.toRadians(tempAngle))));
+		float y = (float) (this.getY() + (dist * Math.sin(Math.toRadians(tempAngle))));
+		this.body.move(x, y);
 	}
 	
+	public void moveBackward(World w, Body b) {
+		move(w,b,-1);
+	}
 	
-	/**Function moves robot and ball provided that it is moving forward and ball is in front
-	 * Counting next position of the ball.
-	 * 
-	 * TODO: PUSHING BACKWARDS AND SIDES!
-	 * @param world the world where the move occurs 
-	 * @param ball the ball that will be moved along with the robot
-	 * @param mult
-	 */
-	public void move(World world, Ball ball, int mult){
-		
-		int dist = speed * mult;
-		double tempAngle = this.getAngle();
-		float x = countNextPositionX(this.getX(),dist,tempAngle);
-		float y = countNextPositionY(this.getY(),dist,tempAngle);
-		
-		if (isCloseToFront(ball) && dist > 0) {
-			float ballCoordX = countNextPositionX(ball.getX(),dist,tempAngle);
-			float ballCoordY = countNextPositionY(ball.getY(),dist,tempAngle);
-			this.body.move(x, y);
-			ball.body.move(ballCoordX, ballCoordY);
-		}
-			else
-			{
-				this.body.move(x, y);
+	public void moveForwards(World w, Body b) {
+		move(w,b,1);
+	}
+	
+	private void move(World world, Body ball, int mult) {
+		// moves 5px forwards unless touching a wall
+		Ball b = (Ball)ball.getUserData();
+		boolean squashingBall = false;
+		if (isCloseToFront(b)) {
+			ArbiterList arbs = world.getArbiters();
+			for (int i=0;i<arbs.size();i++) {
+				Arbiter arb = arbs.get(i);
+				if (arb.concerns(this.body) && (arb.concerns(ball))) {
+					float x = arb.getContacts()[0].getPosition().getX();
+					float y = arb.getContacts()[0].getPosition().getY();
+					x = b.getX() + (x-b.getX());
+					y = b.getY() + (y-b.getY());
+					for (int j=0;j<arbs.size(); j++) {
+						Arbiter a = arbs.get(j);
+						if (a.concerns(ball) && (!(a.concerns(this.body)))) {
+							if (Math.abs(a.getContacts()[0].getPosition().getX() - x) < 2) {
+					            if (Math.abs(a.getContacts()[0].getPosition().getY() - y) < 2) {
+								    squashingBall = true;
+								}
+							}
+						}
+					}
+				}
 			}
+		}
+		if (squashingBall == false) {
+			int dist = speed * mult;
+			double tempAngle = this.getAngle();
+			float x = (this.getX() + (dist * (float) Math.cos(Math.toRadians(tempAngle))));
+			float y = (this.getY() + (dist * (float) Math.sin(Math.toRadians(tempAngle))));
+			this.body.move(x, y);
+		}
+		try { 
+			Thread.sleep(30);
+		} catch (Exception e) {
+			System.out.println("Exception when trying to sleep: "
+					+ e.toString());
+		}
 	}
 	
-	/**
-	 * Computing the next position for the x-coordinate
-	 * @param x is the current x-coordinate
-	 * @param dist is value added to the initial position
-	 * @param angle 
-	 * @return the next x-coordinate position
-	 */
-	public float countNextPositionX(float x, int dist, double angle)
-	{
-		return x + (dist * (float) Math.cos(Math.toRadians(angle)));
+	// will calculate the arch, then go to next point on the arch with help of
+	// move() method
+	public void moveInArch(World world, Body ball, int radius) {
+		// used formula:
+		// this arc is part of a circle
+		// radius is defining how large the arc is going to be
+		// x = a + radius * cos(arcAngle); where 'a' is offset from (0,0) point and arcAngle is angle given that arc length is the value of variable dist
+		// y coordinate is calculated in same way but with sin instead of cos
+		// arcAngle = (180 * arcLength) / (pi * radius); arcAngle is in degrees
+		// arcAngle is added to the robots current angle until stop command is received (currently until robot has "arced" for 180 degrees)
+		double arcAngle;
+		if (radius > 1000){
+			radius = radius - 1000;
+			arcAngle = - (180 * speed / (Math.PI * radius));
+		} else
+			arcAngle = 180 * speed / (Math.PI * radius);
+		double t = this.getAngle() + arcAngle;
+		this.setAngle((float)t);
+		// reusing the move() method for the actual move to happen
+		this.moveForwards(world, ball);
+	}
+	// The returned Shape object is the one displayed on the screen,
+	// the actual rotation of the body is happening in turn() method
+	public Shape getShape() {
+		AffineTransform at = AffineTransform.getRotateInstance(
+				(Math.toRadians(this.getAngle())), getX(),
+				getY());
+		this.rectangle = new Rectangle2D.Double(getX()-xSize/2, getY()-ySize/2,
+				xSize, ySize);
+		return at.createTransformedShape(this.rectangle);
 	}
 	
-	/**
-	 * Computing the next position for the y-coordinate
-	 * @param y is the current y-coordinate
-	 * @param dist is value added to the initial position
-	 * @param angle
-	 * @return the next y-coordinate position
-	 */
-	public float countNextPositionY(float y, int dist, double angle)
-	{
-		return y + (dist * (float) Math.sin(Math.toRadians(angle)));
+	public BufferedImage getImage() {
+		return img;
 	}
-		
-	/**
-	 * Turn the robot at the given angle 
-	 * Negative number turns to right - rotates clock-wise direction
-	 * Positive number turns to left - rotates counter-clock wise direction
-	 * @param value
-	 */
+	
+	// negative for right, positive for left
 	public void turn(int value) {
 		if (value < 0) {
 			this.setAngle(this.getAngle() - (-value));
@@ -177,37 +172,37 @@ public class Robot extends BoardObject {
 	
 	}
 	
-	public BufferedImage getImage() {
-		return img;
-	}
-	
-	public int getScore(){
-		return score;
-	}
-	
-	public void setScore(int score){
-		this.score = score;
-	}
-	
-	public void incrScore()
-	{
-		score++;
-	}
-	
-	/** It checks if the ball is in front sends kick command and fixed angle to Ball class
-	 * @param ball is the ball you are kicking
-	 */
-	public void kick(Ball ball){
-		if (canRobotKick(ball)){
-			ball.setBallKicked(true);
-			System.out.println("Ball is kicked");
-			ball.setFixedAngle(this.getAngle());
-			System.out.println("angle is set");
-			
-		}
+	// For some reason body.setRoation() method rotates the body in the opposite
+	// direction, but the object on the screen is correctly displayed (the
+	// ball will just bounce in the opposite direction)
+	// Therefore this method will reflect the angle along x-axis to find the
+	// real angle which will be needed by the planning system
+	public float getRealAngle() {
+		float angle = (float) (360 - Math.toDegrees(this.getBody().getRotation()));
+		if (angle == 360)
+			return 0;
 		else
-		{
-		System.out.println("Too far away from the ball");
+			return angle;
+	}
+	
+	// computes if ball is within robotWidth * 'kickDist' square in front of robot and if so returns true
+	public Boolean isCloseToFront(Ball ball){
+		AffineTransform at = AffineTransform.getRotateInstance(
+				(Math.toRadians(this.getAngle()*(-1))), getX(), getY());
+		Point2D.Double p = new Point2D.Double((double) ball.getX(), (double) ball.getY());
+		at.transform(p,p);
+		int kickDist = 20;
+		if ( (Math.abs(p.getX() - getX() - (xSize/2)) <= kickDist) && (Math.abs(p.getY() - getY()) <= (ySize/2)) ) {
+			return true;
+		}
+		return false;
+	}
+
+	public void kick(Ball ball) {
+		if (isCloseToFront(ball)){
+			ball.kick(getAngle());
+		} else {
+			System.out.println("Simulator: Can't kick, too far away from the ball");
 		}
 	}
 	
@@ -215,10 +210,8 @@ public class Robot extends BoardObject {
 		Point2D.Float position = new Point2D.Float(this.getX(), this.getY());
 		return position;
 	}
-	
+
 	public double getFacingDirection(){
 		return this.getAngle();
 	}
-	
-	
 }
