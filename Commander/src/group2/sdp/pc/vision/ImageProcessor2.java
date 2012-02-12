@@ -10,8 +10,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 /**
  * Stan's image processing candy. Background extraction and colour detection.
@@ -29,6 +33,9 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	 * An image of the background compare each frame with.
 	 */
 	private BufferedImage backgroundImage;
+	
+	private String backgroundFileName = "background.png";
+	private boolean saveBackground = true;
 	
 	/**
 	 * New pixels in the last frame that was processed.
@@ -55,27 +62,17 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 		super(consumer, imageConsumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
-	}	
-	/**
-	 * Accepts a background image in addition to a consumer. 
-	 * @param backgroundImage An image of the background.
-	 */
-	public ImageProcessor2(StaticInfoConsumer consumer, BufferedImage backgroundImage) {
-		this(consumer);
-		this.backgroundImage = backgroundImage;
-		extractBackground = false;
 	}
 	/**
 	 * Accepts a background image in addition to consumers.
-	 * @param backgroundImage An image of the background.
+	 * @param saveBackground Indicates whether the background image should be saved. If true,
+	 * a new background image is extracted. If false, the last one is loaded.
 	 */
-	public ImageProcessor2(StaticInfoConsumer consumer, ImageConsumer imageConsumer, 
-			BufferedImage backgroundImage) {
+	public ImageProcessor2(StaticInfoConsumer consumer, ImageConsumer imageConsumer, boolean saveBackground) {
 		this(consumer, imageConsumer);
-		this.backgroundImage = backgroundImage;
-		extractBackground = false;
+		this.saveBackground = saveBackground;
+		extractBackground = true;
 	}
-
 	
 	/**
 	 * In addition to processing the frame extracts the background if needed.
@@ -83,7 +80,17 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	@Override
 	public void process(BufferedImage image) {
 		if (extractBackground) {
-			backgroundImage = image;
+			if (!saveBackground) {
+				backgroundImage = loadBackgroundImage();
+				if (backgroundImage == null) {
+					backgroundImage = image;
+				}
+			} else {
+				if (backgroundImage == null) {
+					backgroundImage = image;
+				}
+				saveBackgroundImage(backgroundImage);
+			}
 			extractBackground = false;
 			// Note that the super.process(image) is not called.
 			// This is the case, since we expect that the background
@@ -91,10 +98,36 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 		} else {
 			newPixels = getDifferentPixels(image);
 			internalImage = drawPixels(image, newPixels);
-			super.process(image);			
+			super.process(image);
 		}
 	}
 
+	private BufferedImage loadBackgroundImage() {
+		File inputfile = new File(backgroundFileName);
+		BufferedImage image = null;
+	    try {
+	    	image = ImageIO.read(inputfile);
+			System.out.println("Background image loaded.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return image;
+	}
+	
+	/**
+	 * 
+	 * @param image
+	 */
+	private void saveBackgroundImage(BufferedImage image) {
+		File outputfile = new File(backgroundFileName);
+	    try {
+			ImageIO.write(image, "png", outputfile);
+			System.out.println("Background image saved.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * The pixels that are sufficiently different from the background are 
 	 * added to a list that is returned.
@@ -158,7 +191,8 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 		BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
-			ColourClass cc = new LCHColour(c).getColourClass();
+			LCHColour lch = new LCHColour(c);
+			ColourClass cc = lch.getColourClass();
 			
 			Color dc = null;
 			switch (cc) {
@@ -185,6 +219,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 				dc = Color.CYAN;
 				break;
 			}
+			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
 			result.setRGB(p.x, p.y, dc.getRGB());
 		}
 		return result;

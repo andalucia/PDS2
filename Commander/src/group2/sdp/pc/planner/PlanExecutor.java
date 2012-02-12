@@ -33,7 +33,7 @@ public class PlanExecutor {
 	/**
 	 * Sets verbose mode on or off, for debugging
 	 */
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 	
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfi or the simulator, make sure
@@ -123,7 +123,6 @@ public class PlanExecutor {
 			System.out.println("executeGoForward() called");
 		}
 		alfieServer.sendGoForward(MAX_SPEED, distance-10);
-				
 	}
 	
 	/**

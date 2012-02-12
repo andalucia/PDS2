@@ -37,12 +37,12 @@ public class LCHColour {
 	/**
 	 * Upper boundary of the green hue.
 	 */
-	private final int GREEN_HUE_END = 180;
+	private final int GREEN_HUE_END = 150;
 	
 	/**
 	 * Lower boundary of the blue hue.
 	 */
-	private final int BLUE_HUE_START = 180;
+	private final int BLUE_HUE_START = 150;
 	/**
 	 * Upper boundary of the blue hue.
 	 */
@@ -73,6 +73,7 @@ public class LCHColour {
 	 * The luma of the colour.
 	 */
 	private int luma;
+
 	/**
 	 * The chroma of the colour.
 	 */
@@ -93,6 +94,55 @@ public class LCHColour {
 		chroma = lch[1];
 		hue = lch[2];
 	}
+	
+	/**
+	 * Get the luma of the colour.
+	 * @return The luma of the colour.
+	 */
+	public int getLuma() {
+		return luma;
+	}
+
+	/**
+	 * Set the luma of the colour.
+	 * @param luma The luma of the colour.
+	 */
+	public void setLuma(int luma) {
+		this.luma = luma;
+	}
+
+	/**
+	 * Get the chroma of the colour.
+	 * @return The chroma of the colour.
+	 */
+	public int getChroma() {
+		return chroma;
+	}
+
+	/**
+	 * Set the chroma of the colour.
+	 * @param chroma The chroma of the colour.
+	 */
+	public void setChroma(int chroma) {
+		this.chroma = chroma;
+	}
+
+	/**
+	 * Get the hue of the colour.
+	 * @return The hue of the colour.
+	 */
+	public int getHue() {
+		return hue;
+	}
+
+	/**
+	 * Set the hue of the colour.
+	 * @param hue The hue of the colour.
+	 */
+	public void setHue(int hue) {
+		this.hue = hue;
+	}
+	
 	
 	/**
 	 * Converts a red-green-blue colour to our approximation of L*C*h* (lookup CIELAB).
@@ -212,7 +262,7 @@ public class LCHColour {
 	private int blueScore() {
 		int score = 1;
 		score += hasBlueHue() ? 1 : 0;
-		score += !hasHighLuma() && !hasLowLuma() ? 1 : 0;
+		score += !hasLowLuma() ? 1 : 0;
 		// Not adding random chance as the blue range is quite big. If we are out of it,
 		// it is definitely not blue. (TODO: or is it?)
 		return score;
