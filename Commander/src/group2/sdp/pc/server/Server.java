@@ -61,6 +61,7 @@ public class Server implements ServerSkeleton {
 	@Override
 	protected void finalize() throws Throwable {
 		try {
+			sendStop();
 			dis.close();
 			dos.close();
 			conn.close();

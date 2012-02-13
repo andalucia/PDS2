@@ -49,7 +49,6 @@ public class Planner extends PlannerSkeleton {
 		if (verbose) {
 			System.out.println("Planning next command.");
 		}
-		// TODO: Implement the planning here
 
 		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
@@ -63,7 +62,7 @@ public class Planner extends PlannerSkeleton {
 		//System.out.print("the angle were are being told we are facing is : " + facing  + "\n");
 		
 		System.out.println(Alfie.distance(ball));
-		if( Alfie.distance(ball) > 30){
+		if (Alfie.distance(ball) > 30) {
 			if(!dribbling){
 				if(command_status != COMMAND_RUNNING){
 					ReachDestinationCommand reachDestination = new ReachDestinationCommand(ball, Alfie, facing);
@@ -71,11 +70,10 @@ public class Planner extends PlannerSkeleton {
 					System.err.println("GO!!!");
 					return reachDestination;
 				}
-			
 			}
 		} else {
-			if(command_status != COMMAND_FINISHED) {
-				if(dribbling){
+			if (command_status != COMMAND_FINISHED) {
+				if (dribbling) {
 					System.err.println("DRIBBLE");
 					DribbleCommand dribble = new DribbleCommand(ball, Alfie, facing);
 					command_status = COMMAND_FINISHED;
@@ -89,8 +87,6 @@ public class Planner extends PlannerSkeleton {
 			}
 		}
 		
-		System.err.println("CONTINUE!");
-		
 		return new ContinueCommand();
 	}
 
@@ -98,7 +94,7 @@ public class Planner extends PlannerSkeleton {
 	@Override
 	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
 		if (command_status == COMMAND_FINISHED || started != true) {
-			started = true;
+			
 			return true;
 		} else {
 			return false;

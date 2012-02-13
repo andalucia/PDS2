@@ -27,7 +27,7 @@ public class PlanExecutor {
 	/**
 	 * Default dribble speed
 	 */
-	private static final int MAX_SPEED = 50;
+	private static final int MAX_SPEED = 25;
 	private static final int DRIBBLE_SPEED = 30;
 	
 	/**
@@ -122,7 +122,7 @@ public class PlanExecutor {
 		if(VERBOSE){
 			System.out.println("executeGoForward() called");
 		}
-		alfieServer.sendGoForward(MAX_SPEED, distance/2);
+		alfieServer.sendGoForward(MAX_SPEED, 0);
 	}
 	
 	/**

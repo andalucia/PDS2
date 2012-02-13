@@ -233,7 +233,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		}
 		//}
-		else System.out.println("not yellow");
+		//else System.out.println("not yellow");
 		//if (fixels.size() == 0){System.out.println("sick of you");}
 		return fixels;
 	}
@@ -856,7 +856,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private void drawLine_Robot_Facing(WritableRaster raster, Point c,
 			double angle) {
 		angle = 360 - angle;
-		int[] colour = { 0, 0, 0 };
+		int[] colour = { 255, 255, 255 };
 		if (angle < 270 && angle > 90) {
 
 			int xh = c.x - 100;

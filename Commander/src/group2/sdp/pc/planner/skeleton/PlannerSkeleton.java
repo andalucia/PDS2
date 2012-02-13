@@ -1,7 +1,5 @@
 package group2.sdp.pc.planner.skeleton;
 
-import java.awt.geom.Rectangle2D;
-
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.planner.PlanExecutor;
 import group2.sdp.pc.planner.commands.ComplexCommand;
@@ -49,8 +47,8 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	 */
 	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
 		if (currentCommand == null)
-			return false;
-		return true	;
+			return true;
+		return false;
 	}
 	
 	/**
