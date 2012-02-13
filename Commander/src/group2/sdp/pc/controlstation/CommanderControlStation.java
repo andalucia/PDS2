@@ -38,6 +38,7 @@ public class CommanderControlStation implements KeyListener {
 	private Checkbox bakeInfoCheckbox;
 	private Checkbox previewImageCheckbox;
 	private Checkbox planCheckbox;
+	private Checkbox planDribble;
 	private Checkbox executePlanCheckbox;
 
 	private Button runButton;
@@ -191,14 +192,19 @@ public class CommanderControlStation implements KeyListener {
 		planCheckbox.setBounds(12, 152, 160, 25);
 		planCheckbox.setState(false);
 		
+		planDribble = new Checkbox();
+		planDribble.setLabel("Plan for dribble");
+		planDribble.setBounds(12, 180, 160, 25);
+		planDribble.setState(false);
+		
 		executePlanCheckbox = new Checkbox();
 		executePlanCheckbox.setLabel("Execute plan");
-		executePlanCheckbox.setBounds(12, 180, 160, 25);
+		executePlanCheckbox.setBounds(12, 208, 160, 25);
 		executePlanCheckbox.setState(true);
 		
 		runButton = new Button();
 		runButton.setLabel("RUN!");
-		runButton.setBounds(42, 208, 100, 25);
+		runButton.setBounds(42, 236, 100, 25);
 		runButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -247,6 +253,7 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(previewImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(bakeInfoCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(planCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(planDribble);
 		frmAlfieCommandCentre.getContentPane().add(executePlanCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
