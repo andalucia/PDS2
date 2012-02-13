@@ -32,18 +32,22 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 
-	private final static boolean pitchOne = true;
+	private final static boolean pitchOne = false;
 
 	//pitch1 colours
 	private static final int[] yellow1 = new int[] {115,100,30};
 	private static final int[] blue1 = new int[] {3,108,145};
 	private static final int[] ball1 = new int[] {185,15,2};
+	private static final int[] black1 = new int[] {0,0,0};
+	private static final int[] green1 = new int[] {0,0,0};
 
 
 	// pitch2 colours
-	private static final int[] yellow2 = new int[] {230,200,7};
-	private static final int[] blue2 = new int[] {92,140,121};
+	private static final int[] yellow2 = new int[] {240,200,20};
+	private static final int[] blue2 = new int[] {85,165,200};
 	private static final int[] ball2 = new int[] {253, 56, 25};
+	private static final int[] black2 = new int[] {42,87,45};
+	private static final int[] green2 = new int[] {42,180,73};
 
 	// BLUE thresholds
 	private static final int RThreshBlueLow = 1;
@@ -136,7 +140,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				if (isBlue(colour, pitchOne)) {
 					bluepoints.add(currentPoint);
 				}
-				if (isGreen(colour)) {
+				if (isGreen(colour, pitchOne)) {
 					plate.add(currentPoint);
 				}
 				if (isBall(colour, pitchOne)){
@@ -168,23 +172,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
 
-		ArrayList<Point> mindFucked = mindFuck(image, plateCentroidYellowRobot, true);
+		//ArrayList<Point> mindFucked = mindFuck(image, plateCentroidYellowRobot, true);
 		
 		
-//		for (int i = 0; i < yellowPointsClean.size();i++) {
-//			drawPixel(raster,yellowPointsClean.get(i),Coral);
-//		}
-		
-		for (int i = 0; i < mindFucked.size();i++) {
+		for (int i = 0; i < yellowPointsClean.size();i++) {
 			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
 		}
+		
+//		for (int i = 0; i < mindFucked.size();i++) {
+//			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
+//		}
 
+		System.out.println(checkPoints(image, yellowCentroid, true,raster));
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
-		this.yellowDir = regressionAndDirection(image, mindFucked, true);
+		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
 
-		drawCross(raster,blueCentroid,pureBlue);
-		drawCross(raster,plateCentroidYellowRobot,pureYellow);
-		drawCross(raster,ballCentroid,pureRed);
+//		drawCross(raster,blueCentroid,pureBlue);
+//		drawCross(raster,plateCentroidYellowRobot,pureYellow);
+//		drawCross(raster,ballCentroid,pureRed);
 		
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
@@ -382,7 +387,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		 *   works on X OR Y axis: NOT BOTH
 		 */
 
-		if(mtheta<Math.tan(Math.toRadians(20))){
+		if(mtheta<Math.tan(Math.toRadians(40))){
 
 			double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
 
@@ -397,6 +402,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			} else {
 				end_angle = 360 - mxy2_degrees;
 			}
+			end_angle = actualDir;
 		}
 		drawLine_Robot_Facing(raster, new Point((int) (allx / n),
 				(int) (ally / n)), end_angle);
@@ -496,6 +502,88 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		return 360 - best_angle;
 	}
 
+	
+	
+	public int checkPoints(BufferedImage image, Point centroid, boolean isYellow, WritableRaster raster) {
+		int x = centroid.x;
+		int y = centroid.y;
+		int[] xs = new int[] {x-14,x-14,x+8,x+8,x+20,x+20,x+20,x-12,x+24,x+24,x-12};
+		int[] ys = new int[] {y+2,y-2,y-8,y+8,y,y+2,y-2,y-10,y-8,y+10,y+8};
+		
+		// 0 = T
+		// 1 = spot
+		// 2 = plate
+		
+		int[] values = new int[] {0,0,0,0,1,1,1,2,2,2,2};
+		
+		int best_angle = 0;
+		
+		for (int i = 0; i < xs.length;i++) {
+			
+			drawPixel(raster,new Point(xs[i],ys[i]), pureRed);
+		}
+		
+		Color c = null;
+		int cur_score = 0;
+		int best_score = 0;
+		if (centroid.x != 0) {
+
+			for (int i = 0; i < 360; i++) {
+				int[] colour;
+				cur_score = 0;
+				Point nextPixel = new Point();
+				nextPixel.x = centroid.x;
+				nextPixel.y = centroid.y;
+				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
+				try {
+					c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
+					colour = new int[] {c.getRed(),c.getGreen(),c.getBlue()};
+				} catch (Exception e) {
+					colour = new int[] {0,0,0};
+					System.out.println("rot_pixel = " + rot_pixel);
+				}
+
+				for (int j = 0; j < xs.length;j++) {
+					Point checkPoint = rotatePoint(centroid, new Point(xs[j],ys[j]),i);
+					// this SHOULD be made into separate function
+					switch(values[j]) { 
+					case 0:
+						if (isBlueYellow(getColour(image, checkPoint),isYellow)) {
+							//drawPixel(raster,checkPoint,pureRed);
+							cur_score++;
+						}
+					case 1:
+						if (isBlack(getColour(image, checkPoint),pitchOne)) {
+							cur_score++;
+						}
+					case 2:
+						if (isGreen(getColour(image, checkPoint),pitchOne)) {
+							cur_score++;
+						}
+					}
+				}
+				if (cur_score == xs.length) {
+					//System.out.println("very good angle = " + i);
+				}
+				if (cur_score > best_score) {
+					best_angle = i;
+					best_score = cur_score;
+				}
+			}
+		}
+		return best_angle;
+	}
+
+	private boolean isBlack(int[] colour, boolean pitchOne) {
+		int[] differences = new int[3];
+		if (pitchOne){
+			differences = calcColourDifferences(black1, colour);
+		}
+		else {
+			differences = calcColourDifferences(black2, colour);
+		}
+		return (differences[0] < 20 && differences[1] < 20 && differences[2] < 20) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 0);
+	}
 
 	/**
 	 * 
@@ -606,13 +694,20 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		else {
 			differences = calcColourDifferences(blue2, colour);
 		}
-		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
+		return (differences[0] < 60 && differences[1] < 60 && differences[2] < 60) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
 	}
 
-	public boolean isGreen(int[] colour) {
+	public boolean isGreen(int[] colour, boolean pitchOne) {
 
 
-		return (colour[0] < 60 && colour[1] >150 && colour[2]<90);
+		int[] differences = new int[3];
+		if (pitchOne){
+			differences = calcColourDifferences(green1, colour);
+		}
+		else {
+			differences = calcColourDifferences(green2, colour);
+		}
+		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 50) || (colour[0] == 0 && colour[1] == 255 && colour[2] == 0);
 	}
 
 
@@ -688,16 +783,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * and create a copy of p2 if you want to use it.
 	 */
 
-	public Point rotatePoint(Point pivot, Point p2, int deg)
-	{
-		p2.x -= pivot.x;
-		p2.y -= pivot.y;
+	public Point rotatePoint(Point pivot, Point rotate, int deg) {
+		Point point = new Point(rotate.x,rotate.y);
+		point.x -= pivot.x;
+		point.y -= pivot.y;
 		double rad = (double) Math.toRadians(deg);
 		int xtemp;
-		xtemp = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
-		p2.y = (int) Math.round((p2.x * (double)Math.sin(rad)) + (p2.y * (double)Math.cos(rad)));
-		p2.x = xtemp;
-		return new Point (p2.x+pivot.x, p2.y+pivot.y);
+		xtemp = (int) Math.round((point.x * (double)Math.cos(rad)) - (point.y * (double)Math.sin(rad)));
+		point.y = (int) Math.round((point.x * (double)Math.sin(rad)) + (point.y * (double)Math.cos(rad)));
+		point.x = xtemp;
+		return new Point (point.x+pivot.x, point.y+pivot.y);
 	}
 
 	@Override
