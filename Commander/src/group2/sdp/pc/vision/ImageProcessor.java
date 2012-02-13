@@ -32,11 +32,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 
-	private final static boolean pitchOne = false;
+	private final static boolean pitchOne = true;
 
 	//pitch1 colours
-	private static final int[] yellow1 = new int[] {125,129,73};
-	private static final int[] blue1 = new int[] {39,107,127};
+	private static final int[] yellow1 = new int[] {115,100,30};
+	private static final int[] blue1 = new int[] {3,108,145};
 	private static final int[] ball1 = new int[] {185,15,2};
 
 
@@ -153,6 +153,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		for (int i = 0; i < bluePointsClean.size();i++) {
 			drawPixel(raster,bluePointsClean.get(i),pureBlue);
 		}
+
+		
 		
 		this.ballCentroid = calcCentroid(ball);
 		this.blueCentroid = calcCentroid(bluePointsClean);
@@ -167,15 +169,23 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
 
 		ArrayList<Point> mindFucked = mindFuck(image, plateCentroidYellowRobot, true);
+		
+		
+//		for (int i = 0; i < yellowPointsClean.size();i++) {
+//			drawPixel(raster,yellowPointsClean.get(i),Coral);
+//		}
+		
+		for (int i = 0; i < mindFucked.size();i++) {
+			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
+		}
 
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
 		this.yellowDir = regressionAndDirection(image, mindFucked, true);
 
-		drawCross(raster,blueCentroid,Coral);
-		drawCross(raster,yellowCentroid,Aqua);
+		drawCross(raster,blueCentroid,pureBlue);
+		drawCross(raster,plateCentroidYellowRobot,pureYellow);
 		drawCross(raster,ballCentroid,pureRed);
-		drawCross(raster,plateCentroidYellowRobot,new int[]{145, 145, 115});
-
+		
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
 		return img;
 
@@ -199,36 +209,39 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	}
 
 	ArrayList<Point> checked = new ArrayList<Point>();
+	
 	public ArrayList<Point> mindFuck(BufferedImage image, Point fixel, boolean isYellow){
 
 		ArrayList<Point> fixels = new ArrayList<Point>();
 		int[] colour = getColour(image, fixel);
 
-		if (fixel.x > 0 && fixel.x < image.getWidth() && fixel.y > 0 && fixel.y < image.getHeight()){
-			if (isYellow(colour, pitchOne)){
-				checked.add(fixel);
-				if (!checked.contains(new Point(fixel.x+1, fixel.y))){
-					fixels.addAll(mindFuck(image, new Point(fixel.x+1, fixel.y),isYellow));
-					checked.add(new Point(fixel.x+1, fixel.y));
-				}
-				if (!checked.contains(new Point(fixel.x, fixel.y+1))){
-					fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y+1),isYellow));
-					checked.add(new Point(fixel.x, fixel.y+1));
-				}
-				if (!checked.contains(new Point(fixel.x-1, fixel.y))){
-					fixels.addAll(mindFuck(image, new Point(fixel.x-1, fixel.y),isYellow));
-					checked.add(new Point(fixel.x-1, fixel.y));
-				}
-				if (!checked.contains(new Point(fixel.x, fixel.y-1))){
-					fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y-1),isYellow));
-					checked.add(new Point(fixel.x, fixel.y-1));
-				}
-	
-			}
+		//if (fixel.x > 0 && fixel.x < image.getWidth() && fixel.y > 0 && fixel.y < image.getHeight()){
+		if (isYellow(colour, pitchOne)){
+
+			drawOnBuffImage(image, fixel, new int[] {255,255,1});
+			
+			fixels.addAll(mindFuck(image, new Point(fixel.x+1, fixel.y),isYellow));
+
+
+			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y+1),isYellow));
+
+
+			fixels.addAll(mindFuck(image, new Point(fixel.x-1, fixel.y),isYellow));
+
+
+			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y-1),isYellow));
+
 		}
-		else System.out.println("not in range");
+		//}
+		else System.out.println("not yellow");
 		//if (fixels.size() == 0){System.out.println("sick of you");}
 		return fixels;
+	}
+	
+	public void drawOnBuffImage(BufferedImage image, Point pixel, int[] colour) {
+		
+		Color c = new Color(colour[0],colour[1],colour[2]);
+		image.setRGB(pixel.x, pixel.y, c.getRGB());
 	}
 
 	/**
