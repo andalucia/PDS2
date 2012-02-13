@@ -142,6 +142,10 @@ public class CommanderControlStation implements KeyListener {
 				if (planCheckbox.getState()) {
 					planner.run();
 				}
+				if (planDribble.getState()){
+					planner.dribbling = true;
+					planner.run();
+				}
 			}
 		};
 		
