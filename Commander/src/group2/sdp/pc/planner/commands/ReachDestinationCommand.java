@@ -29,7 +29,7 @@ public class ReachDestinationCommand implements ComplexCommand {
 		return this.target;
 	}
 	
-	public double getFacing(){
+	public double getFacingDirection(){
 		return this.facing;
 	}
 
