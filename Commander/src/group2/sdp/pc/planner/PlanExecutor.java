@@ -1,6 +1,7 @@
 
 package group2.sdp.pc.planner;
 
+import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.planner.commands.ComplexCommand;
 import group2.sdp.pc.planner.commands.DribbleCommand;
 import group2.sdp.pc.planner.commands.KickCommand;
@@ -11,32 +12,50 @@ import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import java.awt.geom.Point2D;
 
 /**
- * Takes a command from the planner and executes it. This class is responsible for sending the "physical"
- * instructions to Alfie or the simulator.
+ * Takes a command from the planner and executes it. This class is responsible for 
+ * sending the "physical" instructions to Alfie or the simulator.
  * 
  * Every new command should be added to the switch statement and to the enum in ComplexCommand.
  */
 public class PlanExecutor {
 
 	/**
-	 * The SeverSkeleton implementation to use for executing the commands. Can be the Alfi bluetooth 
-	 * server or (in the future) the simulator
-	 */
-	private ServerSkeleton alfieServer; 
-	
-	/**
-	 * Default dribble speed
-	 */
-	private static final int MAX_SPEED = 25;
-	private static final int DRIBBLE_SPEED = 30;
-	
-	/**
 	 * Sets verbose mode on or off, for debugging
 	 */
 	private static final boolean VERBOSE = true;
 	
+	private static final int MAX_SPEED = 50;
+	
+	private static final int TURNING_SPEED = 10;
+	private static final int TURNING_ERROR_THRESHOLD = 10;
+	private static final int STOP_TURNING_THRESHOLD = 45;
+	private static final int CRUISING_SPEED = 20;
+	
 	/**
-	 * Initialise the class and the ServerSkeleton to send commands to Alfi or the simulator, make sure
+	 * Default dribbling speed.
+	 */
+	private static final int DRIBBLE_SPEED = 30;
+	
+	
+	
+	/**
+	 * The SeverSkeleton implementation to use for executing the commands. 
+	 * Can be the Alfie bluetooth server or the simulator.
+	 */
+	private ServerSkeleton alfieServer;
+
+	/**
+	 * The command that is currently being executed.
+	 */
+	private ComplexCommand currentCommand; 
+	
+	/**
+	 * If Alfie is turning right now.
+	 */
+	private boolean turning;
+	
+	/**
+	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
 	 * the ServerSkeleton object passed is already initialised and connected
 	 * 
 	 * @param alfieServer The initialised bluetooth server or the simulator object
@@ -45,6 +64,7 @@ public class PlanExecutor {
 		this.alfieServer = alfieServer;
 	}
 	
+	
 	/**
 	 * The main execution function, calls a function based on the command given, make sure you cast
 	 * currentCommand to the actual command type
@@ -52,6 +72,11 @@ public class PlanExecutor {
 	 * @param currentCommand The command to be executed
 	 */
 	public void execute(ComplexCommand currentCommand) {
+		this.currentCommand = currentCommand;
+		if (currentCommand == null) {
+			executeStopCommand((StopCommand)currentCommand);
+			return;
+		}
 		switch (currentCommand.getType()) {
 		case REACH_DESTINATION:
 			executeReachDestinationCommand((ReachDestinationCommand)currentCommand);
@@ -70,59 +95,39 @@ public class PlanExecutor {
 
 	
 	/**
-	 * this function is the basic movement function. It will take the passed command and use its relevant
-	 * information to work out how to navigate to the target
+	 * This function is the basic movement function. It will take the passed command and use its 
+	 * relevant information to work out how to navigate to the target.
 	 *
 	 * @param currentCommand Contains the state information for Alfi and the target 
 	 */
 	private void executeReachDestinationCommand(ReachDestinationCommand currentCommand) {
-	
-		// This will need to be changed for after milestone 2 to handle pathFinding
-		// Target is were we are navigating to
-		Point2D target = currentCommand.getTarget();
-		Point2D Alfie = currentCommand.getOrigin();
-		double facing = currentCommand.getFacing();
+		Point2D targetPosition = currentCommand.getTarget();
+		Point2D alfiePosition = currentCommand.getOrigin();
+		double alfieDirection = currentCommand.getFacingDirection();
 		
-		// Calculate direct distance from the Alfie to the target
-		int actualDistance = getDistance(target, Alfie);
-		int distance = actualDistance;
-		
-		if(VERBOSE) {
-			System.out.print("the distance to the  ball is : " + distance  + "\n");
+		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
+		if (VERBOSE) {
+			System.out.println("Angle to turn to: " + angleToTurn);
 		}
-		
-		// Calculate the angle required to face the ball
-		if(VERBOSE){
-			System.out.println("we are facing at an angle of: " + facing);
-		}
-		int angleToTurn = (int) getAngleToTarget(target, Alfie, facing);
-		
-		// angleToTurn is always given as the anti-clockwise angle needed, if the angle is above 180
-		// then it's quicker for us to turn right
-		if(angleToTurn > 180 ){
-			
-			angleToTurn =  360 - angleToTurn;
-			
-			if(VERBOSE) {
-				System.out.print("Alfie must turn Right at angle of : " + angleToTurn  + "\n");
+		// If Alfie is not facing the ball:
+		if (Math.abs(angleToTurn) > TURNING_ERROR_THRESHOLD) {
+			turning = true;
+			if (angleToTurn < 0) {
+				alfieServer.sendSpinLeft(TURNING_SPEED, 0);
+				if(VERBOSE) {
+					System.out.println("Turning right " + Math.abs(angleToTurn)  + " degrees");
+				}
+			} else {
+				alfieServer.sendSpinRight(TURNING_SPEED, 0);
+				if(VERBOSE) {
+					System.out.println("Turning left " + angleToTurn  + " degrees");
+				}
 			}
-			
-			alfieServer.sendSpinRight(MAX_SPEED, angleToTurn);
-			
 		} else {
-			
-			alfieServer.sendSpinLeft(MAX_SPEED, angleToTurn);
-			
-			if(VERBOSE) {
-				System.out.print("Alfie must turn left at angle of : " + angleToTurn  + "\n");
-			}
+			// Alfie is facing the ball: go forwards
+			turning = false;
+			alfieServer.sendGoForward(CRUISING_SPEED, 0);
 		}
-		
-		// After we've turned start moving forward until we're at the ball		
-		if(VERBOSE){
-			System.out.println("executeGoForward() called");
-		}
-		alfieServer.sendGoForward(MAX_SPEED, 0);
 	}
 	
 	/**
@@ -146,7 +151,7 @@ public class PlanExecutor {
 	}
 	
 	/**
-	 * This function stops Alfi and makes him wait for the next instruction
+	 * This function stops Alfie and makes him wait for the next instruction
 	 */
 	private void executeStopCommand(StopCommand currentCommand) {
 		System.out.println("executeStopCommand() called");
@@ -154,65 +159,68 @@ public class PlanExecutor {
 	}
 		
 	/**
-	 * this function finds the smallest angle between Alfie and his target
-	 * uses arc tan 2 function that gives it's result in rads
+	 * This function finds the smallest angle between Alfie and his target.
 	 * 
-	 * @param target co-ordinates of our target to navigate to
-	 * @param alfie position of Alfie
-	 * @param facing the angle we are facing
+	 * @param targetPosition Position of the target.
+	 * @param alfiePosition Position of Alfie.
+	 * @param facingDirection The angle Alfie is facing.
 	 * 
-	 * @return the angle to turn it will be positive if counterclockwise and negative for clockwise
+	 * @return The angle to turn at.
 	 */
-	private double getAngleToTarget(Point2D target, Point2D alfie, double facing) {
+	private double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
+		double dx = (targetPosition.getX() - alfiePosition.getX());
+		double dy = (targetPosition.getY() - alfiePosition.getY());
 		
-		double diffInX = (target.getX() - alfie.getX() );
-		double diffInY = (target.getY() - alfie.getY() );
+		double angle = Math.toDegrees(Math.atan2(dy, dx));
 		
-		if(VERBOSE) {
-			System.out.print(
-					"the distance from Alfie to the ball is : X " + diffInX + " Y " + diffInY  + "\n");
-		}
-		
-		/*
-		 * atan2 will give its angle in rads and it will be negative if
-		 * it is in lower half ie if the counterclockwise angle is >180
-		 * (starting at our zero) then the resulted angle is given as a
-		 *  negative angle that represents the clockwise rotation
-		 */
-		double angle = Math.toDegrees(Math.atan2(diffInY, diffInX));
-		
-		if(VERBOSE) {
-			System.out.print("the angle from the zero position to the ball is : " + angle  + "\n");
-		}
-		
-		if(angle < 0){
+		if (angle < 0) {
 			angle = 360 + angle;
 		}
-		angle = angle - facing;
-		
-		
-		
-		return angle;
-		
+		double result = angle - facingDirection;
+		// Variables angle and facingDirection are between 0 and 360. Thus result is 
+		// between -360 and 360. We need to normalize to -180 and 180. 
+		if (result < -180) {
+			result += 360;
+		} else if (result > 180) {
+			result -= 360;
+		}
+		return result;
 	}
 
-	/**
-	 * simple function to calculate the distance between two points
-	 * 
-	 * @param ball this is the position of the ball
-	 * @param alfie this is the position of Alfie
-	 * @return distance to the ball
-	 */
-	public int getDistance(Point2D ball, Point2D alfie) {
 
-		double diffInX = (ball.getX() - alfie.getX());
-		double diffInY = (ball.getY() - alfie.getY());
-		
-		double xSquared = Math.pow(diffInX, 2);
-		double ySquared = Math.pow(diffInY, 2);
-		
-		int distance = (int) Math.sqrt(xSquared + ySquared);
-		
-		return distance;
+	public void updateInfo(DynamicPitchInfo dpi) {
+		if (currentCommand instanceof ReachDestinationCommand) {
+			ReachDestinationCommand cmd = (ReachDestinationCommand)currentCommand;
+			Point2D targetPosition = cmd.getTarget();
+			
+			int angleToTurn = (int)getAngleToTarget(
+					targetPosition, 
+					dpi.getAlfieInfo().getPosition(), 
+					dpi.getAlfieInfo().getFacingDirection());
+			if (VERBOSE) {
+				System.out.println("Target at " + angleToTurn + " degrees");
+			}
+			if (turning) {
+				// Should Alfie stop turning?
+				if (Math.abs(angleToTurn) <= STOP_TURNING_THRESHOLD) {
+					// Makes Alfie stop turning.
+					cmd = new ReachDestinationCommand(
+							cmd.getTarget(), 
+							dpi.getAlfieInfo().getPosition(), 
+							dpi.getAlfieInfo().getFacingDirection());
+					executeReachDestinationCommand(cmd);
+				}
+			} else {
+				// Alfie should automatically stop when he reaches the ball.
+				if (Math.abs(angleToTurn) > TURNING_ERROR_THRESHOLD) {
+					// Makes Alfie stop turning.
+					cmd = new ReachDestinationCommand(
+							cmd.getTarget(), 
+							dpi.getAlfieInfo().getPosition(), 
+							dpi.getAlfieInfo().getFacingDirection());
+					executeReachDestinationCommand(cmd);
+				}
+			}
+		}
 	}
 }

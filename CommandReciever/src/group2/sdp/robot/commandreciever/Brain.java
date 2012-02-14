@@ -216,7 +216,13 @@ public class Brain {
 		pilot.setTravelSpeed(speed);
 		if (angle != 0) {
 			pilot.rotate(-angle);
+		} else {
+			if (speed > 0)
+				pilot.rotateLeft();
+			else 
+				pilot.rotateRight();
 		}
+		
 		
 		if (verbose) {
 			LCD.clear();

@@ -23,11 +23,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static int width = 640, height = 480,
 	width_margin = 20, height_margin = 60;
 
-
-	private static final int[] firebrick = new int[] { 178, 34, 34 };
-	private static final int[] Aqua = new int[] {0, 255, 255};
-	private static final int[] Coral = new int[] {255, 127, 80};
-
+	private final boolean VERBOSE = false;
+	
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
@@ -45,38 +42,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private static final int[] blue2 = new int[] {92,140,121};
 	private static final int[] ball2 = new int[] {253, 56, 25};
 
-	// BLUE thresholds
-	private static final int RThreshBlueLow = 1;
-	private static final int RThreshBlueHigh = 50;
-
-	private static final int GThreshBlueLow = 70;
-	private static final int GThreshBlueHigh = 150;
-
-	private static final int BThreshBlueLow = 70;
-	private static final int BThreshBlueHigh = 255;
-
-
-	// YELLOW thresholds
-	private static final int RThreshYellowLow = 110;
-	private static final int RThreshYellowHigh = 160;
-
-	private static final int GThreshYellowLow = 170;
-	private static final int GThreshYellowHigh = 250;
-
-	private static final int BThreshYellowLow = 0;
-	private static final int BThreshYellowHigh = 30;
-
-
-	// Ball thresholds
-	private static final int RThreshRedLow = 140;
-	private static final int RThreshRedHigh = 255;
-
-	private static final int GThreshRedLow = 15;
-	private static final int GThreshRedHigh = 35;
-
-	private static final int BThreshRedLow = 0;
-	private static final int BThreshRedHigh = 30;
-
 
 	// pure colours - used for drawing pixels
 	private static final int[] pureRed = new int[] { 255, 0, 0 };
@@ -90,8 +55,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		super(consumer);
 	}
 
-	public ImageProcessor(StaticInfoConsumer consumer,
-			ImageConsumer imageConsumer) {
+	public ImageProcessor(StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
 		super(consumer, imageConsumer);
 	}
 
@@ -168,19 +132,20 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
 
-		ArrayList<Point> mindFucked = mindFuck(image, plateCentroidYellowRobot, true);
+		ArrayList<Point> mindFlowers = mindFlower(image, plateCentroidYellowRobot, true);
 		
 		
 //		for (int i = 0; i < yellowPointsClean.size();i++) {
 //			drawPixel(raster,yellowPointsClean.get(i),Coral);
 //		}
 		
-		for (int i = 0; i < mindFucked.size();i++) {
+				
+		for (int i = 0; i < mindFlowers.size();i++) {
 			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
 		}
-
+		
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
-		this.yellowDir = regressionAndDirection(image, mindFucked, true);
+		this.yellowDir = regressionAndDirection(image, mindFlowers, true);
 
 		drawCross(raster,blueCentroid,pureBlue);
 		drawCross(raster,plateCentroidYellowRobot,pureYellow);
@@ -210,7 +175,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	ArrayList<Point> checked = new ArrayList<Point>();
 	
-	public ArrayList<Point> mindFuck(BufferedImage image, Point fixel, boolean isYellow){
+	public ArrayList<Point> mindFlower(BufferedImage image, Point fixel, boolean isYellow){
 
 		ArrayList<Point> fixels = new ArrayList<Point>();
 		int[] colour = getColour(image, fixel);
@@ -220,16 +185,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 			drawOnBuffImage(image, fixel, new int[] {255,255,1});
 			
-			fixels.addAll(mindFuck(image, new Point(fixel.x+1, fixel.y),isYellow));
+			fixels.addAll(mindFlower(image, new Point(fixel.x+1, fixel.y),isYellow));
 
 
-			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y+1),isYellow));
+			fixels.addAll(mindFlower(image, new Point(fixel.x, fixel.y+1),isYellow));
 
 
-			fixels.addAll(mindFuck(image, new Point(fixel.x-1, fixel.y),isYellow));
+			fixels.addAll(mindFlower(image, new Point(fixel.x-1, fixel.y),isYellow));
 
 
-			fixels.addAll(mindFuck(image, new Point(fixel.x, fixel.y-1),isYellow));
+			fixels.addAll(mindFlower(image, new Point(fixel.x, fixel.y-1),isYellow));
 
 		}
 		//}
@@ -289,13 +254,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			else {
 				fixelsCentroid = calcCentroid(fakes);
 			}
-		}
-		else {System.out.println("No robot on pitch");
+		} else {
+			if (VERBOSE)
+				System.out.println("No robot on pitch");
 		}
 		return fixels;
 	}
 
-	public double regressionAndDirection(BufferedImage image, ArrayList<Point> fixels, boolean isYellow){
+	public double regressionAndDirection(BufferedImage image, ArrayList<Point> pixels, boolean isYellow){
 
 		WritableRaster raster = image.getRaster();
 
@@ -306,24 +272,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		double allxy = 0;
 		double allx_sqr = 0;
 		double ally_sqr = 0;
-		int n = fixels.size();
+		int n = pixels.size();
 		double allx_45 = 0;
 		double ally_45 = 0;
 		double allxy_45 = 0;
 		double allx_45_sqr = 0;
 		double ally_45_sqr = 0;
 		
-		Point fixelsCentroid = calcCentroid(fixels);
+		Point pixelsCentroid = calcCentroid(pixels);
 
-		for (int i = 0; i < fixels.size(); i++) {
-			allx += fixels.get(i).x;
-			ally += fixels.get(i).y;
-			allxy += fixels.get(i).x * fixels.get(i).y;
-			allx_sqr += fixels.get(i).x * fixels.get(i).x;
-			ally_sqr += fixels.get(i).y * fixels.get(i).y;
+		for (int i = 0; i < pixels.size(); i++) {
+			allx += pixels.get(i).x;
+			ally += pixels.get(i).y;
+			allxy += pixels.get(i).x * pixels.get(i).y;
+			allx_sqr += pixels.get(i).x * pixels.get(i).x;
+			ally_sqr += pixels.get(i).y * pixels.get(i).y;
 			
-			int x_for_rotate = fixels.get(i).x - blueCentroid.x;
-			int y_for_rotate = fixels.get(i).y - blueCentroid.y;
+			int x_for_rotate = pixels.get(i).x - blueCentroid.x;
+			int y_for_rotate = pixels.get(i).y - blueCentroid.y;
 
 			double x_rotated = y_for_rotate * Math.sin(Math.toRadians(45))
 					- x_for_rotate * Math.cos(Math.toRadians(45));
@@ -340,7 +306,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 			allx_45_sqr += x_rotated * x_rotated;
 			ally_45_sqr += y_rotated * y_rotated;
-
 		}
 
 		
@@ -353,9 +318,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		double actualDir;
 		if (isYellow) {
-			actualDir = (findFacingDirection(image, fixelsCentroid, true));
+			actualDir = (findFacingDirection(image, pixelsCentroid, true));
 		} else {
-			actualDir = (findFacingDirection(image, fixelsCentroid, false));
+			actualDir = (findFacingDirection(image, pixelsCentroid, false));
 		}
 
 
@@ -566,7 +531,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		if (!fixels.isEmpty()){
 			centroid.x = fixelsInArrayList.x / fixels.size();
 			centroid.y = fixelsInArrayList.y / fixels.size();}
-		else System.out.println("Robot's missing");
+		else {
+			if (VERBOSE) {
+				System.out.println("Robot's missing.");
+			}
+		}
 		return centroid;
 	}
 

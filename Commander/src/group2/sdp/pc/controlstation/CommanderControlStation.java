@@ -1,13 +1,15 @@
 package group2.sdp.pc.controlstation;
 
+import group2.sdp.pc.planner.Milestone2Planner;
+import group2.sdp.pc.planner.Milestone2Planner.Mode;
 import group2.sdp.pc.planner.PlanExecutor;
-import group2.sdp.pc.planner.Planner;
 import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
 import group2.sdp.pc.vision.ImageProcessor;
 import group2.sdp.pc.vision.ImageProcessor2;
+import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -22,13 +24,31 @@ import java.awt.event.WindowListener;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JSlider;
 import javax.swing.JTextPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * The main GUI program to control Alfie during match or testing.
  */
 public class CommanderControlStation implements KeyListener {
 
+	/**
+	 * Used for the sliders.
+	 */
+	private final int MIN_BR_HUE = -120, MAX_BR_HUE = 0;
+	private int blueToRedHue = -60;
+	
+	private final int MIN_RY_HUE = 0, MAX_RY_HUE = 60;
+	private int redToYellowHue = 30;
+	
+	private final int MIN_YG_HUE = 60, MAX_YG_HUE = 120;
+	private int yellowToGreenHue = 80;
+	
+	private final int MIN_GB_HUE = 120, MAX_GB_HUE = 240;
+	private int greenToBlueHue = 150;
+	
 	// GUI elements
 	private JFrame frmAlfieCommandCentre;
 	
@@ -42,6 +62,17 @@ public class CommanderControlStation implements KeyListener {
 	private Checkbox executePlanCheckbox;
 
 	private Button runButton;
+	
+	private JLabel blueToRedHueLabel;
+	private JLabel redToYellowHueLabel;
+	private JLabel yellowToGreenHueLabel;
+	private JLabel greenToBlueHueLabel;
+	
+	
+	private JSlider blueToRedHueSlider;
+	private JSlider redToYellowHueSlider;
+	private JSlider yellowToGreenHueSlider;
+	private JSlider greenToBlueHueSlider;
 	
 	private JTextPane txtLog;
 	private JEditorPane Alfie_Speed;
@@ -129,7 +160,8 @@ public class CommanderControlStation implements KeyListener {
 					}
 				}
 				PlanExecutor executor = new PlanExecutor(alfieServer);
-				Planner planner = new Planner(executor);
+				Milestone2Planner planner = new Milestone2Planner(executor);
+				planner.setCurrentMode(Mode.GET_TO_BALL);
 				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
@@ -140,11 +172,11 @@ public class CommanderControlStation implements KeyListener {
 					new ImageGrabber(previewer);
 				}
 				if (planCheckbox.getState()) {
-					planner.run();
+					planner.start();
 				}
 				if (planDribble.getState()){
-					planner.dribbling = true;
-					planner.run();
+//					planner.dribbling = true;
+					planner.start();
 				}
 			}
 		};
@@ -162,7 +194,7 @@ public class CommanderControlStation implements KeyListener {
 	private void initializeFrame() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 700, 440);
+		frmAlfieCommandCentre.setBounds(100, 100, 1000, 440);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
@@ -218,6 +250,82 @@ public class CommanderControlStation implements KeyListener {
 			}
 		});
 		
+		blueToRedHueLabel = new JLabel();
+		blueToRedHueLabel.setText("B/R");
+		blueToRedHueLabel.setBounds(696, 12, 30, 25);
+		
+		blueToRedHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_BR_HUE, MAX_BR_HUE, blueToRedHue);
+		blueToRedHueSlider.setBounds(726, 12, 200, 25);
+		blueToRedHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				blueToRedHue = blueToRedHueSlider.getValue();
+				LCHColour.setBlueToRedHue(blueToRedHue + 360);
+				System.out.println(blueToRedHue + 360);
+			}
+		});
+		blueToRedHueSlider.setMajorTickSpacing(20);
+		blueToRedHueSlider.setMinorTickSpacing(5);
+		blueToRedHueSlider.setPaintTicks(true);
+
+		
+		redToYellowHueLabel = new JLabel();
+		redToYellowHueLabel.setText("R/Y");
+		redToYellowHueLabel.setBounds(696, 61, 30, 25);
+		
+		redToYellowHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_RY_HUE, MAX_RY_HUE, redToYellowHue);
+		redToYellowHueSlider.setBounds(726, 61, 200, 25);
+		redToYellowHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				redToYellowHue = redToYellowHueSlider.getValue();
+				LCHColour.setRedToYellowHue(redToYellowHue);
+			}
+		});
+		redToYellowHueSlider.setMajorTickSpacing(20);
+		redToYellowHueSlider.setMinorTickSpacing(5);
+		redToYellowHueSlider.setPaintTicks(true);
+		
+		
+		yellowToGreenHueLabel = new JLabel();
+		yellowToGreenHueLabel.setText("Y/G");
+		yellowToGreenHueLabel.setBounds(696, 110, 30, 25);
+		
+		yellowToGreenHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_YG_HUE, MAX_YG_HUE, yellowToGreenHue);
+		yellowToGreenHueSlider.setBounds(726, 110, 200, 25);
+		yellowToGreenHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				yellowToGreenHue = yellowToGreenHueSlider.getValue();
+				LCHColour.setYellowToGreenHue(yellowToGreenHue);
+			}
+		});
+		yellowToGreenHueSlider.setMajorTickSpacing(20);
+		yellowToGreenHueSlider.setMinorTickSpacing(5);
+		yellowToGreenHueSlider.setPaintTicks(true);
+		
+		
+		greenToBlueHueLabel = new JLabel();
+		greenToBlueHueLabel.setText("G/B");
+		greenToBlueHueLabel.setBounds(696, 159, 30, 25);
+		
+		greenToBlueHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_GB_HUE, MAX_GB_HUE, greenToBlueHue);
+		greenToBlueHueSlider.setBounds(726, 159, 200, 25);
+		greenToBlueHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				greenToBlueHue = greenToBlueHueSlider.getValue();
+				LCHColour.setGreenToBlueHue(greenToBlueHue);
+			}
+		});
+		greenToBlueHueSlider.setMajorTickSpacing(20);
+		greenToBlueHueSlider.setMinorTickSpacing(5);
+		greenToBlueHueSlider.setPaintTicks(true);;
+		
 		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
@@ -264,6 +372,16 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
 		frmAlfieCommandCentre.getContentPane().add(Angle);
 		frmAlfieCommandCentre.getContentPane().add(Speed);
+		
+		frmAlfieCommandCentre.getContentPane().add(blueToRedHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(redToYellowHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(yellowToGreenHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(greenToBlueHueLabel);
+		
+		frmAlfieCommandCentre.getContentPane().add(blueToRedHueSlider);
+		frmAlfieCommandCentre.getContentPane().add(redToYellowHueSlider);
+		frmAlfieCommandCentre.getContentPane().add(yellowToGreenHueSlider);
+		frmAlfieCommandCentre.getContentPane().add(greenToBlueHueSlider);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {

@@ -33,41 +33,74 @@ public class LCHColour {
 	/**
 	 * Lower boundary of the green hue.
 	 */
-	private final int GREEN_HUE_START = 80;
+	private static int greenHueStart = 80;
 	/**
 	 * Upper boundary of the green hue.
 	 */
-	private final int GREEN_HUE_END = 150;
+	private static int greenHueEnd = 150;
 	
 	/**
 	 * Lower boundary of the blue hue.
 	 */
-	private final int BLUE_HUE_START = 150;
+	private static int blueHueStart = 150;
 	/**
 	 * Upper boundary of the blue hue.
 	 */
-	private final int BLUE_HUE_END = 300;
+	private static int blueHueEnd = 300;
 	
 	/**
 	 * Lower boundary of the red hue (note that it is higher than the upper
 	 * boundary: the check is special here).
 	 */
-	private final int RED_HUE_START = 300;
+	private static int redHueStart = 300;
 	/**
 	 * Upper boundary of the red hue (note that it is smaller than the lower
 	 * boundary: the check is special here).
 	 */
-	private final int RED_HUE_END = 30;
+	private static int redHueEnd = 30;
 
 	/**
 	 * Lower boundary of the yellow hue.
 	 */
-	private final int YELLOW_HUE_START = 30;
+	private static int yellowHueStart = 30;
 	/**
 	 * Upper boundary of the yellow hue.
 	 */
-	private final int YELLOW_HUE_END = 80;
+	private static int yellowHueEnd = 80;
 
+	
+	/**
+	 * Sets the hue border between blue and red. Should be between 0 and 360.
+	 * @param value The new value of the border. Default is 300.
+	 */
+	public static void setBlueToRedHue(int value) {
+		redHueStart = blueHueEnd = value;
+	}
+	
+	/**
+	 * Sets the hue border between red and yellow. Should be between 0 and 360.
+	 * @param value The new value of the border. Default is 30.
+	 */
+	public static void setRedToYellowHue(int value) {
+		yellowHueStart = redHueEnd = value;
+	}
+	
+	/**
+	 * Sets the hue border between yellow and green. Should be between 0 and 360.
+	 * @param value The new value of the border. Default is 80.
+	 */
+	public static void setYellowToGreenHue(int value) {
+		greenHueStart = yellowHueEnd = value;
+	}
+	
+	/**
+	 * Sets the hue border between green and blue. Should be between 0 and 360.
+	 * @param value The new value of the border. Default is 150.
+	 */
+	public static void setGreenToBlueHue(int value) {
+		blueHueStart = greenHueEnd = value;
+	}
+	
 	
 	/**
 	 * The luma of the colour.
@@ -345,7 +378,7 @@ public class LCHColour {
 	 * @return True if the given hue level is red, false otherwise.
 	 */
 	public boolean hasYellowHue() {
-		return YELLOW_HUE_START <= hue && hue <= YELLOW_HUE_END;
+		return yellowHueStart <= hue && hue <= yellowHueEnd;
 	}
 		
 	/**
@@ -355,7 +388,7 @@ public class LCHColour {
 	 */
 	public boolean hasRedHue() {
 		// Note the or, instead of and.
-		return RED_HUE_START <= hue || hue < RED_HUE_END;
+		return redHueStart <= hue || hue < redHueEnd;
 	}
 	
 	/**
@@ -364,7 +397,7 @@ public class LCHColour {
 	 * @return True if the given hue level is blue, false otherwise.
 	 */
 	public boolean hasBlueHue() {
-		return BLUE_HUE_START < hue && hue < BLUE_HUE_END;
+		return blueHueStart < hue && hue < blueHueEnd;
 	}
 	
 	/**
@@ -373,7 +406,7 @@ public class LCHColour {
 	 * @return True if the given hue level is green, false otherwise.
 	 */
 	public boolean hasGreenHue() {
-		return GREEN_HUE_START < hue && hue <= GREEN_HUE_END;
+		return greenHueStart < hue && hue <= greenHueEnd;
 	}
 	
 	

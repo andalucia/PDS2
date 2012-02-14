@@ -10,7 +10,7 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 	private boolean running = false;
 	
 	protected PlanExecutor executor;
-	private ComplexCommand currentCommand;
+	protected ComplexCommand currentCommand;
 	
 	protected static final float[] PITCH_BOUNDARIES = new float[]{-122, -60.5f, 244, 121};
 	
@@ -18,23 +18,25 @@ public abstract class PlannerSkeleton implements DynamicInfoConsumer {
 		this.executor = executor;
 	}
 	
-	public void run() {
+	public void start() {
 		running = true;
+	}
+	
+	public void stop() {
+		running = false;
 	}
 	
 	@Override
 	public void consumeInfo(DynamicPitchInfo dpi) {
 		if (running) {
-			ComplexCommand command = planNextCommand(dpi);
 			boolean success = commandSuccessful(dpi);
 			boolean problem = problemExists(dpi);
 			if (success || problem) {
-				System.out.println("trying to execute");
-				// Wait for worker to finish. 
-				if(command.getType() != ComplexCommand.Type.CONTINUE){
-					currentCommand = command;
-					executor.execute(currentCommand);
-				}
+				ComplexCommand command = planNextCommand(dpi);
+				currentCommand = command;
+				executor.execute(currentCommand);
+			} else {
+				executor.updateInfo(dpi);
 			}
 		}
 	}
