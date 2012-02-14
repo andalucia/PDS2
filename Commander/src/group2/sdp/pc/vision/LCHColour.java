@@ -116,6 +116,61 @@ public class LCHColour {
 	 */
 	private int hue;
 
+	/*
+	 * These are settings for the luminosity. Each flag describes whether the given colour can
+	 * have the given luma level. 
+	 */
+	private boolean yellowHighLuma = true;
+	private boolean yellowMediumLuma;
+	private boolean yellowLowLuma;
+	
+	private boolean blueHighLuma = true;
+	private boolean blueMediumLuma = true;
+	private boolean blueLowLuma;
+	
+	private boolean greenPlateHighLuma = true;
+	private boolean greenPlateMediumLuma;
+	private boolean greenPlateLowLuma;
+	
+	private boolean greenPitchHighLuma;
+	private boolean greenPitchMediumLuma = true;
+	private boolean greenPitchLowLuma;
+	
+	private boolean redHighLuma = true;
+	private boolean redMediumLuma = true;
+	private boolean redLowLuma = true;
+	
+	private boolean grayHighLuma;
+	private boolean grayMediumLuma;
+	private boolean grayLowLuma = true;
+	
+	/*
+	 * These are settings for the chroma. Each flag describes whether the given colour can
+	 * have the given chroma level. 
+	 */
+	private boolean yellowHighChroma;
+	private boolean yellowMediumChroma;
+	private boolean yellowLowChroma = true;
+	
+	private boolean blueHighChroma = true;
+	private boolean blueMediumChroma = true;
+	private boolean blueLowChroma = true;
+	
+	private boolean greenPlateHighChroma = true;
+	private boolean greenPlateMediumChroma;
+	private boolean greenPlateLowChroma;
+	
+	private boolean greenPitchHighChroma;
+	private boolean greenPitchMediumChroma = true;
+	private boolean greenPitchLowChroma = true;
+	
+	private boolean redHighChroma = true;
+	private boolean redMediumChroma;
+	private boolean redLowChroma;
+	
+	private boolean grayHighChroma;
+	private boolean grayMediumChroma;
+	private boolean grayLowChroma = true;
 	
 	/**
 	 * Converts the specified red-green-blue colour to LCHColour.
@@ -275,99 +330,144 @@ public class LCHColour {
 	/**
 	 * Get the yellow score of the current colour. It is the number of 
 	 * 'yellow' properties that the colour satisfies: being yellow in hue,
-	 * having high luma and having low chroma. 
+	 * having appropriate luma and chroma. 
 	 * @return The yellow score of the current colour.
 	 */
 	private int yellowScore() {
 		int score = 0;
 		score += hasYellowHue() ? 1 : 0;
-		score += hasHighLuma() ? 1 : 0;
-		score += hasLowChroma() ? 1 : 0;
+		score += 
+			(hasHighLuma() ^ !yellowHighLuma) ||  
+			(hasMediumLuma() ^ !yellowMediumLuma) || 
+			(hasLowLuma() ^ !yellowLowLuma) 
+			? 1 
+			: 0;
+		score += 
+			(hasHighChroma() ^ !yellowHighChroma) ||  
+			(hasMediumChroma() ^ !yellowMediumChroma) || 
+			(hasLowChroma() ^ !yellowLowChroma) 
+			? 1 
+			: 0;
 		return score;
 	}
+
 
 	/**
 	 * Get the blue score of the current colour. It is the number of 
 	 * 'blue' properties that the colour satisfies: being blue in hue
-	 * and having medium chroma. 
+	 * and having appropriate luma and chroma.
 	 * @return The blue score of the current colour.
 	 */
 	private int blueScore() {
-		int score = 1;
+		int score = 0;
 		score += hasBlueHue() ? 1 : 0;
-		score += !hasLowLuma() ? 1 : 0;
-		// Not adding random chance as the blue range is quite big. If we are out of it,
-		// it is definitely not blue. (TODO: or is it?)
+		score +=  
+			(hasHighLuma() ^ !blueHighLuma) ||  
+			(hasMediumLuma() ^ !blueMediumLuma) || 
+			(hasLowLuma() ^ !blueLowLuma) 
+			? 1 
+			: 0;
+		score += 
+			(hasHighChroma() ^ !blueHighChroma) ||  
+			(hasMediumChroma() ^ !blueMediumChroma) || 
+			(hasLowChroma() ^ !blueLowChroma) 
+			? 1 
+			: 0;
 		return score;
 	}
 
 	/**
 	 * Get the green-plate score of the current colour. It is the number of 
 	 * 'green-plate' properties that the colour satisfies: being green in hue,
-	 * having high luma and having high chroma. 
+	 * having appropriate luma and chroma.
 	 * @return The green-pitch score of the current colour.
 	 */
 	private int greenPlateScore() {
 		int score = 0;
 		score += hasGreenHue() ? 1 : 0;
-		score += hasHighLuma() ? 1 : 0;
-		score += hasHighChroma() ? 1 : 0;
+		score +=  
+			(hasHighLuma() ^ !greenPlateHighLuma) ||  
+			(hasMediumLuma() ^ !greenPlateMediumLuma) || 
+			(hasLowLuma() ^ !greenPlateLowLuma) 
+			? 1 
+			: 0;
+		score +=  
+			(hasHighChroma() ^ !greenPlateHighChroma) ||  
+			(hasMediumChroma() ^ !greenPlateMediumChroma) || 
+			(hasLowChroma() ^ !greenPlateLowChroma)
+			? 1 
+			: 0;
 		return score;
 	}
 
 	/**
 	 * Get the green-pitch score of the current colour. It is the number of 
 	 * 'green-pitch' properties that the colour satisfies: being green in hue,
-	 * having medium luma and *not* having high chroma. 
+	 * having appropriate luma and chroma.
 	 * @return The green-pitch score of the current colour.
 	 */
 	private int greenPitchScore() {
 		int score = 0;
 		score += hasGreenHue() ? 1 : 0;
-		score += !hasHighLuma() && !hasLowLuma() ? 1 : 0;
-		score += !hasHighChroma() ? 1 : 0;
+		score +=  
+			(hasHighLuma() ^ !greenPitchHighLuma) ||  
+			(hasMediumLuma() ^ !greenPitchMediumLuma) || 
+			(hasLowLuma() ^ !greenPitchLowLuma) 
+			? 1 
+			: 0;
+		score +=  
+			(hasHighChroma() ^ !greenPitchHighChroma) ||  
+			(hasMediumChroma() ^ !greenPitchMediumChroma) || 
+			(hasLowChroma() ^ !greenPitchLowChroma)
+			? 1 
+			: 0;
 		return score;
 	}
 
 	/**
 	 * Get the gray score of the current colour. It is the number of 
 	 * 'gray' properties that the colour satisfies: having low luma 
-	 * and having low chroma. If the score is 1 there is 50% chance that
-	 * it spontaneously jumps to 2. This is since there are only two properties,
-	 * and yes, it is not well justified.
+	 * and having appropriate luma and chroma.
 	 * @return The gray score of the current colour.
 	 */
 	private int grayScore() {
-		int score = 1;
-		score += hasLowLuma() ? 1 : 0;
-		score += hasLowChroma() ? 1 : 0;
-		if (score == 1) {
-			// If the pixel has chroma or luma that is not low enough 
-			// (but not both), there is a 50% chance to classify the pixel 
-			// as gray. 
-			score += Math.random() >= 0.5 ? 1 : 0;
-		}
+		int score = 1; // The hue can be any
+		score +=  
+			(hasHighLuma() ^ !grayHighLuma) ||  
+			(hasMediumLuma() ^ !grayMediumLuma) || 
+			(hasLowLuma() ^ !grayLowLuma) 
+			? 1 
+			: 0;
+		score +=  
+			(hasHighChroma() ^ !grayHighChroma) ||  
+			(hasMediumChroma() ^ !grayMediumChroma) || 
+			(hasLowChroma() ^ !grayLowChroma) 
+			? 1 
+			: 0;
 		return score;
 	}
 	
 	/**
 	 * Get the red score of the current colour. It is the number of 
 	 * 'red' properties that the colour satisfies: being red in hue
-	 * and having low chroma. If the score is 1 there is 50% chance that
-	 * it spontaneously jumps to 2. This is since there are only two properties,
-	 * and yes, it is not well justified.
+	 * and having appropriate luma and chroma.
 	 * @return The red score of the current colour.
 	 */
 	private int redScore() {
-		int score = 1;
+		int score = 0;
 		score += hasRedHue() ? 1 : 0;
-		score += hasHighChroma() ? 1 : 0;
-		if (score == 1) {
-			// If the pixel is either not red or has chroma that is not high 
-			// enough (but not both), there is a 50% chance to classify the 
-			// pixel as red. 
-			score += Math.random() >= 0.5 ? 1 : 0;
-		}
+		score +=  
+			(hasHighLuma() ^ !redHighLuma) ||  
+			(hasMediumLuma() ^ !redMediumLuma) || 
+			(hasLowLuma() ^ !redLowLuma) 
+			? 1 
+			: 0;
+		score +=  
+			(hasHighChroma() ^ !redHighChroma) ||  
+			(hasMediumChroma() ^ !redMediumChroma) || 
+			(hasLowChroma() ^ !redLowChroma) 
+			? 1 
+			: 0;
 		return score;
 	}
 	
@@ -420,6 +520,15 @@ public class LCHColour {
 	}
 	
 	/**
+	 * Returns whether some luma level is medium or not.
+	 * @param luma The luma level to check for being medium or not.
+	 * @return True if the given luma level is medium, false otherwise.
+	 */
+	private boolean hasMediumLuma() {
+		return !hasHighLuma() && !hasLowLuma();
+	}
+	
+	/**
 	 * Returns whether some luma level is high or not.
 	 * @param luma The luma level to check for being high or not.
 	 * @return True if the given luma level is high, false otherwise.
@@ -428,6 +537,7 @@ public class LCHColour {
 		return luma < LOW_LUMA_THRESHOLD;
 	}
 	
+	
 	/**
 	 * Returns whether some chroma level is high or not.
 	 * @param chroma The chroma level to check for being high or not.
@@ -435,6 +545,15 @@ public class LCHColour {
 	 */
 	public boolean hasHighChroma() {
 		return chroma > HIGH_CHROMA_THRESHOLD;
+	}
+	
+	/**
+	 * Returns whether some chroma level is medium or not.
+	 * @param luma The chroma level to check for being medium or not.
+	 * @return True if the given chroma level is medium, false otherwise.
+	 */
+	private boolean hasMediumChroma() {
+		return !hasHighChroma() && !hasLowChroma();
 	}
 	
 	/**
