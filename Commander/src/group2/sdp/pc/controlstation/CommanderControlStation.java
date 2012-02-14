@@ -161,7 +161,6 @@ public class CommanderControlStation implements KeyListener {
 				}
 				PlanExecutor executor = new PlanExecutor(alfieServer);
 				Milestone2Planner planner = new Milestone2Planner(executor);
-				planner.setCurrentMode(Mode.GET_TO_BALL);
 				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
@@ -172,10 +171,11 @@ public class CommanderControlStation implements KeyListener {
 					new ImageGrabber(previewer);
 				}
 				if (planCheckbox.getState()) {
+					planner.setCurrentMode(Mode.GET_TO_BALL);
 					planner.start();
 				}
 				if (planDribble.getState()){
-//					planner.dribbling = true;
+					planner.setCurrentMode(Mode.DRIBBLE);
 					planner.start();
 				}
 			}

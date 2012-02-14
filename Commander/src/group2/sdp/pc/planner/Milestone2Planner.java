@@ -93,6 +93,7 @@ public class Milestone2Planner extends PlannerSkeleton {
 			}
 			
 		case DRIBBLE:
+			stop();
 			return new DribbleCommand(ball, alfie, facing);
 
 		default:
