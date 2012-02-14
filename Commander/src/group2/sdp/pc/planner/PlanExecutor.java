@@ -27,14 +27,31 @@ public class PlanExecutor {
 	private static final int MAX_SPEED = 50;
 	
 	private static final int TURNING_SPEED = 10;
-	private static final int TURNING_ERROR_THRESHOLD = 10;
+	
+	/**
+	 * Accuracy of the initial angle
+	 * Maximum with current vision (to prevent stuttering) is 38 degrees
+	 */
+	private static final int LONG_TURNING_ERROR_THRESHOLD = 40;
+	
+	/**
+	 * Defines the accuracy for Alfie's final angle
+	 * Maximum accuracy with the current vision system seem to be 8 degrees  	
+	 */
+	private static final int SHORT_TURNING_ERROR_THRESHOLD = 8;
+	
+	/**
+	 * Distance from the ball Alfie should be before trying to get to the SHORT_TURNING_ERROR_THRESHOLD accuracy
+	 */
+	private static final int TARGET_SHORT_THRESHOLD = 25;
+	
 	private static final int STOP_TURNING_THRESHOLD = 45;
 	private static final int CRUISING_SPEED = 20;
-	
+
 	/**
 	 * Default dribbling speed.
 	 */
-	private static final int DRIBBLE_SPEED = 30;
+	private static final int DRIBBLE_SPEED = 10;
 	
 	
 	
@@ -106,11 +123,22 @@ public class PlanExecutor {
 		double alfieDirection = currentCommand.getFacingDirection();
 		
 		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
+		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
+		int threshold, speed;
+						
+		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
+			threshold = SHORT_TURNING_ERROR_THRESHOLD;
+		} else {
+			threshold = LONG_TURNING_ERROR_THRESHOLD;
+		}
+		
 		if (VERBOSE) {
 			System.out.println("Angle to turn to: " + angleToTurn);
+			System.err.println("Distance: " + distanceToTarget);
 		}
+		
 		// If Alfie is not facing the ball:
-		if (Math.abs(angleToTurn) > TURNING_ERROR_THRESHOLD) {
+		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
 				alfieServer.sendSpinLeft(TURNING_SPEED, 0);
@@ -127,6 +155,9 @@ public class PlanExecutor {
 			// Alfie is facing the ball: go forwards
 			turning = false;
 			alfieServer.sendGoForward(CRUISING_SPEED, 0);
+			if(VERBOSE) {
+				System.err.println("Going forward at speed: " + CRUISING_SPEED);
+			}
 		}
 	}
 	
@@ -138,7 +169,7 @@ public class PlanExecutor {
 	 */	
 	private void executeDribbleCommand(DribbleCommand currentCommand) {
 		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
-		alfieServer.sendStop();
+		//alfieServer.sendStop();
 	}
 	
 	/**
@@ -212,7 +243,7 @@ public class PlanExecutor {
 				}
 			} else {
 				// Alfie should automatically stop when he reaches the ball.
-				if (Math.abs(angleToTurn) > TURNING_ERROR_THRESHOLD) {
+				if (Math.abs(angleToTurn) > SHORT_TURNING_ERROR_THRESHOLD) {
 					// Makes Alfie stop turning.
 					cmd = new ReachDestinationCommand(
 							cmd.getTarget(), 

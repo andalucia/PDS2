@@ -24,18 +24,20 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	/**
 	 * Is Alfie's T yellow?
 	 */
-	private boolean yellowAlfie;
+	protected boolean yellowAlfie;
 
 	/**
 	 * A constructor that takes the object that is going to consume the output.
 	 * @param consumer The object that is going to consume the output.
 	 */
-	public ImageProcessorSkeleton (StaticInfoConsumer consumer) {
+	public ImageProcessorSkeleton (StaticInfoConsumer consumer, boolean yellowAlfie) {
 		this.staticInfoConsumer = consumer;
+		this.yellowAlfie = yellowAlfie;
 	}
 	
-	public ImageProcessorSkeleton (StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
+	public ImageProcessorSkeleton (StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
 		this.staticInfoConsumer = consumer;
+		this.yellowAlfie = yellowAlfie;
 		this.imageConsumer = imageConsumer;
 	}
 	
@@ -70,7 +72,6 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time);
 		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
-		//spi.printAllStaticInfo();
 		
 		if (internalImage == null) {
 			internalImage = image;

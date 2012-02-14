@@ -29,7 +29,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 
-	private final static boolean pitchOne = true;
+	private final static boolean pitchOne = false;
 
 	//pitch1 colours
 	private static final int[] yellow1 = new int[] {115,100,30};
@@ -38,8 +38,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 
 	// pitch2 colours
-	private static final int[] yellow2 = new int[] {230,200,7};
-	private static final int[] blue2 = new int[] {92,140,121};
+	private static final int[] yellow2 = new int[] {250,175,5};
+	private static final int[] blue2 = new int[] {40,130,160};
 	private static final int[] ball2 = new int[] {253, 56, 25};
 
 
@@ -51,12 +51,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 
 
-	public ImageProcessor(StaticInfoConsumer consumer) {
-		super(consumer);
+	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie) {
+		super(consumer, yellowAlfie);
 	}
 
-	public ImageProcessor(StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
-		super(consumer, imageConsumer);
+	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
+		super(consumer, yellowAlfie, imageConsumer);
 	}
 
 
@@ -132,31 +132,16 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
 
-<<<<<<< HEAD
 		ArrayList<Point> mindFlowers = mindFlower(image, plateCentroidYellowRobot, true);
-=======
-		ArrayList<Point> mindFlowers = mindFlower(image, plateCentroidYellowRobot, true);
->>>>>>> cb9878b9570af20760b255634e26c25ca0ab6031
 		
 		
-//		for (int i = 0; i < yellowPointsClean.size();i++) {
-//			drawPixel(raster,yellowPointsClean.get(i),Coral);
-//		}
-		
-<<<<<<< HEAD
-		for (int i = 0; i < mindFlowers.size();i++) {
-			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
+		for (int i = 0; i < yellowPointsClean.size();i++) {
+			drawPixel(raster,yellowPointsClean.get(i),new int [] {255, 128, 0});
 		}
+		
 
-=======
-				
-		for (int i = 0; i < mindFlowers.size();i++) {
-			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
-		}
-		
->>>>>>> cb9878b9570af20760b255634e26c25ca0ab6031
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
-		this.yellowDir = regressionAndDirection(image, mindFlowers, true);
+		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
 
 		drawCross(raster,blueCentroid,pureBlue);
 		drawCross(raster,plateCentroidYellowRobot,pureYellow);
@@ -186,11 +171,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	ArrayList<Point> checked = new ArrayList<Point>();
 	
-<<<<<<< HEAD
 	public ArrayList<Point> mindFlower(BufferedImage image, Point fixel, boolean isYellow){
-=======
-	public ArrayList<Point> mindFlower(BufferedImage image, Point fixel, boolean isYellow){
->>>>>>> cb9878b9570af20760b255634e26c25ca0ab6031
 
 		ArrayList<Point> fixels = new ArrayList<Point>();
 		int[] colour = getColour(image, fixel);
@@ -200,7 +181,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 			drawOnBuffImage(image, fixel, new int[] {255,255,1});
 			
-<<<<<<< HEAD
 			fixels.addAll(mindFlower(image, new Point(fixel.x+1, fixel.y),isYellow));
 
 
@@ -214,23 +194,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		}
 		//}
-		else System.out.println("not yellow");
-=======
-			fixels.addAll(mindFlower(image, new Point(fixel.x+1, fixel.y),isYellow));
 
-
-			fixels.addAll(mindFlower(image, new Point(fixel.x, fixel.y+1),isYellow));
-
-
-			fixels.addAll(mindFlower(image, new Point(fixel.x-1, fixel.y),isYellow));
-
-
-			fixels.addAll(mindFlower(image, new Point(fixel.x, fixel.y-1),isYellow));
-
-		}
-		//}
-		//else System.out.println("not yellow");
->>>>>>> cb9878b9570af20760b255634e26c25ca0ab6031
 		//if (fixels.size() == 0){System.out.println("sick of you");}
 		return fixels;
 	}
