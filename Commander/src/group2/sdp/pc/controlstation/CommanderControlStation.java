@@ -15,6 +15,7 @@ import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.EventQueue;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -57,6 +58,14 @@ public class CommanderControlStation implements KeyListener {
 	private Checkbox yellowAlfieCheckbox;
 	private Checkbox blueAlfieCheckbox;
 	
+	private Label[] colorLabels;
+	
+	private Label lumaLabel;
+	private Checkbox [][] lumaCheckboxes;
+	
+	private Label chromaLabel;
+	private Checkbox [][] chromaCheckboxes;
+	
 	private Checkbox connectToAlfieCheckbox;
 	private Checkbox grabImageCheckbox;
 	private Checkbox processImageCheckbox;
@@ -67,6 +76,7 @@ public class CommanderControlStation implements KeyListener {
 	private Checkbox executePlanCheckbox;
 
 	private Button runButton;
+	private Button updateButton;
 	
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
@@ -284,6 +294,62 @@ public class CommanderControlStation implements KeyListener {
 			}
 		});
 		
+		final int COLOUR_NUM = 6;
+		final int LEVELS_NUM = 3;
+		
+		String [] colours = {"Yellow", "Blue", "Plate", "Pitch", "Red", "Gray"}; 
+		colorLabels = new Label[6];
+		for (int i = 0; i < COLOUR_NUM; ++i) {
+			colorLabels[i] = new Label();
+			colorLabels[i].setBounds(212, 40 + i * 28, 45, 25);
+			colorLabels[i].setText(colours[i]);
+			frmAlfieCommandCentre.getContentPane().add(colorLabels[i]);
+		}
+		
+		chromaLabel = new Label();
+		chromaLabel.setBounds(356, 12, 81, 25);
+		chromaLabel.setText("Chroma");
+		
+		chromaCheckboxes = new Checkbox [COLOUR_NUM][LEVELS_NUM];
+		for (int i = 0; i < COLOUR_NUM; ++i) {
+			for (int j = 0; j < LEVELS_NUM; ++j) {
+				chromaCheckboxes[i][j] = new Checkbox();
+				chromaCheckboxes[i][j].setBounds(356 + j * 28, 40 + i * 28, 25, 25);
+				chromaCheckboxes[i][j].setState(LCHColour.getChromaCheck(i, j));
+				frmAlfieCommandCentre.getContentPane().add(chromaCheckboxes[i][j]);
+			}
+		}
+		
+		lumaLabel = new Label();
+		lumaLabel.setBounds(260, 12, 81, 25);
+		lumaLabel.setText("Luminosity");
+		
+		lumaCheckboxes = new Checkbox [COLOUR_NUM][LEVELS_NUM];
+		for (int i = 0; i < COLOUR_NUM; ++i) {
+			for (int j = 0; j < LEVELS_NUM; ++j) {
+				lumaCheckboxes[i][j] = new Checkbox();
+				lumaCheckboxes[i][j].setBounds(260 + j * 28, 40 + i * 28, 25, 25);
+				lumaCheckboxes[i][j].setState(LCHColour.getLumaCheck(i, j));
+				frmAlfieCommandCentre.getContentPane().add(lumaCheckboxes[i][j]);
+			}
+		}
+		
+		updateButton = new Button();
+		updateButton.setLabel("Update");
+		updateButton.setBounds(260, 292, 100, 25);
+		updateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 0; i < COLOUR_NUM; ++i) {
+					for (int j = 0; j < LEVELS_NUM; ++j) {
+						LCHColour.setLumaCheck(i, j, lumaCheckboxes[i][j].getState());
+						LCHColour.setChromaCheck(i, j, chromaCheckboxes[i][j].getState());
+					}
+				}
+			}
+		});
+		
 		blueToRedHueLabel = new JLabel();
 		blueToRedHueLabel.setText("B/R");
 		blueToRedHueLabel.setBounds(696, 12, 30, 25);
@@ -375,10 +441,12 @@ public class CommanderControlStation implements KeyListener {
 		});
 		grabImageButton.setEnabled(false);
 		
+		
+		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
 		txtLog.setBounds(212, 12, 472, 305);
-		frmAlfieCommandCentre.getContentPane().add(txtLog);
+
 		txtLog.addKeyListener(this);
 		Info = new JLabel();
 		Info2 = new JLabel();
@@ -387,9 +455,6 @@ public class CommanderControlStation implements KeyListener {
 		Info.setText("UP: forward; DOWN: backward; LEFT: trun left; RIGHT: trun right");
 
 		Info2.setText("1: +speed; 2: -speed; 3: +angle; 4: -angle");
-
-		frmAlfieCommandCentre.getContentPane().add(Info);
-		frmAlfieCommandCentre.getContentPane().add(Info2);
 
 		Alfie_Speed = new JEditorPane();
 		Alfie_Speed.setBounds(380, 373, 40, 25);
@@ -407,6 +472,8 @@ public class CommanderControlStation implements KeyListener {
 		Angle.setText("Angle");
 		Angle.setBounds(210, 373, 40, 25);
 		
+		
+		
 		frmAlfieCommandCentre.getContentPane().add(yellowAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(blueAlfieCheckbox);
 		
@@ -419,10 +486,19 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(planDribble);
 		frmAlfieCommandCentre.getContentPane().add(executePlanCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
-		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
-		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
-		frmAlfieCommandCentre.getContentPane().add(Angle);
-		frmAlfieCommandCentre.getContentPane().add(Speed);
+		
+		frmAlfieCommandCentre.getContentPane().add(lumaLabel);
+		frmAlfieCommandCentre.getContentPane().add(chromaLabel);
+
+		frmAlfieCommandCentre.getContentPane().add(updateButton);
+		
+//		frmAlfieCommandCentre.getContentPane().add(txtLog);
+//		frmAlfieCommandCentre.getContentPane().add(Info);
+//		frmAlfieCommandCentre.getContentPane().add(Info2);
+//		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
+//		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
+//		frmAlfieCommandCentre.getContentPane().add(Angle);
+//		frmAlfieCommandCentre.getContentPane().add(Speed);
 		
 		frmAlfieCommandCentre.getContentPane().add(blueToRedHueLabel);
 		frmAlfieCommandCentre.getContentPane().add(redToYellowHueLabel);

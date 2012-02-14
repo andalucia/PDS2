@@ -13,21 +13,21 @@ public class LCHColour {
 	/**
 	 * Chroma levels above this one are considered high.
 	 */
-	private final int HIGH_CHROMA_THRESHOLD = 80;
+	private static int highChromaThreshold = 80;
 	/**
 	 * Chroma levels below this one are considered low.
 	 */
-	private final int LOW_CHROMA_THRESHOLD = 20;
+	private static int lowChromaThreshold = 20;
 
 	// Luma settings:
 	/**
 	 * Luma levels above this one are considered high.
 	 */
-	private final int HIGH_LUMA_THRESHOLD = 90;
+	private static int highLumaThreshold = 90;
 	/**
 	 * Luma levels below this one are considered low.
 	 */
-	private final int LOW_LUMA_THRESHOLD = 60;	
+	private static int lowLumaThreshold = 60;	
 	
 	// Hue settings:
 	/**
@@ -69,6 +69,63 @@ public class LCHColour {
 	private static int yellowHueEnd = 80;
 
 	
+	/*
+	 * These are settings for the luminosity. Each flag describes whether the given colour can
+	 * have the given luma level. 
+	 */
+	private static boolean yellowHighLuma = true;
+	private static boolean yellowMediumLuma;
+	private static boolean yellowLowLuma;
+	
+	private static boolean blueHighLuma = true;
+	private static boolean blueMediumLuma = true;
+	private static boolean blueLowLuma;
+	
+	private static boolean greenPlateHighLuma = true;
+	private static boolean greenPlateMediumLuma;
+	private static boolean greenPlateLowLuma;
+	
+	private static boolean greenPitchHighLuma;
+	private static boolean greenPitchMediumLuma = true;
+	private static boolean greenPitchLowLuma;
+	
+	private static boolean redHighLuma = true;
+	private static boolean redMediumLuma = true;
+	private static boolean redLowLuma = true;
+	
+	private static boolean grayHighLuma;
+	private static boolean grayMediumLuma;
+	private static boolean grayLowLuma = true;
+	
+	/*
+	 * These are settings for the chroma. Each flag describes whether the given colour can
+	 * have the given chroma level. 
+	 */
+	private static boolean yellowHighChroma;
+	private static boolean yellowMediumChroma;
+	private static boolean yellowLowChroma = true;
+	
+	private static boolean blueHighChroma = true;
+	private static boolean blueMediumChroma = true;
+	private static boolean blueLowChroma = true;
+	
+	private static boolean greenPlateHighChroma = true;
+	private static boolean greenPlateMediumChroma;
+	private static boolean greenPlateLowChroma;
+	
+	private static boolean greenPitchHighChroma;
+	private static boolean greenPitchMediumChroma = true;
+	private static boolean greenPitchLowChroma = true;
+	
+	private static boolean redHighChroma = true;
+	private static boolean redMediumChroma;
+	private static boolean redLowChroma;
+	
+	private static boolean grayHighChroma;
+	private static boolean grayMediumChroma;
+	private static boolean grayLowChroma = true;
+	
+	
 	/**
 	 * Sets the hue border between blue and red. Should be between 0 and 360.
 	 * @param value The new value of the border. Default is 300.
@@ -101,6 +158,303 @@ public class LCHColour {
 		blueHueStart = greenHueEnd = value;
 	}
 	
+	/**
+	 * Set whether colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have luma level j {LOW = 0, MEDIUM = 1, HIGH = 2}. 
+	 * @param i YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, RED = 4, GRAY = 5
+	 * @param j LOW = 0, MEDIUM = 1, HIGH = 2
+	 * @param state Whether colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have luma level j {LOW = 0, MEDIUM = 1, HIGH = 2}.
+	 */
+	public static void setLumaCheck(int i, int j, boolean state) {
+		switch(i) {
+		case 0:
+			switch (j) {
+			case 0:
+				yellowLowLuma = state;
+				break;
+			case 1:
+				yellowMediumLuma = state;
+				break;
+			case 2:
+				yellowHighLuma = state;
+				break;
+			}
+			break;
+		case 1:
+			switch (j) {
+			case 0:
+				blueLowLuma = state;
+				break;
+			case 1:
+				blueMediumLuma = state;
+				break;
+			case 2:
+				blueHighLuma = state;
+				break;
+			}
+			break;
+		case 2:
+			switch (j) {
+			case 0:
+				greenPlateLowLuma = state;
+				break;
+			case 1:
+				greenPlateMediumLuma = state;
+				break;
+			case 2:
+				greenPlateHighLuma = state;
+				break;
+			}
+			break;
+		case 3:
+			switch (j) {
+			case 0:
+				greenPitchLowLuma = state;
+				break;
+			case 1:
+				greenPitchMediumLuma = state;
+				break;
+			case 2:
+				greenPitchHighLuma = state;
+				break;
+			}
+			break;
+		case 4:
+			switch (j) {
+			case 0:
+				redLowLuma = state;
+				break;
+			case 1:
+				redMediumLuma = state;
+				break;
+			case 2:
+				redHighLuma = state;
+				break;
+			}
+			break;
+		case 5:
+			switch (j) {
+			case 0:
+				grayLowLuma = state;
+				break;
+			case 1:
+				grayMediumLuma = state;
+				break;
+			case 2:
+				grayHighLuma = state;
+				break;
+			}
+			break;
+		}
+	}
+	
+	/**
+	 * Get whether colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have luma level j {LOW = 0, MEDIUM = 1, HIGH = 2}. 
+	 * @param i YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, RED = 4, GRAY = 5
+	 * @param j LOW = 0, MEDIUM = 1, HIGH = 2
+	 * @return True if colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have luma level j {LOW = 0, MEDIUM = 1, HIGH = 2}, false 
+	 * otherwise.
+	 */
+	public static boolean getLumaCheck(int i, int j) {
+		switch(i) {
+		case 0:
+			return 
+				j == 0 
+					? yellowLowLuma
+					: j == 1
+						? yellowMediumLuma
+						: yellowHighLuma;
+		case 1:
+			return 
+				j == 0 
+					? blueLowLuma
+					: j == 1
+						? blueMediumLuma
+						: blueHighLuma;
+		case 2:
+			return 
+				j == 0 
+					? greenPlateLowLuma
+					: j == 1
+						? greenPlateMediumLuma
+						: greenPlateHighLuma;
+		case 3:
+			return 
+				j == 0 
+					? greenPlateLowLuma
+					: j == 1
+						? greenPlateMediumLuma
+						: greenPlateHighLuma;			
+		case 4:
+			return 
+				j == 0 
+					? redLowLuma
+					: j == 1
+						? redMediumLuma
+						: redHighLuma;
+		case 5:
+			return 
+				j == 0 
+					? grayLowLuma
+					: j == 1
+						? grayMediumLuma
+						: grayHighLuma;
+		}
+		return false;
+	}
+	
+	/**
+	 * Set whether colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have chroma level j {LOW = 0, MEDIUM = 1, HIGH = 2}. 
+	 * @param i YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, RED = 4, GRAY = 5
+	 * @param j LOW = 0, MEDIUM = 1, HIGH = 2
+	 * @param state Whether colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have chroma level j {LOW = 0, MEDIUM = 1, HIGH = 2}.
+	 */
+	public static void setChromaCheck(int i, int j, boolean state) {
+		switch(i) {
+		case 0:
+			switch (j) {
+			case 0:
+				yellowLowChroma = state;
+				break;
+			case 1:
+				yellowMediumChroma = state;
+				break;
+			case 2:
+				yellowHighChroma = state;
+				break;
+			}
+			break;
+		case 1:
+			switch (j) {
+			case 0:
+				blueLowChroma = state;
+				break;
+			case 1:
+				blueMediumChroma = state;
+				break;
+			case 2:
+				blueHighChroma = state;
+				break;
+			}
+			break;
+		case 2:
+			switch (j) {
+			case 0:
+				greenPlateLowChroma = state;
+				break;
+			case 1:
+				greenPlateMediumChroma = state;
+				break;
+			case 2:
+				greenPlateHighChroma = state;
+				break;
+			}
+			break;
+		case 3:
+			switch (j) {
+			case 0:
+				greenPitchLowChroma = state;
+				break;
+			case 1:
+				greenPitchMediumChroma = state;
+				break;
+			case 2:
+				greenPitchHighChroma = state;
+				break;
+			}
+			break;
+		case 4:
+			switch (j) {
+			case 0:
+				redLowChroma = state;
+				break;
+			case 1:
+				redMediumChroma = state;
+				break;
+			case 2:
+				redHighChroma = state;
+				break;
+			}
+			break;
+		case 5:
+			switch (j) {
+			case 0:
+				grayLowChroma = state;
+				break;
+			case 1:
+				grayMediumChroma = state;
+				break;
+			case 2:
+				grayHighChroma = state;
+				break;
+			}
+			break;
+		}
+	}
+	
+	/**
+	 * Get whether colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have chroma level j {LOW = 0, MEDIUM = 1, HIGH = 2}. 
+	 * @param i YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, RED = 4, GRAY = 5
+	 * @param j LOW = 0, MEDIUM = 1, HIGH = 2
+	 * @return True if colour i {YELLOW = 0, BLUE = 1, GREEN_PLATE = 2, GREEN_PITCH = 3, 
+	 * RED = 4, GRAY = 5} can have chroma level j {LOW = 0, MEDIUM = 1, HIGH = 2}, false 
+	 * otherwise.
+	 */
+	public static boolean getChromaCheck(int i, int j) {
+		switch(i) {
+		case 0:
+			return 
+				j == 0 
+					? yellowLowChroma
+					: j == 1
+						? yellowMediumChroma
+						: yellowHighChroma;
+		case 1:
+			return 
+				j == 0 
+					? blueLowChroma
+					: j == 1
+						? blueMediumChroma
+						: blueHighChroma;
+		case 2:
+			return 
+				j == 0 
+					? greenPlateLowChroma
+					: j == 1
+						? greenPlateMediumChroma
+						: greenPlateHighChroma;
+		case 3:
+			return 
+				j == 0 
+					? greenPlateLowChroma
+					: j == 1
+						? greenPlateMediumChroma
+						: greenPlateHighChroma;			
+		case 4:
+			return 
+				j == 0 
+					? redLowChroma
+					: j == 1
+						? redMediumChroma
+						: redHighChroma;
+		case 5:
+			return 
+				j == 0 
+					? grayLowChroma
+					: j == 1
+						? grayMediumChroma
+						: grayHighChroma;
+		}
+		return false;
+	}
+	
+
 	
 	/**
 	 * The luma of the colour.
@@ -116,62 +470,7 @@ public class LCHColour {
 	 */
 	private int hue;
 
-	/*
-	 * These are settings for the luminosity. Each flag describes whether the given colour can
-	 * have the given luma level. 
-	 */
-	private boolean yellowHighLuma = true;
-	private boolean yellowMediumLuma;
-	private boolean yellowLowLuma;
-	
-	private boolean blueHighLuma = true;
-	private boolean blueMediumLuma = true;
-	private boolean blueLowLuma;
-	
-	private boolean greenPlateHighLuma = true;
-	private boolean greenPlateMediumLuma;
-	private boolean greenPlateLowLuma;
-	
-	private boolean greenPitchHighLuma;
-	private boolean greenPitchMediumLuma = true;
-	private boolean greenPitchLowLuma;
-	
-	private boolean redHighLuma = true;
-	private boolean redMediumLuma = true;
-	private boolean redLowLuma = true;
-	
-	private boolean grayHighLuma;
-	private boolean grayMediumLuma;
-	private boolean grayLowLuma = true;
-	
-	/*
-	 * These are settings for the chroma. Each flag describes whether the given colour can
-	 * have the given chroma level. 
-	 */
-	private boolean yellowHighChroma;
-	private boolean yellowMediumChroma;
-	private boolean yellowLowChroma = true;
-	
-	private boolean blueHighChroma = true;
-	private boolean blueMediumChroma = true;
-	private boolean blueLowChroma = true;
-	
-	private boolean greenPlateHighChroma = true;
-	private boolean greenPlateMediumChroma;
-	private boolean greenPlateLowChroma;
-	
-	private boolean greenPitchHighChroma;
-	private boolean greenPitchMediumChroma = true;
-	private boolean greenPitchLowChroma = true;
-	
-	private boolean redHighChroma = true;
-	private boolean redMediumChroma;
-	private boolean redLowChroma;
-	
-	private boolean grayHighChroma;
-	private boolean grayMediumChroma;
-	private boolean grayLowChroma = true;
-	
+
 	/**
 	 * Converts the specified red-green-blue colour to LCHColour.
 	 * @param c A red-green-blue colour to model the new LCHColour after.
@@ -264,11 +563,11 @@ public class LCHColour {
 	 * Defines a list of colour classes, modelled after the colours on the pitch.
 	 */
 	public enum ColourClass {
-		RED,
+		YELLOW,
+		BLUE,
 		GREEN_PLATE,
 		GREEN_PITCH,
-		BLUE,
-		YELLOW,
+		RED,
 		GRAY,
 		UNKNOWN
 	}
@@ -337,20 +636,21 @@ public class LCHColour {
 		int score = 0;
 		score += hasYellowHue() ? 1 : 0;
 		score += 
-			(hasHighLuma() ^ !yellowHighLuma) ||  
-			(hasMediumLuma() ^ !yellowMediumLuma) || 
-			(hasLowLuma() ^ !yellowLowLuma) 
+			(hasHighLuma() && yellowHighLuma) ||  
+			(hasMediumLuma() && yellowMediumLuma) || 
+			(hasLowLuma() && yellowLowLuma) 
 			? 1 
 			: 0;
 		score += 
-			(hasHighChroma() ^ !yellowHighChroma) ||  
-			(hasMediumChroma() ^ !yellowMediumChroma) || 
-			(hasLowChroma() ^ !yellowLowChroma) 
+			(hasHighChroma() && yellowHighChroma) ||  
+			(hasMediumChroma() && yellowMediumChroma) || 
+			(hasLowChroma() && yellowLowChroma) 
 			? 1 
 			: 0;
+		if (score > 1)
+			System.out.println(score);
 		return score;
 	}
-
 
 	/**
 	 * Get the blue score of the current colour. It is the number of 
@@ -362,15 +662,15 @@ public class LCHColour {
 		int score = 0;
 		score += hasBlueHue() ? 1 : 0;
 		score +=  
-			(hasHighLuma() ^ !blueHighLuma) ||  
-			(hasMediumLuma() ^ !blueMediumLuma) || 
-			(hasLowLuma() ^ !blueLowLuma) 
+			(hasHighLuma() && blueHighLuma) ||  
+			(hasMediumLuma() && blueMediumLuma) || 
+			(hasLowLuma() && blueLowLuma) 
 			? 1 
 			: 0;
 		score += 
-			(hasHighChroma() ^ !blueHighChroma) ||  
-			(hasMediumChroma() ^ !blueMediumChroma) || 
-			(hasLowChroma() ^ !blueLowChroma) 
+			(hasHighChroma() && blueHighChroma) ||  
+			(hasMediumChroma() && blueMediumChroma) || 
+			(hasLowChroma() && blueLowChroma) 
 			? 1 
 			: 0;
 		return score;
@@ -386,15 +686,15 @@ public class LCHColour {
 		int score = 0;
 		score += hasGreenHue() ? 1 : 0;
 		score +=  
-			(hasHighLuma() ^ !greenPlateHighLuma) ||  
-			(hasMediumLuma() ^ !greenPlateMediumLuma) || 
-			(hasLowLuma() ^ !greenPlateLowLuma) 
+			(hasHighLuma() && greenPlateHighLuma) ||  
+			(hasMediumLuma() && greenPlateMediumLuma) || 
+			(hasLowLuma() && greenPlateLowLuma) 
 			? 1 
 			: 0;
 		score +=  
-			(hasHighChroma() ^ !greenPlateHighChroma) ||  
-			(hasMediumChroma() ^ !greenPlateMediumChroma) || 
-			(hasLowChroma() ^ !greenPlateLowChroma)
+			(hasHighChroma() && greenPlateHighChroma) ||  
+			(hasMediumChroma() && greenPlateMediumChroma) || 
+			(hasLowChroma() && greenPlateLowChroma)
 			? 1 
 			: 0;
 		return score;
@@ -410,15 +710,15 @@ public class LCHColour {
 		int score = 0;
 		score += hasGreenHue() ? 1 : 0;
 		score +=  
-			(hasHighLuma() ^ !greenPitchHighLuma) ||  
-			(hasMediumLuma() ^ !greenPitchMediumLuma) || 
-			(hasLowLuma() ^ !greenPitchLowLuma) 
+			(hasHighLuma() && greenPitchHighLuma) ||  
+			(hasMediumLuma() && greenPitchMediumLuma) || 
+			(hasLowLuma() && greenPitchLowLuma) 
 			? 1 
 			: 0;
 		score +=  
-			(hasHighChroma() ^ !greenPitchHighChroma) ||  
-			(hasMediumChroma() ^ !greenPitchMediumChroma) || 
-			(hasLowChroma() ^ !greenPitchLowChroma)
+			(hasHighChroma() && greenPitchHighChroma) ||  
+			(hasMediumChroma() && greenPitchMediumChroma) || 
+			(hasLowChroma() && greenPitchLowChroma)
 			? 1 
 			: 0;
 		return score;
@@ -433,15 +733,15 @@ public class LCHColour {
 	private int grayScore() {
 		int score = 1; // The hue can be any
 		score +=  
-			(hasHighLuma() ^ !grayHighLuma) ||  
-			(hasMediumLuma() ^ !grayMediumLuma) || 
-			(hasLowLuma() ^ !grayLowLuma) 
+			(hasHighLuma() && grayHighLuma) ||  
+			(hasMediumLuma() && grayMediumLuma) || 
+			(hasLowLuma() && grayLowLuma) 
 			? 1 
 			: 0;
 		score +=  
-			(hasHighChroma() ^ !grayHighChroma) ||  
-			(hasMediumChroma() ^ !grayMediumChroma) || 
-			(hasLowChroma() ^ !grayLowChroma) 
+			(hasHighChroma() && grayHighChroma) ||  
+			(hasMediumChroma() && grayMediumChroma) || 
+			(hasLowChroma() && grayLowChroma) 
 			? 1 
 			: 0;
 		return score;
@@ -457,15 +757,15 @@ public class LCHColour {
 		int score = 0;
 		score += hasRedHue() ? 1 : 0;
 		score +=  
-			(hasHighLuma() ^ !redHighLuma) ||  
-			(hasMediumLuma() ^ !redMediumLuma) || 
-			(hasLowLuma() ^ !redLowLuma) 
+			(hasHighLuma() && redHighLuma) ||  
+			(hasMediumLuma() && redMediumLuma) || 
+			(hasLowLuma() && redLowLuma) 
 			? 1 
 			: 0;
 		score +=  
-			(hasHighChroma() ^ !redHighChroma) ||  
-			(hasMediumChroma() ^ !redMediumChroma) || 
-			(hasLowChroma() ^ !redLowChroma) 
+			(hasHighChroma() && redHighChroma) ||  
+			(hasMediumChroma() && redMediumChroma) || 
+			(hasLowChroma() && redLowChroma) 
 			? 1 
 			: 0;
 		return score;
@@ -516,7 +816,7 @@ public class LCHColour {
 	 * @return True if the given luma level is high, false otherwise.
 	 */
 	public boolean hasHighLuma() {
-		return luma > HIGH_LUMA_THRESHOLD;
+		return luma > highLumaThreshold;
 	}
 	
 	/**
@@ -534,7 +834,7 @@ public class LCHColour {
 	 * @return True if the given luma level is high, false otherwise.
 	 */
 	public boolean hasLowLuma() {
-		return luma < LOW_LUMA_THRESHOLD;
+		return luma < lowLumaThreshold;
 	}
 	
 	
@@ -544,7 +844,7 @@ public class LCHColour {
 	 * @return True if the given chroma level is high, false otherwise.
 	 */
 	public boolean hasHighChroma() {
-		return chroma > HIGH_CHROMA_THRESHOLD;
+		return chroma > highChromaThreshold;
 	}
 	
 	/**
@@ -562,6 +862,9 @@ public class LCHColour {
 	 * @return True if the given chroma level is high, false otherwise.
 	 */
 	public boolean hasLowChroma() {
-		return chroma < LOW_CHROMA_THRESHOLD;
+		return chroma < lowChromaThreshold;
 	}
+
+
+
 }
