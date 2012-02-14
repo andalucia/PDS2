@@ -206,6 +206,7 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
 		yellowBlueAlfieGroup = new CheckboxGroup();
+		
 	    yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
 	    yellowAlfieCheckbox.setBounds(12, 12, 160, 25);
 	    
@@ -261,6 +262,25 @@ public class CommanderControlStation implements KeyListener {
 			public void actionPerformed(ActionEvent e) {
 				initializeConnectionThreads();
 				init_thread.start();
+				
+			    yellowAlfieCheckbox.setEnabled(false);
+			    blueAlfieCheckbox.setEnabled(false);
+				connectToAlfieCheckbox.setEnabled(false);
+				grabImageCheckbox.setEnabled(false);
+				processImageCheckbox.setEnabled(false);
+				previewImageCheckbox.setEnabled(false);
+				bakeInfoCheckbox.setEnabled(false);
+				planCheckbox.setEnabled(false);
+				planDribble.setEnabled(false);
+				executePlanCheckbox.setEnabled(false);
+				runButton.setEnabled(false);
+				
+				blueToRedHueSlider.setEnabled(true);
+				redToYellowHueSlider.setEnabled(true);
+				yellowToGreenHueSlider.setEnabled(true);
+				greenToBlueHueSlider.setEnabled(true);
+				
+				grabImageButton.setEnabled(true);
 			}
 		});
 		
@@ -282,7 +302,7 @@ public class CommanderControlStation implements KeyListener {
 		blueToRedHueSlider.setMajorTickSpacing(20);
 		blueToRedHueSlider.setMinorTickSpacing(5);
 		blueToRedHueSlider.setPaintTicks(true);
-
+		blueToRedHueSlider.setEnabled(false);
 		
 		redToYellowHueLabel = new JLabel();
 		redToYellowHueLabel.setText("R/Y");
@@ -301,6 +321,7 @@ public class CommanderControlStation implements KeyListener {
 		redToYellowHueSlider.setMajorTickSpacing(20);
 		redToYellowHueSlider.setMinorTickSpacing(5);
 		redToYellowHueSlider.setPaintTicks(true);
+		redToYellowHueSlider.setEnabled(false);
 		
 		
 		yellowToGreenHueLabel = new JLabel();
@@ -320,6 +341,7 @@ public class CommanderControlStation implements KeyListener {
 		yellowToGreenHueSlider.setMajorTickSpacing(20);
 		yellowToGreenHueSlider.setMinorTickSpacing(5);
 		yellowToGreenHueSlider.setPaintTicks(true);
+		yellowToGreenHueSlider.setEnabled(false);
 		
 		
 		greenToBlueHueLabel = new JLabel();
@@ -338,7 +360,8 @@ public class CommanderControlStation implements KeyListener {
 		});
 		greenToBlueHueSlider.setMajorTickSpacing(20);
 		greenToBlueHueSlider.setMinorTickSpacing(5);
-		greenToBlueHueSlider.setPaintTicks(true);;
+		greenToBlueHueSlider.setPaintTicks(true);
+		greenToBlueHueSlider.setEnabled(false);
 		 
 		grabImageButton = new Button();
 		grabImageButton.setLabel("Grab background");
@@ -350,6 +373,7 @@ public class CommanderControlStation implements KeyListener {
 				processor2.grabNewBackgroundImage();
 			}
 		});
+		grabImageButton.setEnabled(false);
 		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
