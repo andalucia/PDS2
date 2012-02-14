@@ -29,7 +29,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 
-	private final static boolean pitchOne = true;
+	private final static boolean pitchOne = false;
 
 	//pitch1 colours
 	private static final int[] yellow1 = new int[] {115,100,30};
@@ -38,8 +38,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 
 	// pitch2 colours
-	private static final int[] yellow2 = new int[] {230,200,7};
-	private static final int[] blue2 = new int[] {92,140,121};
+	private static final int[] yellow2 = new int[] {250,175,5};
+	private static final int[] blue2 = new int[] {40,130,160};
 	private static final int[] ball2 = new int[] {253, 56, 25};
 
 
@@ -51,12 +51,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 
 
-	public ImageProcessor(StaticInfoConsumer consumer) {
-		super(consumer);
+	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie) {
+		super(consumer, yellowAlfie);
 	}
 
-	public ImageProcessor(StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
-		super(consumer, imageConsumer);
+	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
+		super(consumer, yellowAlfie, imageConsumer);
 	}
 
 
@@ -132,7 +132,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
 
-		ArrayList<Point> mindFlowers = mindFlower(image, plateCentroidYellowRobot, true);
+		//ArrayList<Point> mindFlowers = mindFlower(image, plateCentroidYellowRobot, true);
 		
 		
 //		for (int i = 0; i < yellowPointsClean.size();i++) {
@@ -140,12 +140,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 //		}
 		
 				
-		for (int i = 0; i < mindFlowers.size();i++) {
-			drawPixel(raster,yellowPointsClean.get(i),pureYellow);
-		}
+		//for (int i = 0; i < mindFlowers.size();i++) {
+		//	drawPixel(raster,yellowPointsClean.get(i),pureYellow);
+		//}
 		
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
-		this.yellowDir = regressionAndDirection(image, mindFlowers, true);
+		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
 
 		drawCross(raster,blueCentroid,pureBlue);
 		drawCross(raster,plateCentroidYellowRobot,pureYellow);

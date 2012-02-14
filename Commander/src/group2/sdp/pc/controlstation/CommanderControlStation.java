@@ -13,6 +13,7 @@ import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
 import java.awt.Checkbox;
+import java.awt.CheckboxGroup;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,6 +53,10 @@ public class CommanderControlStation implements KeyListener {
 	// GUI elements
 	private JFrame frmAlfieCommandCentre;
 	
+	private CheckboxGroup yellowBlueAlfieGroup;
+	private Checkbox yellowAlfieCheckbox;
+	private Checkbox blueAlfieCheckbox;
+	
 	private Checkbox connectToAlfieCheckbox;
 	private Checkbox grabImageCheckbox;
 	private Checkbox processImageCheckbox;
@@ -66,13 +71,14 @@ public class CommanderControlStation implements KeyListener {
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
 	private JLabel yellowToGreenHueLabel;
-	private JLabel greenToBlueHueLabel;
-	
+	private JLabel greenToBlueHueLabel;	
 	
 	private JSlider blueToRedHueSlider;
 	private JSlider redToYellowHueSlider;
 	private JSlider yellowToGreenHueSlider;
 	private JSlider greenToBlueHueSlider;
+	
+	private Button grabImageButton;
 	
 	private JTextPane txtLog;
 	private JEditorPane Alfie_Speed;
@@ -88,6 +94,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The server that sends commands to Alfie.
 	 */
 	private Server alfieServer;
+	private ImageProcessor2 processor2;
 
 	/**
 	 *  Number of connection attempts before giving up.
@@ -110,7 +117,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The threads for starting and stopping the communication to Alfie.
 	 */
 	private Thread init_thread, cleanup_thread;
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -139,7 +146,7 @@ public class CommanderControlStation implements KeyListener {
 	 */
 	private void initializeConnectionThreads() {
 		init_thread = new Thread() {		
-			
+
 			public void run() {
 				if (connectToAlfieCheckbox.getState()) {
 					for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
@@ -164,8 +171,8 @@ public class CommanderControlStation implements KeyListener {
 				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
-					ImageProcessor processor = new ImageProcessor(bakery, previewer);
-					ImageProcessor2 processor2 = new ImageProcessor2(null, processor, false);
+					//ImageProcessor processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
+					processor2 = new ImageProcessor2(null, yellowAlfieCheckbox.getState(), previewer);
 					new ImageGrabber(processor2);
 				} else {
 					new ImageGrabber(previewer);
@@ -198,49 +205,56 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
+		yellowBlueAlfieGroup = new CheckboxGroup();
+	    yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
+	    yellowAlfieCheckbox.setBounds(12, 12, 160, 25);
+	    
+	    blueAlfieCheckbox = new Checkbox("Blue Alfie", yellowBlueAlfieGroup, false);
+	    blueAlfieCheckbox.setBounds(12, 40, 160, 25);
+	    		
 		connectToAlfieCheckbox = new Checkbox();
 		connectToAlfieCheckbox.setLabel("Connect to Alfie");
-		connectToAlfieCheckbox.setBounds(12, 12, 160, 25);
+		connectToAlfieCheckbox.setBounds(12, 68, 160, 25);
 		connectToAlfieCheckbox.setState(false);
 		
 		grabImageCheckbox = new Checkbox();
 		grabImageCheckbox.setLabel("Grab image");
-		grabImageCheckbox.setBounds(12, 40, 160, 25);
+		grabImageCheckbox.setBounds(12, 96, 160, 25);
 		grabImageCheckbox.setState(true);
 		
 		processImageCheckbox = new Checkbox();
 		processImageCheckbox.setLabel("Process image");
-		processImageCheckbox.setBounds(12, 68, 160, 25);
+		processImageCheckbox.setBounds(12, 124, 160, 25);
 		processImageCheckbox.setState(true);
 		
 		previewImageCheckbox = new Checkbox();
 		previewImageCheckbox.setLabel("Preview image");
-		previewImageCheckbox.setBounds(12, 96, 160, 25);
+		previewImageCheckbox.setBounds(12, 152, 160, 25);
 		previewImageCheckbox.setState(true);
 		
 		bakeInfoCheckbox = new Checkbox();
 		bakeInfoCheckbox.setLabel("Bake dynamic info");
-		bakeInfoCheckbox.setBounds(12, 124, 160, 25);
+		bakeInfoCheckbox.setBounds(12, 180, 160, 25);
 		bakeInfoCheckbox.setState(true);
 		
 		planCheckbox = new Checkbox();
 		planCheckbox.setLabel("Plan");
-		planCheckbox.setBounds(12, 152, 160, 25);
+		planCheckbox.setBounds(12, 208, 160, 25);
 		planCheckbox.setState(false);
 		
 		planDribble = new Checkbox();
 		planDribble.setLabel("Plan for dribble");
-		planDribble.setBounds(12, 180, 160, 25);
+		planDribble.setBounds(12, 236, 160, 25);
 		planDribble.setState(false);
 		
 		executePlanCheckbox = new Checkbox();
 		executePlanCheckbox.setLabel("Execute plan");
-		executePlanCheckbox.setBounds(12, 208, 160, 25);
+		executePlanCheckbox.setBounds(12, 264, 160, 25);
 		executePlanCheckbox.setState(true);
 		
 		runButton = new Button();
 		runButton.setLabel("RUN!");
-		runButton.setBounds(42, 236, 100, 25);
+		runButton.setBounds(42, 292, 100, 25);
 		runButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -325,7 +339,17 @@ public class CommanderControlStation implements KeyListener {
 		greenToBlueHueSlider.setMajorTickSpacing(20);
 		greenToBlueHueSlider.setMinorTickSpacing(5);
 		greenToBlueHueSlider.setPaintTicks(true);;
-		
+		 
+		grabImageButton = new Button();
+		grabImageButton.setLabel("Grab background");
+		grabImageButton.setBounds(726, 292, 200, 25);
+		grabImageButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				processor2.grabNewBackgroundImage();
+			}
+		});
 		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
@@ -359,6 +383,9 @@ public class CommanderControlStation implements KeyListener {
 		Angle.setText("Angle");
 		Angle.setBounds(210, 373, 40, 25);
 		
+		frmAlfieCommandCentre.getContentPane().add(yellowAlfieCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(blueAlfieCheckbox);
+		
 		frmAlfieCommandCentre.getContentPane().add(connectToAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(grabImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
@@ -382,6 +409,8 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(redToYellowHueSlider);
 		frmAlfieCommandCentre.getContentPane().add(yellowToGreenHueSlider);
 		frmAlfieCommandCentre.getContentPane().add(greenToBlueHueSlider);
+		
+		frmAlfieCommandCentre.getContentPane().add(grabImageButton);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {

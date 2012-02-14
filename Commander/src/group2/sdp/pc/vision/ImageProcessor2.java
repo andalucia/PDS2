@@ -35,7 +35,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	private BufferedImage backgroundImage;
 	
 	private String backgroundFileName = "background.png";
-	private boolean saveBackground = true;
+	private boolean saveBackground = false;
 	
 	/**
 	 * New pixels in the last frame that was processed.
@@ -45,33 +45,24 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	/**
 	 * The rectangle that contains the whole pitch.
 	 */
-	private final Rectangle pitchCrop = new Rectangle(5, 80, 635 - 5, 400 - 80);
+//	private final Rectangle pitchCrop1 = new Rectangle(5, 80, 635 - 5, 400 - 80);
+	private final Rectangle pitchCrop = new Rectangle(35, 80, 595 - 35, 385 - 80);
 	
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor2(StaticInfoConsumer consumer) {
-		super(consumer);
+	public ImageProcessor2(StaticInfoConsumer consumer, boolean yellowAlfie) {
+		super(consumer, yellowAlfie);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
 	}
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor2(StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
-		super(consumer, imageConsumer);
+	public ImageProcessor2(StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
+		super(consumer, yellowAlfie, imageConsumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
-	}
-	/**
-	 * Accepts a background image in addition to consumers.
-	 * @param saveBackground Indicates whether the background image should be saved. If true,
-	 * a new background image is extracted. If false, the last one is loaded.
-	 */
-	public ImageProcessor2(StaticInfoConsumer consumer, ImageConsumer imageConsumer, boolean saveBackground) {
-		this(consumer, imageConsumer);
-		this.saveBackground = saveBackground;
-		extractBackground = true;
 	}
 	
 	/**
@@ -86,9 +77,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 					backgroundImage = image;
 				}
 			} else {
-				if (backgroundImage == null) {
-					backgroundImage = image;
-				}
+				backgroundImage = image;
 				saveBackgroundImage(backgroundImage);
 			}
 			extractBackground = false;
@@ -100,6 +89,14 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 			internalImage = drawPixels(image, newPixels);
 			super.process(image);
 		}
+	}
+	
+	/**
+	 * Grabs a new background image and saves it.
+	 */
+	public void grabNewBackgroundImage() {
+		extractBackground = true;
+		saveBackground = true;
 	}
 
 	private BufferedImage loadBackgroundImage() {
@@ -166,7 +163,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold = 60;
+		int threshold = 0;
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -219,8 +216,11 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 				dc = Color.CYAN;
 				break;
 			}
+			int v = lch.getHue() * 255 / 360;
+			result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
 			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
-			result.setRGB(p.x, p.y, dc.getRGB());
+			//result.setRGB(p.x, p.y, new Color(lch.getChroma(), lch.getChroma(), lch.getChroma()).getRGB());
+			//result.setRGB(p.x, p.y, dc.getRGB());
 		}
 		return result;
 	}
