@@ -163,7 +163,7 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold = 0;
+		int threshold = 60;
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -216,11 +216,11 @@ public class ImageProcessor2 extends ImageProcessorSkeleton {
 				dc = Color.CYAN;
 				break;
 			}
-			int v = lch.getHue() * 255 / 360;
-			result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+//			int v = lch.getHue() * 255 / 360;
+//			result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
 			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
 			//result.setRGB(p.x, p.y, new Color(lch.getChroma(), lch.getChroma(), lch.getChroma()).getRGB());
-			//result.setRGB(p.x, p.y, dc.getRGB());
+			result.setRGB(p.x, p.y, dc.getRGB());
 		}
 		return result;
 	}

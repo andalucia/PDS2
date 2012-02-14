@@ -171,8 +171,8 @@ public class CommanderControlStation implements KeyListener {
 				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
-					//ImageProcessor processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
-					processor2 = new ImageProcessor2(null, yellowAlfieCheckbox.getState(), previewer);
+					ImageProcessor processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
+					processor2 = new ImageProcessor2(null, yellowAlfieCheckbox.getState(), processor);
 					new ImageGrabber(processor2);
 				} else {
 					new ImageGrabber(previewer);
