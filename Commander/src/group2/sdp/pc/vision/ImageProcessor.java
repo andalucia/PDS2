@@ -38,9 +38,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 
 	// pitch2 colours
-	private static final int[] yellow2 = new int[] {250,175,5};
+	private static final int[] yellow2 = new int[] {210,150,5};
 	private static final int[] blue2 = new int[] {40,130,160};
-	private static final int[] ball2 = new int[] {253, 56, 25};
+	private static final int[] ball2 = new int[] {170, 30, 25};
 
 
 	// pure colours - used for drawing pixels
@@ -127,6 +127,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		for(int i = 0;i<plate.size();i++){
 			if(calcDistanceBetweenPoints(blueCentroid,plate.get(i))>50){
 				GreenPlateYellowRobot.add(plate.get(i));
+				//drawPixel(raster,plate.get(i),new int[] {0,255,0});
 			}
 
 		}
@@ -136,15 +137,15 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		
 		
 		for (int i = 0; i < yellowPointsClean.size();i++) {
-			drawPixel(raster,yellowPointsClean.get(i),new int [] {255, 128, 0});
+			drawPixel(raster,yellowPointsClean.get(i),new int [] {255, 255, 0});
 		}
 		
 
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
 		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
 
-		drawCross(raster,blueCentroid,pureBlue);
-		drawCross(raster,plateCentroidYellowRobot,pureYellow);
+//		drawCross(raster,blueCentroid,pureBlue);
+		drawCross(raster,yellowCentroid,new int[] {0,0,0});
 		drawCross(raster,ballCentroid,pureRed);
 		
 		BufferedImage img = new BufferedImage(cm, raster, false, null);
@@ -343,7 +344,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		 *   works on X OR Y axis: NOT BOTH
 		 */
 
-		if(mtheta<Math.tan(Math.toRadians(20))){
+		if(mtheta<Math.tan(Math.toRadians(40))){
 
 			double mxy2 = Math.tan((Math.atan(mx)+Math.atan(1/my))/2);
 
@@ -358,11 +359,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			} else {
 				end_angle = 360 - mxy2_degrees;
 			}
+			end_angle = actualDir;
 		}
 		drawLine_Robot_Facing(raster, new Point((int) (allx / n),
-				(int) (ally / n)), end_angle);
+				(int) (ally / n)), actualDir);
 
-		return end_angle;
+		return actualDir;
 	}
 
 	/**
@@ -375,9 +377,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param isYellow If the robot is yellow
 	 * @return Angle of robot in degrees w.r.t x-axis. Increases CCW.
 	 */
-	public int findFacingDirection(BufferedImage image, Point centroid, boolean isYellow) {
+	public int findFacingDirection(BufferedImage image, Point centroid,
+			boolean isYellow) {
 		Color c = null;
 		int cur_score = 0;
+		int cur_score2 = 0;
 		int best_score = 0;
 		int best_angle = 0;
 		if (centroid.x != 0) {
@@ -385,33 +389,55 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			for (int i = 0; i < 360; i++) {
 				int[] colour;
 				cur_score = 0;
+				cur_score2 = 0;
 				Point nextPixel = new Point();
 				nextPixel.x = centroid.x;
 				nextPixel.y = centroid.y;
-				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
+				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+						nextPixel.y), i);
 				try {
-					c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
-					colour = new int[] {c.getRed(),c.getGreen(),c.getBlue()};
+					c = new Color(image.getRGB(rot_pixel.x, rot_pixel.y));
+					colour = new int[] { c.getRed(), c.getGreen(), c.getBlue() };
 				} catch (Exception e) {
-					colour = new int[] {0,0,0};
+					colour = new int[] { 0, 0, 0 };
 					System.out.println("rot_pixel = " + rot_pixel);
 				}
 				/**
-				 *  Do not stop until the next pixel colour is not the colour we are
-				 *  looking for. The next pixel is determined by travelling in the
-				 *  negative x direction and then rotating the point i degrees around
-				 *  the centroid.
+				 * Do not stop until the next pixel colour is not the colour we
+				 * are looking for. The next pixel is determined by travelling
+				 * in the negative x direction and then rotating the point i
+				 * degrees around the centroid.
 				 */
-
 
 				while (isBlueYellow(colour, isYellow)) {
 
-					cur_score++; // Since we sort in ascending order, lower score is longer segments
+					cur_score++; // Since we sort in ascending order, lower
+									// score is longer segments
 
-					nextPixel = new Point(centroid.x + cur_score,centroid.y);
-					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
+					nextPixel = new Point(centroid.x + cur_score, centroid.y);
+					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+							nextPixel.y), i);
 					try {
-						c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
+						c = new Color(image.getRGB(rot_pixel.x, rot_pixel.y));
+					} catch (Exception e) {
+						System.out.println("rot_pixel = " + rot_pixel);
+						System.out.println("centroid = " + centroid);
+						break;
+					}
+					colour[0] = c.getRed();
+					colour[1] = c.getGreen();
+					colour[2] = c.getBlue();
+				}
+				while (isBlueYellow(colour, isYellow)) {
+
+					cur_score2++; // Since we sort in ascending order, lower
+									// score is longer segments
+
+					nextPixel = new Point(centroid.x + cur_score, centroid.y);
+					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+							nextPixel.y), i + 180);
+					try {
+						c = new Color(image.getRGB(rot_pixel.x, rot_pixel.y));
 					} catch (Exception e) {
 						System.out.println("rot_pixel = " + rot_pixel);
 						System.out.println("centroid = " + centroid);
@@ -422,40 +448,29 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					colour[2] = c.getBlue();
 				}
 
-				if (cur_score > best_score) {
-					best_angle = i;
-					best_score = cur_score;
+				if (cur_score +cur_score2 > best_score) {
+					
+					if(cur_score>cur_score2){
+						best_angle = i;
+					}else{
+						best_angle = (i+180) % 360;
+					}
+					
+					best_score = cur_score+cur_score2;
 				}
 
 				// pairs.add(new KeyValuePair<Integer, Integer>(cur_score, i));
 			}
-			// Collections.sort(pairs);
-			//
-			// int thresh_sim = 1;
-			//
-			// int best = 0, i, secondBest;
-			// for (i = 1; i < pairs.size(); ++i) {
-			// if (pairs.get(i).getFirst() - pairs.get(best).getFirst() > thresh_sim) {
-			// break;
-			// }
-			// }
-			// best = i / 2;
-			// secondBest = i;
-			//
-			// for (; i < pairs.size(); ++i) {
-			// if (pairs.get(i).getFirst() - pairs.get(secondBest).getFirst() > thresh_sim) {
-			// break;
-			// }
-			// }
-			// secondBest = (secondBest + i) / 2;
-			//
-			// if (best == pairs.size()) best = 0;
-			// if (secondBest == pairs.size()) secondBest = 0;
-			//
-			// best_angle = (pairs.get(best).getSecond() + pairs.get(secondBest).getSecond()) / 2;
 		}
+		if(isYellow){
+			System.out.println("Yellow T angle " + (360 - best_angle));
+		}else{
+			System.out.println("Blue T angle " + (360 - best_angle));
+		}
+		
 		return 360 - best_angle;
 	}
+
 
 
 	/**
@@ -559,7 +574,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		else {
 			differences = calcColourDifferences(yellow2, colour);
 		}
-		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 70)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
+		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 70)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
 	}
 
 	//Blue robot
@@ -571,7 +586,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		else {
 			differences = calcColourDifferences(blue2, colour);
 		}
-		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
+		return (differences[0] < 45 && differences[1] < 45 && differences[2] < 45) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
 	}
 
 	public boolean isGreen(int[] colour) {
@@ -821,7 +836,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private void drawLine_Robot_Facing(WritableRaster raster, Point c,
 			double angle) {
 		angle = 360 - angle;
-		int[] colour = { 255, 255, 255 };
+		int[] colour = { 0, 0, 0 };
 		if (angle < 270 && angle > 90) {
 
 			int xh = c.x - 100;

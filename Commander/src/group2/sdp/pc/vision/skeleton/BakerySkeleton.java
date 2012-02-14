@@ -30,6 +30,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * The consumer that is going to consume the output of this class.
 	 */
 	private DynamicInfoConsumer dynamicConsumer;
+	private int counter;
 	
 	/**
 	 * A constructor that takes the object that is going to consume the output 
@@ -45,9 +46,13 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	
 	@Override
 	public void consumeInfo(StaticPitchInfo spi) {
-		addInfoToHistory(spi);
-		DynamicPitchInfo dpi = produceDynamicInfo(spi);
-		dynamicConsumer.consumeInfo(dpi);
+		if (counter < 10) {
+			counter++;
+		} else {
+			addInfoToHistory(spi);
+			DynamicPitchInfo dpi = produceDynamicInfo(spi);
+			dynamicConsumer.consumeInfo(dpi);
+		}
 	}
 
 	/**

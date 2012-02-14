@@ -28,6 +28,8 @@ public class PlanExecutor {
 	
 	private static final int TURNING_SPEED = 10;
 	
+	private static final int SLOW_TURNING_SPEED = 2;
+	
 	/**
 	 * Accuracy of the initial angle
 	 * Maximum with current vision (to prevent stuttering) is 38 degrees
@@ -43,7 +45,7 @@ public class PlanExecutor {
 	/**
 	 * Distance from the ball Alfie should be before trying to get to the SHORT_TURNING_ERROR_THRESHOLD accuracy
 	 */
-	private static final int TARGET_SHORT_THRESHOLD = 25;
+	private static final int TARGET_SHORT_THRESHOLD = 50;
 	
 	private static final int STOP_TURNING_THRESHOLD = 45;
 	private static final int CRUISING_SPEED = 20;
@@ -51,7 +53,7 @@ public class PlanExecutor {
 	/**
 	 * Default dribbling speed.
 	 */
-	private static final int DRIBBLE_SPEED = 10;
+	private static final int DRIBBLE_SPEED = 7;
 	
 	
 	
@@ -124,12 +126,16 @@ public class PlanExecutor {
 		
 		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
-		int threshold, speed;
+		int threshold, speed,turningSpeed;
 						
 		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
 			threshold = SHORT_TURNING_ERROR_THRESHOLD;
+			turningSpeed = SLOW_TURNING_SPEED;
+			speed = DRIBBLE_SPEED;
 		} else {
 			threshold = LONG_TURNING_ERROR_THRESHOLD;
+			turningSpeed = TURNING_SPEED;
+			speed = CRUISING_SPEED;
 		}
 		
 		if (VERBOSE) {
@@ -141,12 +147,12 @@ public class PlanExecutor {
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinLeft(TURNING_SPEED, 0);
+				alfieServer.sendSpinLeft(turningSpeed, 0);
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn)  + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinRight(TURNING_SPEED, 0);
+				alfieServer.sendSpinRight(turningSpeed, 0);
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn  + " degrees");
 				}
