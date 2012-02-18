@@ -54,6 +54,7 @@ public class PlanExecutor {
 	 * Default dribbling speed.
 	 */
 	private static final int DRIBBLE_SPEED = 7;
+	private static final int FAST_DRIBBLE_SPEED = 54;
 	
 	
 	
@@ -174,7 +175,7 @@ public class PlanExecutor {
 	 * @param currentCommand Contains the state information for Alfi, the ball and the opponent robot
 	 */	
 	private void executeDribbleCommand(DribbleCommand currentCommand) {
-		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
+		alfieServer.sendGoForward(FAST_DRIBBLE_SPEED, 35);
 		//alfieServer.sendStop();
 	}
 	

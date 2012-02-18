@@ -29,18 +29,18 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 
-	private final static boolean pitchOne = false;
+	private final static boolean pitchOne = true;
 
 	//pitch1 colours
-	private static final int[] yellow1 = new int[] {115,100,30};
-	private static final int[] blue1 = new int[] {3,108,145};
+	private static final int[] yellow1 = new int[] {105,100,70};
+	private static final int[] blue1 = new int[] {30,80,115};
 	private static final int[] ball1 = new int[] {185,15,2};
 
 
 	// pitch2 colours
-	private static final int[] yellow2 = new int[] {210,150,5};
-	private static final int[] blue2 = new int[] {40,130,160};
-	private static final int[] ball2 = new int[] {170, 30, 25};
+	private static final int[] yellow2 = new int[] {210,160,11};
+	private static final int[] blue2 = new int[] {40,135,170};
+	private static final int[] ball2 = new int[] {175, 25, 20};
 
 
 	// pure colours - used for drawing pixels
@@ -99,12 +99,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 				if (isBlue(colour, pitchOne)) {
 					bluepoints.add(currentPoint);
+					
 				}
 				if (isGreen(colour)) {
 					plate.add(currentPoint);
 				}
 				if (isBall(colour, pitchOne)){
 					ball.add(currentPoint);
+					drawPixel(raster, currentPoint, pureRed);
 				}
 			}
 		}
@@ -132,18 +134,13 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		}
 		this.plateCentroidYellowRobot = calcCentroid(GreenPlateYellowRobot);
-
-		ArrayList<Point> mindFlowers = mindFlower(image, plateCentroidYellowRobot, true);
-		
 		
 		for (int i = 0; i < yellowPointsClean.size();i++) {
 			drawPixel(raster,yellowPointsClean.get(i),new int [] {255, 255, 0});
 		}
-		
 
 		this.blueDir = regressionAndDirection(image, bluePointsClean, false);
 		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true);
-
 //		drawCross(raster,blueCentroid,pureBlue);
 		drawCross(raster,yellowCentroid,new int[] {0,0,0});
 		drawCross(raster,ballCentroid,pureRed);
@@ -178,9 +175,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int[] colour = getColour(image, fixel);
 
 		//if (fixel.x > 0 && fixel.x < image.getWidth() && fixel.y > 0 && fixel.y < image.getHeight()){
-		if (isYellow(colour, pitchOne)){
+		if (isBlueYellow(colour, isYellow)){
 
-			drawOnBuffImage(image, fixel, new int[] {255,255,1});
+			drawOnBuffImage(image, fixel, new int[] {255,255,1}); //wrong colour
 			
 			fixels.addAll(mindFlower(image, new Point(fixel.x+1, fixel.y),isYellow));
 
@@ -574,7 +571,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		else {
 			differences = calcColourDifferences(yellow2, colour);
 		}
-		return (differences[0] < 50 && differences[1] < 50 && differences[2] < 70)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
+		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40)  || (colour[0] == 255 && colour[1] == 255 && colour[2] == 0);
 	}
 
 	//Blue robot
@@ -586,7 +583,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		else {
 			differences = calcColourDifferences(blue2, colour);
 		}
-		return (differences[0] < 45 && differences[1] < 45 && differences[2] < 45) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
+		return (differences[0] < 30 && differences[1] < 30 && differences[2] < 30) || (colour[0] == 0 && colour[1] == 0 && colour[2] == 255);
 	}
 
 	public boolean isGreen(int[] colour) {
@@ -605,7 +602,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		else {
 			differences = calcColourDifferences(ball2, colour);
 		}
-		return (differences[0] < 40 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 255 && colour[1] == 0 && colour[2] == 0);
+		return (differences[0] < 60 && differences[1] < 40 && differences[2] < 40) || (colour[0] == 255 && colour[1] == 0 && colour[2] == 0);
 	}
 
 	public Point[] getBoundaries(ArrayList<Point> fixels){
