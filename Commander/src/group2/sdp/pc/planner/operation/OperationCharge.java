@@ -1,15 +1,16 @@
-package group2.sdp.pc.planner.commands;
+package group2.sdp.pc.planner.operation;
+
 
 import java.awt.geom.Point2D;
 
-public class DribbleCommand implements ComplexCommand{
+public class OperationCharge implements Operation{
 
 	Point2D ball;
 	Point2D alfie;
 	double facing;
 	
 	
-	public DribbleCommand(Point2D ball, Point2D alfie, double facing) {
+	public OperationCharge(Point2D ball, Point2D alfie, double facing) {
 		this.ball = ball;
 		this.alfie = alfie;
 		this.facing = facing;	
@@ -31,7 +32,7 @@ public class DribbleCommand implements ComplexCommand{
 	@Override
 	public Type getType() {
 		// TODO Auto-generated method stub
-		return Type.DRIBBLE;
+		return Type.CHARGE;
 	}
 
 }

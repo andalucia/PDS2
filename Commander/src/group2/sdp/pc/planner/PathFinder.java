@@ -2,11 +2,11 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
-import group2.sdp.pc.planner.commands.ComplexCommand;
-import group2.sdp.pc.planner.commands.DribbleCommand;
-import group2.sdp.pc.planner.commands.KickCommand;
-import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.planner.commands.StopCommand;
+import group2.sdp.pc.planner.operation.Operation;
+import group2.sdp.pc.planner.operation.OperationCharge;
+import group2.sdp.pc.planner.operation.OperationOverload;
+import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 import java.awt.geom.Point2D;
@@ -17,7 +17,7 @@ import java.awt.geom.Point2D;
  * 
  * Every new command should be added to the switch statement and to the enum in ComplexCommand.
  */
-public class PlanExecutor {
+public class PathFinder {
 
 	/**
 	 * Sets verbose mode on or off, for debugging
@@ -64,7 +64,7 @@ public class PlanExecutor {
 	/**
 	 * The command that is currently being executed.
 	 */
-	private ComplexCommand currentCommand; 
+	private Operation currentOperation; 
 	
 	/**
 	 * If Alfie is turning right now.
@@ -77,7 +77,7 @@ public class PlanExecutor {
 	 * 
 	 * @param alfieServer The initialised bluetooth server or the simulator object
 	 */
-	public PlanExecutor(ServerSkeleton alfieServer) {
+	public PathFinder(ServerSkeleton alfieServer) {
 		this.alfieServer = alfieServer;
 	}
 	
@@ -88,24 +88,24 @@ public class PlanExecutor {
 	 *  
 	 * @param currentCommand The command to be executed
 	 */
-	public void execute(ComplexCommand currentCommand) {
-		this.currentCommand = currentCommand;
+	public void setOperation(Operation currentCommand) {
+		this.currentOperation = currentCommand;
 		if (currentCommand == null) {
-			executeStopCommand((StopCommand)currentCommand);
+			executeOperationOverload((OperationOverload)currentCommand);
 			return;
 		}
 		switch (currentCommand.getType()) {
-		case REACH_DESTINATION:
-			executeReachDestinationCommand((ReachDestinationCommand)currentCommand);
+		case REALLOCATION:
+			executeOperationReallocation((OperationReallocation)currentCommand);
 			break;
-		case DRIBBLE:
-			executeDribbleCommand((DribbleCommand) currentCommand);
+		case CHARGE:
+			executeOperationCharge((OperationCharge) currentCommand);
 			break;
-		case KICK:
-			executeKickCommand((KickCommand)currentCommand);
+		case STRIKE:
+			executeOperationStrike((OperationStrike)currentCommand);
 			break;
-		case STOP:
-			executeStopCommand((StopCommand)currentCommand);
+		case OVERLOAD:
+			executeOperationOverload((OperationOverload)currentCommand);
 		// ADD OTHERS
 		}
 	}
@@ -115,16 +115,16 @@ public class PlanExecutor {
 	 * This function is the basic movement function. It will take the passed command and use its 
 	 * relevant information to work out how to navigate to the target.
 	 *
-	 * @param currentCommand Contains the state information for Alfi and the target 
+	 * @param currentCommand Contains the state information for Alfie and the target 
 	 */
-	private void executeReachDestinationCommand(ReachDestinationCommand currentCommand) {
+	private void executeOperationReallocation(OperationReallocation currentCommand) {
 		Point2D targetPosition = currentCommand.getTarget();
 		Point2D alfiePosition = currentCommand.getOrigin();
 		double alfieDirection = currentCommand.getFacingDirection();
 		
 		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
-		int threshold, speed;
+		int threshold;
 						
 		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
 			threshold = SHORT_TURNING_ERROR_THRESHOLD;
@@ -167,7 +167,7 @@ public class PlanExecutor {
 	 *
 	 * @param currentCommand Contains the state information for Alfi, the ball and the opponent robot
 	 */	
-	private void executeDribbleCommand(DribbleCommand currentCommand) {
+	private void executeOperationCharge(OperationCharge currentCommand) {
 		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
 		//alfieServer.sendStop();
 	}
@@ -177,14 +177,14 @@ public class PlanExecutor {
 	 * 
 	 * @param currentCommand Contains absolutely no useful information at all
 	 */	
-	private void executeKickCommand(KickCommand currentCommand) {
+	private void executeOperationStrike(OperationStrike currentCommand) {
 		alfieServer.sendKick(MAX_SPEED);
 	}
 	
 	/**
 	 * This function stops Alfie and makes him wait for the next instruction
 	 */
-	private void executeStopCommand(StopCommand currentCommand) {
+	private void executeOperationOverload(OperationOverload currentCommand) {
 		System.out.println("executeStopCommand() called");
 		alfieServer.sendStop();
 	}
@@ -218,10 +218,9 @@ public class PlanExecutor {
 		return result;
 	}
 
-
 	public void updateInfo(DynamicPitchInfo dpi) {
-		if (currentCommand instanceof ReachDestinationCommand) {
-			ReachDestinationCommand cmd = (ReachDestinationCommand)currentCommand;
+		if (currentOperation instanceof OperationReallocation) {
+			OperationReallocation cmd = (OperationReallocation)currentOperation;
 			Point2D targetPosition = cmd.getTarget();
 			
 			int angleToTurn = (int)getAngleToTarget(
@@ -235,21 +234,21 @@ public class PlanExecutor {
 				// Should Alfie stop turning?
 				if (Math.abs(angleToTurn) <= STOP_TURNING_THRESHOLD) {
 					// Makes Alfie stop turning.
-					cmd = new ReachDestinationCommand(
+					cmd = new OperationReallocation(
 							cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection());
-					executeReachDestinationCommand(cmd);
+					executeOperationReallocation(cmd);
 				}
 			} else {
 				// Alfie should automatically stop when he reaches the ball.
 				if (Math.abs(angleToTurn) > SHORT_TURNING_ERROR_THRESHOLD) {
 					// Makes Alfie stop turning.
-					cmd = new ReachDestinationCommand(
+					cmd = new OperationReallocation(
 							cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection());
-					executeReachDestinationCommand(cmd);
+					executeOperationReallocation(cmd);
 				}
 			}
 		}

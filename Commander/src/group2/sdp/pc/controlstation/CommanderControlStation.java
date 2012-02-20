@@ -1,8 +1,6 @@
 package group2.sdp.pc.controlstation;
 
-import group2.sdp.pc.planner.Milestone2Planner;
-import group2.sdp.pc.planner.Milestone2Planner.Mode;
-import group2.sdp.pc.planner.PlanExecutor;
+import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
@@ -176,25 +174,25 @@ public class CommanderControlStation implements KeyListener {
 						}
 					}
 				}
-				PlanExecutor executor = new PlanExecutor(alfieServer);
-				Milestone2Planner planner = new Milestone2Planner(executor);
-				Bakery bakery = new Bakery(planner);
+				PathFinder executor = new PathFinder(alfieServer);
+//				Milestone2Planner planner = new Milestone2Planner(executor);
+//				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
-					ImageProcessor processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
+					ImageProcessor processor = new ImageProcessor(/*bakery*/null, yellowAlfieCheckbox.getState(), previewer);
 					processor2 = new ImageProcessor2(null, yellowAlfieCheckbox.getState(), processor);
 					new ImageGrabber(processor2);
 				} else {
 					new ImageGrabber(previewer);
 				}
-				if (planCheckbox.getState()) {
-					planner.setCurrentMode(Mode.GET_TO_BALL);
-					planner.start();
-				}
-				if (planDribble.getState()){
-					planner.setCurrentMode(Mode.DRIBBLE);
-					planner.start();
-				}
+//				if (planCheckbox.getState()) {
+//					planner.setCurrentMode(Mode.GET_TO_BALL);
+//					planner.start();
+//				}
+//				if (planDribble.getState()){
+//					planner.setCurrentMode(Mode.DRIBBLE);
+//					planner.start();
+//				}
 			}
 		};
 		
