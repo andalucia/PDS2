@@ -7,8 +7,8 @@ import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
+//import group2.sdp.pc.vision.ImageProcessor;
 import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.ImageProcessor2;
 import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
@@ -104,7 +104,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The server that sends commands to Alfie.
 	 */
 	private Server alfieServer;
-	private ImageProcessor2 processor2;
+	private ImageProcessor processor;
 
 	/**
 	 *  Number of connection attempts before giving up.
@@ -181,9 +181,8 @@ public class CommanderControlStation implements KeyListener {
 				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
-					ImageProcessor processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
-					processor2 = new ImageProcessor2(null, yellowAlfieCheckbox.getState(), previewer);
-					new ImageGrabber(processor2);
+					processor = new ImageProcessor(null, yellowAlfieCheckbox.getState(), previewer);
+					new ImageGrabber(processor);
 				} else {
 					new ImageGrabber(previewer);
 				}
@@ -436,7 +435,7 @@ public class CommanderControlStation implements KeyListener {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				processor2.grabNewBackgroundImage();
+				processor.grabNewBackgroundImage();
 			}
 		});
 		grabImageButton.setEnabled(false);
