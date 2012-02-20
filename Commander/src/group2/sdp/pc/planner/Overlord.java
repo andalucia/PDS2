@@ -57,7 +57,7 @@ public class Overlord implements DynamicInfoConsumer {
 			if (strategy != currentStrategy) {
 				fieldMarshal.setStrategy(strategy);
 			}
-			fieldMarshal.updateInfo(dpi);
+			fieldMarshal.consumeInfo(dpi);
 		}
 	}
 

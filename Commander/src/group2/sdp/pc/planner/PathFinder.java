@@ -8,6 +8,7 @@ import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
+import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
 
@@ -17,7 +18,7 @@ import java.awt.geom.Point2D;
  * 
  * Every new command should be added to the switch statement and to the enum in ComplexCommand.
  */
-public class PathFinder {
+public class PathFinder implements DynamicInfoConsumer {
 
 	/**
 	 * Sets verbose mode on or off, for debugging
@@ -218,7 +219,8 @@ public class PathFinder {
 		return result;
 	}
 
-	public void updateInfo(DynamicPitchInfo dpi) {
+	@Override
+	public void consumeInfo(DynamicPitchInfo dpi) {
 		if (currentOperation instanceof OperationReallocation) {
 			OperationReallocation cmd = (OperationReallocation)currentOperation;
 			Point2D targetPosition = cmd.getTarget();

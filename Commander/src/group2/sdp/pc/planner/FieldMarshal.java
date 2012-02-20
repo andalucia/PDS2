@@ -7,6 +7,7 @@ import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.strategy.Strategy;
+import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
 
@@ -14,7 +15,7 @@ import java.awt.geom.Point2D;
  * A field marshal decides what operations to start, knowing what strategy 
  * should be currently executed.
  */
-public class FieldMarshal {
+public class FieldMarshal implements DynamicInfoConsumer {
 	
 	/**
 	 * The current strategy to employ.
@@ -37,22 +38,6 @@ public class FieldMarshal {
 		this.pathFinder = pathFinder;
 	}
 	
-	/**
-	 * Checks if re-planing is necessary and passes the DynamicPitchInfo to 
-	 * the PathFinder.
-	 * @param dpi The DynamicPitchInfo to use when deciding if re-planing is
-	 * necessary or not.
-	 */
-	public void updateInfo(DynamicPitchInfo dpi) {
-		boolean success = operationSuccessful(dpi);
-		boolean problem = problemExists(dpi);
-		if (replan || success || problem) {
-			currentOperation = planNextOperation(dpi);;
-			pathFinder.setOperation(currentOperation);
-			replan = false;
-		}
-		pathFinder.updateInfo(dpi);
-	}
 
 	/**
 	 * Most important method of the class. According to the current strategy
@@ -125,5 +110,23 @@ public class FieldMarshal {
 		if (currentStrategy == null)
 			return true;
 		return false;
+	}
+
+	/**
+	 * Checks if re-planing is necessary and passes the DynamicPitchInfo to 
+	 * the PathFinder.
+	 * @param dpi The DynamicPitchInfo to use when deciding if re-planing is
+	 * necessary or not.
+	 */
+	@Override
+	public void consumeInfo(DynamicPitchInfo dpi) {
+		boolean success = operationSuccessful(dpi);
+		boolean problem = problemExists(dpi);
+		if (replan || success || problem) {
+			currentOperation = planNextOperation(dpi);;
+			pathFinder.setOperation(currentOperation);
+			replan = false;
+		}
+		pathFinder.consumeInfo(dpi);
 	}
 }
