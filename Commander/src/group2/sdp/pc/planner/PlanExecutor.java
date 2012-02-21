@@ -40,7 +40,7 @@ public class PlanExecutor {
 	 * Defines the accuracy for Alfie's final angle
 	 * Maximum accuracy with the current vision system seem to be 8 degrees  	
 	 */
-	private static final int SHORT_TURNING_ERROR_THRESHOLD = 8;
+	private static final int SHORT_TURNING_ERROR_THRESHOLD = 5;
 	
 	/**
 	 * Distance from the ball Alfie should be before trying to get to the SHORT_TURNING_ERROR_THRESHOLD accuracy
