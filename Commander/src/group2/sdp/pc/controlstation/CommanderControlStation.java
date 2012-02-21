@@ -174,24 +174,24 @@ public class CommanderControlStation implements KeyListener {
 					}
 				}
 				PathFinder executor = new PathFinder(alfieServer);
-//				Milestone2Planner planner = new Milestone2Planner(executor);
-//				Bakery bakery = new Bakery(planner);
+				//Milestone2Planner planner = new Milestone2Planner(executor);
+				//Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
 
-					processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
+					processor = new ImageProcessor(/*bakery*/null, yellowAlfieCheckbox.getState(), previewer);
 					new ImageGrabber(processor);
 				} else {
 					new ImageGrabber(previewer);
 				}
-				if (planCheckbox.getState()) {
-					planner.setCurrentMode(Mode.GET_TO_BALL);
-					planner.start();
-				}
-				if (planDribble.getState()){
-					planner.setCurrentMode(Mode.DRIBBLE);
-					planner.start();
-				}
+//				if (planCheckbox.getState()) {
+//					planner.setCurrentMode(Mode.GET_TO_BALL);
+//					planner.start();
+//				}
+//				if (planDribble.getState()){
+//					planner.setCurrentMode(Mode.DRIBBLE);
+//					planner.start();
+//				}
 			}
 		};
 		

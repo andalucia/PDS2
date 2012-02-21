@@ -24,30 +24,30 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * Sets verbose mode on or off, for debugging
 	 */
 	private static final boolean VERBOSE = true;
-	
+
 	private static final int MAX_SPEED = 50;
-	
+
 	private static final int TURNING_SPEED = 10;
-	
+
 	private static final int SLOW_TURNING_SPEED = 2;
-	
+
 	/**
 	 * Accuracy of the initial angle
 	 * Maximum with current vision (to prevent stuttering) is 38 degrees
 	 */
 	private static final int LONG_TURNING_ERROR_THRESHOLD = 40;
-	
+
 	/**
 	 * Defines the accuracy for Alfie's final angle
 	 * Maximum accuracy with the current vision system seem to be 8 degrees  	
 	 */
 	private static final int SHORT_TURNING_ERROR_THRESHOLD = 5;
-	
+
 	/**
 	 * Distance from the ball Alfie should be before trying to get to the SHORT_TURNING_ERROR_THRESHOLD accuracy
 	 */
 	private static final int TARGET_SHORT_THRESHOLD = 50;
-	
+
 	private static final int STOP_TURNING_THRESHOLD = 45;
 	private static final int CRUISING_SPEED = 20;
 
@@ -56,9 +56,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	private static final int DRIBBLE_SPEED = 7;
 	private static final int FAST_DRIBBLE_SPEED = 54;
-	
-	
-	
+
+
+
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 
 	 * Can be the Alfie bluetooth server or the simulator.
@@ -69,12 +69,12 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * The command that is currently being executed.
 	 */
 	private Operation currentOperation; 
-	
+
 	/**
 	 * If Alfie is turning right now.
 	 */
 	private boolean turning;
-	
+
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
 	 * the ServerSkeleton object passed is already initialised and connected
@@ -84,8 +84,8 @@ public class PathFinder implements DynamicInfoConsumer {
 	public PathFinder(ServerSkeleton alfieServer) {
 		this.alfieServer = alfieServer;
 	}
-	
-	
+
+
 	/**
 	 * The main execution function, calls a function based on the command given, make sure you cast
 	 * currentCommand to the actual command type
@@ -110,11 +110,11 @@ public class PathFinder implements DynamicInfoConsumer {
 			break;
 		case OVERLOAD:
 			executeOperationOverload((OperationOverload)currentCommand);
-		// ADD OTHERS
+			// ADD OTHERS
 		}
 	}
 
-	
+
 	/**
 	 * This function is the basic movement function. It will take the passed command and use its 
 	 * relevant information to work out how to navigate to the target.
@@ -125,38 +125,34 @@ public class PathFinder implements DynamicInfoConsumer {
 		Point2D targetPosition = currentCommand.getTarget();
 		Point2D alfiePosition = currentCommand.getOrigin();
 		double alfieDirection = currentCommand.getFacingDirection();
-		
+
 		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
 		int threshold;
-						
+
 		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
 			threshold = SHORT_TURNING_ERROR_THRESHOLD;
-			turningSpeed = SLOW_TURNING_SPEED;
-			speed = DRIBBLE_SPEED;
 		} else {
 			threshold = LONG_TURNING_ERROR_THRESHOLD;
-			turningSpeed = TURNING_SPEED;
-			speed = CRUISING_SPEED;
 		}
-		
+
 		if (VERBOSE) {
 			System.out.println("Angle to turn to: " + angleToTurn);
 			System.err.println("Distance: " + distanceToTarget);
 		}
-		
+
 		// If Alfie is not facing the ball:
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinLeft(turningSpeed, 0);
+				alfieServer.sendSpinLeft(TURNING_SPEED, 0);
 				if(VERBOSE) {
-					System.out.println("Turning right " + Math.abs(angleToTurn)  + " degrees");
+					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinRight(turningSpeed, 0);
+				alfieServer.sendSpinRight(TURNING_SPEED, 0);
 				if(VERBOSE) {
-					System.out.println("Turning left " + angleToTurn  + " degrees");
+					System.out.println("Turning left " + angleToTurn + " degrees");
 				}
 			}
 		} else {
@@ -168,7 +164,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			}
 		}
 	}
-	
+
 	/**
 	 * This function is the basic dribbling function. Currently it just dribbles forward
 	 * Later, logic should be added to steer Alfi towards goal and away from the opponent
@@ -179,7 +175,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
 		//alfieServer.sendStop();
 	}
-	
+
 	/**
 	 * This function is called directly before we kick ass and explode into rampant celebration 
 	 * 
@@ -188,7 +184,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private void executeOperationStrike(OperationStrike currentCommand) {
 		alfieServer.sendKick(MAX_SPEED);
 	}
-	
+
 	/**
 	 * This function stops Alfie and makes him wait for the next instruction
 	 */
@@ -196,7 +192,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		System.out.println("executeStopCommand() called");
 		alfieServer.sendStop();
 	}
-		
+
 	/**
 	 * This function finds the smallest angle between Alfie and his target.
 	 * 
@@ -209,9 +205,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	private double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
 		double dx = (targetPosition.getX() - alfiePosition.getX());
 		double dy = (targetPosition.getY() - alfiePosition.getY());
-		
+
 		double angle = Math.toDegrees(Math.atan2(dy, dx));
-		
+
 		if (angle < 0) {
 			angle = 360 + angle;
 		}
@@ -231,7 +227,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (currentOperation instanceof OperationReallocation) {
 			OperationReallocation cmd = (OperationReallocation)currentOperation;
 			Point2D targetPosition = cmd.getTarget();
-			
+
 			int angleToTurn = (int)getAngleToTarget(
 					targetPosition, 
 					dpi.getAlfieInfo().getPosition(), 

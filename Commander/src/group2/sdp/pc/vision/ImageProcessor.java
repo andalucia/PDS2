@@ -30,6 +30,16 @@ import javax.print.attribute.standard.Finishings;
  *
  */
 public class ImageProcessor extends ImageProcessorSkeleton {
+	
+	/**
+	* Shows whether the background has to be updated or not.
+	*/
+	private boolean extractBackground;
+
+	/**
+	* An image of the background compare each frame with.
+	*/
+	private BufferedImage backgroundImage;
 
 	private static final boolean pitchOne = true;
 	private static final boolean VERBOSE = false;
