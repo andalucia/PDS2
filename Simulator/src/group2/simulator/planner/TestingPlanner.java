@@ -14,7 +14,7 @@ public class TestingPlanner extends Overlord {
 		super(executor);
 	}
 
-	@Override
+
 	protected Operation planNextCommand(DynamicPitchInfo dpi) {
 		return new OperationReallocation(
 				new Point2D.Double(100, 0), 
@@ -22,12 +22,10 @@ public class TestingPlanner extends Overlord {
 				dpi.getAlfieInfo().getFacingDirection());
 	}
 
-	@Override
-	protected boolean commandSuccessful(DynamicPitchInfo dpi) {
+	protected boolean operationSuccessful(DynamicPitchInfo dpi) {
 		return false;
 	}
 
-	@Override
 	protected boolean problemExists(DynamicPitchInfo dpi) {
 		return false;
 	}
