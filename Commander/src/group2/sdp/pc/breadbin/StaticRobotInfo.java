@@ -14,17 +14,17 @@ public class StaticRobotInfo {
 	 * The width of the robot.
 	 */
 	protected static final double WIDTH = 18;
-	
+
 	/**
 	 * The position of the robot w.r.t. the centre of the pitch. Units are in cm.
 	 */
 	protected Point2D position;
-	
+
 	/**
 	 * The time at which Info was recorded . Units are milliseconds.
 	 */
 	protected long timeStamp;
-	
+
 	/**
 	 * The direction at which the T shape on top of the robot is pointing.
 	 * Units are degrees.
@@ -37,8 +37,8 @@ public class StaticRobotInfo {
 	 * Indicates if the robot is Alfie or his opponent.
 	 */
 	protected boolean alfie;
-	
-	
+
+
 	/**
 	 * A constructor that takes all the needed information for a complete object as arguments.
 	 * @param position The position of the robot w.r.t. the centre of the pitch. Units are in cm.
@@ -64,7 +64,7 @@ public class StaticRobotInfo {
 		this.timeStamp= info.timeStamp;
 	}
 
-	
+
 	/**
 	 * Get the position of the robot w.r.t. the centre of the pitch. Units are in cm.
 	 * @return The position of the robot w.r.t. the centre of the pitch. Units are in cm.
@@ -72,7 +72,7 @@ public class StaticRobotInfo {
 	public Point2D getPosition() {
 		return position;
 	}
-	
+
 	/**
 	 * Set the position of the robot w.r.t. the centre of the pitch. Units are in cm.
 	 * @param position The position of the robot w.r.t. the centre of the pitch. Units are in cm.
@@ -80,7 +80,7 @@ public class StaticRobotInfo {
 	public void setPosition(Point2D position) {
 		this.position = position;
 	}
-	
+
 	/**
 	 * Get the direction at which the T shape on top of the robot is pointing.
 	 * Units are degrees.
@@ -92,7 +92,7 @@ public class StaticRobotInfo {
 	public double getFacingDirection() {
 		return facingDirection;
 	}
-	
+
 	/**
 	 * Set the direction at which the T shape on top of the robot is pointing.
 	 * Units are degrees.
@@ -104,7 +104,7 @@ public class StaticRobotInfo {
 	public void setFacingDirection(double facingDirection) {
 		this.facingDirection = facingDirection;
 	}
-	
+
 	/**
 	 * Get the length of the robot.
 	 * @return The length of the robot.
@@ -112,7 +112,7 @@ public class StaticRobotInfo {
 	public static double getLength() {
 		return LENGTH;
 	}
-	
+
 	/**
 	 * Get the timeStamp at which info was recorded. units are miliseconds
 	 * @return The timeStamp at which info was recorded. Units are milliseconds
@@ -120,7 +120,7 @@ public class StaticRobotInfo {
 	public long getTimeStamp(){
 		return timeStamp;
 	}
-	
+
 	/**
 	 * Get the width of the robot.
 	 * @return The width of the robot.
@@ -128,4 +128,14 @@ public class StaticRobotInfo {
 	public static double getWidth() {
 		return WIDTH;
 	}
+
+	/**
+	 * Returns true if robot is Alfie
+	 * @return Is the robot Alfie
+	 */
+	public boolean isAlfie() {
+		return alfie;
+	}
 }
+
+
