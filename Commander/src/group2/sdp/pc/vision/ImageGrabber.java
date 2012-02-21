@@ -36,8 +36,8 @@ public class ImageGrabber implements CaptureCallback {
 		this.consumer = consumer;
 		
 		saturation = 100;
-		brightness = 128;
-		contrast = 64;
+		brightness = 130;
+		contrast = 80;
 		hue = 0;
 
 		// Initialise video device and frame grabber

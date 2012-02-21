@@ -6,7 +6,6 @@ import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
 import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.ImageProcessor2;
 import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
@@ -102,7 +101,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The server that sends commands to Alfie.
 	 */
 	private Server alfieServer;
-	private ImageProcessor2 processor2;
+	private ImageProcessor processor;
 
 	/**
 	 *  Number of connection attempts before giving up.
@@ -179,20 +178,20 @@ public class CommanderControlStation implements KeyListener {
 //				Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
-					ImageProcessor processor = new ImageProcessor(/*bakery*/null, yellowAlfieCheckbox.getState(), previewer);
-					processor2 = new ImageProcessor2(null, yellowAlfieCheckbox.getState(), processor);
-					new ImageGrabber(processor2);
+
+					processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
+					new ImageGrabber(processor);
 				} else {
 					new ImageGrabber(previewer);
 				}
-//				if (planCheckbox.getState()) {
-//					planner.setCurrentMode(Mode.GET_TO_BALL);
-//					planner.start();
-//				}
-//				if (planDribble.getState()){
-//					planner.setCurrentMode(Mode.DRIBBLE);
-//					planner.start();
-//				}
+				if (planCheckbox.getState()) {
+					planner.setCurrentMode(Mode.GET_TO_BALL);
+					planner.start();
+				}
+				if (planDribble.getState()){
+					planner.setCurrentMode(Mode.DRIBBLE);
+					planner.start();
+				}
 			}
 		};
 		
@@ -434,7 +433,7 @@ public class CommanderControlStation implements KeyListener {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				processor2.grabNewBackgroundImage();
+				processor.grabNewBackgroundImage();
 			}
 		});
 		grabImageButton.setEnabled(false);

@@ -29,6 +29,8 @@ public class PathFinder implements DynamicInfoConsumer {
 	
 	private static final int TURNING_SPEED = 10;
 	
+	private static final int SLOW_TURNING_SPEED = 2;
+	
 	/**
 	 * Accuracy of the initial angle
 	 * Maximum with current vision (to prevent stuttering) is 38 degrees
@@ -39,12 +41,12 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * Defines the accuracy for Alfie's final angle
 	 * Maximum accuracy with the current vision system seem to be 8 degrees  	
 	 */
-	private static final int SHORT_TURNING_ERROR_THRESHOLD = 8;
+	private static final int SHORT_TURNING_ERROR_THRESHOLD = 5;
 	
 	/**
 	 * Distance from the ball Alfie should be before trying to get to the SHORT_TURNING_ERROR_THRESHOLD accuracy
 	 */
-	private static final int TARGET_SHORT_THRESHOLD = 25;
+	private static final int TARGET_SHORT_THRESHOLD = 50;
 	
 	private static final int STOP_TURNING_THRESHOLD = 45;
 	private static final int CRUISING_SPEED = 20;
@@ -52,7 +54,8 @@ public class PathFinder implements DynamicInfoConsumer {
 	/**
 	 * Default dribbling speed.
 	 */
-	private static final int DRIBBLE_SPEED = 10;
+	private static final int DRIBBLE_SPEED = 7;
+	private static final int FAST_DRIBBLE_SPEED = 54;
 	
 	
 	
@@ -129,8 +132,12 @@ public class PathFinder implements DynamicInfoConsumer {
 						
 		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
 			threshold = SHORT_TURNING_ERROR_THRESHOLD;
+			turningSpeed = SLOW_TURNING_SPEED;
+			speed = DRIBBLE_SPEED;
 		} else {
 			threshold = LONG_TURNING_ERROR_THRESHOLD;
+			turningSpeed = TURNING_SPEED;
+			speed = CRUISING_SPEED;
 		}
 		
 		if (VERBOSE) {
@@ -142,12 +149,12 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinLeft(TURNING_SPEED, 0);
+				alfieServer.sendSpinLeft(turningSpeed, 0);
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn)  + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinRight(TURNING_SPEED, 0);
+				alfieServer.sendSpinRight(turningSpeed, 0);
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn  + " degrees");
 				}

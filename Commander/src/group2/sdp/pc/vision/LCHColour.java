@@ -647,8 +647,6 @@ public class LCHColour {
 			(hasLowChroma() && yellowLowChroma) 
 			? 1 
 			: 0;
-		if (score > 1)
-			System.out.println(score);
 		return score;
 	}
 
