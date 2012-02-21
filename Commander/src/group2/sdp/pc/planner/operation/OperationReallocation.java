@@ -1,16 +1,17 @@
-package group2.sdp.pc.planner.commands;
+package group2.sdp.pc.planner.operation;
+
 
 import java.awt.geom.Point2D;
 
 
-public class ReachDestinationCommand implements ComplexCommand {
+public class OperationReallocation implements Operation {
 
 	Point2D target;
 	Point2D origin;
 	double facing;
 	
 	
-	public ReachDestinationCommand(Point2D target, Point2D Alfie, double angle){
+	public OperationReallocation(Point2D target, Point2D Alfie, double angle){
 		this.target = target;
 		this.origin = Alfie;
 		this.facing = angle;
@@ -18,7 +19,7 @@ public class ReachDestinationCommand implements ComplexCommand {
 
 	@Override
 	public Type getType() {
-		return ComplexCommand.Type.REACH_DESTINATION;
+		return Operation.Type.REALLOCATION;
 	}
 	
 	public Point2D getOrigin(){
@@ -29,7 +30,7 @@ public class ReachDestinationCommand implements ComplexCommand {
 		return this.target;
 	}
 	
-	public double getFacing(){
+	public double getFacingDirection(){
 		return this.facing;
 	}
 

@@ -14,7 +14,9 @@ import lejos.pc.comm.NXTConnector;
  * Connects to the robot and can send commands to it.
  */
 public class Server implements ServerSkeleton {
-		
+
+	private final boolean verbose = true;
+	
 	private String nxtAddress = "btspp://group2";
 	
 	private NXTConnector conn;
@@ -61,6 +63,7 @@ public class Server implements ServerSkeleton {
 	@Override
 	protected void finalize() throws Throwable {
 		try {
+			sendStop();
 			dis.close();
 			dos.close();
 			conn.close();
@@ -75,7 +78,7 @@ public class Server implements ServerSkeleton {
 	 * Tells Alfie to stop moving.
 	 */
 	public void sendStop() {
-		sendCandyPacket(new CandyPacket(CandyPacket.STOP_CANDY), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.STOP_CANDY));
 	}
 	
 	/**
@@ -84,7 +87,7 @@ public class Server implements ServerSkeleton {
 	 * @param distance The distance to travel in an inspecified unit, 0 to travel indefinitely
 	 */
 	public void sendGoForward(int speed, int distance) {
-		sendCandyPacket(new CandyPacket(CandyPacket.GO_FORWARD_CANDY, speed, distance), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.GO_FORWARD_CANDY, speed, distance));
 	}
 	
 	/**
@@ -92,7 +95,7 @@ public class Server implements ServerSkeleton {
 	 * @param speed The speed for the command.
 	 */
 	public void sendGoBackwards(int speed, int distance) {
-		sendCandyPacket(new CandyPacket(CandyPacket.GO_BACKWARDS_CANDY, speed, distance), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.GO_BACKWARDS_CANDY, speed, distance));
 	}
 	
 	/**
@@ -100,7 +103,7 @@ public class Server implements ServerSkeleton {
 	 * @param power The power for the kick.
 	 */
 	public void sendKick(int power) {
-		sendCandyPacket(new CandyPacket(CandyPacket.KICK_CANDY, power), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.KICK_CANDY, power));
 	}
 	
 	/**
@@ -109,7 +112,7 @@ public class Server implements ServerSkeleton {
 	 * @param angle The angle for the spin.
 	 */
 	public void sendSpinLeft(int speed, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_LEFT_CANDY, speed, angle), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_LEFT_CANDY, speed, angle));
 	}
 	
 	/**
@@ -118,21 +121,21 @@ public class Server implements ServerSkeleton {
 	 * @param angle The angle for the spin.
 	 */
 	public void sendSpinRight(int speed, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_RIGHT_CANDY, speed, angle), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.SPIN_RIGHT_CANDY, speed, angle));
 	}
 	
 	/**
 	 * Tells Alfie to reset communication.
 	 */
 	public void sendReset() {
-		sendCandyPacket(new CandyPacket(CandyPacket.RESET_CANDY), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.RESET_CANDY));
 	}
 	
 	/**
 	 * Tells the Alfie to go to sleep.
 	 */
 	public void sendExit() {
-		sendCandyPacket(new CandyPacket(CandyPacket.SLEEP_CANDY), true);
+		sendCandyPacket(new CandyPacket(CandyPacket.SLEEP_CANDY));
 	}
 	
 	/**
@@ -141,16 +144,15 @@ public class Server implements ServerSkeleton {
 	 * @param b The bytes to send.
 	 * @param verbose If true, the bytes are printed before being sent.
 	 */
-	private void sendCandyPacket(CandyPacket packet, boolean verbose) {
+	private void sendCandyPacket(CandyPacket packet) {
 		//long start = System.currentTimeMillis();
-		
-		System.out.print("Trying to send packet");
 		
 		boolean success = false;
 		do {
 			try {
 				// Print output if requested
 				if (verbose) {
+					System.out.println("Sending bytes:");
 					packet.printSweets();
 				}
 	
@@ -168,13 +170,16 @@ public class Server implements ServerSkeleton {
 				// On success Alfie should repeat the command back.
 				byte [] b = new byte [CandyPacket.PACKET_SIZE];
 				dis.read(b, 0, CandyPacket.PACKET_SIZE);
+				if (verbose) {
+					System.out.println("Recieved bytes:");
+					new CandyPacket(b).printSweets();
+				}
 				success = true;
 				if (!packet.contentsEqual(b)) {
 					success = false;
 					System.out.println("WARNING: command is not the same; RESENDING...");
 					continue;
 				}
-				new CandyPacket(b).printSweets();
 			} catch (IOException ioe) {
 				System.out.println("IO Exception reading bytes:");
 				System.out.println(ioe.getMessage());

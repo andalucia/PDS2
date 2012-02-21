@@ -1,10 +1,8 @@
 package group2.sdp.pc.vision;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import group2.sdp.pc.breadbin.StaticBallInfo;
-import group2.sdp.pc.breadbin.StaticPitchInfo;
-import group2.sdp.pc.breadbin.StaticPitchInfoHistory;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.awt.geom.Point2D;
@@ -40,8 +38,7 @@ public class BakeryTest {
 		LinkedList<StaticBallInfo> ballHistoryInfos= new LinkedList<StaticBallInfo>();
 		Bakery bake= new Bakery(null);
 		
-	
-				
+
 		// top right quadrant
 		//test with 0 points should return 0
 		
@@ -102,10 +99,6 @@ public class BakeryTest {
 		ballHistoryInfos.add(ball8);
 		//System.out.println(bake.computeBallRollingDirection(ballHistoryInfos));
 		assertTrue("large number of points" ,bake.computeBallRollingDirection(ballHistoryInfos)!=0);
-		
-				
-		
-		
 	}
 
 	@Test
@@ -126,9 +119,6 @@ public class BakeryTest {
 		//should equal 2cm/s
 		ballHistoryInfos.add(ball2);
 		assertTrue("expected 2cm/s actual: "+bake.computeBallRollingSpeed(ballHistoryInfos),bake.computeBallRollingSpeed(ballHistoryInfos)==2.0 );
-		
-		
-		
 	}
 
 	@Test
@@ -212,8 +202,6 @@ public class BakeryTest {
 		robotHistoryInfos.add(robot8);
 		//System.out.println(bake.computeBallRollingDirection(ballHistoryInfos));
 		assertTrue("large number of points" ,bake.computeRobotTravelDirection(robotHistoryInfos)!=0);
-		
-		
 	}
 
 }

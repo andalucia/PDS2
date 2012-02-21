@@ -4,10 +4,10 @@ import group2.sdp.common.util.Tools;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.planner.PlanExecutor;
-import group2.sdp.pc.planner.commands.ComplexCommand;
-import group2.sdp.pc.planner.commands.ReachDestinationCommand;
-import group2.sdp.pc.planner.skeleton.PlannerSkeleton;
+import group2.sdp.pc.planner.Overlord;
+import group2.sdp.pc.planner.PathFinder;
+import group2.sdp.pc.planner.operation.Operation;
+import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.core.RobotState;
 import group2.simulator.physical.Ball;
@@ -67,15 +67,15 @@ public class SimulatorI implements ServerSkeleton {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
-	public static ComplexCommand.Type currentCommand;
+	public static Operation.Type currentCommand;
 	
 	private boolean check =false;
 	private static Checkbox reset;
 	private static Button runButton;
 	private static volatile RobotState robotState;
 
-	private PlannerSkeleton planner;
-	private PlanExecutor executor;
+	private Overlord planner;
+	private PathFinder executor;
 	private final Lock commandLock = new ReentrantLock();
 	
 	
@@ -117,7 +117,7 @@ public class SimulatorI implements ServerSkeleton {
 
 		SimulatorI.robotState = new RobotState();
 		
-		executor = new PlanExecutor(this);
+		executor = new PathFinder(this);
 		
 		//System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
 		
@@ -126,8 +126,8 @@ public class SimulatorI implements ServerSkeleton {
 			@Override
 			public void run() {
 				DynamicPitchInfo dpi = generateDynamicInfo();
-				executor.execute(
-					new ReachDestinationCommand(
+				executor.setOperation(
+					new OperationReallocation(
 						dpi.getBallInfo().getPosition(), 
 						dpi.getAlfieInfo().getPosition(), 
 						dpi.getAlfieInfo().getFacingDirection()
