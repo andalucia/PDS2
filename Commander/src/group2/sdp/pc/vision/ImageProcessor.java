@@ -15,6 +15,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -65,6 +66,25 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private final Rectangle pitchCrop1 = new Rectangle(10, 58, 630-10, 421-58);
 	private final Rectangle pitchCrop2 = new Rectangle(63, 100, 572 - 63, 383 - 100);
+	
+	// TODO: think of a better name/way of doing this
+	private final boolean isYellowRobotRightGoal = true;
+	
+	/**
+	 * The goal post positions for the goal on the right
+	 */
+	// TODO: SET ACTUAL POSITIONS
+	// TODO: ALSO NOT REALLY MESSY
+	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+
+	/**
+	 * The goal post positions for the goal on the left
+	 */
+	// TODO: SET ACTUAL POSITIONS
+	// TODO: ALSO NOT REALLY MESSY
+	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
 
 	/**
 	 * See parent's comment.
@@ -249,9 +269,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 		ArrayList<Point> yellowPointsClean = getGreatestArea(yellowPoints);
 		ArrayList<Point> bluePointsClean = getGreatestArea(bluePoints);
+		ArrayList<Point> ballPointsClean = getGreatestArea(ballPoints);
 
 
-		this.ballCentroid = calcCentroid(ballPoints);
+		this.ballCentroid = calcCentroid(ballPointsClean);
 		this.blueCentroid = calcCentroid(bluePointsClean);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
 
@@ -709,6 +730,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
 		drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
 		drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
+		drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
 	}
 
 	/**
@@ -803,6 +825,33 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			return yellowDir;
 		} else {
 			return blueDir;
+		}
+	}
+	
+	@Override
+	protected ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image,
+			boolean yellow) {
+		ArrayList<Point2D> rightGoalPostInfo;
+		ArrayList<Point2D> leftGoalPostInfo;
+		if (pitchOne) {
+			rightGoalPostInfo = rightGoalPostInfo1;
+			leftGoalPostInfo = leftGoalPostInfo1;
+		} else {
+			rightGoalPostInfo = rightGoalPostInfo2;
+			leftGoalPostInfo = leftGoalPostInfo2;
+		}
+		if (yellow) {
+			if (isYellowRobotRightGoal) {
+				return rightGoalPostInfo;
+			} else {
+				return leftGoalPostInfo;
+			}
+		} else {
+			if (!isYellowRobotRightGoal) {
+				return rightGoalPostInfo;
+			} else {
+				return leftGoalPostInfo;
+			}
 		}
 	}
 }

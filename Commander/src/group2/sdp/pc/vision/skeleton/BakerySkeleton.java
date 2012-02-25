@@ -4,6 +4,7 @@ import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticGoalInfo;
 import group2.sdp.pc.breadbin.StaticPitchInfo;
 import group2.sdp.pc.breadbin.StaticPitchInfoHistory;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
@@ -84,14 +85,16 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(spi.getAlfieInfo(), 
 				alfieTravelSpeed, alfieTravelDirection); 
 		alfieInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getAlfieInfos()));
-
+		StaticGoalInfo alfieGoalInfo = spi.getAlfieGoalInfo();
+		
 		double opponentTravelSpeed = computeOpponentTravelSpeed();
 		double opponentTravelDirection = computeOpponentTravelDirection();
 		DynamicRobotInfo opponentInfo = new DynamicRobotInfo(spi.getOpponentInfo(), 
 				opponentTravelSpeed, opponentTravelDirection);
 		opponentInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getOpponentInfos()));
-
-		DynamicPitchInfo result = new DynamicPitchInfo(ballInfo, alfieInfo, opponentInfo);
+		StaticGoalInfo opponentGoalInfo = spi.getOpponentGoalInfo();
+		
+		DynamicPitchInfo result = new DynamicPitchInfo(ballInfo, alfieInfo, opponentInfo,alfieGoalInfo,opponentGoalInfo);
 		return result;
 	}
 

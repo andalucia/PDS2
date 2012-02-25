@@ -16,20 +16,34 @@ public class StaticPitchInfo {
 	 * The information about the opponent.
 	 */
 	protected StaticRobotInfo opponentInfo;
-
+	
+	/**
+	 * The information about our goal
+	 */
+	protected StaticGoalInfo alfieGoalInfo;
+	
+	/**
+	 * The information about our opponent's goal;
+	 */
+	protected StaticGoalInfo opponentGoalInfo;
 	
 	/**
 	 * A constructor that takes all required data as arguments.	
 	 * @param ballInfo The information about the ball.
 	 * @param alfieInfo The information about the Alfie.
 	 * @param opponentInfo The information about the opponent.
+	 * @param alfieGoalInfo The information about Alfie's goal.
+	 * @param opponentGoalInfo The information about the opponent's goal.
 	 */
 	public StaticPitchInfo(StaticBallInfo ballInfo, StaticRobotInfo alfieInfo,
-			StaticRobotInfo opponentInfo) {
+			StaticRobotInfo opponentInfo, StaticGoalInfo alfieGoalInfo,
+			StaticGoalInfo opponentGoalInfo) {
 		super();
 		this.ballInfo = ballInfo;
 		this.alfieInfo = alfieInfo;
 		this.opponentInfo = opponentInfo;
+		this.alfieGoalInfo = alfieGoalInfo;
+		this.opponentGoalInfo = opponentGoalInfo;
 	}
 	
 	
@@ -81,6 +95,40 @@ public class StaticPitchInfo {
 		this.opponentInfo = opponentInfo;
 	}
 	
+	/**
+	 * Returns information about Alfie's goal
+	 * 
+	 */
+	
+	public StaticGoalInfo getAlfieGoalInfo() {
+		return alfieGoalInfo;
+	}
+	/**
+	 * Set the information about the opponent's goal
+	 * 
+	 */
+	public void setAlfieGoalInfo(StaticGoalInfo alfieGoalInfo) {
+		this.alfieGoalInfo = alfieGoalInfo;
+	}
+	/**
+	 * Get the information about the opponent's goal
+	 * 
+	 */
+	public StaticGoalInfo getOpponentGoalInfo() {
+		return opponentGoalInfo;
+	}
+	/**
+	 * Set the information about the opponent's goal
+	 * 
+	 */
+	public void setOpponentGoalInfo(StaticGoalInfo opponentGoalInfo) {
+		this.opponentGoalInfo = opponentGoalInfo;
+	}
+	
+	/**
+	 * Prints information available in this class. Currently does not 
+	 * print goal information (because it's boring)
+	 */
 	public void printAllStaticInfo() {
 		//print ball info
 		System.out.println("Ball info: position = " + ballInfo.getPosition());

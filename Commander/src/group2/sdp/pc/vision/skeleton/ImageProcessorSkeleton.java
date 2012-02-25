@@ -1,11 +1,13 @@
 package group2.sdp.pc.vision.skeleton;
 
 import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticGoalInfo;
 import group2.sdp.pc.breadbin.StaticPitchInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  * An abstract implementation of the class processing image data and producing static pitch info.
@@ -71,7 +73,14 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
 		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time);
 		
-		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
+		ArrayList<Point2D> alfieGoalPostInfo = extractAlfieGoalPostInfo(image);
+		StaticGoalInfo alfieGoalInfo = new StaticGoalInfo(alfieGoalPostInfo.get(0), alfieGoalPostInfo.get(1), true);
+		
+		ArrayList<Point2D> opponentGoalPostInfo = extractOpponentGoalPostInfo(image);
+		StaticGoalInfo opponentGoalInfo = new StaticGoalInfo(opponentGoalPostInfo.get(0), opponentGoalPostInfo.get(1), false);
+		
+		
+		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo,alfieGoalInfo,opponentGoalInfo);
 		
 		if (internalImage == null) {
 			internalImage = image;
@@ -84,7 +93,6 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		}
 	}
 
-	
 	/**
 	 * Extracts the ball position from a given image.
 	 * @param image The image to use to extract the ball position.
@@ -115,6 +123,16 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	}
 
 	/**
+	 * Extracts the goal post positions of Alfie's goal
+	 * @param image Currently not needed
+	 * @return
+	 */
+	
+	private ArrayList<Point2D> extractAlfieGoalPostInfo(BufferedImage image) {
+		return extractRobotGoalPostInfo(image, yellowAlfie);
+	}
+
+	/**
 	 * Extracts the position of Alfie's opponent.
 	 * @param image The image to use to extract the position of Alfie's opponent.
 	 * @return The position of Alfie's opponent in cm w.r.t. the centre of the pitch.
@@ -134,6 +152,16 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 */
 	private double extractOpponentFacingDirection(BufferedImage image) {
 		return extractRobotFacingDirection(image, !yellowAlfie);
+	}
+	
+	/**
+	 * Extracts the goal post positions for the opponents goal
+	 * @param image Currently not needed
+	 * @return
+	 */
+	
+	private ArrayList<Point2D> extractOpponentGoalPostInfo(BufferedImage image) {
+		return extractRobotGoalPostInfo(image, !yellowAlfie);
 	}
 
 	
@@ -156,4 +184,14 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * @return The the direction in which the specified robot is facing.
 	 */
 	protected abstract double extractRobotFacingDirection(BufferedImage image, boolean yellow);
+
+	/**
+	 * Extracts the positions of the goal posts in cm w.r.t. centre of pitch
+	 * @param image Currently not needed
+	 * @param yellow If we want the goal information for the yellow robot (else 
+	 * blue robot)
+	 * @return
+	 */
+	protected abstract ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image, boolean yellow);
+	
 }
