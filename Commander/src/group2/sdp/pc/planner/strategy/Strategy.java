@@ -7,5 +7,6 @@ public enum Strategy {
 	OFFENSIVE,
 	DEFENSIVE,
 	PENALTY_DEFEND,
-	PENALTY_TAKE
+	PENALTY_TAKE,
+	STOP
 }

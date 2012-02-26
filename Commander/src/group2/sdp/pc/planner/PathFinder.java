@@ -23,7 +23,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	/**
 	 * Sets verbose mode on or off, for debugging
 	 */
-	private static final boolean VERBOSE = true;
+	private static final boolean VERBOSE = false;
 
 	private static final int MAX_SPEED = 50;
 
@@ -94,10 +94,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	public void setOperation(Operation currentCommand) {
 		this.currentOperation = currentCommand;
-		if (currentCommand == null) {
-			executeOperationOverload((OperationOverload)currentCommand);
-			return;
-		}
 		switch (currentCommand.getType()) {
 		case REALLOCATION:
 			executeOperationReallocation((OperationReallocation)currentCommand);
@@ -189,7 +185,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * This function stops Alfie and makes him wait for the next instruction
 	 */
 	private void executeOperationOverload(OperationOverload currentCommand) {
-		System.out.println("executeStopCommand() called");
 		alfieServer.sendStop();
 	}
 
@@ -256,6 +251,9 @@ public class PathFinder implements DynamicInfoConsumer {
 					executeOperationReallocation(cmd);
 				}
 			}
+		} else if (currentOperation instanceof OperationOverload) {
+			executeOperationOverload((OperationOverload)currentOperation);
+			
 		}
 	}
 }

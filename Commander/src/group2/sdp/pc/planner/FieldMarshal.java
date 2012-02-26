@@ -5,6 +5,7 @@ import group2.sdp.pc.breadbin.DynamicPitchInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
+import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
@@ -55,7 +56,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		double facing = AlfieInfo.getFacingDirection();
 
 		if (currentStrategy == null) {
-			System.err.println("No current strategy. Exiting.");
+			System.err.println("No current strategy. Stopping.");
 			System.exit(1);
 			return null;
 		}
@@ -72,6 +73,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		case OFFENSIVE:
 			return new OperationCharge(ball, alfie, facing);
 
+		case STOP:
+			return new OperationOverload();
 		default:
 			System.err.println("No current strategy. Exiting.");
 			System.exit(1);
@@ -84,6 +87,10 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @param strategy The new strategy to employ.
 	 */
 	public void setStrategy(Strategy strategy) {
+		if (strategy == null) {
+			System.out.println("Setting strategy to null");
+			currentStrategy = null;
+		}
 		currentStrategy = strategy;
 		replan = true;
 	}
@@ -107,8 +114,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	* WARNING: Override in children classes and call this method first thing.
 	*/
 	protected boolean problemExists(DynamicPitchInfo dpi) {
-		if (currentStrategy == null)
+		if (currentStrategy == null) {
+			System.out.println("Returning true");
 			return true;
+			
+		}
 		return false;
 	}
 

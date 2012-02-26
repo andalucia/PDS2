@@ -1,5 +1,7 @@
 package group2.sdp.pc.controlstation;
 
+import group2.sdp.pc.planner.FieldMarshal;
+import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
@@ -74,6 +76,8 @@ public class CommanderControlStation implements KeyListener {
 
 	private Button runButton;
 	private Button updateButton;
+	private Button startPlanningButton;
+	private Button stopPlanningButton;
 	
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
@@ -119,6 +123,8 @@ public class CommanderControlStation implements KeyListener {
 	 * True if the main window was closed.
 	 */
 	private boolean exiting = false;
+	
+	private Overlord lord = null;
 	
 	/**
 	 * The threads for starting and stopping the communication to Alfie.
@@ -173,21 +179,21 @@ public class CommanderControlStation implements KeyListener {
 						}
 					}
 				}
-				PathFinder executor = new PathFinder(alfieServer);
-				//Milestone2Planner planner = new Milestone2Planner(executor);
-				//Bakery bakery = new Bakery(planner);
+				PathFinder finder = new PathFinder(alfieServer);
+				FieldMarshal marshal = new FieldMarshal(finder);
+				lord = new Overlord(marshal);
+				Bakery bakery = new Bakery(lord);
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
 
-					processor = new ImageProcessor(/*bakery*/null, yellowAlfieCheckbox.getState(), previewer);
+					processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
 					new ImageGrabber(processor);
 				} else {
 					new ImageGrabber(previewer);
 				}
-//				if (planCheckbox.getState()) {
-//					planner.setCurrentMode(Mode.GET_TO_BALL);
-//					planner.start();
-//				}
+				if (planCheckbox.getState()) {
+					lord.start();
+				}
 //				if (planDribble.getState()){
 //					planner.setCurrentMode(Mode.DRIBBLE);
 //					planner.start();
@@ -347,6 +353,34 @@ public class CommanderControlStation implements KeyListener {
 			}
 		});
 		
+		startPlanningButton = new Button();
+		startPlanningButton.setLabel("Start Planning");
+		startPlanningButton.setBounds(450, 292, 100, 25);
+		startPlanningButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (lord != null) {
+					lord.start();
+				}
+			}
+		});
+		
+		stopPlanningButton = new Button();
+		stopPlanningButton.setLabel("Stop Planning");
+		stopPlanningButton.setBounds(580, 292, 100, 25);
+		stopPlanningButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (lord != null) {
+					lord.stop();
+				}
+			}
+		});
+		
+		
+		
 		blueToRedHueLabel = new JLabel();
 		blueToRedHueLabel.setText("B/R");
 		blueToRedHueLabel.setBounds(696, 12, 30, 25);
@@ -488,6 +522,8 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(chromaLabel);
 
 		frmAlfieCommandCentre.getContentPane().add(updateButton);
+		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
+		frmAlfieCommandCentre.getContentPane().add(stopPlanningButton);
 		
 //		frmAlfieCommandCentre.getContentPane().add(txtLog);
 //		frmAlfieCommandCentre.getContentPane().add(Info);

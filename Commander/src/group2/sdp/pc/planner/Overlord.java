@@ -57,8 +57,12 @@ public class Overlord implements DynamicInfoConsumer {
 			if (strategy != currentStrategy) {
 				fieldMarshal.setStrategy(strategy);
 			}
-			fieldMarshal.consumeInfo(dpi);
+		} else {
+			//TODO using null isn't very nice..?
+			Strategy strategy = Strategy.STOP;
+			fieldMarshal.setStrategy(strategy);
 		}
+		fieldMarshal.consumeInfo(dpi);
 	}
 
 	/**
@@ -71,6 +75,9 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	protected Strategy computeStrategy(DynamicPitchInfo dpi) {
 		// TODO: implement
+		if (!running) {
+			return Strategy.STOP;
+		}
 		return Strategy.DEFENSIVE;
 	}
 }

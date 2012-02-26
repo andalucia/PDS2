@@ -15,7 +15,7 @@ import lejos.pc.comm.NXTConnector;
  */
 public class Server implements ServerSkeleton {
 
-	private final boolean verbose = true;
+	private final boolean verbose = false;
 	
 	private String nxtAddress = "btspp://group2";
 	
@@ -160,31 +160,33 @@ public class Server implements ServerSkeleton {
 				// Send bytes
 				dos.write(b, 0, CandyPacket.PACKET_SIZE);
 				dos.flush();
+				success = true; //TODO this should be removed if feedback is put back in
 			} catch (IOException ioe) {
 				System.out.println("IO Exception writing bytes:");
 				System.out.println(ioe.getMessage());
 				break;
 			}
 			
-			try {
-				// On success Alfie should repeat the command back.
-				byte [] b = new byte [CandyPacket.PACKET_SIZE];
-				dis.read(b, 0, CandyPacket.PACKET_SIZE);
-				if (verbose) {
-					System.out.println("Recieved bytes:");
-					new CandyPacket(b).printSweets();
-				}
-				success = true;
-				if (!packet.contentsEqual(b)) {
-					success = false;
-					System.out.println("WARNING: command is not the same; RESENDING...");
-					continue;
-				}
-			} catch (IOException ioe) {
-				System.out.println("IO Exception reading bytes:");
-				System.out.println(ioe.getMessage());
-				break;
-			}
+			//TODO getting feedback seems to give us problems (lag)
+//			try {
+//				// On success Alfie should repeat the command back.
+//				byte [] b = new byte [CandyPacket.PACKET_SIZE];
+//				dis.read(b, 0, CandyPacket.PACKET_SIZE);
+//				if (verbose) {
+//					System.out.println("Recieved bytes:");
+//					new CandyPacket(b).printSweets();
+//				}
+//				success = true;
+//				if (!packet.contentsEqual(b)) {
+//					success = false;
+//					System.out.println("WARNING: command is not the same; RESENDING...");
+//					continue;
+//				}
+//			} catch (IOException ioe) {
+//				System.out.println("IO Exception reading bytes:");
+//				System.out.println(ioe.getMessage());
+//				break;
+//			}
 		} while (!success) ;
 		
 		//System.out.println(System.currentTimeMillis() - start);
