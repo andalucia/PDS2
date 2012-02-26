@@ -16,16 +16,7 @@ public class StaticPitchInfo {
 	 * The information about the opponent.
 	 */
 	protected StaticRobotInfo opponentInfo;
-	
-	/**
-	 * The information about our goal
-	 */
-	protected StaticGoalInfo alfieGoalInfo;
-	
-	/**
-	 * The information about our opponent's goal;
-	 */
-	protected StaticGoalInfo opponentGoalInfo;
+
 	
 	/**
 	 * A constructor that takes all required data as arguments.	
@@ -36,14 +27,11 @@ public class StaticPitchInfo {
 	 * @param opponentGoalInfo The information about the opponent's goal.
 	 */
 	public StaticPitchInfo(StaticBallInfo ballInfo, StaticRobotInfo alfieInfo,
-			StaticRobotInfo opponentInfo, StaticGoalInfo alfieGoalInfo,
-			StaticGoalInfo opponentGoalInfo) {
+			StaticRobotInfo opponentInfo) {
 		super();
 		this.ballInfo = ballInfo;
 		this.alfieInfo = alfieInfo;
 		this.opponentInfo = opponentInfo;
-		this.alfieGoalInfo = alfieGoalInfo;
-		this.opponentGoalInfo = opponentGoalInfo;
 	}
 	
 	
@@ -99,31 +87,7 @@ public class StaticPitchInfo {
 	 * Returns information about Alfie's goal
 	 * 
 	 */
-	
-	public StaticGoalInfo getAlfieGoalInfo() {
-		return alfieGoalInfo;
-	}
-	/**
-	 * Set the information about the opponent's goal
-	 * 
-	 */
-	public void setAlfieGoalInfo(StaticGoalInfo alfieGoalInfo) {
-		this.alfieGoalInfo = alfieGoalInfo;
-	}
-	/**
-	 * Get the information about the opponent's goal
-	 * 
-	 */
-	public StaticGoalInfo getOpponentGoalInfo() {
-		return opponentGoalInfo;
-	}
-	/**
-	 * Set the information about the opponent's goal
-	 * 
-	 */
-	public void setOpponentGoalInfo(StaticGoalInfo opponentGoalInfo) {
-		this.opponentGoalInfo = opponentGoalInfo;
-	}
+
 	
 	/**
 	 * Prints information available in this class. Currently does not 

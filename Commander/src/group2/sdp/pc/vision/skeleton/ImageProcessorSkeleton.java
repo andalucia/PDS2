@@ -1,7 +1,6 @@
 package group2.sdp.pc.vision.skeleton;
 
 import group2.sdp.pc.breadbin.StaticBallInfo;
-import group2.sdp.pc.breadbin.StaticGoalInfo;
 import group2.sdp.pc.breadbin.StaticPitchInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
@@ -67,20 +66,15 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 		
 		Point2D alfiePosition = extractAlfiePosition(image);
 		double alfieFacingDirection = extractAlfieFacingDirection(image);
-		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true,time);
+		ArrayList<Point2D> alfieGoalPostInfo = extractAlfieGoalPostInfo(image);
+		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true,time,alfieGoalPostInfo.get(0),alfieGoalPostInfo.get(1));
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
-		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time);
-		
-		ArrayList<Point2D> alfieGoalPostInfo = extractAlfieGoalPostInfo(image);
-		StaticGoalInfo alfieGoalInfo = new StaticGoalInfo(alfieGoalPostInfo.get(0), alfieGoalPostInfo.get(1), true);
-		
 		ArrayList<Point2D> opponentGoalPostInfo = extractOpponentGoalPostInfo(image);
-		StaticGoalInfo opponentGoalInfo = new StaticGoalInfo(opponentGoalPostInfo.get(0), opponentGoalPostInfo.get(1), false);
+		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time,opponentGoalPostInfo.get(0),opponentGoalPostInfo.get(1));		
 		
-		
-		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo,alfieGoalInfo,opponentGoalInfo);
+		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		
 		if (internalImage == null) {
 			internalImage = image;

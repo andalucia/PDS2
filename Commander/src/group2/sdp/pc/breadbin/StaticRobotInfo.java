@@ -37,6 +37,12 @@ public class StaticRobotInfo {
 	 * Indicates if the robot is Alfie or his opponent.
 	 */
 	protected boolean alfie;
+	
+	/**
+	 * The positions of the goals in cm
+	 */
+	protected Point2D topGoalPost;
+	protected Point2D bottomGoalPost;
 
 
 	/**
@@ -45,11 +51,15 @@ public class StaticRobotInfo {
 	 * @param facingDirection The direction at which the T shape on top of the robot is pointing.
 	 * @param alfie Indicates if the robot is Alfie or his opponent.
 	 * @param timeStamp The time at which Info was recorded . Units are milliseconds.
+	 * @param topGoalPost 
+	 * @param bottomGoalPost 
 	 */
-	public StaticRobotInfo(Point2D position, double facingDirection, boolean alfie, long timeStamp) {
+	public StaticRobotInfo(Point2D position, double facingDirection, boolean alfie, long timeStamp, Point2D topGoalPost, Point2D bottomGoalPost) {
 		this.position = position;
 		this.facingDirection = facingDirection;
 		this.alfie = alfie;
+		this.topGoalPost = topGoalPost;
+		this.bottomGoalPost = bottomGoalPost;
 		this.timeStamp=timeStamp;
 	}
 
@@ -103,6 +113,21 @@ public class StaticRobotInfo {
 	 */
 	public void setFacingDirection(double facingDirection) {
 		this.facingDirection = facingDirection;
+	}
+	
+	/**
+	 * Return the position of the topGoalPost in cm w.r.t. centre of the pitch
+	 * 
+	 */
+	public Point2D getTopGoalPost() {
+		return topGoalPost;
+	}
+	/**
+	 * Return the position of the bottomGoalPost in cm w.r.t. centre of the pitch
+	 * 
+	 */
+	public Point2D getBottomGoalPost() {
+		return bottomGoalPost;
 	}
 
 	/**

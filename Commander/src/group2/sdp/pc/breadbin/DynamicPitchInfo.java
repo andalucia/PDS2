@@ -11,9 +11,8 @@ public class DynamicPitchInfo extends StaticPitchInfo {
 	 * @param alfieInfo The information about the Alfie.
 	 * @param opponentInfo The information about the opponent.
 	 */
-	public DynamicPitchInfo(DynamicBallInfo ballInfo, DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo,
-			StaticGoalInfo alfieGoalInfo, StaticGoalInfo opponentGoalInfo) {
-		super(ballInfo, alfieInfo, opponentInfo, alfieGoalInfo, opponentGoalInfo);
+	public DynamicPitchInfo(DynamicBallInfo ballInfo, DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo) {
+		super(ballInfo, alfieInfo, opponentInfo);
 	}
 	
 	/**

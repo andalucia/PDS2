@@ -39,8 +39,8 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 	 * Thus 12 o'clock is 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
 	 */
 	public DynamicRobotInfo(Point2D position, double facingDirection, 
-			boolean alfie, double travelSpeed, double travelDirection, long timeStamp) {
-		super(position, facingDirection, alfie, timeStamp);
+			boolean alfie, double travelSpeed, double travelDirection, long timeStamp, Point2D topGoalPost, Point2D bottomGoalPost) {
+		super(position, facingDirection, alfie, timeStamp, topGoalPost, bottomGoalPost);
 		this.travelSpeed = travelSpeed;
 		this.travelDirection = travelDirection;
 	}
