@@ -95,7 +95,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 * @param ball postion of the ball
 	 * @return boolean
 	 */
-	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
+	public static boolean hasBall(DynamicRobotInfo robot, Point2D ball){
 		Point2D robotPos = robot.getPosition(); 
 		
 		if(robotPos.distance(ball)<=40){

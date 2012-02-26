@@ -6,6 +6,7 @@ import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -49,7 +50,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	private Operation planNextOperation(DynamicPitchInfo dpi) {
 		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
-
+		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
+		
 		Point2D ball = ballInfo.getPosition();
 		Point2D alfie = AlfieInfo.getPosition();
 		double facing = AlfieInfo.getFacingDirection();
@@ -70,7 +72,15 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			}
 
 		case OFFENSIVE:
-			return new OperationCharge(ball, alfie, facing);
+			if(Overlord.hasBall(AlfieInfo, ball)){
+				if(shotOnGoal(AlfieInfo, opponentInfo, ball)){
+					return new OperationStrike();
+				}else{
+					return new OperationCharge(ball, alfie, facing);
+				}
+				
+			}
+			return new OperationReallocation(ball, alfie, facing);
 
 		default:
 			System.err.println("No current strategy. Exiting.");
@@ -128,5 +138,49 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			replan = false;
 		}
 		pathFinder.consumeInfo(dpi);
+	}
+	
+	public static boolean shotOnGoal(DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+		Point2D topGoal = opponentInfo.getTopGoalPost();
+		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
+		Point2D alfiePos = alfieInfo.getPosition();
+		double facing = alfieInfo.getFacingDirection();
+		
+		Point2D ourGoal = alfieInfo.getTopGoalPost();
+		double ourGoalLine = ourGoal.getX();
+		double theirGoalLine = topGoal.getX();
+		
+		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
+		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
+		
+		
+		if(theirGoalLine > ourGoalLine){
+			if(facing>bottomAngle || facing<topAngle){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			if(facing<bottomAngle || facing>topAngle){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		
+	}
+
+
+	private static double getAngleFromOrigin(Point2D alfiePos, Point2D targetPosition) {
+		// TODO Auto-generated method stub
+		double dx = (targetPosition.getX() - alfiePos.getX());
+		double dy = (targetPosition.getY() - alfiePos.getY());
+		
+		double angle = Math.toDegrees(Math.atan2(dy, dx));
+		if(angle<0){
+			angle = 360 +angle;
+		}
+		return angle;
 	}
 }
