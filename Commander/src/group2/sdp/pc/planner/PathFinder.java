@@ -87,27 +87,13 @@ public class PathFinder implements DynamicInfoConsumer {
 
 
 	/**
-	 * The main execution function, calls a function based on the command given, make sure you cast
-	 * currentCommand to the actual command type
+	 * Sets the operation. Called when field marshall replans. consumeInfo handles execution of command
 	 *  
-	 * @param currentCommand The command to be executed
+	 * @param currentCommand The command to be set.
 	 */
 	public void setOperation(Operation currentCommand) {
 		this.currentOperation = currentCommand;
-		switch (currentCommand.getType()) {
-		case REALLOCATION:
-			executeOperationReallocation((OperationReallocation)currentCommand);
-			break;
-		case CHARGE:
-			executeOperationCharge((OperationCharge) currentCommand);
-			break;
-		case STRIKE:
-			executeOperationStrike((OperationStrike)currentCommand);
-			break;
-		case OVERLOAD:
-			executeOperationOverload((OperationOverload)currentCommand);
-			// ADD OTHERS
-		}
+		
 	}
 
 
@@ -197,7 +183,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * @return The angle to turn at.
 	 */
-	private double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
+	protected static double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
 		double dx = (targetPosition.getX() - alfiePosition.getX());
 		double dy = (targetPosition.getY() - alfiePosition.getY());
 
@@ -219,6 +205,7 @@ public class PathFinder implements DynamicInfoConsumer {
 
 	@Override
 	public void consumeInfo(DynamicPitchInfo dpi) {
+		//TODO act upon all commands
 		if (currentOperation instanceof OperationReallocation) {
 			OperationReallocation cmd = (OperationReallocation)currentOperation;
 			Point2D targetPosition = cmd.getTarget();

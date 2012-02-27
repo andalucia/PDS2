@@ -7,6 +7,7 @@ import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -17,7 +18,7 @@ import java.awt.geom.Point2D;
  * should be currently executed.
  */
 public class FieldMarshal implements DynamicInfoConsumer {
-	
+
 	/**
 	 * The current strategy to employ.
 	 */
@@ -34,11 +35,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * True if the FieldMarshal need to re-plan the current operation. 
 	 */
 	protected boolean replan;
-	
+
 	public FieldMarshal(PathFinder pathFinder) {
 		this.pathFinder = pathFinder;
 	}
-	
+
 
 	/**
 	 * Most important method of the class. According to the current strategy
@@ -50,6 +51,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	private Operation planNextOperation(DynamicPitchInfo dpi) {
 		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
+		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 
 		Point2D ball = ballInfo.getPosition();
 		Point2D alfie = AlfieInfo.getPosition();
@@ -60,7 +62,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			System.exit(1);
 			return null;
 		}
-		
+
 		switch (currentStrategy) {
 		case DEFENSIVE:
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
@@ -71,7 +73,15 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			}
 
 		case OFFENSIVE:
-			return new OperationCharge(ball, alfie, facing);
+			if(Overlord.hasBall(AlfieInfo, ball)){
+				if(shotOnGoal(AlfieInfo, opponentInfo, ball)){
+					return new OperationStrike();
+				}else{
+					return new OperationCharge(ball, alfie, facing);
+				}
+
+			}
+			return new OperationReallocation(ball, alfie, facing);
 
 		case STOP:
 			return new OperationOverload();
@@ -94,7 +104,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		currentStrategy = strategy;
 		replan = true;
 	}
-	
+
 	/**
 	* Checks if the current operation succeeded, given the current pitch info.
 	* @param dpi Current pitch info.
@@ -138,5 +148,63 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			replan = false;
 		}
 		pathFinder.consumeInfo(dpi);
+	}
+	
+	/**
+	 * this function will tell us if we are facing the oppositions goal
+	 * it compares the angle we are facing with the angle to the extremes
+	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
+	 * @param alfieInfo alfies info
+	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
+	 * @param ball nuff said
+	 * @return boolean
+	 */
+	public static boolean shotOnGoal(DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+		Point2D topGoal = opponentInfo.getTopGoalPost();
+		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
+		Point2D alfiePos = alfieInfo.getPosition();
+		double facing = alfieInfo.getFacingDirection();
+		
+		Point2D ourGoal = alfieInfo.getTopGoalPost();
+		double ourGoalLine = ourGoal.getX();
+		double theirGoalLine = topGoal.getX();
+		
+		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
+		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
+		
+		
+		if(theirGoalLine > ourGoalLine){
+			if(facing>bottomAngle || facing<topAngle){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			if(facing<bottomAngle || facing>topAngle){
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		
+	}
+
+
+	/**
+	 * returns the angle from a point to another point with repect the plane of are zero angle. 
+	 * @param alfiePos postion of our robot
+	 * @param targetPosition position of the target we are working out the angle to the ball
+	 * @return double
+	 */
+	protected static double getAngleFromOrigin(Point2D alfiePos, Point2D targetPosition) {
+		double dx = (targetPosition.getX() - alfiePos.getX());
+		double dy = (targetPosition.getY() - alfiePos.getY());
+		
+		double angle = Math.toDegrees(Math.atan2(dy, dx));
+		if(angle<0){
+			angle = 360 +angle;
+		}
+		return angle;
 	}
 }
