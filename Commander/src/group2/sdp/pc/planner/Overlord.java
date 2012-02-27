@@ -111,12 +111,18 @@ public class Overlord implements DynamicInfoConsumer {
 		//double minAngle = 0;
 		
 		//threshold is the give we set in checking if the robot has the ball
-		int threshold = 5;
+		if(robotPos.distance(ball)<=40){
+			//this is the angle from the origin
+			//double angleBall = FieldMarshal.getAngleFromOrigin(robotPos, ball);
+			int threshold = 5;
 		
-		double angle = Math.abs(PathFinder.getAngleToTarget(ball, robotPos, facing));
+			double angle = Math.abs(PathFinder.getAngleToTarget(ball, robotPos, facing));
 		
-		if(angle<=threshold){
-			return true;
+			if(angle<=threshold){
+				return true;
+			}else{
+				return false;
+			}
 		}else{
 			return false;
 		}
