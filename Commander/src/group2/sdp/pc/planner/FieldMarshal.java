@@ -160,6 +160,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @return boolean
 	 */
 	public static boolean shotOnGoal(DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+		//TODO take account of other robots location
 		Point2D topGoal = opponentInfo.getTopGoalPost();
 		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
 		Point2D alfiePos = alfieInfo.getPosition();
@@ -174,13 +175,13 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		
 		
 		if(theirGoalLine > ourGoalLine){
-			if(facing>bottomAngle || facing<topAngle){
+			if(facing>bottomAngle && facing<topAngle){
 				return true;
 			}else{
 				return false;
 			}
 		}else{
-			if(facing<bottomAngle || facing>topAngle){
+			if(facing<bottomAngle && facing>topAngle){
 				return true;
 			}else{
 				return false;
