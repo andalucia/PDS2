@@ -81,7 +81,7 @@ public class Overlord implements DynamicInfoConsumer {
 		Point2D ball = ballInfo.getPosition();  
 		
 		if(hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)){
-		return Strategy.DEFENSIVE;
+			return Strategy.DEFENSIVE;
 		}else{
 			return Strategy.OFFENSIVE;
 		}
@@ -89,21 +89,72 @@ public class Overlord implements DynamicInfoConsumer {
 	
 	
 	/**
+	 * 
+	 * just realised angle checking could have been done more elegantly
+	 * using a similar function to our angle checking from pathFinder
+	 * 
 	 * checks to see it the robot is with a certain distance of the ball,
-	 * if it is then this robot has the ball, so return true
+	 * if it is then this robot check to see is the robot is facing the ball.
+	 * this is done by checking the angle to the ball with the angle facing.
+	 * there is a problem with how the angle resets around the 360 mark so
+	 * any angles close to this must be handled with a different check
 	 * @param robot is the Dynamic pitch info of robot were checking
 	 * @param ball postion of the ball
 	 * @return boolean
 	 */
 	public static boolean hasBall(DynamicRobotInfo robot, Point2D ball){
+		
+		
 		Point2D robotPos = robot.getPosition(); 
+		double facing = robot.getFacingDirection();
+		double maxAngle = 0;
+		double minAngle = 0;
+		
+		//threshold is the give we set in checking if the robot has the ball
+		int threshold = 5;
+		
+		//this boolean tells us if the ball is at an extreme angle (close to 360 or 0)
+		boolean isExtreme = true;
 		
 		if(robotPos.distance(ball)<=40){
-			return true;
+			//this is the angle from the origin
+			double angleBall = FieldMarshal.getAngleFromOrigin(robotPos, ball);
+			
+			
+			//is the angle to the ball small
+			if(angleBall<threshold){
+				 maxAngle = angleBall+threshold;
+				 minAngle = 360 -(threshold-angleBall);
+			}else{
+				//is the angle to the ball large
+				if(angleBall>=(360 - threshold)){
+					maxAngle = threshold -(360 - angleBall);
+					minAngle = angleBall - threshold;
+				}else{
+					//all other angles
+					maxAngle = angleBall+threshold;
+					minAngle = angleBall - threshold;
+					isExtreme = false;
+				}
+			}
+			
+			
+			if(isExtreme){
+				if(facing <= maxAngle||facing>=minAngle){
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				if(facing <= maxAngle&&facing>=minAngle){
+					return true;
+				}else{
+					return false;
+				}
+			}
 		}else{
-			return false;
-		}
-		
+				return false;
+			}
 	}
 	
 	
@@ -132,4 +183,6 @@ public class Overlord implements DynamicInfoConsumer {
 			return false;
 		}
 	}
+	
+	
 }
