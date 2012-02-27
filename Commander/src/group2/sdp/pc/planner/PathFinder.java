@@ -202,7 +202,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * @return The angle to turn at.
 	 */
-	private double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
+	protected static double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
 		double dx = (targetPosition.getX() - alfiePosition.getX());
 		double dy = (targetPosition.getY() - alfiePosition.getY());
 
