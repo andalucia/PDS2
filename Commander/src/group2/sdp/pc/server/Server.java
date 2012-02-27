@@ -82,6 +82,12 @@ public class Server implements ServerSkeleton {
 	}
 	
 	/**
+	 * Tells Alfie to move in an arc
+	 */
+	public void sendMoveArc(int radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.MOVE_ARC_CANDY, radius, angle));
+	}
+	/**
 	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.
 	 * @param distance The distance to travel in an inspecified unit, 0 to travel indefinitely
