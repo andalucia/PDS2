@@ -6,6 +6,7 @@ import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  * An abstract implementation of the class processing image data and producing static pitch info.
@@ -18,29 +19,36 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	private StaticInfoConsumer staticInfoConsumer;
 	
 	private ImageConsumer imageConsumer;
-	private BufferedImage internalImage;
+	protected BufferedImage internalImage;
 	
 	
 	/**
 	 * Is Alfie's T yellow?
 	 */
-	private boolean yellowAlfie;
+	protected boolean yellowAlfie;
 
 	/**
 	 * A constructor that takes the object that is going to consume the output.
 	 * @param consumer The object that is going to consume the output.
 	 */
-	public ImageProcessorSkeleton (StaticInfoConsumer consumer) {
+	public ImageProcessorSkeleton (StaticInfoConsumer consumer, boolean yellowAlfie) {
 		this.staticInfoConsumer = consumer;
+		this.yellowAlfie = yellowAlfie;
 	}
 	
-	public ImageProcessorSkeleton (StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
+	public ImageProcessorSkeleton (StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
 		this.staticInfoConsumer = consumer;
+		this.yellowAlfie = yellowAlfie;
 		this.imageConsumer = imageConsumer;
 	}
 	
+	/**
+	 * See parent's comment.
+	 * Note: If you want to override this, then you want to override process.
+	 */
 	@Override
-	public void consume (BufferedImage image) {
+	public final void consume (BufferedImage image) {
+		internalImage = null;
 		process(image);
 	}
 	
@@ -50,29 +58,35 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * @param image The image to process.
 	 */
 	public void process (BufferedImage image) {
-		internalImage = image;
 		// Do processing here
 		
+		long time = System.currentTimeMillis();
 		Point2D ballPosition = extractBallPosition(image);
-		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition);
+		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition,time);
 		
 		Point2D alfiePosition = extractAlfiePosition(image);
 		double alfieFacingDirection = extractAlfieFacingDirection(image);
-		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true);
+		ArrayList<Point2D> alfieGoalPostInfo = extractAlfieGoalPostInfo(image);
+		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true,time,alfieGoalPostInfo.get(0),alfieGoalPostInfo.get(1));
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
-		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false);
+		ArrayList<Point2D> opponentGoalPostInfo = extractOpponentGoalPostInfo(image);
+		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false,time,opponentGoalPostInfo.get(0),opponentGoalPostInfo.get(1));		
 		
 		StaticPitchInfo spi = new StaticPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		
+		if (internalImage == null) {
+			internalImage = image;
+		}
 		if (imageConsumer != null) {
 			imageConsumer.consume(internalImage);
 		}
-		staticInfoConsumer.consumeInfo(spi);
+		if (staticInfoConsumer != null) {
+			staticInfoConsumer.consumeInfo(spi);
+		}
 	}
 
-	
 	/**
 	 * Extracts the ball position from a given image.
 	 * @param image The image to use to extract the ball position.
@@ -103,6 +117,16 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	}
 
 	/**
+	 * Extracts the goal post positions of Alfie's goal
+	 * @param image Currently not needed
+	 * @return
+	 */
+	
+	private ArrayList<Point2D> extractAlfieGoalPostInfo(BufferedImage image) {
+		return extractRobotGoalPostInfo(image, yellowAlfie);
+	}
+
+	/**
 	 * Extracts the position of Alfie's opponent.
 	 * @param image The image to use to extract the position of Alfie's opponent.
 	 * @return The position of Alfie's opponent in cm w.r.t. the centre of the pitch.
@@ -122,6 +146,16 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 */
 	private double extractOpponentFacingDirection(BufferedImage image) {
 		return extractRobotFacingDirection(image, !yellowAlfie);
+	}
+	
+	/**
+	 * Extracts the goal post positions for the opponents goal
+	 * @param image Currently not needed
+	 * @return
+	 */
+	
+	private ArrayList<Point2D> extractOpponentGoalPostInfo(BufferedImage image) {
+		return extractRobotGoalPostInfo(image, !yellowAlfie);
 	}
 
 	
@@ -144,4 +178,14 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * @return The the direction in which the specified robot is facing.
 	 */
 	protected abstract double extractRobotFacingDirection(BufferedImage image, boolean yellow);
+
+	/**
+	 * Extracts the positions of the goal posts in cm w.r.t. centre of pitch
+	 * @param image Currently not needed
+	 * @param yellow If we want the goal information for the yellow robot (else 
+	 * blue robot)
+	 * @return
+	 */
+	protected abstract ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image, boolean yellow);
+	
 }

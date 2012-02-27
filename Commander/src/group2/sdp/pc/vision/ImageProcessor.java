@@ -1,306 +1,454 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.pc.vision.LCHColour.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.print.attribute.standard.Finishings;
+
+/**
+ * This is how I process what I see on the pitch. I first remove the background to 
+ * determine what pixels have changed, and therefore what pixels I need to consider when 
+ * looking for myself, the other robot and the ball.
+ * To find the robots I look for the largest connected area of that colour. I then 
+ * use repeated regression to ensure the angle is correct.
+ * @author Alfie
+ *
+ */
 public class ImageProcessor extends ImageProcessorSkeleton {
 	
-	private static int width = 640, height = 480,
-	width_margin = 20, height_margin = 60;
-	
-	private int[] red = new int[] { 255, 0, 0 };
-	private static int ball_box_radius = 50;
-	private static Point BALL_POS = new Point(-1,-1);
-	
-	private static final int[] firebrick = new int[] { 178, 34, 34 };
-	private static final int[] Aqua = new int[] {0, 255, 255};
-	private static final int[] Coral = new int[] {255, 127, 80};
-	
-	//centroids
-	private Point blueCentroid, yellowCentroid;
+	/**
+	* Shows whether the background has to be updated or not.
+	*/
+	private boolean extractBackground;
 
+	/**
+	* An image of the background compare each frame with.
+	*/
+	private BufferedImage backgroundImage;
+
+	private static final boolean pitchOne = true;
+	private static final boolean VERBOSE = false;
+	/**
+	 * The boundaries of the pitch rectangle in the real world. In cm.
+	 */
+	private final Rectangle2D pitchPhysicalRectangle = new Rectangle2D.Float(-122, -60.5f, 244, 121);
+	private String backgroundFileName = "background.png";
+	private boolean saveBackground = false;
+
+	/**
+	 * New pixels in the last frame that was processed.
+	 */
+	private ArrayList<Point> newPixels;
+
+	//values to return
+	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
+	private double blueDir, yellowDir;
+
+
+	/**
+	 * The rectangle that contains the whole pitch.
+	 */
+	private final Rectangle pitchCrop1 = new Rectangle(10, 58, 630-10, 421-58);
+	private final Rectangle pitchCrop2 = new Rectangle(63, 100, 572 - 63, 383 - 100);
 	
-	// BLUE thresholds
-	private static final int RThreshBlueLow = 1;
-	private static final int RThreshBlueHigh = 50;
+	// TODO: think of a better name/way of doing this
+	private final boolean isYellowRobotRightGoal = true;
 	
-	private static final int GThreshBlueLow = 70;
-	private static final int GThreshBlueHigh = 150;
-	
-	private static final int BThreshBlueLow = 70;
-	private static final int BThreshBlueHigh = 255;
-	
-	
-	// YELLOW thresholds
-	private static final int RThreshYellowLow = 110;
-	private static final int RThreshYellowHigh = 160;
-	
-	private static final int GThreshYellowLow = 110;
-	private static final int GThreshYellowHigh = 170;
-	
-	private static final int BThreshYellowLow = 20;
-	private static final int BThreshYellowHigh = 100;
-	
-	
-	// Ball thresholds
-	private static final int RThreshRedLow = 140;
-	private static final int RThreshRedHigh = 255;
-	
-	private static final int GThreshRedLow = 15;
-	private static final int GThreshRedHigh = 35;
-	
-	private static final int BThreshRedLow = 0;
-	private static final int BThreshRedHigh = 30;
-	
-	// pure colours - used for drawing pixels
-	private static final int[] pureRed = new int[] { 255, 0, 0 };
-	private static final int[] pureYellow = {255, 255, 0};
-	private static final int[] pureBlue = new int[] {0, 0, 255};
-	
-	public ImageProcessor(StaticInfoConsumer consumer) {
-		super(consumer);
+	/**
+	 * The goal post positions for the goal on the right
+	 */
+	// TODO: SET ACTUAL POSITIONS
+	// TODO: ALSO NOT REALLY MESSY
+	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+
+	/**
+	 * The goal post positions for the goal on the left
+	 */
+	// TODO: SET ACTUAL POSITIONS
+	// TODO: ALSO NOT REALLY MESSY
+	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+
+	/**
+	 * See parent's comment.
+	 */
+	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie) {
+		super(consumer, yellowAlfie);
+		extractBackground = true;
+		newPixels = new ArrayList<Point> ();
 	}
-	
-	public ImageProcessor(StaticInfoConsumer consumer,
-			ImageConsumer imageConsumer) {
-		super(consumer, imageConsumer);
+	/**
+	 * See parent's comment.
+	 */
+	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
+		super(consumer, yellowAlfie, imageConsumer);
+		extractBackground = true;
+		newPixels = new ArrayList<Point> ();
 	}
-	
-	
-	//Please call super.process after done processing
+
+	/**
+	 * In addition to processing the frame extracts the background if needed.
+	 */
 	@Override
 	public void process(BufferedImage image) {
-		
-		image = detectRobotsAndBall(image);
-		System.out.println(findFacingDirection(image, yellowCentroid, true));
-		
-		super.process(image);
-	}
-	
-	
-	
-	public BufferedImage detectRobotsAndBall(BufferedImage image) {
-		
-		// create a new blank raster of the same size
-		ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-		ColorModel cm = new ComponentColorModel(cs, false, false,
-				Transparency.OPAQUE, DataBuffer.TYPE_BYTE);
-
-		// create raster from given image
-		WritableRaster raster = image.getRaster();
-
-		Point yellowCentroid = new Point(0, 0);
-		Point blueCentroid = new Point(0, 0);
-		Point ballCentroid = new Point(0,0);
-	
-		ArrayList<Point> yellowpoints = new ArrayList<Point>();
-		ArrayList<Point> fakeyellows = new ArrayList<Point>();
-		ArrayList<Point> bluepoints = new ArrayList<Point>();
-		ArrayList<Point> fakeblues = new ArrayList<Point>();
-		ArrayList<Point> ball = new ArrayList<Point>();
-		ArrayList<Point> nope_not_ball = new ArrayList<Point>();
-		
-		
-		// for every point on the image
-		for (int x = width_margin; x < image.getWidth() - width_margin; x++) {
-			for (int y = height_margin; y < image.getHeight() - height_margin; y++) {
-				// get RGB values for a pixel
-				int[] colour = new int[3];
-				int col = image.getRGB(x, y);
-				Color c = new Color(col);
-				colour[0] = c.getRed();
-				colour[1] = c.getGreen();
-				colour[2] = c.getBlue();
-
-				// get current pixel
-				Point currentPoint = new Point(x, y);
-
-				// test if the pixel belongs to either of the robots or the ball
-				if (isSthYellow(colour)) {
-					yellowpoints.add(currentPoint);
+		if (extractBackground) {
+			if (!saveBackground) {
+				backgroundImage = loadBackgroundImage();
+				if (backgroundImage == null) {
+					backgroundImage = image;
 				}
-
-				if (isSthBlue(colour)) {
-					bluepoints.add(currentPoint);
-				}
-				if (isBall(colour)){
-					ball.add(currentPoint);
-				}
+			} else {
+				backgroundImage = image;
+				saveBackgroundImage(backgroundImage);
 			}
+			extractBackground = false;
+			// Note that the super.process(image) is not called.
+			// This is the case, since we expect that the background
+			// contains no objects worth of detection.
+		} else {
+			newPixels = getDifferentPixels(image);
+			internalImage = drawPixels(image, newPixels);
+			drawStuff(internalImage);
+			super.process(image);
 		}
-	
-		/** 
-		 * Find the yellow and the blue robots; draw a cross through their centroids
-		 */
-		
-		/**
-		 * Noise removal: if a pixel is a a certain distance away from the last
-		 * pixel known to belong to the yellow robot, then remove that pixel from
-		 * the collection of robot pixels and say it's a "fake" robot, i.e. noise
-		 */
-		
-		// yellow robot
-		if (yellowpoints.size() != 0){
-			Point lastyellow = yellowpoints.get(0);
-			for (int i = 0; i < yellowpoints.size(); i++){
-				
-				Point current = yellowpoints.get(i);
-				double dist1 = calcDistanceBetweenPoints(current, lastyellow);
-	
-				if (dist1 > 50){
-					/**
-					 * if the current pixel is unusually further away from previous ones
-					 * then it's fake, therefore delete it from the robot pixels and add
-					 * to fakes
-					 * it is necessary to decrement, however, to make sure no 
-					 * pixel is omitted from checking
-					 */
-					yellowpoints.remove(i);
-					fakeyellows.add(current);
-					i--;
-					
-				}
-				// if pixel distance is reasonable, chances are the pixel is in its right place
-				// and it is now the last one of the proper robot pixels
-				else lastyellow = current;
-			}
-			
-			/**
-			 * we cannot be sure which list consist the proper robots but chances
-			 * are the pixels in the larger list form the yellow robot
-			 * therefore, the centroid of the bigger list is the
-			 * centroid of the yellow robot
-			 */
-			// DRAW cross through the proper yellow centroid 
-			if (yellowpoints.size() > fakeyellows.size()){
-				yellowCentroid = calcCentroid(yellowpoints);
-				drawCross(raster, yellowCentroid, Aqua);
-				
-			}
-			else {
-				yellowCentroid = calcCentroid(fakeyellows);
-				drawCross(raster, yellowCentroid, Aqua);
-			}
-			
-			// DRAW what the vision system thinks the yellow robot is
-			if (yellowpoints.size() > fakeyellows.size()){
-				for (int i = 0; i < yellowpoints.size(); i++){
-					Point current = yellowpoints.get(i);
-					drawPixel(raster, current, pureYellow);}
-			}
-			// it might be the case that the "fake" robot is the proper one
-			else {
-				for (int i = 0; i < fakeyellows.size(); i++){
-					Point current = fakeyellows.get(i);
-					drawPixel(raster, current, Aqua);}
-			}
-		}
-		else {System.out.println("No yellow robot on pitch");}
-		
-		// Same for blue robot and ball
-		// Blue robot
-		if (bluepoints.size() != 0){
-			Point lastblue = bluepoints.get(0);
-			for (int i = 0; i < bluepoints.size(); i++){
-				
-				Point current = bluepoints.get(i);
-				double dist = calcDistanceBetweenPoints(current, lastblue);
-	
-				if (dist > 50){
-					bluepoints.remove(i);
-					fakeblues.add(current);
-					i--;
-					
-				}
-				else lastblue = current;
-			}
-			if (bluepoints.size() > fakeblues.size()){
-				blueCentroid = calcCentroid(bluepoints);
-				drawCross(raster, blueCentroid, Aqua);
-				
-			}
-			else {
-				blueCentroid = calcCentroid(fakeblues);
-				drawCross(raster, blueCentroid, Aqua);
-			}
-			
-			if (bluepoints.size() > fakeblues.size()){
-				for (int i = 0; i < bluepoints.size(); i++){
-					Point current = bluepoints.get(i);
-					drawPixel(raster, current, pureBlue);}
-			}
-			else {
-				for (int i = 0; i < fakeblues.size(); i++){
-					Point current = fakeblues.get(i);
-					drawPixel(raster, current, pureBlue);}
-			}
-		}
-		else {System.out.println("No blue robot on pitch");}
-		
-		// ball detection
-		if (ball.size() != 0){
-			
-			Point lastred = ball.get(0);
-			for (int i = 0; i < ball.size(); i++){
-				
-				Point current = ball.get(i);
-				double dist = calcDistanceBetweenPoints(current, lastred);
-	
-				if (dist > 15){
-					ball.remove(i);
-					nope_not_ball.add(current);
-					i--;
-					
-				}
-				else lastred = current;
-			}
-	
-			
-			if (ball.size() > nope_not_ball.size()){
-				ballCentroid = calcCentroid(ball);
-				drawCross(raster, ballCentroid, pureRed);
-				
-			}
-			else {
-				ballCentroid = calcCentroid(nope_not_ball);
-				drawCross(raster, ballCentroid, pureRed);
-			}
-			
-			if (ball.size() > nope_not_ball.size()){
-				for (int i = 0; i < ball.size(); i++){
-					Point current = ball.get(i);
-					drawPixel(raster, current, pureRed);}
-			}
-			else {
-				for (int i = 0; i < nope_not_ball.size(); i++){
-					Point current = nope_not_ball.get(i);
-					drawPixel(raster, current, pureRed);}
-			}
-		}
-		else {System.out.println("No ball on pitch");}
-		
-		this.blueCentroid = blueCentroid;
-		this.yellowCentroid = yellowCentroid;
+		detectRobotsAndBall(image, newPixels);
 
-		
-		BufferedImage img = new BufferedImage(cm, raster, false, null);
-		return img;
+
 
 	}
-	
+
+
+	/**
+	 * Grabs a new background image and saves it.
+	 */
+	public void grabNewBackgroundImage() {
+		extractBackground = true;
+		saveBackground = true;
+	}
+
+	private BufferedImage loadBackgroundImage() {
+		File inputfile = new File(backgroundFileName);
+		BufferedImage image = null;
+		try {
+			image = ImageIO.read(inputfile);
+			System.out.println("Background image loaded.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return image;
+	}
+
+	/**
+	 * 
+	 * @param image
+	 */
+	private void saveBackgroundImage(BufferedImage image) {
+		File outputfile = new File(backgroundFileName);
+		try {
+			ImageIO.write(image, "png", outputfile);
+			System.out.println("Background image saved.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * The pixels that are sufficiently different from the background are 
+	 * added to a list that is returned.
+	 * @param image The image to subtract from the background image.
+	 * @param pitchOne
+	 * @return A list of the different points.
+	 * @see isDifferent
+	 */
+	private ArrayList<Point> getDifferentPixels(BufferedImage image) {
+		Rectangle pitchCrop = new Rectangle();
+		if (pitchOne){
+			pitchCrop = pitchCrop1;
+		}
+		else{
+			pitchCrop = pitchCrop2;
+		}
+		int minX = Math.max(pitchCrop.x, image.getMinX());
+		int minY = Math.max(pitchCrop.y, image.getMinY());
+		int w = Math.min(pitchCrop.width, image.getWidth());
+		int h = Math.min(pitchCrop.height, image.getHeight());
+
+		int maxX = minX + w;
+		int maxY = minY + h;
+
+		ArrayList<Point> result = new ArrayList<Point>(); 
+		for (int y = minY; y < maxY; ++y) {
+			for (int x = minX; x < maxX; ++x) {
+				if (isDifferent(image, x, y)) {
+					result.add(new Point(x, y));
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Compares if the given pixel in the given image is different from the 
+	 * corresponding pixel in the background image. The current implementation
+	 * subtracts the background from the given image and checks if the result 
+	 * passes a certain threshold.
+	 * @param image The pixel to compare is taken from this picture.
+	 * @param x The x coordinate of the pixel.
+	 * @param y The y coordinate of the pixel.
+	 * @return True if the specified pixel is different, false otherwise.
+	 */
+	private boolean isDifferent(BufferedImage image, int x, int y) {
+		int threshold = 60;
+
+		Color imagePixel = new Color(image.getRGB(x, y));
+		Color backPixel = new Color(backgroundImage.getRGB(x, y));
+
+		int [] delta = new int [] {
+				Math.abs(imagePixel.getRed() - backPixel.getRed()),
+				Math.abs(imagePixel.getGreen() - backPixel.getGreen()),
+				Math.abs(imagePixel.getBlue() - backPixel.getBlue())
+		};
+
+		return delta[0] + delta[1] + delta[2] > threshold;
+	}
+
+	/**
+	 * This function is where everything except background removal is done. The robot 'T's 
+	 * are detected, processed and have their centroids and orientations calculated. These 
+	 * values are stored in the respective global variables.
+	 * @param image
+	 * @param newPixels The pixels which are "different" (calculated by background removal).
+	 * @see #getDifferentPixels(BufferedImage)
+	 * @see #getGreatestArea(ArrayList)
+	 * @see #regressionAndDirection(BufferedImage, ArrayList, boolean)
+	 */
+
+	public void detectRobotsAndBall(BufferedImage image, ArrayList<Point> newPixels) {
+
+		ArrayList<Point> yellowPoints = new ArrayList<Point>();
+		ArrayList<Point> bluePoints = new ArrayList<Point>();
+		ArrayList<Point> ballPoints = new ArrayList<Point>();
+		ArrayList<Point> platePoints = new ArrayList<Point>();
+		for (Point p : newPixels) {
+			Color c = new Color(image.getRGB(p.x, p.y));
+			LCHColour lch = new LCHColour(c);
+			ColourClass cc = lch.getColourClass();
+
+			switch (cc) {
+			case RED:
+				ballPoints.add(p);
+				break;
+			case GREEN_PLATE:
+				platePoints.add(p);
+				break;
+			case BLUE:
+				bluePoints.add(p);
+				break;
+			case YELLOW:
+				yellowPoints.add(p);
+				break;
+			}
+		}
+
+		ArrayList<Point> yellowPointsClean = getGreatestArea(yellowPoints);
+		ArrayList<Point> bluePointsClean = getGreatestArea(bluePoints);
+		ArrayList<Point> ballPointsClean = getGreatestArea(ballPoints);
+
+
+		this.ballCentroid = calcCentroid(ballPointsClean);
+		this.blueCentroid = calcCentroid(bluePointsClean);
+		this.yellowCentroid = calcCentroid(yellowPointsClean);
+
+		this.blueDir = regressionAndDirection(image, bluePointsClean, false) % 360;
+		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true) % 360;
+
+	}
+
+	/**
+	 * Loops through allPoints calling {@link #mindFlower(ArrayList,ArrayList,Point)} on pixels in it. mindFlower 
+	 * removes pixels from allPoints if it determines they are connected to another 
+	 * pixel so this will almost never cycle through the *whole* ArrayList.
+	 * @param allPoints the list of points of the same colour (yellowPoints/bluePoints)
+	 * @return the ArrayList of connected pixels in allPoints which form the largest 
+	 * area
+	 * 
+	 */
+
+	public ArrayList<Point> getGreatestArea(ArrayList<Point> allPoints) {
+		ArrayList<Point> bestArea = new ArrayList<Point>();
+		// this while loop should end because mindFlower
+		// removes points from allPoints
+		while (allPoints.size() != 0) {
+			ArrayList<Point> newArea = new ArrayList<Point>();
+
+			newArea.add(allPoints.get(0));
+			allPoints.remove(0);
+			newArea = mindFlower(newArea,allPoints,newArea.get(0));
+			if (newArea.size() > bestArea.size()) {
+				bestArea = newArea;
+			}
+		}
+		return bestArea;
+	}
+
+	/**
+	 * Uses {@link #findFacingDirection(BufferedImage, Point, boolean)} to get a starting 
+	 * direction and then refines it using {@link #regression(ArrayList, double, boolean)}.
+	 * @param image
+	 * @param fixels
+	 * @param isYellow
+	 * @return the direction 0 < x < 360 degrees.
+	 */
+
+	public double regressionAndDirection(BufferedImage image,
+			ArrayList<Point> fixels, boolean isYellow) {
+
+
+		// for regression
+		double end_angle = 0;
+
+		Point fixelsCentroid = calcCentroid(fixels);
+
+		double actualDir;
+		if (isYellow) {
+			actualDir = (findFacingDirection(image, fixelsCentroid, true));
+		} else {
+			actualDir = (findFacingDirection(image, fixelsCentroid, false));
+		}
+
+		double m = 0;
+		double newangle = actualDir;
+		for (int i = 0; i < 5; i++) {
+			m = regression(fixels, newangle, isYellow);
+			newangle = (newangle) - Math.toDegrees(Math.atan(m));
+
+		}
+		end_angle = newangle;
+		return end_angle;
+	}
+
+	/**
+	 * This function is supposed to be *slow*. Do not use apart from testing.
+	 * @param pixels The pixels to draw on a new image.
+	 * @return
+	 */
+	private BufferedImage drawPixels(BufferedImage image, List<Point> pixels) {
+		int w = backgroundImage.getWidth();
+		int h = backgroundImage.getHeight();
+		BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_3BYTE_BGR);
+		for (Point p : newPixels) {
+			Color c = new Color(image.getRGB(p.x, p.y));
+			LCHColour lch = new LCHColour(c);
+			ColourClass cc = lch.getColourClass();
+
+			Color dc = null;
+			switch (cc) {
+			case RED:
+				dc = Color.RED;
+				break;
+			case GREEN_PLATE:
+				dc = Color.GREEN;
+				break;
+			case GREEN_PITCH:
+				dc = Color.LIGHT_GRAY;
+				break;
+			case BLUE:
+				dc = Color.BLUE;
+				break;
+			case YELLOW:
+				dc = Color.YELLOW;
+				break;
+			case GRAY:
+				dc = Color.DARK_GRAY;
+				break;
+			default:
+				//System.out.println(c);
+				dc = Color.CYAN;
+				break;
+			}
+			//			int v = lch.getHue() * 255 / 360;
+			//			result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
+			//result.setRGB(p.x, p.y, new Color(lch.getChroma(), lch.getChroma(), lch.getChroma()).getRGB());
+			result.setRGB(p.x, p.y, dc.getRGB());
+		}
+		return result;
+	}
+
+	/**
+	 * Get the colour of a certain pixel on the image
+	 * @param image
+	 * @param fixel
+	 * @return
+	 */
+	public int[] getColour(BufferedImage image, Point fixel){
+
+		//TODO: it seems like this is never called?
+		
+		// get RGB values for a pixel
+		int[] colour = new int[3];
+		int col = image.getRGB(fixel.x, fixel.y);
+		Color c = new Color(col);
+		colour[0] = c.getRed();
+		colour[1] = c.getGreen();
+		colour[2] = c.getBlue();
+		return colour;
+	}
+
+	/**
+	 * Called by {@link #getGreatestArea(ArrayList)}. Looks for adjacent points to determine connected 
+	 * areas
+	 * @param newArea connected pixels are stored in here
+	 * @param allPoints the list of all possible points (e.g. all yellow/blue points)
+	 * @param pixel the pixel to which all other points should be connected
+	 * @return all points connected to pixel which 
+	 * are present in allPoints.
+	 */
+
+	public ArrayList<Point> mindFlower(ArrayList<Point> newArea, ArrayList<Point> allPoints,  Point pixel){
+		Point north = new Point(pixel.x,pixel.y-1);
+		Point east = new Point(pixel.x+1,pixel.y);
+		Point south = new Point(pixel.x,pixel.y+1);
+		Point west = new Point(pixel.x-1,pixel.y);
+
+		if (allPoints.remove(north)) {
+			newArea.add(north);
+			mindFlower(newArea,allPoints,north);
+		}
+		if (allPoints.remove(east)) {
+			newArea.add(east);
+			mindFlower(newArea,allPoints,east);
+		}
+		if (allPoints.remove(south)) {
+			newArea.add(south);
+			mindFlower(newArea,allPoints,south);
+		}
+		if (allPoints.remove(west)) {
+			newArea.add(west);
+			mindFlower(newArea,allPoints,west);
+		}
+
+		return newArea;
+	}
+
+
 	/**
 	 * Cycles through all (360) possible angles and finds the longest unbroken line
 	 * from the centroid. The angle at which this line was found is the angle which 
@@ -311,50 +459,112 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param isYellow If the robot is yellow
 	 * @return Angle of robot in degrees w.r.t x-axis. Increases CCW.
 	 */
-	
-	public int findFacingDirection(BufferedImage image, Point centroid, boolean isYellow) {
-		Color c = null;
+	public int findFacingDirection(BufferedImage image, Point centroid,
+			boolean isYellow) {
 		int cur_score = 0;
+		int cur_score2 = 0;
 		int best_score = 0;
 		int best_angle = 0;
 		if (centroid.x != 0) {
+
 			for (int i = 0; i < 360; i++) {
 				cur_score = 0;
+				cur_score2 = 0;
 				Point nextPixel = new Point();
 				nextPixel.x = centroid.x;
 				nextPixel.y = centroid.y;
-				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
-				c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
-				int[] colour = new int[] {c.getRed(),c.getGreen(),c.getBlue()};
-				// Do not stop until the next pixel colour is not the colour we are 
-				// looking for. The next pixel is determined by travelling in the 
-				// negative x direction and then rotating the point i degrees around 
-				// the centroid.
-				while (isBlueYellow(colour, isYellow)) {
-					//System.out.println("rot_pixel = " + rot_pixel + " and isYellow = " + isYellow);
-					cur_score++;
-					nextPixel = new Point(centroid.x + cur_score,centroid.y);
-					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,nextPixel.y), i);
-					try {
-						c = new Color(image.getRGB(rot_pixel.x,rot_pixel.y));
-					} catch (Exception e) {
-						System.out.println("rot_pixel = " + rot_pixel);
-						System.out.println("centroid = " + centroid);
-						break;
+				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+						nextPixel.y), i);
+				/**
+				 * Do not stop until the next pixel colour is not the colour we
+				 * are looking for. The next pixel is determined by travelling
+				 * in the negative x direction and then rotating the point i
+				 * degrees around the centroid.
+				 */
+
+				while (isBlueYellow(image, rot_pixel, isYellow)) {
+
+					cur_score++; // Since we sort in ascending order, lower
+					// score is longer segments
+
+					nextPixel = new Point(centroid.x + cur_score, centroid.y);
+					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+							nextPixel.y), i);
+				}
+				while (isBlueYellow(image, rot_pixel, isYellow)) {
+
+					cur_score2++; // Since we sort in ascending order, lower
+					// score is longer segments
+
+					nextPixel = new Point(centroid.x + cur_score, centroid.y);
+					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+							nextPixel.y), i + 180);
+				}
+
+				if (cur_score +cur_score2 > best_score) {
+
+					if(cur_score>cur_score2){
+						best_angle = i;
+					}else{
+						best_angle = (i+180) % 360;
 					}
-					colour[0] = c.getRed();
-					colour[1] = c.getGreen();
-					colour[2] = c.getBlue();
-	
+
+					best_score = cur_score+cur_score2;
 				}
-				if (cur_score > best_score) {
-					best_angle = i;
-					best_score = cur_score;
-				}
+
 			}
 		}
+
 		return 360 - best_angle;
 	}
+
+	/**
+	 * regression function
+	 * @param fixels
+	 * @param angle
+	 * @return
+	 */
+
+	protected double regression(ArrayList<Point> fixels, double angle, boolean isYellow) {
+
+		Point actualCentroid = blueCentroid;
+		if (isYellow) {
+			actualCentroid = yellowCentroid;
+		}
+
+		double allx = 0;
+		double ally = 0;
+		double allxy = 0;
+		double allx_sqr = 0;
+		double ally_sqr = 0;
+		int n = fixels.size();
+
+		for (int i = 0; i < fixels.size(); i++) {
+
+			int x_for_rotate = fixels.get(i).x - actualCentroid.x;
+			int y_for_rotate = fixels.get(i).y - actualCentroid.y;
+
+			double x_rotated = x_for_rotate * Math.cos(Math.toRadians(angle))
+			- y_for_rotate * Math.sin(Math.toRadians(angle));
+			double y_rotated = x_for_rotate * Math.sin(Math.toRadians(angle))
+			+ y_for_rotate * Math.cos(Math.toRadians(angle));
+
+			x_rotated = x_rotated + actualCentroid.x;
+			y_rotated = y_rotated + actualCentroid.y;
+
+			allx += x_rotated;
+			ally += y_rotated;
+
+			allxy += x_rotated * y_rotated;
+
+			allx_sqr += x_rotated * x_rotated;
+			ally_sqr += y_rotated * y_rotated;
+
+		}
+
+		return (n * allxy - allx * ally) / (n * allx_sqr - allx * allx);
+	}
+
 
 	/**
 	 * 
@@ -362,40 +572,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param isYellow If you are looking for yellow (the other option is blue)
 	 * @return
 	 */
-	
-	private boolean isBlueYellow(int[] colour, boolean isYellow) {
-		if (isYellow) {
-			return isSthYellow(colour);
-		} else {
-			return isSthBlue(colour);
+	private boolean isBlueYellow(BufferedImage image, Point pixel, boolean isYellow) {
+		boolean returnValue = false;
+		Color c = new Color(image.getRGB(pixel.x, pixel.y));
+		LCHColour lch = new LCHColour(c);
+		ColourClass cc = lch.getColourClass();
+		switch (cc) {
+		case BLUE:
+			if (!isYellow) {
+				returnValue = true;
+			}
+			break;
+		case YELLOW:
+			if (isYellow) {
+				returnValue = true;
+			}
+			break;
 		}
-	}
-	
-	/**
-	 * The function calculates the difference in colour values of two pixels
-	 * @param colour1 - RGB values
-	 * @param colour2 - RGB values
-	 * @return
-	 */
-
-	public int[] calcColourDifferences(int[] colour1, int[] colour2){
-
-		int channel1R = colour1[0];
-		int channel1G = colour1[1];
-		int channel1B = colour1[2];
-
-
-		int channel2R = colour2[0];
-		int channel2G = colour2[1];
-		int channel2B = colour2[2];
-
-		int[] result = new int[3];
-
-		result[0] = Math.abs(channel1R - channel2R);
-		result[1] = Math.abs(channel1G - channel2G);
-		result[2] = Math.abs(channel1B - channel2B);
-
-		return result;
+		return returnValue;
 	}
 
 
@@ -409,7 +603,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	{
 		return Math.sqrt((double)(Math.pow(p1.x-p2.x,2)+(Math.pow(p1.y-p2.y,2))));
 	}
-	
+
 	/**
 	 * 
 	 * @param fixels - for every ArrayList<Point> robot/ball,
@@ -427,117 +621,237 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		if (!fixels.isEmpty()){
 			centroid.x = fixelsInArrayList.x / fixels.size();
 			centroid.y = fixelsInArrayList.y / fixels.size();}
-		else System.out.println("Robot's missing");
+		else {
+			if (VERBOSE) {
+				System.out.println("Robot's missing.");
+			}
+		}
 		return centroid;
 	}
 
+
 	/**
-	 * 		Every colour has a pattern: the value for each channel is bounded
-	 * 		In order to be classified as yellow, e.g. a pixel should have
-	 * 		values strictly between 120 and 160 for Red; 110 and 170 for Green
-	 * 		and 20 and 85 for Blue
-	 * 		Those values are however highly dependent on lighting conditions and
-	 * 		have to be reconsidered every day, every hour and of course, on every
-	 * 		match...
-	 * @param colour
+	 * WARNING: DO NOT USE p2 AFTER THIS FUNCTION HAS BEEN CALLED.
+	 * This function will change the values of p2. Use the returned point 
+	 * and create a copy of p2 if you want to use it. This will also perform 
+	 * very badly if continually used to rotate by 1 degrees.
+	 */
+
+	public Point rotatePoint(Point pivot, Point rotate, int deg) {
+		Point point = new Point(rotate.x,rotate.y);
+		point.x -= pivot.x;
+		point.y -= pivot.y;
+		double rad = (double) Math.toRadians(deg);
+		int xtemp;
+		xtemp = (int) Math.round((point.x * (double)Math.cos(rad)) - (point.y * (double)Math.sin(rad)));
+		point.y = (int) Math.round((point.x * (double)Math.sin(rad)) + (point.y * (double)Math.cos(rad)));
+		point.x = xtemp;
+		return new Point (point.x+pivot.x, point.y+pivot.y);
+	}
+
+	/**
+	 * Converts from the image coordinate system (in pixels) to a coordinate system
+	 * centred at the physical centre of the pitch (in cm), where y grows upwards and 
+	 * x to the right.
+	 * @param point The point to convert.
+	 * @return The point, converted.
+	 */
+	private Point2D convertPixelsToCm(Point2D point) {
+		Point2D p = new Point2D.Float();
+		Rectangle pitchImageRectangle;
+		if (pitchOne) {
+			pitchImageRectangle = pitchCrop1;
+		} else {
+			pitchImageRectangle = pitchCrop2;
+		}
+		double x = linearRemap(point.getX(), 
+				pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
+				pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
+		double y = linearRemap(point.getY(), 
+				pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
+				pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
+		p.setLocation(x, -y);
+		return p;
+	}
+
+	/**
+	 * Changes the coordinate system of a 1-dimensional variable.
+	 * E.g. if you want to move your starting point from 1 to 3, and to
+	 * dilate your range from 3 to 6, this would move 2 to 5:
+	 * 
+	 *         1 2 3 4 5 6 7 8 9
+	 * Input : > .   <
+	 * Output:     >   .       <
+	 * 
+	 * There is a side-effect of 'flipping' the image if you give negative range
+	 * to either of the range arguments:
+	 * 
+	 *         1 2 3 4 5 6 7 8 9
+	 * Input : < .   >
+	 * Output:     >       .   <
+	 * 
+	 * @param x
+	 * @param x0
+	 * @param domainRange
+	 * @param y0
+	 * @param targetRange
 	 * @return
 	 */
 
-	// Yellow robot
-	public boolean isSthYellow(int[] colour) {
-		int R = colour[0];
-		int G = colour[1];
-		int B = colour[2];
-		return (R > RThreshYellowLow && R < RThreshYellowHigh && G > GThreshYellowLow && G < GThreshYellowHigh
-				&& B > BThreshYellowLow && B < BThreshYellowHigh || (R == 255 && G == 255 && B == 0));
+	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
+		return (x - x0) * (targetRange / domainRange) + y0;
 	}
 
-	//Blue robot
-	public boolean isSthBlue(int[] colour) {
-		int R = colour[0];
-		int G = colour[1];
-		int B = colour[2];
-		return (R > RThreshBlueLow && R < RThreshBlueHigh && G > GThreshBlueLow && G < GThreshBlueHigh
-				&& B > BThreshBlueLow && B < BThreshBlueHigh || (R == 0 && G == 0 && B == 255));
-	}
-
-	// Ball
-	public boolean isBall(int[] colour) {
-		int R = colour[0];
-		int G = colour[1];
-		int B = colour[2];
-		return (R > RThreshRedLow && R < RThreshRedHigh && G > GThreshRedLow && G < GThreshRedHigh
-				&& B > BThreshRedLow && B < BThreshRedHigh);
-	}
 
 	/**
 	 * A safe way to draw a pixel
-	 * 
+	 *
 	 * @param raster
-	 *            draw on writable raster
+	 * draw on writable raster
 	 * @param p1
-	 *            point coordinates
+	 * point coordinates
 	 * @param colour
-	 *            colour
+	 * colour
 	 */
 	private void drawPixel(WritableRaster raster, Point p1, int[] colour) {
+		int width = 640;
+		int height = 480;
 		if (p1.x >= 0 && p1.x < width && p1.y >= 0 && p1.y < height)
 			raster.setPixel(p1.x, p1.y, colour);
 	}
 
 	/**
-	 * Draws 2 perpendicular lines intersecting at point p1
-	 * 
-	 * @param raster
-	 *            draw on writable raster
-	 * @param p1
-	 *            point coordinates
-	 * @param colour
-	 *            colour
+	 * This function is used to keep all drawing/printing in one place.
+	 * @param internalImage
 	 */
-	private void drawCross(WritableRaster raster, Point p1, int[] colour) {
-		for (int i = 0; i < width; i++) {
-			drawPixel(raster, new Point(i, p1.y), colour);
-		}
-		for (int i = 0; i < height; i++) {
-			drawPixel(raster, new Point(p1.x, i), colour);
-		}
+	private void drawStuff(BufferedImage internalImage) {
+		WritableRaster raster = internalImage.getRaster();
+		drawLine_Robot_Facing(raster, this.blueCentroid , this.blueDir );
+		drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
+		drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
+		drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
+		drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
 	}
-	
+
 	/**
-	 * WARNING: DO NOT USE p2 AFTER THIS FUNCTION HAS BEEN CALLED.
-	 * This function will change the values of p2. Use the returned point 
-	 * and create a copy of p2 if you want to use it.
+	 * Simply used to draw a circle around the point centroid.
+	 * @param raster
+	 * @param centroid
+	 * @param colour
+	 * @param radius
+	 * @see #rotatePoint(Point, Point, int)
 	 */
-	
-	public Point rotatePoint(Point pivot, Point p2, int deg)
-	{
-		p2.x -= pivot.x;
-		p2.y -= pivot.y;
-		double rad = (double) Math.toRadians(deg);
-		int xtemp;
-		xtemp = (int) Math.round((p2.x * (double)Math.cos(rad)) - (p2.y * (double)Math.sin(rad)));
-		p2.y = (int) Math.round((p2.x * (double)Math.sin(rad)) + (p2.y * (double)Math.cos(rad)));
-		p2.x = xtemp;
-		return new Point (p2.x+pivot.x, p2.y+pivot.y);
+	private void drawCentroidCircle(WritableRaster raster, Point centroid, int[] colour, int radius) {
+		Point rotPoint = new Point(centroid.x + radius,centroid.y);
+		for (int i=0; i < 360;i++) {
+			Point tempPoint = new Point(centroid.x + radius,centroid.y);
+			rotPoint = rotatePoint(centroid,tempPoint,i);
+			drawPixel(raster,rotPoint,colour);
+		}
 	}
+
+	/**
+	 * Used to draw the facing direction of robots.
+	 * @param raster
+	 * @param c
+	 * @param angle
+	 */
+	private void drawLine_Robot_Facing(WritableRaster raster, Point c,
+			double angle) {
+		angle = 360 - angle;
+		int[] colour = { 255, 255, 255 };
+		if (angle < 270 && angle > 90) {
+
+			int xh = c.x - 100;
+			int x = c.x;
+			int y = c.y;
+
+			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
+			while (x > xh) {
+				drawPixel(
+						raster,
+						new Point(x,
+								(int) (Math.tan(Math.toRadians(angle)) * x + b)),
+								colour);
+				x--;
+			}
+		} else {
+
+			int xh = c.x + 100;
+			int x = c.x;
+			int y = c.y;
+
+			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
+			while (x < xh) {
+				drawPixel(
+						raster,
+						new Point(x,
+								(int) (Math.tan(Math.toRadians(angle)) * x + b)),
+								colour);
+				x++;
+			}
+		}
+
+	}
+
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
-		// TODO Auto-generated method stub
-		return null;
+		if (ballCentroid == null) {
+			return null;
+		}
+		return convertPixelsToCm(ballCentroid);
 	}
 
 	@Override
 	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
-		// TODO Auto-generated method stub
-		return null;
+		if (yellow) {
+			if (yellowCentroid == null) {
+				return null;
+			}
+			return convertPixelsToCm(yellowCentroid);
+		} else {
+			if (blueCentroid == null) {
+				return null;
+			}
+			return convertPixelsToCm(blueCentroid);
+		}
 	}
 
 	@Override
 	protected double extractRobotFacingDirection(BufferedImage image,
 			boolean yellow) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (yellow) {
+			return yellowDir;
+		} else {
+			return blueDir;
+		}
+	}
+	
+	@Override
+	protected ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image,
+			boolean yellow) {
+		ArrayList<Point2D> rightGoalPostInfo;
+		ArrayList<Point2D> leftGoalPostInfo;
+		if (pitchOne) {
+			rightGoalPostInfo = rightGoalPostInfo1;
+			leftGoalPostInfo = leftGoalPostInfo1;
+		} else {
+			rightGoalPostInfo = rightGoalPostInfo2;
+			leftGoalPostInfo = leftGoalPostInfo2;
+		}
+		if (yellow) {
+			if (isYellowRobotRightGoal) {
+				return rightGoalPostInfo;
+			} else {
+				return leftGoalPostInfo;
+			}
+		} else {
+			if (!isYellowRobotRightGoal) {
+				return rightGoalPostInfo;
+			} else {
+				return leftGoalPostInfo;
+			}
+		}
 	}
 }

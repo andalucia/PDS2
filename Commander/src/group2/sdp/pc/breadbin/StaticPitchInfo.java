@@ -23,6 +23,8 @@ public class StaticPitchInfo {
 	 * @param ballInfo The information about the ball.
 	 * @param alfieInfo The information about the Alfie.
 	 * @param opponentInfo The information about the opponent.
+	 * @param alfieGoalInfo The information about Alfie's goal.
+	 * @param opponentGoalInfo The information about the opponent's goal.
 	 */
 	public StaticPitchInfo(StaticBallInfo ballInfo, StaticRobotInfo alfieInfo,
 			StaticRobotInfo opponentInfo) {
@@ -79,6 +81,28 @@ public class StaticPitchInfo {
 	 */
 	public void setOpponentInfo(StaticRobotInfo opponentInfo) {
 		this.opponentInfo = opponentInfo;
+	}
+	
+	/**
+	 * Returns information about Alfie's goal
+	 * 
+	 */
+
+	
+	/**
+	 * Prints information available in this class. Currently does not 
+	 * print goal information (because it's boring)
+	 */
+	public void printAllStaticInfo() {
+		//print ball info
+		System.out.println("Ball info: position = " + ballInfo.getPosition());
+		//print alfie info
+		System.out.println("Alfie info: position = " + alfieInfo.getPosition() + 
+				"\t facing direction = " + alfieInfo.getFacingDirection());
+		//print ENEMY info
+		System.out.println("Enemy info: position = " + opponentInfo.getPosition() + 
+				"\t facing direction = " + opponentInfo.getFacingDirection());
+
 	}
 	
 	

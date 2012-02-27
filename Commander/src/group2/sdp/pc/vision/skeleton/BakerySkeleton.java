@@ -1,15 +1,8 @@
 package group2.sdp.pc.vision.skeleton;
 
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.breadbin.StaticBallInfo;
-import group2.sdp.pc.breadbin.StaticPitchInfo;
-import group2.sdp.pc.breadbin.StaticPitchInfoHistory;
-import group2.sdp.pc.breadbin.StaticRobotInfo;
+import group2.sdp.pc.breadbin.*;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * This class consumes static information about the pitch from an image 
@@ -21,7 +14,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * The maximum number of previous static infos to store.
 	 */
 	private static final int MAX_HISTORY_LENGTH = 64;
-	
+
 	/**
 	 * The queue of past static infos. The front of the queue is the oldest SPI.
 	 */
@@ -31,7 +24,8 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * The consumer that is going to consume the output of this class.
 	 */
 	private DynamicInfoConsumer dynamicConsumer;
-	
+	private int counter;
+
 	/**
 	 * A constructor that takes the object that is going to consume the output 
 	 * of this class as an argument. 
@@ -42,12 +36,17 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		this.dynamicConsumer = consumer;
 		staticInfoHistory = new StaticPitchInfoHistory();
 	}
-	
+
+
 	@Override
 	public void consumeInfo(StaticPitchInfo spi) {
-		addInfoToHistory(spi);
-		DynamicPitchInfo dpi = produceDynamicInfo(spi);
-		dynamicConsumer.consumeInfo(dpi);
+		if (counter < 10) {
+			counter++;
+		} else {
+			addInfoToHistory(spi);
+			DynamicPitchInfo dpi = produceDynamicInfo(spi);
+			dynamicConsumer.consumeInfo(dpi);
+		}
 	}
 
 	/**
@@ -63,7 +62,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 
 	/**
 	 * Builds on top of the given static information to produce dynamic information
-	 * about the pitch. 
+	 * about the pitch. Corrects errors in facing direction for robots.
 	 * @param spi The given static information.
 	 * @return Dynamic information about the pitch based on a history of previous
 	 * informations.
@@ -72,17 +71,19 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		double rollingSpeed = computeBallRollingSpeed(staticInfoHistory.getBallInfos());
 		double rollingDirection = computeBallRollingDirection(staticInfoHistory.getBallInfos());
 		DynamicBallInfo ballInfo = new DynamicBallInfo(spi.getBallInfo().getPosition(), 
-				rollingSpeed, rollingDirection);
-		
+				rollingSpeed, rollingDirection,spi.getBallInfo().getTimeStamp());
+
 		double alfieTravelSpeed = computeAlfieTravelSpeed();
 		double alfieTravelDirection = computeAlfieTravelDirection();
 		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(spi.getAlfieInfo(), 
 				alfieTravelSpeed, alfieTravelDirection); 
+		alfieInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getAlfieInfos()));
 		
 		double opponentTravelSpeed = computeOpponentTravelSpeed();
 		double opponentTravelDirection = computeOpponentTravelDirection();
 		DynamicRobotInfo opponentInfo = new DynamicRobotInfo(spi.getOpponentInfo(), 
 				opponentTravelSpeed, opponentTravelDirection);
+		opponentInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getOpponentInfos()));
 		
 		DynamicPitchInfo result = new DynamicPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		return result;
@@ -113,7 +114,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	private double computeAlfieTravelSpeed() {
 		return computeRobotTravelSpeed(staticInfoHistory.getAlfieInfos());
 	}
-		
+
 	/**
 	 * Computes the travel direction of Alfie.
 	 * Units are degrees.
@@ -146,14 +147,14 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		return computeRobotTravelDirection(staticInfoHistory.getOpponentInfos());
 	}
 
-	
+
 	/**
 	 * Computes the travel speed of a robot. Units are cm/s.
 	 * @param historyInfos The list of infos to use to compute the travel speed of the robot.
 	 * @return The travel speed of the robot.
 	 */
 	protected abstract double computeRobotTravelSpeed(LinkedList<StaticRobotInfo> historyInfos);
-	
+
 	/**
 	 * Computes the travel direction of a robot. Note that this might be different than the
 	 * actual pointing direction.
@@ -165,4 +166,11 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * @return The travel direction of the robot.
 	 */
 	protected abstract double computeRobotTravelDirection(LinkedList<StaticRobotInfo> historyInfos);
+
+	/**
+	 * Compares against previous frames to remove extreme values from facing direction
+	 * @param historyInfos  The list of infos (some used for comparison to current angle).
+	 * @return A value for facing direction
+	 */
+	protected abstract double correctRobotFacingDirection(LinkedList<StaticRobotInfo> historyInfos);
 }

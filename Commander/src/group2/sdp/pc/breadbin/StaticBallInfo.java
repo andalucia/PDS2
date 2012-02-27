@@ -17,16 +17,23 @@ public class StaticBallInfo {
 	 * The units are cm.
 	 */
 	protected Point2D position;
+	
+	/**
+	 * The time at which Info was recorded . Units are milliseconds. 
+	 */
+	protected long timeStamp;
 
 	
 	/**
 	 * A constructor that sets the position of the ball w.r.t. the centre of 
 	 * the pitch. Units are in cm.
 	 * @param position The position of the ball. Units are in cm.
+	 * @param timeStamp The time at which Info was recorded . Units are milliseconds.
 	 */
-	public StaticBallInfo(Point2D position) {
+	public StaticBallInfo(Point2D position, long timeStamp) {
 		super();
 		this.position = position;
+		this.timeStamp = timeStamp;
 	}
 
 	/**
@@ -43,6 +50,14 @@ public class StaticBallInfo {
 	 */
 	public Point2D getPosition() {
 		return position;
+	}
+	
+	/**
+	 * Get the timeStamp at which info was recorded. milliseconds
+	 * @return The timeStamp at which info was recorded. Units ar milliseconds
+	 */
+	public long getTimeStamp(){
+		return timeStamp;
 	}
 	
 	/**

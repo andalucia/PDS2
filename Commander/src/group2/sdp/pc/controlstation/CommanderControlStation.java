@@ -1,17 +1,18 @@
 package group2.sdp.pc.controlstation;
 
-import group2.sdp.pc.planner.PlanExecutor;
-import group2.sdp.pc.planner.Planner;
+import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
 import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.SimpleViewer;
+import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
 import java.awt.Checkbox;
+import java.awt.CheckboxGroup;
 import java.awt.EventQueue;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -19,19 +20,48 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JSlider;
 import javax.swing.JTextPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * The main GUI program to control Alfie during match or testing.
  */
 public class CommanderControlStation implements KeyListener {
 
+	/**
+	 * Used for the sliders.
+	 */
+	private final int MIN_BR_HUE = -120, MAX_BR_HUE = 0;
+	private int blueToRedHue = -60;
+	
+	private final int MIN_RY_HUE = 0, MAX_RY_HUE = 60;
+	private int redToYellowHue = 30;
+	
+	private final int MIN_YG_HUE = 60, MAX_YG_HUE = 120;
+	private int yellowToGreenHue = 80;
+	
+	private final int MIN_GB_HUE = 120, MAX_GB_HUE = 240;
+	private int greenToBlueHue = 150;
+	
 	// GUI elements
 	private JFrame frmAlfieCommandCentre;
+	
+	private CheckboxGroup yellowBlueAlfieGroup;
+	private Checkbox yellowAlfieCheckbox;
+	private Checkbox blueAlfieCheckbox;
+	
+	private Label[] colorLabels;
+	
+	private Label lumaLabel;
+	private Checkbox [][] lumaCheckboxes;
+	
+	private Label chromaLabel;
+	private Checkbox [][] chromaCheckboxes;
 	
 	private Checkbox connectToAlfieCheckbox;
 	private Checkbox grabImageCheckbox;
@@ -39,9 +69,23 @@ public class CommanderControlStation implements KeyListener {
 	private Checkbox bakeInfoCheckbox;
 	private Checkbox previewImageCheckbox;
 	private Checkbox planCheckbox;
+	private Checkbox planDribble;
 	private Checkbox executePlanCheckbox;
 
 	private Button runButton;
+	private Button updateButton;
+	
+	private JLabel blueToRedHueLabel;
+	private JLabel redToYellowHueLabel;
+	private JLabel yellowToGreenHueLabel;
+	private JLabel greenToBlueHueLabel;	
+	
+	private JSlider blueToRedHueSlider;
+	private JSlider redToYellowHueSlider;
+	private JSlider yellowToGreenHueSlider;
+	private JSlider greenToBlueHueSlider;
+	
+	private Button grabImageButton;
 	
 	private JTextPane txtLog;
 	private JEditorPane Alfie_Speed;
@@ -57,6 +101,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The server that sends commands to Alfie.
 	 */
 	private Server alfieServer;
+	private ImageProcessor processor;
 
 	/**
 	 *  Number of connection attempts before giving up.
@@ -79,7 +124,7 @@ public class CommanderControlStation implements KeyListener {
 	 * The threads for starting and stopping the communication to Alfie.
 	 */
 	private Thread init_thread, cleanup_thread;
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -108,7 +153,7 @@ public class CommanderControlStation implements KeyListener {
 	 */
 	private void initializeConnectionThreads() {
 		init_thread = new Thread() {		
-			
+
 			public void run() {
 				if (connectToAlfieCheckbox.getState()) {
 					for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
@@ -128,15 +173,25 @@ public class CommanderControlStation implements KeyListener {
 						}
 					}
 				}
-				PlanExecutor executor = new PlanExecutor(alfieServer);
-				Planner planner = new Planner(executor);
-				Bakery bakery = new Bakery(planner);
+				PathFinder executor = new PathFinder(alfieServer);
+				//Milestone2Planner planner = new Milestone2Planner(executor);
+				//Bakery bakery = new Bakery(planner);
 				ImagePreviewer previewer = new ImagePreviewer();
-				ImageProcessor processor = new ImageProcessor(bakery, previewer);
-				new ImageGrabber(processor);
-				if (planCheckbox.getState()) {
-					planner.run();
+				if (processImageCheckbox.getState()) {
+
+					processor = new ImageProcessor(/*bakery*/null, yellowAlfieCheckbox.getState(), previewer);
+					new ImageGrabber(processor);
+				} else {
+					new ImageGrabber(previewer);
 				}
+//				if (planCheckbox.getState()) {
+//					planner.setCurrentMode(Mode.GET_TO_BALL);
+//					planner.start();
+//				}
+//				if (planDribble.getState()){
+//					planner.setCurrentMode(Mode.DRIBBLE);
+//					planner.start();
+//				}
 			}
 		};
 		
@@ -153,62 +208,242 @@ public class CommanderControlStation implements KeyListener {
 	private void initializeFrame() {
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 700, 440);
+		frmAlfieCommandCentre.setBounds(100, 100, 1000, 440);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
+		yellowBlueAlfieGroup = new CheckboxGroup();
+		
+	    yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
+	    yellowAlfieCheckbox.setBounds(12, 12, 160, 25);
+	    
+	    blueAlfieCheckbox = new Checkbox("Blue Alfie", yellowBlueAlfieGroup, false);
+	    blueAlfieCheckbox.setBounds(12, 40, 160, 25);
+	    		
 		connectToAlfieCheckbox = new Checkbox();
 		connectToAlfieCheckbox.setLabel("Connect to Alfie");
-		connectToAlfieCheckbox.setBounds(12, 12, 160, 25);
+		connectToAlfieCheckbox.setBounds(12, 68, 160, 25);
 		connectToAlfieCheckbox.setState(false);
 		
 		grabImageCheckbox = new Checkbox();
 		grabImageCheckbox.setLabel("Grab image");
-		grabImageCheckbox.setBounds(12, 40, 160, 25);
+		grabImageCheckbox.setBounds(12, 96, 160, 25);
 		grabImageCheckbox.setState(true);
 		
 		processImageCheckbox = new Checkbox();
 		processImageCheckbox.setLabel("Process image");
-		processImageCheckbox.setBounds(12, 68, 160, 25);
+		processImageCheckbox.setBounds(12, 124, 160, 25);
 		processImageCheckbox.setState(true);
 		
 		previewImageCheckbox = new Checkbox();
 		previewImageCheckbox.setLabel("Preview image");
-		previewImageCheckbox.setBounds(12, 96, 160, 25);
+		previewImageCheckbox.setBounds(12, 152, 160, 25);
 		previewImageCheckbox.setState(true);
 		
 		bakeInfoCheckbox = new Checkbox();
 		bakeInfoCheckbox.setLabel("Bake dynamic info");
-		bakeInfoCheckbox.setBounds(12, 124, 160, 25);
+		bakeInfoCheckbox.setBounds(12, 180, 160, 25);
 		bakeInfoCheckbox.setState(true);
 		
 		planCheckbox = new Checkbox();
 		planCheckbox.setLabel("Plan");
-		planCheckbox.setBounds(12, 152, 160, 25);
+		planCheckbox.setBounds(12, 208, 160, 25);
 		planCheckbox.setState(false);
+		
+		planDribble = new Checkbox();
+		planDribble.setLabel("Plan for dribble");
+		planDribble.setBounds(12, 236, 160, 25);
+		planDribble.setState(false);
 		
 		executePlanCheckbox = new Checkbox();
 		executePlanCheckbox.setLabel("Execute plan");
-		executePlanCheckbox.setBounds(12, 180, 160, 25);
+		executePlanCheckbox.setBounds(12, 264, 160, 25);
 		executePlanCheckbox.setState(true);
 		
 		runButton = new Button();
 		runButton.setLabel("RUN!");
-		runButton.setBounds(42, 208, 100, 25);
+		runButton.setBounds(42, 292, 100, 25);
 		runButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				initializeConnectionThreads();
 				init_thread.start();
+				
+			    yellowAlfieCheckbox.setEnabled(false);
+			    blueAlfieCheckbox.setEnabled(false);
+				connectToAlfieCheckbox.setEnabled(false);
+				grabImageCheckbox.setEnabled(false);
+				processImageCheckbox.setEnabled(false);
+				previewImageCheckbox.setEnabled(false);
+				bakeInfoCheckbox.setEnabled(false);
+				planCheckbox.setEnabled(false);
+				planDribble.setEnabled(false);
+				executePlanCheckbox.setEnabled(false);
+				runButton.setEnabled(false);
+				
+				blueToRedHueSlider.setEnabled(true);
+				redToYellowHueSlider.setEnabled(true);
+				yellowToGreenHueSlider.setEnabled(true);
+				greenToBlueHueSlider.setEnabled(true);
+				
+				grabImageButton.setEnabled(true);
 			}
 		});
+		
+		final int COLOUR_NUM = 6;
+		final int LEVELS_NUM = 3;
+		
+		String [] colours = {"Yellow", "Blue", "Plate", "Pitch", "Red", "Gray"}; 
+		colorLabels = new Label[6];
+		for (int i = 0; i < COLOUR_NUM; ++i) {
+			colorLabels[i] = new Label();
+			colorLabels[i].setBounds(212, 40 + i * 28, 45, 25);
+			colorLabels[i].setText(colours[i]);
+			frmAlfieCommandCentre.getContentPane().add(colorLabels[i]);
+		}
+		
+		chromaLabel = new Label();
+		chromaLabel.setBounds(356, 12, 81, 25);
+		chromaLabel.setText("Chroma");
+		
+		chromaCheckboxes = new Checkbox [COLOUR_NUM][LEVELS_NUM];
+		for (int i = 0; i < COLOUR_NUM; ++i) {
+			for (int j = 0; j < LEVELS_NUM; ++j) {
+				chromaCheckboxes[i][j] = new Checkbox();
+				chromaCheckboxes[i][j].setBounds(356 + j * 28, 40 + i * 28, 25, 25);
+				chromaCheckboxes[i][j].setState(LCHColour.getChromaCheck(i, j));
+				frmAlfieCommandCentre.getContentPane().add(chromaCheckboxes[i][j]);
+			}
+		}
+		
+		lumaLabel = new Label();
+		lumaLabel.setBounds(260, 12, 81, 25);
+		lumaLabel.setText("Luminosity");
+		
+		lumaCheckboxes = new Checkbox [COLOUR_NUM][LEVELS_NUM];
+		for (int i = 0; i < COLOUR_NUM; ++i) {
+			for (int j = 0; j < LEVELS_NUM; ++j) {
+				lumaCheckboxes[i][j] = new Checkbox();
+				lumaCheckboxes[i][j].setBounds(260 + j * 28, 40 + i * 28, 25, 25);
+				lumaCheckboxes[i][j].setState(LCHColour.getLumaCheck(i, j));
+				frmAlfieCommandCentre.getContentPane().add(lumaCheckboxes[i][j]);
+			}
+		}
+		
+		updateButton = new Button();
+		updateButton.setLabel("Update");
+		updateButton.setBounds(260, 292, 100, 25);
+		updateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (int i = 0; i < COLOUR_NUM; ++i) {
+					for (int j = 0; j < LEVELS_NUM; ++j) {
+						LCHColour.setLumaCheck(i, j, lumaCheckboxes[i][j].getState());
+						LCHColour.setChromaCheck(i, j, chromaCheckboxes[i][j].getState());
+					}
+				}
+			}
+		});
+		
+		blueToRedHueLabel = new JLabel();
+		blueToRedHueLabel.setText("B/R");
+		blueToRedHueLabel.setBounds(696, 12, 30, 25);
+		
+		blueToRedHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_BR_HUE, MAX_BR_HUE, blueToRedHue);
+		blueToRedHueSlider.setBounds(726, 12, 200, 25);
+		blueToRedHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				blueToRedHue = blueToRedHueSlider.getValue();
+				LCHColour.setBlueToRedHue(blueToRedHue + 360);
+				System.out.println(blueToRedHue + 360);
+			}
+		});
+		blueToRedHueSlider.setMajorTickSpacing(20);
+		blueToRedHueSlider.setMinorTickSpacing(5);
+		blueToRedHueSlider.setPaintTicks(true);
+		blueToRedHueSlider.setEnabled(false);
+		
+		redToYellowHueLabel = new JLabel();
+		redToYellowHueLabel.setText("R/Y");
+		redToYellowHueLabel.setBounds(696, 61, 30, 25);
+		
+		redToYellowHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_RY_HUE, MAX_RY_HUE, redToYellowHue);
+		redToYellowHueSlider.setBounds(726, 61, 200, 25);
+		redToYellowHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				redToYellowHue = redToYellowHueSlider.getValue();
+				LCHColour.setRedToYellowHue(redToYellowHue);
+			}
+		});
+		redToYellowHueSlider.setMajorTickSpacing(20);
+		redToYellowHueSlider.setMinorTickSpacing(5);
+		redToYellowHueSlider.setPaintTicks(true);
+		redToYellowHueSlider.setEnabled(false);
+		
+		
+		yellowToGreenHueLabel = new JLabel();
+		yellowToGreenHueLabel.setText("Y/G");
+		yellowToGreenHueLabel.setBounds(696, 110, 30, 25);
+		
+		yellowToGreenHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_YG_HUE, MAX_YG_HUE, yellowToGreenHue);
+		yellowToGreenHueSlider.setBounds(726, 110, 200, 25);
+		yellowToGreenHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				yellowToGreenHue = yellowToGreenHueSlider.getValue();
+				LCHColour.setYellowToGreenHue(yellowToGreenHue);
+			}
+		});
+		yellowToGreenHueSlider.setMajorTickSpacing(20);
+		yellowToGreenHueSlider.setMinorTickSpacing(5);
+		yellowToGreenHueSlider.setPaintTicks(true);
+		yellowToGreenHueSlider.setEnabled(false);
+		
+		
+		greenToBlueHueLabel = new JLabel();
+		greenToBlueHueLabel.setText("G/B");
+		greenToBlueHueLabel.setBounds(696, 159, 30, 25);
+		
+		greenToBlueHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_GB_HUE, MAX_GB_HUE, greenToBlueHue);
+		greenToBlueHueSlider.setBounds(726, 159, 200, 25);
+		greenToBlueHueSlider.addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				greenToBlueHue = greenToBlueHueSlider.getValue();
+				LCHColour.setGreenToBlueHue(greenToBlueHue);
+			}
+		});
+		greenToBlueHueSlider.setMajorTickSpacing(20);
+		greenToBlueHueSlider.setMinorTickSpacing(5);
+		greenToBlueHueSlider.setPaintTicks(true);
+		greenToBlueHueSlider.setEnabled(false);
+		 
+		grabImageButton = new Button();
+		grabImageButton.setLabel("Grab background");
+		grabImageButton.setBounds(726, 292, 200, 25);
+		grabImageButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				processor.grabNewBackgroundImage();
+			}
+		});
+		grabImageButton.setEnabled(false);
+		
 		
 		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
 		txtLog.setBounds(212, 12, 472, 305);
-		frmAlfieCommandCentre.getContentPane().add(txtLog);
+
 		txtLog.addKeyListener(this);
 		Info = new JLabel();
 		Info2 = new JLabel();
@@ -217,9 +452,6 @@ public class CommanderControlStation implements KeyListener {
 		Info.setText("UP: forward; DOWN: backward; LEFT: trun left; RIGHT: trun right");
 
 		Info2.setText("1: +speed; 2: -speed; 3: +angle; 4: -angle");
-
-		frmAlfieCommandCentre.getContentPane().add(Info);
-		frmAlfieCommandCentre.getContentPane().add(Info2);
 
 		Alfie_Speed = new JEditorPane();
 		Alfie_Speed.setBounds(380, 373, 40, 25);
@@ -237,18 +469,45 @@ public class CommanderControlStation implements KeyListener {
 		Angle.setText("Angle");
 		Angle.setBounds(210, 373, 40, 25);
 		
+		
+		
+		frmAlfieCommandCentre.getContentPane().add(yellowAlfieCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(blueAlfieCheckbox);
+		
 		frmAlfieCommandCentre.getContentPane().add(connectToAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(grabImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(previewImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(bakeInfoCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(planCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(planDribble);
 		frmAlfieCommandCentre.getContentPane().add(executePlanCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
-		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
-		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
-		frmAlfieCommandCentre.getContentPane().add(Angle);
-		frmAlfieCommandCentre.getContentPane().add(Speed);
+		
+		frmAlfieCommandCentre.getContentPane().add(lumaLabel);
+		frmAlfieCommandCentre.getContentPane().add(chromaLabel);
+
+		frmAlfieCommandCentre.getContentPane().add(updateButton);
+		
+//		frmAlfieCommandCentre.getContentPane().add(txtLog);
+//		frmAlfieCommandCentre.getContentPane().add(Info);
+//		frmAlfieCommandCentre.getContentPane().add(Info2);
+//		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
+//		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
+//		frmAlfieCommandCentre.getContentPane().add(Angle);
+//		frmAlfieCommandCentre.getContentPane().add(Speed);
+		
+		frmAlfieCommandCentre.getContentPane().add(blueToRedHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(redToYellowHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(yellowToGreenHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(greenToBlueHueLabel);
+		
+		frmAlfieCommandCentre.getContentPane().add(blueToRedHueSlider);
+		frmAlfieCommandCentre.getContentPane().add(redToYellowHueSlider);
+		frmAlfieCommandCentre.getContentPane().add(yellowToGreenHueSlider);
+		frmAlfieCommandCentre.getContentPane().add(greenToBlueHueSlider);
+		
+		frmAlfieCommandCentre.getContentPane().add(grabImageButton);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {
@@ -261,7 +520,8 @@ public class CommanderControlStation implements KeyListener {
 
 			public void windowClosing(WindowEvent arg0) {
 				exiting = true;
-				cleanup_thread.start();
+				if (cleanup_thread != null)
+					cleanup_thread.start();
 			}
 
 			public void windowDeactivated(WindowEvent arg0) {

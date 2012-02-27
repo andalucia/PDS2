@@ -204,7 +204,6 @@ public class CandyPacket {
 	 * Prints the contents of the packet.
 	 */
 	public void printSweets() {
-		System.out.print("Sending bytes:");
 		for (int i = 0; i < sweets.length; ++i) {
 			System.out.print(" " + sweets[i]);
 		}
