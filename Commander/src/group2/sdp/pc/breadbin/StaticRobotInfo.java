@@ -72,6 +72,9 @@ public class StaticRobotInfo {
 		this.facingDirection = info.facingDirection;
 		this.alfie = info.alfie;
 		this.timeStamp= info.timeStamp;
+		this.topGoalPost = info.getTopGoalPost();
+		this.bottomGoalPost = info.getBottomGoalPost();
+		
 	}
 
 
