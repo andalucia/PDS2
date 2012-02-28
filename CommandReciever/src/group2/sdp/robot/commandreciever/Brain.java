@@ -43,6 +43,11 @@ public class Brain {
 	// The maximum speed that could ever be received.
 	private static final int MAX_ANGLE = 360;
 	
+	// The minimum radius that could ever be received.
+	private static final int MIN_RADIUS = 1;
+	// The maximum radius that could ever be received.
+	private static final int MAX_RADIUS = 360;
+	
 	
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
 	// defined as a different field.
@@ -54,6 +59,7 @@ public class Brain {
 	private static String KCK1 = "Kicking with ";
 	private static String KCK2 = "power:";
 	private static String SPN = "Spinning around...";
+	private static String ARC = "Moving in an arc...";
 	
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
@@ -227,6 +233,29 @@ public class Brain {
 		if (verbose) {
 			LCD.clear();
 			LCD.drawString(SPN, 0, 0);
+			LCD.refresh();
+		}
+	}
+	/**
+	 * Makes Alfie move in an arc 
+	 * @param radius
+	 * @param angle
+	 */
+	public static void moveArc(int radius, int angle) {
+		assert(initialized);
+		
+		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
+		radius =Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
+		stopOnTouch = true;
+		
+		if (angle != 0 && radius !=0) {
+			pilot.arc(radius, angle);
+		} 
+		
+		
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(ARC, 0, 0);
 			LCD.refresh();
 		}
 	}

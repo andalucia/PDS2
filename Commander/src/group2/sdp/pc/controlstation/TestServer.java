@@ -7,7 +7,11 @@ public class TestServer {
 		Server s;
 		try {
 			s = new Server();
-			s.sendGoForward(512, 0);
+			
+			//s.sendGoForward(512, 0);
+			s.sendMoveArc(100, 90);
+			System.out.println("After move");
+			Thread.sleep(5000);
 
 			s.sendStop();
 			s.sendReset();
