@@ -42,7 +42,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	*/
 	private BufferedImage backgroundImage;
 
-	private static final boolean pitchOne = true;
+	private static final boolean pitchOne = false;
 	private static final boolean VERBOSE = false;
 	/**
 	 * The boundaries of the pitch rectangle in the real world. In cm.
@@ -215,7 +215,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold = 60;
+		int threshold;
+		if (pitchOne) {
+			threshold = 60;
+		} else {
+			threshold = 90;
+		}
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -574,6 +579,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private boolean isBlueYellow(BufferedImage image, Point pixel, boolean isYellow) {
 		boolean returnValue = false;
+		//TODO check bounds
 		Color c = new Color(image.getRGB(pixel.x, pixel.y));
 		LCHColour lch = new LCHColour(c);
 		ColourClass cc = lch.getColourClass();
