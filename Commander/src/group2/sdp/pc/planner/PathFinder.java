@@ -35,7 +35,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private static final int DRIBBLE_SPEED = 7;	
 	
 	/**
-	 * Alfi needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
+	 * Alfie needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
 	 * before he's satisfied that he's facing in an accurate enough direction
 	 */
 	private static final int LONG_TURNING_ERROR_THRESHOLD = 10;
@@ -142,9 +142,9 @@ public class PathFinder implements DynamicInfoConsumer {
 
 	/**
 	 * This function is the basic dribbling function. Currently it just dribbles forward
-	 * Later, logic should be added to steer Alfi towards goal and away from the opponent
+	 * Later, logic should be added to steer Alfie towards goal and away from the opponent
 	 *
-	 * @param currentCommand Contains the state information for Alfi, the ball and the opponent robot
+	 * @param currentCommand Contains the state information for Alfie, the ball and the opponent robot
 	 */	
 	private void executeOperationCharge(OperationCharge currentCommand) {
 		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
