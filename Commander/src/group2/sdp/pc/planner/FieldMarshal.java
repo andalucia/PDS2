@@ -169,10 +169,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @return boolean
 	 */
 	public static boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
-		//TODO take account of other robots location
+
 		Point2D topGoal = opponentInfo.getTopGoalPost();
 		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
 		Point2D alfiePos = robotInfo.getPosition();
+		Point2D enemyPos = opponentInfo.getPosition();
 		double facing = robotInfo.getFacingDirection();
 		
 		Point2D ourGoal = robotInfo.getTopGoalPost();
@@ -181,8 +182,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		
 		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
 		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
-		
-		
+		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
+		if((alfiePos.distance(enemyPos)<10)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
+			return false;
+		}
+
 		if(theirGoalLine > ourGoalLine) {
 			if(facing>bottomAngle || facing<topAngle) {
 				return true;
@@ -246,5 +250,37 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				}
 			}
 		}
+	}
+	
+	
+	/**
+	 * Method for comparison of angles. If angle within certain threshold of each other then
+	 * return true else false
+	 * @param angle1 first angle for comparison
+	 * @param angle2 second angle for comparison
+	 * @param threshold max difference for angles to be similar
+	 * @return are angles within threshold of each other
+	 */
+	protected static boolean isSimilarAngle(double angle1, double angle2, double threshold){
+		double bigAngle;
+		double smallAngle;
+		if (angle1==angle2){
+			return true;
+		}
+		if (angle1>=angle2){
+			bigAngle=angle1;
+			smallAngle=angle2;
+		}else{
+			bigAngle=angle2;
+			smallAngle=angle1;
+		}
+		if(bigAngle-smallAngle<=threshold){
+			return true;
+		}
+		//check to solve 360-0 problem
+		if(bigAngle>=(360-threshold) && smallAngle<=0+(threshold-(360-bigAngle))){
+			return true;
+		}
+		return false;
 	}
 }
