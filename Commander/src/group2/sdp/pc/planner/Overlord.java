@@ -134,7 +134,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 * @param ballPos
 	 * @return
 	 */
-	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
+	public static boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
 		Point2D TopGoal = robotInfo.getTopGoalPost();
 		double goalLine = TopGoal.getX();
 		
@@ -145,9 +145,9 @@ public class Overlord implements DynamicInfoConsumer {
 		double robotDis = Math.abs(goalLine - robot);
 		double ballDis = Math.abs(goalLine - ball);
 		
-		if(robotDis < ballDis ){
+		if(robotDis < ballDis) {
 			return true;
-		}else{
+		} else{ 
 			return false;
 		}
 	}

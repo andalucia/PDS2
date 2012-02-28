@@ -13,6 +13,8 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
 
+import lejos.geom.Point;
+
 /**
  * A field marshal decides what operations to start, knowing what strategy 
  * should be currently executed.
@@ -67,8 +69,14 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		case DEFENSIVE:
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
-			} else {
+			} else if (inDefensivePosition(AlfieInfo,ball)) {
 				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing);
+				return cmd;
+			} else {
+				//get to defensive position
+				double middleOfGoalY = (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY())/2;
+				Point2D middleOfGoal = new Point((int)(AlfieInfo.getTopGoalPost().getX()),(int) (middleOfGoalY));
+				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing);
 				return cmd;
 			}
 
@@ -91,6 +99,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			return null;
 		}
 	}
+
 
 	/**
 	 * Sets a new strategy as the current one. Sets the re-plan flag afterwards.
@@ -194,18 +203,50 @@ public class FieldMarshal implements DynamicInfoConsumer {
 
 	/**
 	 * returns the angle from a point to another point with repect the plane of are zero angle. 
-	 * @param alfiePos postion of our robot
+	 * @param origin 
 	 * @param targetPosition position of the target we are working out the angle to the ball
 	 * @return double
 	 */
-	protected static double getAngleFromOrigin(Point2D alfiePos, Point2D targetPosition) {
-		double dx = (targetPosition.getX() - alfiePos.getX());
-		double dy = (targetPosition.getY() - alfiePos.getY());
+	protected static double getAngleFromOrigin(Point2D origin, Point2D targetPosition) {
+		double dx = (targetPosition.getX() - origin.getX());
+		double dy = (targetPosition.getY() - origin.getY());
 		
 		double angle = Math.toDegrees(Math.atan2(dy, dx));
 		if(angle<0){
 			angle = 360 +angle;
 		}
 		return angle;
+	}
+	
+	/**
+	 * Checks if the robot given is on the correct side of the ball by finding the 
+	 * middle of the line between the ball and the goal and then making sure we are 
+	 * within a threshold of that point
+	 * @param robotInfo
+	 * @param ballInfo
+	 * @return
+	 */
+	public static boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
+		double goalX = robotInfo.getTopGoalPost().getX();
+		double ballX = ball.getX();
+		double robotX = robotInfo.getPosition().getX();
+		double betweenBallAndGoalX = (goalX + ballX)/2;
+		
+		int threshold = 10;
+		
+		if (!Overlord.correctSide(robotInfo, ball)) {
+			return false;
+		} else {
+			double angleToGoal = PathFinder.getAngleToTarget(robotInfo.getTopGoalPost(), robotInfo.getPosition(), robotInfo.getFacingDirection());
+			if (Math.abs(angleToGoal) > 90) {
+				return true;
+			} else {
+				if (Math.abs(robotX - betweenBallAndGoalX) < threshold) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
 	}
 }
