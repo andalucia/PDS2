@@ -120,7 +120,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinRight(TURNING_SPEED, -(angleToTurn));
+				alfieServer.sendSpinRight(TURNING_SPEED, angleToTurn);
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
@@ -214,6 +214,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			if (turning) {
 				// Should Alfie stop turning?
 				System.out.println("the robot is turning");
+				System.out.println("angle to turn " + angleToTurn);
 				if (Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD) {
 					// Makes Alfie stop turning.
 					System.out.println("the robot is facing the right way so go forward get new operation rell");
@@ -234,7 +235,7 @@ public class PathFinder implements DynamicInfoConsumer {
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection());
 					executeOperationReallocation(cmd);
-				} System.out.println("the robot should still be going forward");
+				} System.out.println("the robot should still be going forward, or is stuck idle");
 			}
 		} else if (currentOperation instanceof OperationOverload) {
 			System.out.println("OperationOverload");

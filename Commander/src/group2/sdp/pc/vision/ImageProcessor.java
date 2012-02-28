@@ -75,8 +75,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	// TODO: SET ACTUAL POSITIONS
 	// TODO: ALSO NOT REALLY MESSY
+	Point2D leftTop = convertPixelsToCm(new Point(61,175));
+	Point2D leftBottom = convertPixelsToCm(new Point(65,305));
+	Point2D rightTop = convertPixelsToCm(new Point(570,182));
+	Point2D rightBottom = convertPixelsToCm(new Point(568,312));
 	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(rightTop,rightBottom));
 
 	/**
 	 * The goal post positions for the goal on the left
@@ -84,7 +88,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	// TODO: SET ACTUAL POSITIONS
 	// TODO: ALSO NOT REALLY MESSY
 	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
+	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(leftTop,leftBottom));
 
 	/**
 	 * See parent's comment.
@@ -271,8 +275,12 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				break;
 			}
 		}
-
-		ArrayList<Point> yellowPointsClean = getGreatestArea(yellowPoints);
+		ArrayList<Point> yellowPointsClean = new ArrayList<Point>();
+		if (yellowPoints.size() > 3000) {
+			System.out.println("Something non-robot! :o");
+		} else {
+			yellowPointsClean = getGreatestArea(yellowPoints);
+		}
 		ArrayList<Point> bluePointsClean = getGreatestArea(bluePoints);
 		ArrayList<Point> ballPointsClean = getGreatestArea(ballPoints);
 
@@ -580,6 +588,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private boolean isBlueYellow(BufferedImage image, Point pixel, boolean isYellow) {
 		boolean returnValue = false;
 		//TODO check bounds
+		int width = 640;
+		int height = 480;
+		if (!(pixel.x >= 0 && pixel.x < width && pixel.y >= 0 && pixel.y < height)) {
+			return false;
+		}
 		Color c = new Color(image.getRGB(pixel.x, pixel.y));
 		LCHColour lch = new LCHColour(c);
 		ColourClass cc = lch.getColourClass();

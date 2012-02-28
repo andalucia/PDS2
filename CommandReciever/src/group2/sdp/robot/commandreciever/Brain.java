@@ -1,5 +1,7 @@
 package group2.sdp.robot.commandreciever;
 
+import java.awt.geom.Point2D;
+
 import group2.sdp.common.util.Tools;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
