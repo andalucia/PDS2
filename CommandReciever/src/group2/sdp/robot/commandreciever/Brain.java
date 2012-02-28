@@ -216,19 +216,10 @@ public class Brain {
 	public static void spin(int speed, int angle) {
 		assert(initialized);
 		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
-		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		
 		stopOnTouch = true;
 		pilot.setRotateSpeed(speed);
-		if (angle != 0) {
-			pilot.rotate(-angle,true);
-		} else {
-			if (speed > 0)
-				pilot.rotateLeft();
-			else 
-				pilot.rotateRight();
-		}
-		
+	    pilot.rotate(angle,true);
 		
 		if (verbose) {
 			LCD.clear();

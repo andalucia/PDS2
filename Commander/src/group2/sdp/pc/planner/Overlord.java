@@ -107,14 +107,10 @@ public class Overlord implements DynamicInfoConsumer {
 		Point2D robotPos = robot.getPosition(); 
 		double facing = robot.getFacingDirection();
 		
-		
-		//double maxAngle = 0;
-		//double minAngle = 0;
-		
 		//threshold is the give we set in checking if the robot has the ball
-		if(robotPos.distance(ball)<=50){
+		if(robotPos.distance(ball)<=30){
 			//this is the angle from the origin
-			//double angleBall = FieldMarshal.getAngleFromOrigin(robotPos, ball);
+
 			int threshold = 10;
 		
 			double angle = Math.abs(PathFinder.getAngleToTarget(ball, robotPos, facing));
@@ -127,50 +123,6 @@ public class Overlord implements DynamicInfoConsumer {
 		}else{
 			return false;
 		}
-		
-	/*
-		//this boolean tells us if the ball is at an extreme angle (close to 360 or 0)
-		boolean isExtreme = true;
-		
-		if(robotPos.distance(ball)<=40){
-			//this is the angle from the origin
-			double angleBall = FieldMarshal.getAngleFromOrigin(robotPos, ball);
-			
-			
-			//is the angle to the ball small
-			if(angleBall<threshold){
-				 maxAngle = angleBall+threshold;
-				 minAngle = 360 -(threshold-angleBall);
-			}else{
-				//is the angle to the ball large
-				if(angleBall>=(360 - threshold)){
-					maxAngle = threshold -(360 - angleBall);
-					minAngle = angleBall - threshold;
-				}else{
-					//all other angles
-					maxAngle = angleBall+threshold;
-					minAngle = angleBall - threshold;
-					isExtreme = false;
-				}
-			}
-			
-			
-			if(isExtreme){
-				if(facing <= maxAngle||facing>=minAngle){
-					return true;
-				}else{
-					return false;
-				}
-			}else{
-				if(facing <= maxAngle&&facing>=minAngle){
-					return true;
-				}else{
-					return false;
-				}
-			}
-		}else{
-				return false;
-			}															*/
 	}
 	
 	

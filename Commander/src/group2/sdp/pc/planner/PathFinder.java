@@ -24,40 +24,33 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * Sets verbose mode on or off, for debugging
 	 */
 	private static final boolean VERBOSE = false;
+	
+	/**
+	 * TODO THESE THRESHOLDS STILL NEED TO BE TESTED TO FIND IDEAL VALUES 
+	 */
 
 	private static final int MAX_SPEED = 50;
-
-	private static final int TURNING_SPEED = 30;
-
-	private static final int SLOW_TURNING_SPEED = 2;
-
-	/**
-	 * Accuracy of the initial angle
-	 * Maximum with current vision (to prevent stuttering) is 38 degrees
-	 */
-	private static final int LONG_TURNING_ERROR_THRESHOLD = 40;
-
-	/**
-	 * Defines the accuracy for Alfie's final angle
-	 * Maximum accuracy with the current vision system seem to be 8 degrees  	
-	 */
-	private static final int SHORT_TURNING_ERROR_THRESHOLD = 5;
-
-	/**
-	 * Distance from the ball Alfie should be before trying to get to the SHORT_TURNING_ERROR_THRESHOLD accuracy
-	 */
-	private static final int TARGET_SHORT_THRESHOLD = 50;
-
-	private static final int STOP_TURNING_THRESHOLD = 45;
 	private static final int CRUISING_SPEED = 20;
+	private static final int TURNING_SPEED = 30;
+	private static final int DRIBBLE_SPEED = 7;	
+	
+	/**
+	 * Alfi needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
+	 * before he's satisfied that he's facing in an accurate enough direction
+	 */
+	private static final int LONG_TURNING_ERROR_THRESHOLD = 10;
 
 	/**
-	 * Default dribbling speed.
+	 * Alfi needs to be within this angle when he is *CLOSE* to the ball (<= TARGET_SHORT_THRESHOLD)
+	 * before he's satisfied that he's facing in an accurate enough direction
 	 */
-	private static final int DRIBBLE_SPEED = 7;
-	private static final int FAST_DRIBBLE_SPEED = 54;
+	private static final int STOP_TURNING_ERROR_THRESHOLD = 3;
 
-
+	/**
+	 * Distance from the ball Alfi should be before trying to get to the
+	 * SHORT_TURNING_ERROR_THRESHOLD accuracy
+	 */
+	private static final int TARGET_SHORT_THRESHOLD = 40;
 
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 
@@ -113,7 +106,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		int threshold;
 
 		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
-			threshold = SHORT_TURNING_ERROR_THRESHOLD;
+			threshold = STOP_TURNING_ERROR_THRESHOLD;
 		} else {
 			threshold = LONG_TURNING_ERROR_THRESHOLD;
 		}
@@ -127,12 +120,12 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn);
+				alfieServer.sendSpinRight(TURNING_SPEED, -(angleToTurn));
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinRight(TURNING_SPEED, angleToTurn);
+				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn);
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn + " degrees");
 				}
@@ -218,13 +211,12 @@ public class PathFinder implements DynamicInfoConsumer {
 			if (VERBOSE) {
 				System.out.println("Target at " + angleToTurn + " degrees");
 			}
-			if (angleToTurn > 20) {
-				turning = true;
-			}
 			if (turning) {
 				// Should Alfie stop turning?
-				if (Math.abs(angleToTurn) <= STOP_TURNING_THRESHOLD) {
+				System.out.println("the robot is turning");
+				if (Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD) {
 					// Makes Alfie stop turning.
+					System.out.println("the robot is facing the right way so go forward get new operation rell");
 					cmd = new OperationReallocation(
 							cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
@@ -233,14 +225,16 @@ public class PathFinder implements DynamicInfoConsumer {
 				}
 			} else {
 				// Alfie should automatically stop when he reaches the ball.
-				if (Math.abs(angleToTurn) > SHORT_TURNING_ERROR_THRESHOLD) {
+				System.out.println("the robot is not turning, its going forward, or standing idle");
+				if (Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD) {
 					// Makes Alfie stop turning.
+					System.out.println("in moving forward the robot is no longer facing the robot new operation");
 					cmd = new OperationReallocation(
 							cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection());
 					executeOperationReallocation(cmd);
-				} 
+				} System.out.println("the robot should still be going forward");
 			}
 		} else if (currentOperation instanceof OperationOverload) {
 			System.out.println("OperationOverload");

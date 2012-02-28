@@ -143,11 +143,7 @@ public class Client {
     		break;
 		case CandyPacket.SPIN_RIGHT_CANDY:
 			// The pretzels are always positive, so we need to negate the angle
-			int angle = -candy.getPretzel(1);
-			if (angle != 0)
-				Brain.spin(candy.getPretzel(0), angle);
-			else
-				Brain.spin(-candy.getPretzel(0), 0);
+			Brain.spin(candy.getPretzel(0), -candy.getPretzel(1));
 			break;
 		case CandyPacket.KICK_CANDY:     
 			Brain.kick(candy.getPretzel(0));

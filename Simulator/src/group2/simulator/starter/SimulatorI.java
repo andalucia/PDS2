@@ -174,7 +174,7 @@ public class SimulatorI implements ServerSkeleton {
 		long start = System.currentTimeMillis();
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
 		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
-		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
+		DynamicRobotInfo dopp = new DynamicSHORTRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
 		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
 		return dpi;
 	}
