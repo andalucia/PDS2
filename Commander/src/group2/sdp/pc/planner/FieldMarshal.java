@@ -175,7 +175,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		
 		
 		if(theirGoalLine > ourGoalLine){
-			if(facing>bottomAngle && facing<topAngle){
+			if(facing>bottomAngle || facing<topAngle){
 				return true;
 			}else{
 				return false;

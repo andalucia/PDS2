@@ -27,7 +27,7 @@ public class PathFinder implements DynamicInfoConsumer {
 
 	private static final int MAX_SPEED = 50;
 
-	private static final int TURNING_SPEED = 10;
+	private static final int TURNING_SPEED = 30;
 
 	private static final int SLOW_TURNING_SPEED = 2;
 
@@ -127,12 +127,12 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinLeft(TURNING_SPEED, 0);
+				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn);
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinRight(TURNING_SPEED, 0);
+				alfieServer.sendSpinRight(TURNING_SPEED, angleToTurn);
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn + " degrees");
 				}
@@ -155,7 +155,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */	
 	private void executeOperationCharge(OperationCharge currentCommand) {
 		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
-		//alfieServer.sendStop();
 	}
 
 	/**
@@ -205,8 +204,10 @@ public class PathFinder implements DynamicInfoConsumer {
 
 	@Override
 	public void consumeInfo(DynamicPitchInfo dpi) {
-		//TODO act upon all commands
+		//TODO act upon all commands correctly
+		System.out.println("consuming info yum " + System.currentTimeMillis());
 		if (currentOperation instanceof OperationReallocation) {
+			System.out.println("OperationReallocation");
 			OperationReallocation cmd = (OperationReallocation)currentOperation;
 			Point2D targetPosition = cmd.getTarget();
 
@@ -216,6 +217,9 @@ public class PathFinder implements DynamicInfoConsumer {
 					dpi.getAlfieInfo().getFacingDirection());
 			if (VERBOSE) {
 				System.out.println("Target at " + angleToTurn + " degrees");
+			}
+			if (angleToTurn > 20) {
+				turning = true;
 			}
 			if (turning) {
 				// Should Alfie stop turning?
@@ -236,11 +240,17 @@ public class PathFinder implements DynamicInfoConsumer {
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection());
 					executeOperationReallocation(cmd);
-				}
+				} 
 			}
 		} else if (currentOperation instanceof OperationOverload) {
-			executeOperationOverload((OperationOverload)currentOperation);
-			
+			System.out.println("OperationOverload");
+			executeOperationOverload((OperationOverload)currentOperation);	
+		} else if (currentOperation instanceof OperationCharge) {
+			System.out.println("OperationCharge");
+			executeOperationCharge((OperationCharge)currentOperation);	
+		} else if (currentOperation instanceof OperationStrike) {
+			System.out.println("OperationStrike");
+			executeOperationStrike((OperationStrike)currentOperation);	
 		}
 	}
 }

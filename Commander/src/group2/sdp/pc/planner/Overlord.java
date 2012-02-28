@@ -83,6 +83,7 @@ public class Overlord implements DynamicInfoConsumer {
 		if(hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)){
 			return Strategy.DEFENSIVE;
 		}else{
+			System.out.println("OFFENSIVE");
 			return Strategy.OFFENSIVE;
 		}
 	}
@@ -111,10 +112,10 @@ public class Overlord implements DynamicInfoConsumer {
 		//double minAngle = 0;
 		
 		//threshold is the give we set in checking if the robot has the ball
-		if(robotPos.distance(ball)<=40){
+		if(robotPos.distance(ball)<=50){
 			//this is the angle from the origin
 			//double angleBall = FieldMarshal.getAngleFromOrigin(robotPos, ball);
-			int threshold = 5;
+			int threshold = 10;
 		
 			double angle = Math.abs(PathFinder.getAngleToTarget(ball, robotPos, facing));
 		

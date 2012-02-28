@@ -161,7 +161,7 @@ public class Brain {
 		if (distance == 0) {
 			pilot.forward();
 		} else {
-			pilot.travel(distance);
+			pilot.travel(distance,true);
 		}
 		
 		if (verbose) {
@@ -191,7 +191,7 @@ public class Brain {
 		if (distance == 0) {
 			pilot.backward();			
 		} else {
-			pilot.travel(-distance);
+			pilot.travel(-distance,true);
 		}
 		
 		if (verbose) {
@@ -219,9 +219,9 @@ public class Brain {
 		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		
 		stopOnTouch = true;
-		pilot.setTravelSpeed(speed);
+		pilot.setRotateSpeed(speed);
 		if (angle != 0) {
-			pilot.rotate(-angle);
+			pilot.rotate(-angle,true);
 		} else {
 			if (speed > 0)
 				pilot.rotateLeft();
