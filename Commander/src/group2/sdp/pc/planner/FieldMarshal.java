@@ -142,7 +142,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	}
 
 	/**
-	 * Checks if re-planing is necessary and passes the DynamicPitchInfo to 
+	 * Checks if re-planning is necessary and passes the DynamicPitchInfo to 
 	 * the PathFinder.
 	 * @param dpi The DynamicPitchInfo to use when deciding if re-planing is
 	 * necessary or not.
@@ -163,19 +163,19 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * this function will tell us if we are facing the oppositions goal
 	 * it compares the angle we are facing with the angle to the extremes
 	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
-	 * @param alfieInfo alfies info
+	 * @param robotInfo robot's info
 	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
 	 * @param ball nuff said
 	 * @return boolean
 	 */
-	public static boolean shotOnGoal(DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+	public static boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
 		//TODO take account of other robots location
 		Point2D topGoal = opponentInfo.getTopGoalPost();
 		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
-		Point2D alfiePos = alfieInfo.getPosition();
-		double facing = alfieInfo.getFacingDirection();
+		Point2D alfiePos = robotInfo.getPosition();
+		double facing = robotInfo.getFacingDirection();
 		
-		Point2D ourGoal = alfieInfo.getTopGoalPost();
+		Point2D ourGoal = robotInfo.getTopGoalPost();
 		double ourGoalLine = ourGoal.getX();
 		double theirGoalLine = topGoal.getX();
 		
@@ -183,21 +183,19 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
 		
 		
-		if(theirGoalLine > ourGoalLine){
-			if(facing>bottomAngle || facing<topAngle){
+		if(theirGoalLine > ourGoalLine) {
+			if(facing>bottomAngle || facing<topAngle) {
 				return true;
 			}else{
 				return false;
 			}
-		}else{
-			if(facing<bottomAngle && facing>topAngle){
+		} else {
+			if (facing<bottomAngle && facing>topAngle) {
 				return true;
-			}else{
+			} else {
 				return false;
 			}
 		}
-		
-		
 	}
 
 
@@ -219,9 +217,9 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	}
 	
 	/**
-	 * Checks if the robot given is on the correct side of the ball by finding the 
-	 * middle of the line between the ball and the goal and then making sure we are 
-	 * within a threshold of that point
+	 * Checks if the robot is in a defensive position. If true it means the robot is closer 
+	 * to the robot's goal than the ball and is not facing the robot's goal. Or it is facing 
+	 * the robot's goal and is around halfway between the ball and the goal (see threshold)
 	 * @param robotInfo
 	 * @param ballInfo
 	 * @return
@@ -232,7 +230,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		double robotX = robotInfo.getPosition().getX();
 		double betweenBallAndGoalX = (goalX + ballX)/2;
 		
-		int threshold = 10;
+		int threshold = 30;
 		
 		if (!Overlord.correctSide(robotInfo, ball)) {
 			return false;
