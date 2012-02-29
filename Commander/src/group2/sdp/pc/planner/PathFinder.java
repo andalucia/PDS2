@@ -29,28 +29,21 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * TODO THESE THRESHOLDS STILL NEED TO BE TESTED TO FIND IDEAL VALUES 
 	 */
 
-	private static final int MAX_SPEED = 50;
-	private static final int CRUISING_SPEED = 20;
-	private static final int TURNING_SPEED = 50;
-	private static final int DRIBBLE_SPEED = 7;	
+	private static final int MAX_SPEED = 54;
+	private static final int CRUISING_SPEED = 35;
+	private static final int TURNING_SPEED = 54;	
 
 	/**
 	 * Alfie needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
 	 * before he's satisfied that he's facing in an accurate enough direction
 	 */
-	private static final int LONG_TURNING_ERROR_THRESHOLD = 10;
+	private static final int LONG_TURNING_ERROR_THRESHOLD = 25;
 
 	/**
 	 * Alfi needs to be within this angle when he is *CLOSE* to the ball (<= TARGET_SHORT_THRESHOLD)
 	 * before he's satisfied that he's facing in an accurate enough direction
 	 */
 	private static final int STOP_TURNING_ERROR_THRESHOLD = 10;
-
-	/**
-	 * Distance from the ball Alfi should be before trying to get to the
-	 * SHORT_TURNING_ERROR_THRESHOLD accuracy
-	 */
-	private static final int TARGET_SHORT_THRESHOLD = 30;
 
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 
@@ -105,7 +98,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
 		int threshold;
 
-		if(distanceToTarget < TARGET_SHORT_THRESHOLD) {
+		if(distanceToTarget < Overlord.RweClose) {
 			threshold = STOP_TURNING_ERROR_THRESHOLD;
 		} else {
 			threshold = LONG_TURNING_ERROR_THRESHOLD;

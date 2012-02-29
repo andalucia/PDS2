@@ -51,7 +51,36 @@ public class Penalty implements DynamicInfoConsumer {
 		}
 		lord.start();
 	}
-
 	
-
+	public void defend() {
+		alfieServer.sendGoForward(1024, 5);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			System.out.println("interrupted penalty");
+			
+		}
+		//basic loop that continues for a set time
+		for(int i=0 ; i<5; i++){
+			alfieServer.sendGoBackwards(1024, 10);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println("interrupted penalty");
+				
+			}
+			alfieServer.sendGoForward(1024, 10);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				System.out.println("interrupted penalty");
+				
+			}
+		}
+		
+		
+		lord.start();
+	}
+		
+	
 }
