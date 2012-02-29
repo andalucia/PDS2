@@ -68,8 +68,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	private boolean turning;
 
 	
-	
-	
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
 	 * the ServerSkeleton object passed is already initialised and connected
@@ -88,7 +86,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	public void setOperation(Operation currentCommand) {
 		this.currentOperation = currentCommand;
-
 	}
 
 
