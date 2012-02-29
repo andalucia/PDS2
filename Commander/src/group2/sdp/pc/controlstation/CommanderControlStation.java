@@ -81,6 +81,8 @@ public class CommanderControlStation implements KeyListener {
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
 	private Button penaltyButton;
+	private Button robotPositionButtonLeft;
+	private Button robotPositionButtonRight;
 	
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
@@ -109,6 +111,7 @@ public class CommanderControlStation implements KeyListener {
 	 */
 	private Server alfieServer;
 	private ImageProcessor processor;
+	private Overlord lord;
 
 	/**
 	 *  Number of connection attempts before giving up.
@@ -126,9 +129,7 @@ public class CommanderControlStation implements KeyListener {
 	 * True if the main window was closed.
 	 */
 	private boolean exiting = false;
-	
-	private Overlord lord = null;
-	
+			
 	/**
 	 * The threads for starting and stopping the communication to Alfie.
 	 */
@@ -400,6 +401,32 @@ public class CommanderControlStation implements KeyListener {
 			
 		});
 		
+		robotPositionButtonLeft = new Button();
+		robotPositionButtonLeft.setLabel("Yellow robot is left");
+		robotPositionButtonLeft.setBounds(726, 350, 200, 25);
+		robotPositionButtonLeft.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				processor.setYellowRobotRight(false);
+			}
+			
+			
+		});
+		
+		robotPositionButtonRight = new Button();
+		robotPositionButtonRight.setLabel("Yellow robot is right");
+		robotPositionButtonRight.setBounds(726, 320, 200, 25);
+		robotPositionButtonRight.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				processor.setYellowRobotRight(true);
+			}
+			
+			
+		});
+		
 		
 		
 		blueToRedHueLabel = new JLabel();
@@ -545,6 +572,8 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
 		frmAlfieCommandCentre.getContentPane().add(penaltyButton);
 		frmAlfieCommandCentre.getContentPane().add(stopPlanningButton);
+		frmAlfieCommandCentre.getContentPane().add(robotPositionButtonLeft);
+		frmAlfieCommandCentre.getContentPane().add(robotPositionButtonRight);
 		
 //		frmAlfieCommandCentre.getContentPane().add(txtLog);
 //		frmAlfieCommandCentre.getContentPane().add(Info);
