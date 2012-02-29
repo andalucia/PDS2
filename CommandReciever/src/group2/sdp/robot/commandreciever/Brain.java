@@ -274,6 +274,7 @@ public class Brain {
 	 * 
 	 * Starts a new thread and makes the robot kick if it isn't already kicking
 	 * @param power How hard should the motor rotate in degrees/s.
+	 * 
 	 */
 	public static void kick(int power) {
 		assert(initialized);
@@ -282,10 +283,10 @@ public class Brain {
 	
 			public void run() {
 				try {
-					KICKER.rotate(KICKER_ANGLE, true);
+					KICKER.rotate(KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 								
-					KICKER.rotate(-KICKER_ANGLE, true);
+					KICKER.rotate(-KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 				} catch (InterruptedException exc) {
 					System.out.println(exc.toString());
@@ -302,7 +303,7 @@ public class Brain {
 			power = Tools.sanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
 			if (power == 0)
 				power = MAX_KICK_POWER;
-			KICKER.setSpeed(power);
+			KICKER.setSpeed(KICKER.getMaxSpeed());
 			Kick_thread.start();
 
 			if (verbose) {
