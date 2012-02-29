@@ -226,7 +226,7 @@ public class LCHColour {
 	
 	private static boolean blueHighChroma;
 	private static boolean blueMediumChroma = true;
-	private static boolean blueLowChroma;
+	private static boolean blueLowChroma = true;
 	
 	private static boolean greenPlateHighChroma;
 	private static boolean greenPlateMediumChroma = true;
