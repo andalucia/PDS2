@@ -20,6 +20,9 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	protected boolean running = false;
 	
+	
+	public static final int RweClose = 20;
+	
 	/**
 	 * The FieldMarshal that will be executing the strategies that the overlord
 	 * comes up with.
@@ -108,7 +111,7 @@ public class Overlord implements DynamicInfoConsumer {
 		double facing = robot.getFacingDirection();
 		
 		//threshold is the give we set in checking if the robot has the ball
-		if(robotPos.distance(ball)<=30){
+		if(robotPos.distance(ball)<=RweClose){
 			//this is the angle from the origin
 
 			int threshold = 10;
