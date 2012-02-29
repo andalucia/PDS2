@@ -81,6 +81,7 @@ public class CommanderControlStation implements KeyListener {
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
 	private Button penaltyButton;
+	private Button goalieButton;
 	
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
@@ -336,7 +337,7 @@ public class CommanderControlStation implements KeyListener {
 		
 		Label notes= new Label();
 		notes.setBounds(600, 380, 500, 25);
-		notes.setText("*Penalty will start Overlord after shot is taken");
+		notes.setText("*will start Overlord after shot");
 		
 		updateButton = new Button();
 		updateButton.setLabel("Update");
@@ -388,6 +389,25 @@ public class CommanderControlStation implements KeyListener {
 		penaltyButton.setLabel("Take Penalty!*");
 		penaltyButton.setBounds(490, 292, 100, 25);
 		penaltyButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (lord != null) {
+					lord.stop();
+					Penalty pen=new Penalty(alfieServer,lord);
+					pen.go();
+					System.out.println("PENALTY!");
+				}else{
+					System.out.println("OVERLORD IS NULL WHEN PENALTY CALLED");
+				}
+			}
+			
+			
+		});
+		goalieButton = new Button();
+		goalieButton.setLabel("Goalkeeper!*");
+		goalieButton.setBounds(490, 250, 100, 25);
+		goalieButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -549,6 +569,7 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(updateButton);
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
 		frmAlfieCommandCentre.getContentPane().add(penaltyButton);
+		frmAlfieCommandCentre.getContentPane().add(goalieButton);
 		frmAlfieCommandCentre.getContentPane().add(stopPlanningButton);
 		
 //		frmAlfieCommandCentre.getContentPane().add(txtLog);
