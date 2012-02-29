@@ -334,6 +334,10 @@ public class CommanderControlStation implements KeyListener {
 			}
 		}
 		
+		Label notes= new Label();
+		notes.setBounds(600, 380, 500, 25);
+		notes.setText("*Penalty will start Overlord after shot is taken");
+		
 		updateButton = new Button();
 		updateButton.setLabel("Update");
 		updateButton.setBounds(260, 292, 100, 25);
@@ -381,7 +385,7 @@ public class CommanderControlStation implements KeyListener {
 		
 		
 		penaltyButton = new Button();
-		penaltyButton.setLabel("Take Penalty!");
+		penaltyButton.setLabel("Take Penalty!*");
 		penaltyButton.setBounds(490, 292, 100, 25);
 		penaltyButton.addActionListener(new ActionListener() {
 			
@@ -540,6 +544,7 @@ public class CommanderControlStation implements KeyListener {
 		
 		frmAlfieCommandCentre.getContentPane().add(lumaLabel);
 		frmAlfieCommandCentre.getContentPane().add(chromaLabel);
+		frmAlfieCommandCentre.getContentPane().add(notes);
 
 		frmAlfieCommandCentre.getContentPane().add(updateButton);
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
