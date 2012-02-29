@@ -3,6 +3,7 @@ package group2.sdp.pc.controlstation;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
+import group2.sdp.pc.planner.Penalty;
 import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
@@ -13,7 +14,9 @@ import group2.sdp.pc.vision.LCHColour;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,13 +74,13 @@ public class CommanderControlStation implements KeyListener {
 	private Checkbox bakeInfoCheckbox;
 	private Checkbox previewImageCheckbox;
 	private Checkbox planCheckbox;
-	private Checkbox planDribble;
 	private Checkbox executePlanCheckbox;
 
 	private Button runButton;
 	private Button updateButton;
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
+	private Button penaltyButton;
 	
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
@@ -183,6 +186,7 @@ public class CommanderControlStation implements KeyListener {
 				FieldMarshal marshal = new FieldMarshal(finder);
 				lord = new Overlord(marshal);
 				Bakery bakery = new Bakery(lord);
+				//TODO initalise penalty
 				ImagePreviewer previewer = new ImagePreviewer();
 				if (processImageCheckbox.getState()) {
 
@@ -190,14 +194,11 @@ public class CommanderControlStation implements KeyListener {
 					new ImageGrabber(processor);
 				} else {
 					new ImageGrabber(previewer);
-				}
+				}				
 				if (planCheckbox.getState()) {
 					lord.start();
 				}
-//				if (planDribble.getState()){
-//					planner.setCurrentMode(Mode.DRIBBLE);
-//					planner.start();
-//				}
+				
 			}
 		};
 		
@@ -256,10 +257,6 @@ public class CommanderControlStation implements KeyListener {
 		planCheckbox.setBounds(12, 208, 160, 25);
 		planCheckbox.setState(false);
 		
-		planDribble = new Checkbox();
-		planDribble.setLabel("Plan for dribble");
-		planDribble.setBounds(12, 236, 160, 25);
-		planDribble.setState(false);
 		
 		executePlanCheckbox = new Checkbox();
 		executePlanCheckbox.setLabel("Execute plan");
@@ -269,6 +266,7 @@ public class CommanderControlStation implements KeyListener {
 		runButton = new Button();
 		runButton.setLabel("RUN!");
 		runButton.setBounds(42, 292, 100, 25);
+		runButton.setBackground(Color.green);
 		runButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -284,7 +282,6 @@ public class CommanderControlStation implements KeyListener {
 				previewImageCheckbox.setEnabled(false);
 				bakeInfoCheckbox.setEnabled(false);
 				planCheckbox.setEnabled(false);
-				planDribble.setEnabled(false);
 				executePlanCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
 				
@@ -355,7 +352,7 @@ public class CommanderControlStation implements KeyListener {
 		
 		startPlanningButton = new Button();
 		startPlanningButton.setLabel("Start Planning");
-		startPlanningButton.setBounds(450, 292, 100, 25);
+		startPlanningButton.setBounds(380, 292, 100, 25);
 		startPlanningButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -367,8 +364,9 @@ public class CommanderControlStation implements KeyListener {
 		});
 		
 		stopPlanningButton = new Button();
-		stopPlanningButton.setLabel("Stop Planning");
-		stopPlanningButton.setBounds(580, 292, 100, 25);
+		stopPlanningButton.setLabel("Stop!");
+		stopPlanningButton.setBounds(600, 292, 100, 25);
+		stopPlanningButton.setBackground(Color.red);
 		stopPlanningButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -377,6 +375,29 @@ public class CommanderControlStation implements KeyListener {
 					lord.stop();
 				}
 			}
+			
+			
+		});
+		
+		
+		penaltyButton = new Button();
+		penaltyButton.setLabel("Take Penalty!");
+		penaltyButton.setBounds(490, 292, 100, 25);
+		penaltyButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (lord != null) {
+					lord.stop();
+					Penalty pen=new Penalty(alfieServer,lord);
+					pen.go();
+					System.out.println("PENALTY!");
+				}else{
+					System.out.println("OVERLORD IS NULL WHEN PENALTY CALLED");
+				}
+			}
+			
+			
 		});
 		
 		
@@ -514,7 +535,6 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(previewImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(bakeInfoCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(planCheckbox);
-		frmAlfieCommandCentre.getContentPane().add(planDribble);
 		frmAlfieCommandCentre.getContentPane().add(executePlanCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
 		
@@ -523,6 +543,7 @@ public class CommanderControlStation implements KeyListener {
 
 		frmAlfieCommandCentre.getContentPane().add(updateButton);
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
+		frmAlfieCommandCentre.getContentPane().add(penaltyButton);
 		frmAlfieCommandCentre.getContentPane().add(stopPlanningButton);
 		
 //		frmAlfieCommandCentre.getContentPane().add(txtLog);
