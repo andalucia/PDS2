@@ -82,10 +82,16 @@ public class FieldMarshal implements DynamicInfoConsumer {
 
 		case OFFENSIVE:
 			if(Overlord.hasBall(AlfieInfo, ball)){
+				System.out.println("HAS BALL");
 				if(shotOnGoal(AlfieInfo, opponentInfo, ball)){
+					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
-				}else{
-					return new OperationCharge(ball, alfie, facing);
+				} else {
+					int goalMiddlex = (int)(AlfieInfo.getTopGoalPost().getX()+AlfieInfo.getBottomGoalPost().getX()/2);
+					int goalMiddley = (int) (AlfieInfo.getTopGoalPost().getY()+AlfieInfo.getBottomGoalPost().getY()/2);
+					Point2D goalMiddle = new Point(goalMiddlex,goalMiddley);
+					System.out.println("CHAAAAARGE");
+					return new OperationCharge(ball, alfie, facing,goalMiddle);
 				}
 
 			}
@@ -115,11 +121,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	}
 
 	/**
-	* Checks if the current operation succeeded, given the current pitch info.
-	* @param dpi Current pitch info.
-	* @return True if the current operation is null, false otherwise.
-	* WARNING: Override in children classes and call this method first thing.
-	*/
+	 * Checks if the current operation succeeded, given the current pitch info.
+	 * @param dpi Current pitch info.
+	 * @return True if the current operation is null, false otherwise.
+	 * WARNING: Override in children classes and call this method first thing.
+	 */
 	protected boolean operationSuccessful(DynamicPitchInfo dpi) {
 		if (currentStrategy == null)
 			return true;
@@ -127,16 +133,16 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	}
 
 	/**
-	* Checks if there is a problem with executing the current operation.
-	* @param dpi Current pitch info.
-	* @return True if the current operation is null, false otherwise.
-	* WARNING: Override in children classes and call this method first thing.
-	*/
+	 * Checks if there is a problem with executing the current operation.
+	 * @param dpi Current pitch info.
+	 * @return True if the current operation is null, false otherwise.
+	 * WARNING: Override in children classes and call this method first thing.
+	 */
 	protected boolean problemExists(DynamicPitchInfo dpi) {
 		if (currentStrategy == null) {
 			System.out.println("Returning true");
 			return true;
-			
+
 		}
 		return false;
 	}
@@ -152,13 +158,14 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
+			System.out.println("REPLANNING");
 			currentOperation = planNextOperation(dpi);;
 			pathFinder.setOperation(currentOperation);
 			replan = false;
 		}
 		pathFinder.consumeInfo(dpi);
 	}
-	
+
 	/**
 	 * this function will tell us if we are facing the oppositions goal
 	 * it compares the angle we are facing with the angle to the extremes
@@ -175,11 +182,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		Point2D alfiePos = robotInfo.getPosition();
 		Point2D enemyPos = opponentInfo.getPosition();
 		double facing = robotInfo.getFacingDirection();
-		
+
 		Point2D ourGoal = robotInfo.getTopGoalPost();
 		double ourGoalLine = ourGoal.getX();
 		double theirGoalLine = topGoal.getX();
-		
+
 		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
 		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
 		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
@@ -212,14 +219,14 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	protected static double getAngleFromOrigin(Point2D origin, Point2D targetPosition) {
 		double dx = (targetPosition.getX() - origin.getX());
 		double dy = (targetPosition.getY() - origin.getY());
-		
+
 		double angle = Math.toDegrees(Math.atan2(dy, dx));
 		if(angle<0){
 			angle = 360 +angle;
 		}
 		return angle;
 	}
-	
+
 	/**
 	 * Checks if the robot is in a defensive position. If true it means the robot is closer 
 	 * to the robot's goal than the ball and is not facing the robot's goal. Or it is facing 
@@ -233,9 +240,9 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		double ballX = ball.getX();
 		double robotX = robotInfo.getPosition().getX();
 		double betweenBallAndGoalX = (goalX + ballX)/2;
-		
+
 		int threshold = 30;
-		
+
 		if (!Overlord.correctSide(robotInfo, ball)) {
 			return false;
 		} else {
@@ -251,8 +258,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Method for comparison of angles. If angle within certain threshold of each other then
 	 * return true else false

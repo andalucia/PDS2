@@ -68,7 +68,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private final Rectangle pitchCrop2 = new Rectangle(63, 100, 572 - 63, 383 - 100);
 	
 	// TODO: think of a better name/way of doing this
-	private final boolean isYellowRobotRightGoal = true;
+	private final boolean isYellowRobotRightGoal = false;
 	
 	/**
 	 * The goal post positions for the goal on the right

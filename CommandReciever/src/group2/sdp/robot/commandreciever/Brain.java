@@ -217,7 +217,7 @@ public class Brain {
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
-		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
+		//speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
 		pilot.setRotateSpeed(speed);
@@ -242,7 +242,7 @@ public class Brain {
 		stopOnTouch = true;
 		
 		if (angle != 0 && radius !=0) {
-			pilot.arc(radius, angle);
+			pilot.arc(radius, angle,true);
 		} 
 		
 		

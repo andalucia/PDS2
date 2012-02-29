@@ -42,4 +42,6 @@ public interface ServerSkeleton {
 	 * @param angle The angle for the spin.
 	 */
 	public void sendSpinRight(int speed, int angle);
+	
+	public void sendMoveArc(int radius, int angle);
 }

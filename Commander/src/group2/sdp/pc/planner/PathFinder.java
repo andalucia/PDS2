@@ -24,7 +24,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * Sets verbose mode on or off, for debugging
 	 */
 	private static final boolean VERBOSE = false;
-	
+
 	/**
 	 * TODO THESE THRESHOLDS STILL NEED TO BE TESTED TO FIND IDEAL VALUES 
 	 */
@@ -33,7 +33,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private static final int CRUISING_SPEED = 20;
 	private static final int TURNING_SPEED = 30;
 	private static final int DRIBBLE_SPEED = 7;	
-	
+
 	/**
 	 * Alfie needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
 	 * before he's satisfied that he's facing in an accurate enough direction
@@ -44,13 +44,13 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * Alfi needs to be within this angle when he is *CLOSE* to the ball (<= TARGET_SHORT_THRESHOLD)
 	 * before he's satisfied that he's facing in an accurate enough direction
 	 */
-	private static final int STOP_TURNING_ERROR_THRESHOLD = 3;
+	private static final int STOP_TURNING_ERROR_THRESHOLD = 10;
 
 	/**
 	 * Distance from the ball Alfi should be before trying to get to the
 	 * SHORT_TURNING_ERROR_THRESHOLD accuracy
 	 */
-	private static final int TARGET_SHORT_THRESHOLD = 40;
+	private static final int TARGET_SHORT_THRESHOLD = 30;
 
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 
@@ -86,7 +86,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	public void setOperation(Operation currentCommand) {
 		this.currentOperation = currentCommand;
-		
+
 	}
 
 
@@ -120,7 +120,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (Math.abs(angleToTurn) > threshold) {
 			turning = true;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinRight(TURNING_SPEED, angleToTurn);
+				alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn));
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
@@ -147,7 +147,11 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * @param currentCommand Contains the state information for Alfie, the ball and the opponent robot
 	 */	
 	private void executeOperationCharge(OperationCharge currentCommand) {
-		alfieServer.sendGoForward(DRIBBLE_SPEED, 30);
+		// moves in an arc to face the goal. The arc diameter is half the distance 
+		// between the ball and the goal, so that it has time to shoot before it is facing 
+		// the goal
+		double distance = (currentCommand.getAlfie().distance(currentCommand.getMiddle()));
+		alfieServer.sendMoveArc((int)(0.5*distance), 90);
 	}
 
 	/**
@@ -198,45 +202,87 @@ public class PathFinder implements DynamicInfoConsumer {
 	@Override
 	public void consumeInfo(DynamicPitchInfo dpi) {
 		//TODO act upon all commands correctly
-		System.out.println("consuming info yum " + System.currentTimeMillis());
+
+		/*
+		 * OperationReallocation should either make Alfi spin until he is facing his target or move forward
+		 * until he is within STOP_TURNING_ERROR_THRESHOLD 
+		 */
 		if (currentOperation instanceof OperationReallocation) {
-			System.out.println("OperationReallocation");
-			OperationReallocation cmd = (OperationReallocation)currentOperation;
+
+			if (VERBOSE) { 
+				System.out.println("OperationReallocation"); 
+			}
+
+			OperationReallocation cmd = (OperationReallocation) currentOperation;
+
+			// Get the position of the target from OperationReallocation
 			Point2D targetPosition = cmd.getTarget();
 
-			int angleToTurn = (int)getAngleToTarget(
-					targetPosition, 
+			// Calculate the angle between the ball and the target (usually the ball)
+			int angleToTurn = (int) getAngleToTarget(targetPosition, 
 					dpi.getAlfieInfo().getPosition(), 
 					dpi.getAlfieInfo().getFacingDirection());
+
 			if (VERBOSE) {
 				System.out.println("Target at " + angleToTurn + " degrees");
 			}
-			if (turning) {
-				// Should Alfie stop turning?
-				System.out.println("the robot is turning");
-				System.out.println("angle to turn " + angleToTurn);
-				if (Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD) {
-					// Makes Alfie stop turning.
-					System.out.println("the robot is facing the right way so go forward get new operation rell");
-					cmd = new OperationReallocation(
-							cmd.getTarget(), 
-							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection());
-					executeOperationReallocation(cmd);
+
+			/*
+			 * If Alfi is turning and the angle is within STOP_TURNING_ERROR_THRESHOLD then we need to stop
+			 * and have the FieldMarshall decide what he should do next
+			 */
+			if (turning && Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD) {
+
+				// Makes Alfi stop turning
+				if(VERBOSE) {
+					System.out.println("Alfie is facing the correct direction!");
 				}
+
+				// Create new OperationReallocation command which should make Alfi move forward
+				cmd = new OperationReallocation(cmd.getTarget(), 
+						dpi.getAlfieInfo().getPosition(), 
+						dpi.getAlfieInfo().getFacingDirection());
+
+				// Perform the Alfi magic!
+				executeOperationReallocation(cmd);
+
 			} else {
-				// Alfie should automatically stop when he reaches the ball.
-				System.out.println("the robot is not turning, its going forward, or standing idle");
+
+				// Alfie isn't facing the ball so we need to reposition him
 				if (Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD) {
-					// Makes Alfie stop turning.
-					System.out.println("in moving forward the robot is no longer facing the robot new operation");
-					cmd = new OperationReallocation(
-							cmd.getTarget(), 
+
+					if(VERBOSE) {
+						System.out.println("in moving forward the robot is no longer facing the robot new operation");
+					}
+
+					/*
+					 * Create a new OperationReallocation which should tell Alfi to turn until he is facing
+					 * the ball					
+					 */
+					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection());
+
+					// Do the magic!
 					executeOperationReallocation(cmd);
-				} System.out.println("the robot should still be going forward, or is stuck idle");
+
+				} else {
+					cmd = new OperationReallocation(cmd.getTarget(), 
+							dpi.getAlfieInfo().getPosition(), 
+							dpi.getAlfieInfo().getFacingDirection());
+
+					// Do the magic!
+					executeOperationReallocation(cmd);
+					/* 
+					 * Alfi should automatically stop when he reaches the ball and score a goal if he has faith
+					 * in his ability to score (i.e. is facing the goal), otherwise he'll probably do something
+					 * stupid (like a real football player)
+					 */	
+					System.err.println("Field Marshall should give a new command");
+				}
+
 			}
+
 		} else if (currentOperation instanceof OperationOverload) {
 			System.out.println("OperationOverload");
 			executeOperationOverload((OperationOverload)currentOperation);	
