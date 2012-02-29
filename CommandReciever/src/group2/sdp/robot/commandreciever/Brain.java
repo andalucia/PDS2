@@ -128,8 +128,9 @@ public class Brain {
 				while (true) {			
 					if (LEFT_TOUCH_SENSOR.isPressed() || 
 						RIGHT_TOUCH_SENSOR.isPressed()) {
-						if (stopOnTouch) {
+						if (!kicking) {
 							stop();
+							pilot.travel(-10);
 						}
 						if (LEFT_TOUCH_SENSOR.isPressed()) {
 							leftTouchFired = true;
@@ -220,7 +221,7 @@ public class Brain {
 		//speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
-		pilot.setRotateSpeed(speed);
+		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/8);
 	    pilot.rotate(angle,true);
 		
 		if (verbose) {
@@ -283,6 +284,7 @@ public class Brain {
 	
 			public void run() {
 				try {
+					kicking = true;
 					KICKER.rotate(KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 								

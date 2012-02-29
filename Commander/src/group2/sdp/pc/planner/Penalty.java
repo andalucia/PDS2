@@ -35,7 +35,11 @@ public class Penalty implements DynamicInfoConsumer {
 	}
 
 	public void go() {
-		alfieServer.sendSpinLeft(50, 20);
+		if(System.currentTimeMillis()%2==1){
+			alfieServer.sendSpinLeft(50, 20);
+		}else{
+			alfieServer.sendSpinRight(50, 20);
+		}		
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
@@ -53,7 +57,7 @@ public class Penalty implements DynamicInfoConsumer {
 	}
 	
 	public void defend() {
-		alfieServer.sendGoForward(1024, 5);
+		alfieServer.sendGoForward(1024, 7);
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -62,14 +66,14 @@ public class Penalty implements DynamicInfoConsumer {
 		}
 		//basic loop that continues for a set time
 		for(int i=0 ; i<5; i++){
-			alfieServer.sendGoBackwards(1024, 10);
+			alfieServer.sendGoBackwards(1024, 16);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				System.out.println("interrupted penalty");
 				
 			}
-			alfieServer.sendGoForward(1024, 10);
+			alfieServer.sendGoForward(1024, 14);
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

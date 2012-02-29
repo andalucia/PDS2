@@ -415,7 +415,7 @@ public class CommanderControlStation implements KeyListener {
 				if (lord != null) {
 					lord.stop();
 					Penalty pen=new Penalty(alfieServer,lord);
-					pen.go();
+					pen.defend();
 					System.out.println("PENALTY!");
 				}else{
 					System.out.println("OVERLORD IS NULL WHEN PENALTY CALLED");
@@ -426,7 +426,7 @@ public class CommanderControlStation implements KeyListener {
 		});
 		
 		robotPositionButtonLeft = new Button();
-		robotPositionButtonLeft.setLabel("Yellow robot is left");
+		robotPositionButtonLeft.setLabel("Yellow robot defends left");
 		robotPositionButtonLeft.setBounds(726, 350, 200, 25);
 		robotPositionButtonLeft.addActionListener(new ActionListener() {
 			
@@ -439,7 +439,7 @@ public class CommanderControlStation implements KeyListener {
 		});
 		
 		robotPositionButtonRight = new Button();
-		robotPositionButtonRight.setLabel("Yellow robot is right");
+		robotPositionButtonRight.setLabel("Yellow robot defends right");
 		robotPositionButtonRight.setBounds(726, 320, 200, 25);
 		robotPositionButtonRight.addActionListener(new ActionListener() {
 			
