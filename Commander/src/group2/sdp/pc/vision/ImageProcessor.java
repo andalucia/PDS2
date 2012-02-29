@@ -65,7 +65,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * The rectangle that contains the whole pitch.
 	 */
 	private final Rectangle pitchCrop1 = new Rectangle(10, 58, 630-10, 421-58);
-	private final Rectangle pitchCrop2 = new Rectangle(63, 100, 572 - 63, 383 - 100);
+	private final Rectangle pitchCrop2 = new Rectangle(53, 100, 592 - 53, 383 - 100);
 	
 	// TODO: think of a better name/way of doing this
 	private boolean isYellowRobotRightGoal = false;
