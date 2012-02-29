@@ -86,7 +86,7 @@ public class Overlord implements DynamicInfoConsumer {
 		if(hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)){
 			return Strategy.DEFENSIVE;
 		}else{
-			System.out.println("OFFENSIVE");
+			//System.out.println("OFFENSIVE");
 			return Strategy.OFFENSIVE;
 		}
 	}

@@ -158,7 +158,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
-			System.out.println("REPLANNING");
+			//System.out.println("REPLANNING");
 			currentOperation = planNextOperation(dpi);;
 			pathFinder.setOperation(currentOperation);
 			replan = false;
@@ -190,7 +190,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
 		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
 		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
-		if((alfiePos.distance(enemyPos)<10)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
+		if((alfiePos.distance(enemyPos)<30)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
+			System.out.println("ENEMY CLOSE NO SHOT");
 			return false;
 		}
 

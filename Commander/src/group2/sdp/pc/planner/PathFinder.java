@@ -126,6 +126,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		} else {
 			// Alfie is facing the ball: go forwards
 			turning = false;
+			//adding in stuff to avoid other player
 			alfieServer.sendGoForward(CRUISING_SPEED, 0);
 			if(VERBOSE) {
 				System.err.println("Going forward at speed: " + CRUISING_SPEED);
