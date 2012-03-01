@@ -33,6 +33,18 @@ import javax.print.attribute.standard.Finishings;
 public class ImageProcessor extends ImageProcessorSkeleton {
 	
 	/**
+	 * The mode of the output from the processor: MATCH is the default, 
+	 * CHROMA and LUMA are used during setup. 
+	 */
+	public enum OutputMode {
+		MATCH,
+		CHROMA,
+		LUMA
+	}
+	
+	private OutputMode currentMode = OutputMode.MATCH;
+	
+	/**
 	* Shows whether the background has to be updated or not.
 	*/
 	private boolean extractBackground;
@@ -68,7 +80,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private final Rectangle pitchCrop2 = new Rectangle(53, 100, 592 - 53, 383 - 100);
 	
 	// TODO: think of a better name/way of doing this
-	private boolean isYellowRobotRightGoal = false;
+	private boolean isYellowRobotRightGoal = true;
 	
 	/**
 	 * The goal post positions for the goal on the right
@@ -396,11 +408,20 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				dc = Color.CYAN;
 				break;
 			}
-			//			int v = lch.getHue() * 255 / 360;
-			//			result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
-			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
-			//result.setRGB(p.x, p.y, new Color(lch.getChroma(), lch.getChroma(), lch.getChroma()).getRGB());
-			result.setRGB(p.x, p.y, dc.getRGB());
+			int v;
+			switch (currentMode) {
+			case MATCH:
+				result.setRGB(p.x, p.y, dc.getRGB());
+				break;
+			case CHROMA:
+				v = lch.getChroma();
+				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+				break;
+			case LUMA:
+				v = lch.getLuma();
+				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+				break;
+			}
 		}
 		return result;
 	}
@@ -812,7 +833,30 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 	}
-
+	/**
+	 * Used by the GUI
+	 * @param isYellowRobotRight
+	 */
+	
+	public void setYellowRobotRight(boolean isYellowRobotRight) {
+		isYellowRobotRightGoal = isYellowRobotRight;
+	}
+	
+	/**
+	 * Set the mode of output.
+	 * @param currentMode The mode of output.
+	 */
+	public void setCurrentMode(OutputMode currentMode) {
+		this.currentMode = currentMode;
+	}
+	
+	/**
+	 * Get the mode of output.
+	 * @return The mode of output.
+	 */
+	public OutputMode getCurrentMode() {
+		return currentMode;
+	}
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
@@ -872,13 +916,5 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				return leftGoalPostInfo;
 			}
 		}
-	}
-	/**
-	 * Used by the GUI
-	 * @param isYellowRobotRight
-	 */
-	
-	public void setYellowRobotRight(boolean isYellowRobotRight) {
-		isYellowRobotRightGoal = isYellowRobotRight;
 	}
 }

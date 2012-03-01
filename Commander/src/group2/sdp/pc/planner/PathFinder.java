@@ -33,6 +33,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	private static final int CRUISING_SPEED = 35;
 	private static final int TURNING_SPEED = 54;	
 
+	
+	int movetype =0;
+	
 	/**
 	 * Alfie needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
 	 * before he's satisfied that he's facing in an accurate enough direction
@@ -45,6 +48,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	private static final int STOP_TURNING_ERROR_THRESHOLD = 10;
 
+	double oldAngle = 0;
+	double newAngle =0;
+	
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 
 	 * Can be the Alfie bluetooth server or the simulator.
@@ -61,6 +67,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	private boolean turning;
 
+	
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
 	 * the ServerSkeleton object passed is already initialised and connected
@@ -79,7 +86,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	public void setOperation(Operation currentCommand) {
 		this.currentOperation = currentCommand;
-
 	}
 
 
@@ -92,6 +98,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private void executeOperationReallocation(OperationReallocation currentCommand) {
 		Point2D targetPosition = currentCommand.getTarget();
 		Point2D alfiePosition = currentCommand.getOrigin();
+		Point2D enemyPosition = currentCommand.getOpponent();
 		double alfieDirection = currentCommand.getFacingDirection();
 
 		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
@@ -111,22 +118,28 @@ public class PathFinder implements DynamicInfoConsumer {
 
 		// If Alfie is not facing the ball:
 		if (Math.abs(angleToTurn) > threshold) {
-			turning = true;
+			movetype = 1;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn));
+				alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn)-10);
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn);
+				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn -10);
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn + " degrees");
 				}
 			}
 		} else {
 			// Alfie is facing the ball: go forwards
-			turning = false;
+			
 			//adding in stuff to avoid other player
+			if((alfiePosition.distance(enemyPosition)<50)&&(FieldMarshal.isSimilarAngle(FieldMarshal.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
+				System.out.println("ENEMY CLOSE SIT STILL");
+				alfieServer.sendStop();
+				return;
+			}
+			movetype = 2;
 			alfieServer.sendGoForward(CRUISING_SPEED, 0);
 			if(VERBOSE) {
 				System.err.println("Going forward at speed: " + CRUISING_SPEED);
@@ -216,7 +229,10 @@ public class PathFinder implements DynamicInfoConsumer {
 			int angleToTurn = (int) getAngleToTarget(targetPosition, 
 					dpi.getAlfieInfo().getPosition(), 
 					dpi.getAlfieInfo().getFacingDirection());
-
+			
+            oldAngle = newAngle;
+			newAngle = angleToTurn;
+			
 			if (VERBOSE) {
 				System.out.println("Target at " + angleToTurn + " degrees");
 			}
@@ -225,6 +241,82 @@ public class PathFinder implements DynamicInfoConsumer {
 			 * If Alfi is turning and the angle is within STOP_TURNING_ERROR_THRESHOLD then we need to stop
 			 * and have the FieldMarshall decide what he should do next
 			 */
+			switch(movetype){
+			
+			case(0):
+				System.out.println("why are you here!!!!");
+				cmd = new OperationReallocation(cmd.getTarget(), 
+						dpi.getAlfieInfo().getPosition(), 
+						dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
+
+				// Perform the Alfi magic!
+				executeOperationReallocation(cmd);
+			
+			//turning case
+			case(1):
+				System.out.println("we are turning");
+				
+			
+				if(Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD){
+					if(VERBOSE) {
+						System.out.println("Alfie is facing the correct direction!");
+					}
+					System.out.println("we are facing the right way");
+					// Create new OperationReallocation command which should make Alfi move forward
+					cmd = new OperationReallocation(cmd.getTarget(), 
+							dpi.getAlfieInfo().getPosition(), 
+							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
+
+					// Perform the Alfi magic!
+					executeOperationReallocation(cmd);
+				} else {
+					if(oldAngle<newAngle){
+						System.out.println("the old angle was smaller than the new angle");
+						cmd = new OperationReallocation(cmd.getTarget(), 
+								dpi.getAlfieInfo().getPosition(), 
+								dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
+
+						// Perform the Alfi magic!
+						executeOperationReallocation(cmd);
+					}
+					
+				}
+				
+				break;
+			
+			//moveing case
+			case(2):
+				System.out.println("we are currently moving forward");
+				if(Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD ){
+					System.out.println("we are currently moving but angle is out");
+					cmd = new OperationReallocation(cmd.getTarget(), 
+							dpi.getAlfieInfo().getPosition(), 
+							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
+
+					// Perform the Alfi magic!
+					executeOperationReallocation(cmd);
+				}
+				Point2D alfiePosition = dpi.getAlfieInfo().getPosition();
+				Point2D enemyPosition = dpi.getOpponentInfo().getPosition();
+				double alfieDirection = dpi.getAlfieInfo().getFacingDirection();
+				
+				if((alfiePosition.distance(enemyPosition)<50)&&(FieldMarshal.isSimilarAngle(FieldMarshal.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
+					System.out.println("ENEMY CLOSE SIT STILL");
+					alfieServer.sendStop();
+					return;
+				}
+				break;
+			}
+				
+			
+			
+			
+			
+			
+			
+			
+			
+			/*
 			if (turning && Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD) {
 
 				// Makes Alfi stop turning
@@ -235,7 +327,7 @@ public class PathFinder implements DynamicInfoConsumer {
 				// Create new OperationReallocation command which should make Alfi move forward
 				cmd = new OperationReallocation(cmd.getTarget(), 
 						dpi.getAlfieInfo().getPosition(), 
-						dpi.getAlfieInfo().getFacingDirection());
+						dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
 
 				// Perform the Alfi magic!
 				executeOperationReallocation(cmd);
@@ -249,13 +341,10 @@ public class PathFinder implements DynamicInfoConsumer {
 						System.out.println("in moving forward the robot is no longer facing the robot new operation");
 					}
 
-					/*
-					 * Create a new OperationReallocation which should tell Alfi to turn until he is facing
-					 * the ball					
-					 */
+				
 					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection());
+							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
 
 					// Do the magic!
 					executeOperationReallocation(cmd);
@@ -263,19 +352,16 @@ public class PathFinder implements DynamicInfoConsumer {
 				} else {
 					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection());
+							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
 
-					// Do the magic!
+					
 					executeOperationReallocation(cmd);
-					/* 
-					 * Alfi should automatically stop when he reaches the ball and score a goal if he has faith
-					 * in his ability to score (i.e. is facing the goal), otherwise he'll probably do something
-					 * stupid (like a real football player)
-					 */	
+					
 					System.err.println("Field Marshall should give a new command");
 				}
 
 			}
+	*/
 
 		} else if (currentOperation instanceof OperationOverload) {
 			System.out.println("OperationOverload");
@@ -288,4 +374,5 @@ public class PathFinder implements DynamicInfoConsumer {
 			executeOperationStrike((OperationStrike)currentOperation);	
 		}
 	}
+	
 }

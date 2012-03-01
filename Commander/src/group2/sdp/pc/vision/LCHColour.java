@@ -9,25 +9,144 @@ import java.awt.Color;
  */
 public class LCHColour {
 
+	
+// PITCH 1 SETTINGS:
+//	// Chroma settings:
+//	/**
+//	 * Chroma levels above this one are considered high.
+//	 */
+//	private static int highChromaThreshold = 80;
+//	/**
+//	 * Chroma levels below this one are considered low.
+//	 */
+//	private static int lowChromaThreshold = 20;
+//
+//	// Luma settings:
+//	/**
+//	 * Luma levels above this one are considered high.
+//	 */
+//	private static int highLumaThreshold = 90;
+//	/**
+//	 * Luma levels below this one are considered low.
+//	 */
+//	private static int lowLumaThreshold = 60;	
+//	
+//	// Hue settings:
+//	/**
+//	 * Lower boundary of the green hue.
+//	 */
+//	private static int greenHueStart = 80;
+//	/**
+//	 * Upper boundary of the green hue.
+//	 */
+//	private static int greenHueEnd = 150;
+//	
+//	/**
+//	 * Lower boundary of the blue hue.
+//	 */
+//	private static int blueHueStart = 150;
+//	/**
+//	 * Upper boundary of the blue hue.
+//	 */
+//	private static int blueHueEnd = 300;
+//	
+//	/**
+//	 * Lower boundary of the red hue (note that it is higher than the upper
+//	 * boundary: the check is special here).
+//	 */
+//	private static int redHueStart = 300;
+//	/**
+//	 * Upper boundary of the red hue (note that it is smaller than the lower
+//	 * boundary: the check is special here).
+//	 */
+//	private static int redHueEnd = 30;
+//
+//	/**
+//	 * Lower boundary of the yellow hue.
+//	 */
+//	private static int yellowHueStart = 30;
+//	/**
+//	 * Upper boundary of the yellow hue.
+//	 */
+//	private static int yellowHueEnd = 80;
+//
+//	
+//	/*
+//	 * These are settings for the luminosity. Each flag describes whether the given colour can
+//	 * have the given luma level. 
+//	 */
+//	private static boolean yellowHighLuma = true;
+//	private static boolean yellowMediumLuma;
+//	private static boolean yellowLowLuma;
+//	
+//	private static boolean blueHighLuma = true;
+//	private static boolean blueMediumLuma = true;
+//	private static boolean blueLowLuma;
+//	
+//	private static boolean greenPlateHighLuma = true;
+//	private static boolean greenPlateMediumLuma;
+//	private static boolean greenPlateLowLuma;
+//	
+//	private static boolean greenPitchHighLuma = true;
+//	private static boolean greenPitchMediumLuma;
+//	private static boolean greenPitchLowLuma;
+//	
+//	private static boolean redHighLuma = true;
+//	private static boolean redMediumLuma = true;
+//	private static boolean redLowLuma = true;
+//	
+//	private static boolean grayHighLuma;
+//	private static boolean grayMediumLuma;
+//	private static boolean grayLowLuma = true;
+//	
+//	/*
+//	 * These are settings for the chroma. Each flag describes whether the given colour can
+//	 * have the given chroma level. 
+//	 */
+//	private static boolean yellowHighChroma;
+//	private static boolean yellowMediumChroma;
+//	private static boolean yellowLowChroma = true;
+//	
+//	private static boolean blueHighChroma = true;
+//	private static boolean blueMediumChroma = true;
+//	private static boolean blueLowChroma = true;
+//	
+//	private static boolean greenPlateHighChroma = true;
+//	private static boolean greenPlateMediumChroma;
+//	private static boolean greenPlateLowChroma;
+//	
+//	private static boolean greenPitchHighChroma;
+//	private static boolean greenPitchMediumChroma = true;
+//	private static boolean greenPitchLowChroma;
+//	
+//	private static boolean redHighChroma = true;
+//	private static boolean redMediumChroma;
+//	private static boolean redLowChroma;
+//	
+//	private static boolean grayHighChroma;
+//	private static boolean grayMediumChroma;
+//	private static boolean grayLowChroma = true;
+	
+// PITCH 2 SETTINGS:	
 	// Chroma settings:
 	/**
 	 * Chroma levels above this one are considered high.
 	 */
-	private static int highChromaThreshold = 80;
+	private static int highChromaThreshold = 150;
 	/**
 	 * Chroma levels below this one are considered low.
 	 */
-	private static int lowChromaThreshold = 20;
+	private static int lowChromaThreshold = 70;
 
 	// Luma settings:
 	/**
 	 * Luma levels above this one are considered high.
 	 */
-	private static int highLumaThreshold = 90;
+	private static int highLumaThreshold = 220;
 	/**
 	 * Luma levels below this one are considered low.
 	 */
-	private static int lowLumaThreshold = 60;	
+	private static int lowLumaThreshold = 110;	
 	
 	// Hue settings:
 	/**
@@ -77,19 +196,19 @@ public class LCHColour {
 	private static boolean yellowMediumLuma;
 	private static boolean yellowLowLuma;
 	
-	private static boolean blueHighLuma = true;
+	private static boolean blueHighLuma;
 	private static boolean blueMediumLuma = true;
 	private static boolean blueLowLuma;
 	
-	private static boolean greenPlateHighLuma = true;
-	private static boolean greenPlateMediumLuma;
+	private static boolean greenPlateHighLuma;
+	private static boolean greenPlateMediumLuma = true;
 	private static boolean greenPlateLowLuma;
 	
 	private static boolean greenPitchHighLuma;
 	private static boolean greenPitchMediumLuma = true;
 	private static boolean greenPitchLowLuma;
 	
-	private static boolean redHighLuma = true;
+	private static boolean redHighLuma;
 	private static boolean redMediumLuma = true;
 	private static boolean redLowLuma = true;
 	
@@ -101,30 +220,30 @@ public class LCHColour {
 	 * These are settings for the chroma. Each flag describes whether the given colour can
 	 * have the given chroma level. 
 	 */
-	private static boolean yellowHighChroma;
-	private static boolean yellowMediumChroma;
-	private static boolean yellowLowChroma = true;
+	private static boolean yellowHighChroma = true;
+	private static boolean yellowMediumChroma = true;
+	private static boolean yellowLowChroma;
 	
-	private static boolean blueHighChroma = true;
+	private static boolean blueHighChroma;
 	private static boolean blueMediumChroma = true;
 	private static boolean blueLowChroma = true;
 	
-	private static boolean greenPlateHighChroma = true;
-	private static boolean greenPlateMediumChroma;
+	private static boolean greenPlateHighChroma;
+	private static boolean greenPlateMediumChroma = true;
 	private static boolean greenPlateLowChroma;
 	
 	private static boolean greenPitchHighChroma;
-	private static boolean greenPitchMediumChroma = true;
+	private static boolean greenPitchMediumChroma;
 	private static boolean greenPitchLowChroma = true;
 	
 	private static boolean redHighChroma = true;
-	private static boolean redMediumChroma;
+	private static boolean redMediumChroma = true;
 	private static boolean redLowChroma;
 	
 	private static boolean grayHighChroma;
 	private static boolean grayMediumChroma;
 	private static boolean grayLowChroma = true;
-	
+// END OF SETTINGS
 	
 	/**
 	 * Sets the hue border between blue and red. Should be between 0 and 360.
@@ -284,10 +403,10 @@ public class LCHColour {
 		case 3:
 			return 
 				j == 0 
-					? greenPlateLowLuma
+					? greenPitchLowLuma
 					: j == 1
-						? greenPlateMediumLuma
-						: greenPlateHighLuma;			
+						? greenPitchMediumLuma
+						: greenPitchHighLuma;			
 		case 4:
 			return 
 				j == 0 
@@ -432,10 +551,10 @@ public class LCHColour {
 		case 3:
 			return 
 				j == 0 
-					? greenPlateLowChroma
+					? greenPitchLowChroma
 					: j == 1
-						? greenPlateMediumChroma
-						: greenPlateHighChroma;			
+						? greenPitchMediumChroma
+						: greenPitchHighChroma;			
 		case 4:
 			return 
 				j == 0 

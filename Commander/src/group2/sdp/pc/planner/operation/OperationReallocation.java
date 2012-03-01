@@ -9,12 +9,14 @@ public class OperationReallocation implements Operation {
 	Point2D target;
 	Point2D origin;
 	double facing;
+	Point2D opponent;
 	
 	
-	public OperationReallocation(Point2D target, Point2D Alfie, double angle){
+	public OperationReallocation(Point2D target, Point2D Alfie, double angle,Point2D opponent){
 		this.target = target;
 		this.origin = Alfie;
 		this.facing = angle;
+		this.opponent=opponent;
 	}
 
 	@Override
@@ -32,6 +34,10 @@ public class OperationReallocation implements Operation {
 	
 	public double getFacingDirection(){
 		return this.facing;
+	}
+	
+	public Point2D getOpponent(){
+		return opponent;
 	}
 
 }

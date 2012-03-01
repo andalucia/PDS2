@@ -70,13 +70,13 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
 			} else if (inDefensivePosition(AlfieInfo,ball)) {
-				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing);
+				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing, opponentInfo.getPosition());
 				return cmd;
 			} else {
 				//get to defensive position
 				double middleOfGoalY = (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY())/2;
 				Point2D middleOfGoal = new Point((int)(AlfieInfo.getTopGoalPost().getX()),(int) (middleOfGoalY));
-				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing);
+				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing, opponentInfo.getPosition());
 				return cmd;
 			}
 
@@ -95,7 +95,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				}
 
 			}
-			return new OperationReallocation(ball, alfie, facing);
+			return new OperationReallocation(ball, alfie, facing,opponentInfo.getPosition());
 
 		case STOP:
 			return new OperationOverload();

@@ -14,7 +14,7 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
  * Defend, or Penalty Take. 
  */
 public class Overlord implements DynamicInfoConsumer {
-	
+	 
 	/**
 	 * Indicates if the overlord is running or not.
 	 */
@@ -32,6 +32,11 @@ public class Overlord implements DynamicInfoConsumer {
 	 * The current strategy that is being executed.
 	 */
 	protected Strategy currentStrategy;
+
+	/**
+	 * Stopping the Overlord. Sending a STOP strategy.
+	 */
+	private boolean stopping;
 	
 	public Overlord(FieldMarshal fieldMarshal) {
 		this.fieldMarshal = fieldMarshal;
@@ -49,7 +54,8 @@ public class Overlord implements DynamicInfoConsumer {
 	 * and poking the FieldMarshal with new DynamicPitchInfos.
 	 */
 	public void stop() {
-		running = false;
+		stopping = true;
+		// Running is set to false once a stop command is sent to Alfie
 	}
 
 	/**
@@ -77,6 +83,11 @@ public class Overlord implements DynamicInfoConsumer {
 	 * @return The strategy that should be currently employed.
 	 */
 	protected Strategy computeStrategy(DynamicPitchInfo dpi) {
+		if (stopping) {
+			stopping = false;
+			running = false;
+			return Strategy.STOP;
+		}
 		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
@@ -85,7 +96,7 @@ public class Overlord implements DynamicInfoConsumer {
 		
 		if((hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)) || !correctSide(alfieInfo,ball)){
 			return Strategy.DEFENSIVE;
-		}else{
+		} else {
 			//System.out.println("OFFENSIVE");
 			return Strategy.OFFENSIVE;
 		}
