@@ -130,7 +130,7 @@ public class SimulatorI implements ServerSkeleton {
 					new OperationReallocation(
 						dpi.getBallInfo().getPosition(), 
 						dpi.getAlfieInfo().getPosition(), 
-						dpi.getAlfieInfo().getFacingDirection()
+						dpi.getAlfieInfo().getFacingDirection(), dpi.getOpponentInfo().getPosition()
 					)
 				);
 			}
@@ -173,8 +173,8 @@ public class SimulatorI implements ServerSkeleton {
 	private DynamicPitchInfo generateDynamicInfo() {
 		long start = System.currentTimeMillis();
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
-		DynamicRobotInfo dopp = new DynamicSHORTRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 0,start, null, null);
+		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start, null, null);
 		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
 		return dpi;
 	}
@@ -566,6 +566,12 @@ public class SimulatorI implements ServerSkeleton {
 //		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
 		robot.turn(-angle);
 		commandLock.unlock();
+	}
+
+	@Override
+	public void sendMoveArc(int radius, int angle) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

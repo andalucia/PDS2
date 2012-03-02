@@ -54,10 +54,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 * and poking the FieldMarshal with new DynamicPitchInfos.
 	 */
 	public void stop() {
-		running = false;
-		// TODO: this should be left for the match only. Remove this and prev 
-		//  line afterwards and un-comment the next line
-		// stopping = true;
+		stopping = true;
 		// Running is set to false once a stop command is sent to Alfie
 	}
 
