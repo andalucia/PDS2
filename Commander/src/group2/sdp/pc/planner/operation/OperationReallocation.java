@@ -3,7 +3,7 @@ package group2.sdp.pc.planner.operation;
 
 import java.awt.geom.Point2D;
 
-
+// FIXME: restructure
 public class OperationReallocation implements Operation {
 
 	Point2D target;
@@ -12,7 +12,7 @@ public class OperationReallocation implements Operation {
 	Point2D opponent;
 	
 	
-	public OperationReallocation(Point2D target, Point2D Alfie, double angle,Point2D opponent){
+	public OperationReallocation(Point2D target, Point2D Alfie, double angle, Point2D opponent){
 		this.target = target;
 		this.origin = Alfie;
 		this.facing = angle;

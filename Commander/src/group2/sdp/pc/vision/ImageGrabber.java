@@ -13,6 +13,10 @@ import au.edu.jcu.v4l4j.VideoFrame;
 import au.edu.jcu.v4l4j.exceptions.StateException;
 import au.edu.jcu.v4l4j.exceptions.V4L4JException;
 
+/**
+ * Uses v4l4j to grab images from the camera. The connection is initialised on 
+ * construction of the object and the streaming is started. 
+ */
 public class ImageGrabber implements CaptureCallback {
 	private int width = 640, height = 480;
 	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0;
@@ -23,14 +27,17 @@ public class ImageGrabber implements CaptureCallback {
 	private int contrast;
 	private int hue;
 
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 	
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;
 	
 	private ImageConsumer consumer;
 	
-	private int frame_counter = 0;
+	/**
+	 * Used for printing FPS.
+	 */
+	private long lastFrameTimestamp = 0;
 	
 	public ImageGrabber(ImageConsumer consumer) {
 		this.consumer = consumer;
@@ -129,10 +136,17 @@ public class ImageGrabber implements CaptureCallback {
 		e.printStackTrace();
 		
 	}
-
+	
 	@Override
 	public void nextFrame(VideoFrame frame) {
-		++frame_counter;
+		if (VERBOSE) {
+			long currentFrameTimestamp = System.currentTimeMillis(); 
+			if (lastFrameTimestamp != 0) {
+				long diff = currentFrameTimestamp - lastFrameTimestamp;
+				System.out.println(1000 / diff + " FPS");
+			}
+			lastFrameTimestamp = currentFrameTimestamp;
+		}
 		consumer.consume(frame.getBufferedImage());
 		frame.recycle();
 	}

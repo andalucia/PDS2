@@ -9,15 +9,14 @@ import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.ImageGrabber;
 import group2.sdp.pc.vision.ImagePreviewer;
 import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.LCHColour;
 import group2.sdp.pc.vision.ImageProcessor.OutputMode;
+import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,7 +25,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.jws.WebParam.Mode;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -141,6 +139,12 @@ public class CommanderControlStation implements KeyListener {
 	 * The threads for starting and stopping the communication to Alfie.
 	 */
 	private Thread init_thread, cleanup_thread;
+	/**
+	 * Singleton instance of the class.
+	 */
+	private static CommanderControlStation instance;
+
+
 
 	/**
 	 * Launch the application.
@@ -158,10 +162,19 @@ public class CommanderControlStation implements KeyListener {
 		});
 	}
 
+	
+	
 	/**
 	 * Create the application.
+	 * @throws Exception Thrown when another instance of the class already 
+	 * exists. This is done as the class is a singleton.
 	 */
-	public CommanderControlStation() {
+	public CommanderControlStation() throws Exception {
+		if (instance == null) {
+			instance = this;
+		} else {
+			throw new Exception();
+		}
 		initializeFrame();
 	}
 
@@ -178,6 +191,8 @@ public class CommanderControlStation implements KeyListener {
 					try {
 						alfieServer = new Server();
 						log("Connected to Alfie");
+						connectButton.setBackground(Color.WHITE);
+						connectButton.setEnabled(false);
 						break;
 					} catch(Exception e) {
 						log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
@@ -658,13 +673,13 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(robotPositionButtonLeft);
 		frmAlfieCommandCentre.getContentPane().add(robotPositionButtonRight);
 		
-//		frmAlfieCommandCentre.getContentPane().add(txtLog);
-//		frmAlfieCommandCentre.getContentPane().add(Info);
-//		frmAlfieCommandCentre.getContentPane().add(Info2);
-//		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
-//		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
-//		frmAlfieCommandCentre.getContentPane().add(Angle);
-//		frmAlfieCommandCentre.getContentPane().add(Speed);
+		frmAlfieCommandCentre.getContentPane().add(txtLog);
+		frmAlfieCommandCentre.getContentPane().add(Info);
+		frmAlfieCommandCentre.getContentPane().add(Info2);
+		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
+		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
+		frmAlfieCommandCentre.getContentPane().add(Angle);
+		frmAlfieCommandCentre.getContentPane().add(Speed);
 		
 		frmAlfieCommandCentre.getContentPane().add(blueToRedHueLabel);
 		frmAlfieCommandCentre.getContentPane().add(redToYellowHueLabel);
@@ -712,12 +727,22 @@ public class CommanderControlStation implements KeyListener {
 		});
 
 	}
+
+	
+	/**
+	 * Gets the singleton instance of the class.
+	 * @return The singleton instance of the class.
+	 */
+	public static CommanderControlStation getInstance() {
+		return instance;
+	}
+	
 	
 	/**
 	 * Adds a string and a new line to the log text box.
 	 * @param logString The string to add.
 	 */
-	private void log(String logString) {
+	public void log(String logString) {
 		txtLog.setText(txtLog.getText() + logString + "\n");
 		txtLog.repaint();
 	}
@@ -801,4 +826,5 @@ public class CommanderControlStation implements KeyListener {
 		}
 
 	}
+
 }

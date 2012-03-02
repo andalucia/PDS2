@@ -20,7 +20,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	protected boolean running = false;
 	
-	
+	// FIXME: restructure
 	public static final int RweClose = 20;
 	
 	/**
@@ -49,6 +49,7 @@ public class Overlord implements DynamicInfoConsumer {
 	public void start() {
 		running = true;
 	}
+	
 	/**
 	 * When this method is invoked the Overlord stops computing the strategy
 	 * and poking the FieldMarshal with new DynamicPitchInfos.
@@ -92,19 +93,19 @@ public class Overlord implements DynamicInfoConsumer {
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		
+		
+		// FIXME: restructure
 		Point2D ball = ballInfo.getPosition();  
 		
 		if((hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)) || !correctSide(alfieInfo,ball)){
 			return Strategy.DEFENSIVE;
 		} else {
-			//System.out.println("OFFENSIVE");
 			return Strategy.OFFENSIVE;
 		}
 	}
 	
-	
 	/**
-	 * 
+	 * FIXME: restructure
 	 * added elegant version of angle check, awkward version is commented out
 	 * 
 	 * checks to see it the robot is with a certain distance of the ball,
@@ -138,9 +139,9 @@ public class Overlord implements DynamicInfoConsumer {
 			return false;
 		}
 	}
-	
-	
+		
 	/**
+	 * FIXME: restructure
 	 * checks to see if the robot is on the right side of the ball, does this by
 	 * comparing the distance along x axis of the robot to its goal line and distance of ball to goal line.
 	 * if the robot is closer its on the right/correct side so return true 
@@ -165,6 +166,5 @@ public class Overlord implements DynamicInfoConsumer {
 			return false;
 		}
 	}
-	
 	
 }

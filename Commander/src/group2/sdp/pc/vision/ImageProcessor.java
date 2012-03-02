@@ -56,10 +56,18 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	private static final boolean pitchOne = true;
 	private static final boolean VERBOSE = false;
+	
 	/**
 	 * The boundaries of the pitch rectangle in the real world. In cm.
 	 */
 	private final Rectangle2D pitchPhysicalRectangle = new Rectangle2D.Float(-122, -60.5f, 244, 121);
+	
+	/*
+	 * The boundaries of the goal post. TODO: use them.
+	 */
+	private final float topGoalPostYCoordinate = 30.25f;
+	private final float bottomGoalPostYCoordinate = -30.25f; 
+	
 	private String backgroundFileName = "background.png";
 	private boolean saveBackground = false;
 
@@ -771,7 +779,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param targetRange
 	 * @return
 	 */
-
 	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
 		return (x - x0) * (targetRange / domainRange) + y0;
 	}
@@ -931,6 +938,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 	}
 	
+	
+	// FIXME:  
 	@Override
 	protected ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image,
 			boolean yellow) {

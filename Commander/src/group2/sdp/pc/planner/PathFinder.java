@@ -80,12 +80,12 @@ public class PathFinder implements DynamicInfoConsumer {
 
 
 	/**
-	 * Sets the operation. Called when field marshall replans. consumeInfo handles execution of command
+	 * Sets the operation. Called when field marshal re-plans. consumeInfo handles execution of command
 	 *  
-	 * @param currentCommand The command to be set.
+	 * @param currentOperation The command to be set.
 	 */
-	public void setOperation(Operation currentCommand) {
-		this.currentOperation = currentCommand;
+	public void setOperation(Operation currentOperation) {
+		this.currentOperation = currentOperation;
 	}
 
 
@@ -284,7 +284,7 @@ public class PathFinder implements DynamicInfoConsumer {
 				
 				break;
 			
-			//moveing case
+			// moving case
 			case(2):
 				System.out.println("we are currently moving forward");
 				if(Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD ){
@@ -293,7 +293,7 @@ public class PathFinder implements DynamicInfoConsumer {
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
 
-					// Perform the Alfi magic!
+					// Perform the Alfie magic!
 					executeOperationReallocation(cmd);
 				}
 				Point2D alfiePosition = dpi.getAlfieInfo().getPosition();

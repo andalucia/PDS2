@@ -82,9 +82,9 @@ public class Brain {
 	// The speed to set the kicker motor, determines the power of the kick.
 	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
-	private static final int KICKER_ANGLE = 90;
+	private static final int KICKER_ANGLE = 30;
 	// The delay before resetting the kicker.
-	private static final int KICKER_DELAY = 1000;
+	private static final int KICKER_DELAY = 300;
 	
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
@@ -245,30 +245,6 @@ public class Brain {
 		if (angle != 0 && radius !=0) {
 			pilot.arc(radius, angle,true);
 		} 
-		
-		
-		if (verbose) {
-			LCD.clear();
-			LCD.drawString(ARC, 0, 0);
-			LCD.refresh();
-		}
-	}
-	/**
-	 * Makes Alfie move in an arc 
-	 * @param radius
-	 * @param angle
-	 */
-	public static void moveArc(int radius, int angle) {
-		assert(initialized);
-		
-		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
-		radius =Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
-		stopOnTouch = true;
-		
-		if (angle != 0 && radius !=0) {
-			pilot.arc(radius, angle);
-		} 
-		
 		
 		if (verbose) {
 			LCD.clear();

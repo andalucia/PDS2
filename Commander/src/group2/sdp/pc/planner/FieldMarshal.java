@@ -42,7 +42,6 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		this.pathFinder = pathFinder;
 	}
 
-
 	/**
 	 * Most important method of the class. According to the current strategy
 	 * and dpi, plans the next operation that should be executed.
@@ -69,12 +68,12 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		case DEFENSIVE:
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
-			} else if (inDefensivePosition(AlfieInfo,ball)) {
+			} else if (inDefensivePosition(AlfieInfo, ball)) {
 				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing, opponentInfo.getPosition());
 				return cmd;
 			} else {
 				//get to defensive position
-				double middleOfGoalY = (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY())/2;
+				double middleOfGoalY = (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY()) / 2;
 				Point2D middleOfGoal = new Point((int)(AlfieInfo.getTopGoalPost().getX()),(int) (middleOfGoalY));
 				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing, opponentInfo.getPosition());
 				return cmd;
@@ -87,13 +86,12 @@ public class FieldMarshal implements DynamicInfoConsumer {
 					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
-					int goalMiddlex = (int)(AlfieInfo.getTopGoalPost().getX()+AlfieInfo.getBottomGoalPost().getX()/2);
-					int goalMiddley = (int) (AlfieInfo.getTopGoalPost().getY()+AlfieInfo.getBottomGoalPost().getY()/2);
+					int goalMiddlex = (int)(AlfieInfo.getTopGoalPost().getX() + AlfieInfo.getBottomGoalPost().getX() / 2);
+					int goalMiddley = (int) (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY() / 2);
 					Point2D goalMiddle = new Point(goalMiddlex,goalMiddley);
 					System.out.println("CHAAAAARGE");
 					return new OperationCharge(ball, alfie, facing,goalMiddle);
 				}
-
 			}
 			return new OperationReallocation(ball, alfie, facing,opponentInfo.getPosition());
 
@@ -142,7 +140,6 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		if (currentStrategy == null) {
 			System.out.println("Returning true");
 			return true;
-
 		}
 		return false;
 	}
