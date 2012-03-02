@@ -253,6 +253,29 @@ public class Brain {
 			LCD.refresh();
 		}
 	}
+	/**
+	 * Makes Alfie move in an arc 
+	 * @param radius
+	 * @param angle
+	 */
+	public static void moveArc(int radius, int angle) {
+		assert(initialized);
+		
+		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
+		radius =Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
+		stopOnTouch = true;
+		
+		if (angle != 0 && radius !=0) {
+			pilot.arc(radius, angle);
+		} 
+		
+		
+		if (verbose) {
+			LCD.clear();
+			LCD.drawString(ARC, 0, 0);
+			LCD.refresh();
+		}
+	}
 
 	/**
 	 * Make Alfie stop moving.
