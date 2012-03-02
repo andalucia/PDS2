@@ -19,7 +19,7 @@ public class Robot extends BoardObject {
 	final int xSize;
 	final int ySize;
 	Double rectangle;
-	int speed = 3;
+	int speed = 7;
 	BufferedImage img = null;
 	private int score;
 
@@ -58,11 +58,12 @@ public class Robot extends BoardObject {
 		score++;
 	}
 	
-	public void setSpeed(int newSpeed){
+	public double setSpeed(int newSpeed){
 		if (speed > 50)
-			speed = 5;
+			newSpeed = 10;
 		else
-			speed = 3;
+			newSpeed = 5;
+		return newSpeed;
 	}
 	
 	
