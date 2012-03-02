@@ -54,7 +54,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	*/
 	private BufferedImage backgroundImage;
 
-	private static final boolean pitchOne = false;
+	private static final boolean pitchOne = true;
 	private static final boolean VERBOSE = false;
 	/**
 	 * The boundaries of the pitch rectangle in the real world. In cm.
@@ -82,25 +82,31 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	// TODO: think of a better name/way of doing this
 	private boolean isYellowRobotRightGoal = true;
 	
+	private final int EXPECTED_ROBOT_SIZE = 400;
+	private final int EXPECTED_BALL_SIZE = 120;
+	
 	/**
 	 * The goal post positions for the goal on the right
 	 */
-	// TODO: SET ACTUAL POSITIONS
 	// TODO: ALSO NOT REALLY MESSY
-	Point2D leftTop = convertPixelsToCm(new Point(61,175));
-	Point2D leftBottom = convertPixelsToCm(new Point(65,305));
-	Point2D rightTop = convertPixelsToCm(new Point(570,182));
-	Point2D rightBottom = convertPixelsToCm(new Point(568,312));
-	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(rightTop,rightBottom));
+	Point2D leftTop2 = convertPixelsToCm(new Point(61,175));
+	Point2D leftBottom2 = convertPixelsToCm(new Point(65,305));
+	Point2D rightTop2 = convertPixelsToCm(new Point(570,182));
+	Point2D rightBottom2 = convertPixelsToCm(new Point(568,312));
+	
+	Point2D leftTop1 = convertPixelsToCm(new Point(23,178));
+	Point2D leftBottom1 = convertPixelsToCm(new Point(24,323));
+	Point2D rightTop1 = convertPixelsToCm(new Point(595,174));
+	Point2D rightBottom1 = convertPixelsToCm(new Point(597,315));
+	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(rightTop1,rightBottom1));
+	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(rightTop2,rightBottom2));
 
 	/**
 	 * The goal post positions for the goal on the left
 	 */
-	// TODO: SET ACTUAL POSITIONS
 	// TODO: ALSO NOT REALLY MESSY
-	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(leftTop,leftBottom));
+	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(leftTop1,leftBottom1));
+	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(leftTop2,leftBottom2));
 
 	/**
 	 * See parent's comment.
@@ -287,15 +293,21 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				break;
 			}
 		}
-		ArrayList<Point> yellowPointsClean = new ArrayList<Point>();
-		if (yellowPoints.size() > 3000) {
-			System.out.println("Something non-robot! :o");
-		} else {
+		ArrayList<Point> yellowPointsClean = new ArrayList<Point>(0);
+		ArrayList<Point> bluePointsClean = new ArrayList<Point>(0);
+		ArrayList<Point> ballPointsClean = new ArrayList<Point>(0);
+		
+		if (sizeCheck(bluePoints,EXPECTED_ROBOT_SIZE)) {
+			
+			bluePointsClean = getGreatestArea(bluePoints);
+		}
+		if (sizeCheck(yellowPoints,EXPECTED_ROBOT_SIZE)) {
+			
 			yellowPointsClean = getGreatestArea(yellowPoints);
 		}
-		ArrayList<Point> bluePointsClean = getGreatestArea(bluePoints);
-		ArrayList<Point> ballPointsClean = getGreatestArea(ballPoints);
-
+		if (sizeCheck(ballPoints,EXPECTED_BALL_SIZE)) {
+			ballPointsClean = getGreatestArea(ballPoints);
+		}
 
 		this.ballCentroid = calcCentroid(ballPointsClean);
 		this.blueCentroid = calcCentroid(bluePointsClean);
@@ -306,6 +318,22 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	}
 
+	/**
+	 * Checks if the array list is within some bounds of the expected size.
+	 * @param points
+	 * @param expectedSize
+	 * @return
+	 */
+	private boolean sizeCheck(ArrayList<Point> points,
+			int expectedSize) {
+		if (points.size() > expectedSize*4) {
+			return false;
+		} else if (points.size() < expectedSize*0.4) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 	/**
 	 * Loops through allPoints calling {@link #mindFlower(ArrayList,ArrayList,Point)} on pixels in it. mindFlower 
 	 * removes pixels from allPoints if it determines they are connected to another 
@@ -495,6 +523,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	public int findFacingDirection(BufferedImage image, Point centroid,
 			boolean isYellow) {
+		if (centroid == null) {
+			return -1;
+		}
 		int cur_score = 0;
 		int cur_score2 = 0;
 		int best_score = 0;
@@ -651,6 +682,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return
 	 */
 	public Point calcCentroid(ArrayList<Point> fixels){
+		if (fixels.size() == 0) {
+			return null;
+		}
 		Point centroid = new Point(0,0);
 		Point fixelsInArrayList = new Point(0,0);
 		for (int i = 0; i < fixels.size(); i++){
@@ -766,11 +800,17 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private void drawStuff(BufferedImage internalImage) {
 		WritableRaster raster = internalImage.getRaster();
-		drawLine_Robot_Facing(raster, this.blueCentroid , this.blueDir );
-		drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
-		drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
-		drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
-		drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
+		if (blueCentroid != null) {
+			drawLine_Robot_Facing(raster, this.blueCentroid , this.blueDir );
+			drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
+		}
+		if (yellowCentroid != null) {
+			drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
+			drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
+		}
+		if (ballCentroid != null){
+			drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
+		}
 	}
 
 	/**
