@@ -3,8 +3,9 @@ package group2.sdp.pc.planner;
 import java.awt.geom.Point2D;
 
 import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -38,7 +39,10 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	private boolean stopping;
 	
-	public Overlord(FieldMarshal fieldMarshal) {
+	private GlobalInfo globalInfo;
+	
+	public Overlord(GlobalInfo globalInfo, FieldMarshal fieldMarshal) {
+		this.globalInfo = globalInfo;
 		this.fieldMarshal = fieldMarshal;
 	}
 	
@@ -65,7 +69,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 * FieldMarshal.
 	 */
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
 		if (running) {
 			Strategy strategy = computeStrategy(dpi);
 			if (strategy != currentStrategy) {
@@ -83,7 +87,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 * should be employed.
 	 * @return The strategy that should be currently employed.
 	 */
-	protected Strategy computeStrategy(DynamicPitchInfo dpi) {
+	protected Strategy computeStrategy(DynamicInfo dpi) {
 		if (stopping) {
 			stopping = false;
 			running = false;
@@ -139,7 +143,7 @@ public class Overlord implements DynamicInfoConsumer {
 			return false;
 		}
 	}
-		
+	
 	/**
 	 * FIXME: restructure
 	 * checks to see if the robot is on the right side of the ball, does this by
@@ -149,8 +153,14 @@ public class Overlord implements DynamicInfoConsumer {
 	 * @param ballPos
 	 * @return
 	 */
-	public static boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
-		Point2D TopGoal = robotInfo.getTopGoalPost();
+	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
+		float x = (float) (
+				globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		);
+		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		Point2D TopGoal = new Point2D.Float(x, y);
 		double goalLine = TopGoal.getX();
 		
 		Point2D robotPos = robotInfo.getPosition();

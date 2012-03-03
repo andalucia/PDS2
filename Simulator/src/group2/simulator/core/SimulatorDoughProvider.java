@@ -1,6 +1,6 @@
 package group2.simulator.core;
 
-import group2.sdp.pc.breadbin.StaticPitchInfo;
+import group2.sdp.pc.breadbin.StaticInfo;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
 public class SimulatorDoughProvider {
@@ -25,11 +25,11 @@ public class SimulatorDoughProvider {
 	}
 
 	private void process() {
-		StaticPitchInfo spi = generatePitchInfo();
+		StaticInfo spi = generatePitchInfo();
 		consumer.consumeInfo(spi);
 	}
 
-	private StaticPitchInfo generatePitchInfo() {
+	private StaticInfo generatePitchInfo() {
 		// TODO Auto-generated method stub
 		return null;
 	}

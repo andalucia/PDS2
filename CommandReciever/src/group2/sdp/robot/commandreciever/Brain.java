@@ -1,7 +1,5 @@
 package group2.sdp.robot.commandreciever;
 
-import java.awt.geom.Point2D;
-
 import group2.sdp.common.util.Tools;
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
@@ -46,9 +44,9 @@ public class Brain {
 	private static final int MAX_ANGLE = 360;
 	
 	// The minimum radius that could ever be received.
-	private static final int MIN_RADIUS = 1;
+	private static final float MIN_RADIUS = 0.00001f;
 	// The maximum radius that could ever be received.
-	private static final int MAX_RADIUS = 360;
+	private static final float MAX_RADIUS = 360.0f;
 	
 	
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
@@ -65,8 +63,8 @@ public class Brain {
 	
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
-	private static final float TRACK_WIDTH = (float) 12.65;
-	private static final float WHEEL_DIAMETER = (float) 8.16;
+	private static final float TRACK_WIDTH = 13.52f;
+	private static final float WHEEL_DIAMETER = 8.16f;
 	
 	// Alfie's legs and arms. The motors to be controlled.
 	private static final NXTRegulatedMotor LEFT_WHEEL = Motor.C;
@@ -132,11 +130,13 @@ public class Brain {
 							stop();
 							pilot.travel(-10);
 						}
-						if (LEFT_TOUCH_SENSOR.isPressed()) {
-							leftTouchFired = true;
-						}
-						if (RIGHT_TOUCH_SENSOR.isPressed()) {
-							rightTouchFired = true;
+						if (stopOnTouch) {
+							if (LEFT_TOUCH_SENSOR.isPressed()) {
+								leftTouchFired = true;
+							}
+							if (RIGHT_TOUCH_SENSOR.isPressed()) {
+								rightTouchFired = true;
+							}
 						}
 					}
 				}
@@ -160,7 +160,7 @@ public class Brain {
 		distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 		
 		stopOnTouch = true;
-		pilot.setTravelSpeed(speed);
+//		pilot.setTravelSpeed(speed);
 		if (distance == 0) {
 			pilot.forward();
 		} else {
@@ -221,7 +221,7 @@ public class Brain {
 		//speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
-		pilot.setRotateSpeed(pilot.getMaxRotateSpeed()/8);
+		pilot.setRotateSpeed(angle);
 	    pilot.rotate(angle,true);
 		
 		if (verbose) {
@@ -235,15 +235,15 @@ public class Brain {
 	 * @param radius
 	 * @param angle
 	 */
-	public static void moveArc(int radius, int angle) {
+	public static void moveArc(float radius, int angle) {
 		assert(initialized);
 		
 		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
-		radius =Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
+		radius = Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
 		stopOnTouch = true;
 		
-		if (angle != 0 && radius !=0) {
-			pilot.arc(radius, angle,true);
+		if (angle != 0 && radius != 0) {
+			pilot.arc(radius, angle, true);
 		} 
 		
 		if (verbose) {

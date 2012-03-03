@@ -1,9 +1,22 @@
 package group2.sdp.pc.breadbin;
 
 /**
- * A class containing all the needed information about the pitch at a given moment. 
+ * Description: Basically, contains one Dynamic Ball Info object and two Static 
+ *               Ball Info objects. Actually, extends the Static Info type, thus 
+ *               containing 1 SBI and 2 SRIs. Thanks to DBI and DRI extending SBI
+ *               and SRI, there is no need of adding new fields in the class. On 
+ *               construction or setting, the parameters are cast down, while on 
+ *               getting, they are cast back up. 
+ *   
+ *               Alternative approach would be to create a simple container for
+ *               the DBI and two DRI, that duplicates the code in SI. This might
+ *               be faster, due to less casting, but would reduce flexibility as
+ *               SI objects would not have the ability to be reused as DI objects.
+ *               However, we are not taking benefit from this flexibility at the 
+ *               time of writing this document.
+ * Contents:    One DBI and two DRI's - one for Alfie and two for its opponent. 
  */
-public class DynamicPitchInfo extends StaticPitchInfo {
+public class DynamicInfo extends StaticInfo {
 
 	/**
 	 * A constructor that takes all required data as arguments.	
@@ -11,7 +24,7 @@ public class DynamicPitchInfo extends StaticPitchInfo {
 	 * @param alfieInfo The information about the Alfie.
 	 * @param opponentInfo The information about the opponent.
 	 */
-	public DynamicPitchInfo(DynamicBallInfo ballInfo, DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo) {
+	public DynamicInfo(DynamicBallInfo ballInfo, DynamicRobotInfo alfieInfo, DynamicRobotInfo opponentInfo) {
 		super(ballInfo, alfieInfo, opponentInfo);
 	}
 	

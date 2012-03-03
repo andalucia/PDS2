@@ -3,8 +3,12 @@ package group2.sdp.pc.breadbin;
 import java.awt.geom.Point2D;
 
 /**
- * A class that represents ball information that is extracted from multiple, time consequent
- * images.
+ * Description: Extends the Static Ball Info type, thus containing all of SBI's 
+ *               contents. Also adds information about the ball that is 
+ *               frame-specific, but that can only be extracted from multiple 
+ *               frames.
+ * Contains:    Physical attributes (radius), absolute position, time-stamp, 
+ *               'derivative' or movement information (speed, direction of travel)
  */
 public class DynamicBallInfo extends StaticBallInfo {
 	
@@ -21,8 +25,6 @@ public class DynamicBallInfo extends StaticBallInfo {
 	 */
 	private double rollingDirection;
 	
-
-
 	
 	/**
 	 * Construct a dynamic ball info giving all the information that is required for a complete object.
@@ -39,9 +41,8 @@ public class DynamicBallInfo extends StaticBallInfo {
 		super(position,timeStamp);
 		this.rollingDirection = rollingDirection;
 		this.rollingSpeed = rollingSpeed;
-		
 	}
-
+	
 	
 	/**
 	 * Get the speed at which the ball is moving. Units are cm/s.
@@ -81,7 +82,5 @@ public class DynamicBallInfo extends StaticBallInfo {
 	 */
 	public void setRollingDirection(double rollingDirection) {
 		this.rollingDirection = rollingDirection;
-	}
-
-	
+	}	
 }

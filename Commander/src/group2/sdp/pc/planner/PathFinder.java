@@ -1,7 +1,7 @@
 
 package group2.sdp.pc.planner;
 
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
@@ -207,7 +207,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	}
 
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
 		//TODO act upon all commands correctly
 
 		/*

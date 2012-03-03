@@ -1,8 +1,9 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
@@ -25,6 +26,9 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * The current strategy to employ.
 	 */
 	protected Strategy currentStrategy;
+	
+	protected GlobalInfo globalInfo;
+	
 	/**
 	 * The path finder that will be executing the operations.
 	 */
@@ -38,7 +42,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 */
 	protected boolean replan;
 
-	public FieldMarshal(PathFinder pathFinder) {
+	public FieldMarshal(GlobalInfo globalInfo, PathFinder pathFinder) {
+		this.globalInfo = globalInfo;
 		this.pathFinder = pathFinder;
 	}
 
@@ -49,7 +54,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * to execute.
 	 * @return The next operation to execute.
 	 */
-	private Operation planNextOperation(DynamicPitchInfo dpi) {
+	private Operation planNextOperation(DynamicInfo dpi) {
 		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
@@ -73,8 +78,17 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				return cmd;
 			} else {
 				//get to defensive position
-				double middleOfGoalY = (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY()) / 2;
-				Point2D middleOfGoal = new Point((int)(AlfieInfo.getTopGoalPost().getX()),(int) (middleOfGoalY));
+				double y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+				double y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
+				Point2D middleOfGoal = 
+					new Point(
+							(int) (
+									globalInfo.isAttackingRight() 
+									? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+									: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+							),
+							(int) (y1 + y2) / 2
+					);
 				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing, opponentInfo.getPosition());
 				return cmd;
 			}
@@ -86,11 +100,19 @@ public class FieldMarshal implements DynamicInfoConsumer {
 					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
-					int goalMiddlex = (int)(AlfieInfo.getTopGoalPost().getX() + AlfieInfo.getBottomGoalPost().getX() / 2);
-					int goalMiddley = (int) (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY() / 2);
-					Point2D goalMiddle = new Point(goalMiddlex,goalMiddley);
+					double y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+					double y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
+					Point2D middleOfGoal = 
+						new Point(
+								(int) (
+										!globalInfo.isAttackingRight() 
+										? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+										: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+								),
+								(int) (y1 + y2) / 2
+						);
 					System.out.println("CHAAAAARGE");
-					return new OperationCharge(ball, alfie, facing,goalMiddle);
+					return new OperationCharge(ball, alfie, facing, middleOfGoal);
 				}
 			}
 			return new OperationReallocation(ball, alfie, facing,opponentInfo.getPosition());
@@ -124,7 +146,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @return True if the current operation is null, false otherwise.
 	 * WARNING: Override in children classes and call this method first thing.
 	 */
-	protected boolean operationSuccessful(DynamicPitchInfo dpi) {
+	protected boolean operationSuccessful(DynamicInfo dpi) {
 		if (currentStrategy == null)
 			return true;
 		return false;
@@ -136,7 +158,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @return True if the current operation is null, false otherwise.
 	 * WARNING: Override in children classes and call this method first thing.
 	 */
-	protected boolean problemExists(DynamicPitchInfo dpi) {
+	protected boolean problemExists(DynamicInfo dpi) {
 		if (currentStrategy == null) {
 			System.out.println("Returning true");
 			return true;
@@ -151,7 +173,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * necessary or not.
 	 */
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
@@ -172,15 +194,30 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @param ball nuff said
 	 * @return boolean
 	 */
-	public static boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
-
-		Point2D topGoal = opponentInfo.getTopGoalPost();
-		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
+	public boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+		float x = (float) (
+				globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		);
+		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		float y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
+		
+		
+		Point2D topGoal = new Point2D.Float(x, y1);
+		Point2D bottomGoal = new Point2D.Float(x, y2);
 		Point2D alfiePos = robotInfo.getPosition();
 		Point2D enemyPos = opponentInfo.getPosition();
 		double facing = robotInfo.getFacingDirection();
 
-		Point2D ourGoal = robotInfo.getTopGoalPost();
+		x = (float) (
+				!globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		);
+		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+
+		Point2D ourGoal = new Point2D.Float(x, y);
 		double ourGoalLine = ourGoal.getX();
 		double theirGoalLine = topGoal.getX();
 
@@ -233,18 +270,31 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @param ballInfo
 	 * @return
 	 */
-	public static boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-		double goalX = robotInfo.getTopGoalPost().getX();
+	public boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
+		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		
+		double goalX = 		
+				globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		;
 		double ballX = ball.getX();
 		double robotX = robotInfo.getPosition().getX();
 		double betweenBallAndGoalX = (goalX + ballX)/2;
 
 		int threshold = 30;
 
-		if (!Overlord.correctSide(robotInfo, ball)) {
+		if (!correctSide(robotInfo, ball)) {
 			return false;
 		} else {
-			double angleToGoal = PathFinder.getAngleToTarget(robotInfo.getTopGoalPost(), robotInfo.getPosition(), robotInfo.getFacingDirection());
+			float x = (float) (
+					globalInfo.isAttackingRight() 
+					? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+					: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+			);
+			float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+			Point2D topGoalPost = new Point2D.Float(x, y);
+			double angleToGoal = PathFinder.getAngleToTarget(topGoalPost, robotInfo.getPosition(), robotInfo.getFacingDirection());
 			if (Math.abs(angleToGoal) > 90) {
 				return true;
 			} else {
@@ -287,5 +337,38 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * FIXME: restructure
+	 * checks to see if the robot is on the right side of the ball, does this by
+	 * comparing the distance along x axis of the robot to its goal line and distance of ball to goal line.
+	 * if the robot is closer its on the right/correct side so return true 
+	 * @param robotInfo
+	 * @param ballPos
+	 * @return
+	 */
+	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
+		float x = (float) (
+				globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		);
+		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		Point2D TopGoal = new Point2D.Float(x, y);
+		double goalLine = TopGoal.getX();
+		
+		Point2D robotPos = robotInfo.getPosition();
+		double robot = robotPos.getX();
+		double ball = ballPos.getX();
+		
+		double robotDis = Math.abs(goalLine - robot);
+		double ballDis = Math.abs(goalLine - ball);
+		
+		if(robotDis < ballDis) {
+			return true;
+		} else{ 
+			return false;
+		}
 	}
 }
