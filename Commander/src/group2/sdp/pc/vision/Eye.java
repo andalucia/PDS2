@@ -17,7 +17,7 @@ import au.edu.jcu.v4l4j.exceptions.V4L4JException;
  * Uses v4l4j to grab images from the camera. The connection is initialised on 
  * construction of the object and the streaming is started. 
  */
-public class ImageGrabber implements CaptureCallback {
+public class Eye implements CaptureCallback {
 	private int width = 640, height = 480;
 	private static int std = V4L4JConstants.STANDARD_WEBCAM, channel = 0;
 	private static String device = "/dev/video0";
@@ -39,7 +39,7 @@ public class ImageGrabber implements CaptureCallback {
 	 */
 	private long lastFrameTimestamp = 0;
 	
-	public ImageGrabber(ImageConsumer consumer) {
+	public Eye(ImageConsumer consumer) {
 		this.consumer = consumer;
 		
 		saturation = 100;

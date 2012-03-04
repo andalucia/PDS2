@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 

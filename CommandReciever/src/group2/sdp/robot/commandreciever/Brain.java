@@ -24,8 +24,10 @@ public class Brain {
 	private static final int MAX_SPEED = 1024;
 	
 	// The minimum turn speed that could ever be received.
+	@SuppressWarnings("unused")
 	private static final int MIN_TURN_SPEED = -1024;
 	// The maximum turn speed that could ever be received.
+	@SuppressWarnings("unused")
 	private static final int MAX_TURN_SPEED = 1024;
 	
 	// The minimum speed that could ever be received.

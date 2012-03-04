@@ -2,12 +2,12 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
@@ -55,7 +55,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * The SeverSkeleton implementation to use for executing the commands. 
 	 * Can be the Alfie bluetooth server or the simulator.
 	 */
-	private ServerSkeleton alfieServer;
+	private MouthInterface alfieServer;
 
 	/**
 	 * The command that is currently being executed.
@@ -74,7 +74,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * @param alfieServer The initialised bluetooth server or the simulator object
 	 */
-	public PathFinder(ServerSkeleton alfieServer) {
+	public PathFinder(MouthInterface alfieServer) {
 		this.alfieServer = alfieServer;
 	}
 

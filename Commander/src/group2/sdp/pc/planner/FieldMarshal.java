@@ -271,7 +271,6 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @return
 	 */
 	public boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
 		
 		double goalX = 		
 				globalInfo.isAttackingRight() 

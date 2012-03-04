@@ -1,12 +1,12 @@
 package group2.sdp.pc.controlstation;
 
-import group2.sdp.pc.server.Server;
+import group2.sdp.pc.mouth.Mouth;
 
-public class TestServer {
+public class Conversation {
 	public static void main (String [] args) throws InterruptedException {
-		Server s;
+		Mouth s;
 		try {
-			s = new Server();
+			s = new Mouth();
 //			s.sendExit();
 			
 			s.sendForwardArcRight(20, 90);
@@ -21,7 +21,6 @@ public class TestServer {
 			s.sendReset();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
