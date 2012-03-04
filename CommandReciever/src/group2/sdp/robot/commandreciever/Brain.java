@@ -44,7 +44,7 @@ public class Brain {
 	private static final int MAX_ANGLE = 360;
 	
 	// The minimum radius that could ever be received.
-	private static final float MIN_RADIUS = 0.00001f;
+	private static final float MIN_RADIUS = -360.0f;
 	// The maximum radius that could ever be received.
 	private static final float MAX_RADIUS = 360.0f;
 	
@@ -93,7 +93,7 @@ public class Brain {
 	private static DifferentialPilot pilot;
 	
 	// Indicates whether messages should be output to the LCD or not.
-	private static boolean verbose = true;
+	private static boolean VERBOSE = true;
 	
 	// If set to true, Alfie will stop when one of his touch sensors fires.
 	private static boolean stopOnTouch = false;
@@ -167,7 +167,7 @@ public class Brain {
 			pilot.travel(distance,true);
 		}
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(FWD1, 0, 0);
 			LCD.drawString(FWD2, 0, 1);
@@ -197,7 +197,7 @@ public class Brain {
 			pilot.travel(-distance,true);
 		}
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(BWD1, 0, 0);
 			LCD.drawString(BWD2, 0, 1);
@@ -224,7 +224,7 @@ public class Brain {
 		pilot.setRotateSpeed(angle);
 	    pilot.rotate(angle,true);
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(SPN, 0, 0);
 			LCD.refresh();
@@ -237,7 +237,6 @@ public class Brain {
 	 */
 	public static void moveArc(float radius, int angle) {
 		assert(initialized);
-		
 		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
 		radius = Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
 		stopOnTouch = true;
@@ -246,9 +245,9 @@ public class Brain {
 			pilot.arc(radius, angle, true);
 		} 
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
-			LCD.drawString(ARC, 0, 0);
+			LCD.drawString(ARC,0,0);
 			LCD.refresh();
 		}
 	}
@@ -262,7 +261,7 @@ public class Brain {
 		stopOnTouch = false;
 		pilot.stop();
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(STP, 0, 0);
 			LCD.refresh();
@@ -307,7 +306,7 @@ public class Brain {
 			KICKER.setSpeed(KICKER.getMaxSpeed());
 			Kick_thread.start();
 
-			if (verbose) {
+			if (VERBOSE) {
 				LCD.clear();
 				LCD.drawString(KCK1, 0, 0);
 				LCD.drawString(KCK2, 0, 1);
@@ -321,7 +320,7 @@ public class Brain {
 	 * Sets whether the brain should output messages to the screen or not.
 	 */
 	public static void setVerbose(boolean value) {
-		verbose = value;
+		VERBOSE = value;
 	}
 	
 	/**

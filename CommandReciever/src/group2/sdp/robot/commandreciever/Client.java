@@ -139,13 +139,16 @@ public class Client {
 			Brain.spin(candy.getPretzel(0), candy.getPretzel(1));
     		break;
 		case CandyPacket.FORWARD_RIGHT_ARC_CANDY:
-			Brain.moveArc((float)-candy.getPretzel(0) / 10000, candy.getPretzel(1));
+			// According to leJOS API the angle sent should be positive 
+			// but in tests this proved incorrect. Same problem occured for 
+			// BACKWARDS_RIGHT 
+			Brain.moveArc((float)-(candy.getPretzel(0) / 10000), -candy.getPretzel(1));
     		break;
 		case CandyPacket.FORWARD_LEFT_ARC_CANDY:
 			Brain.moveArc((float)candy.getPretzel(0) / 10000, candy.getPretzel(1));
     		break;
 		case CandyPacket.BACKWARDS_RIGHT_ARC_CANDY:
-			Brain.moveArc((float)-candy.getPretzel(0) / 10000, -candy.getPretzel(1));
+			Brain.moveArc((float)-(candy.getPretzel(0) / 10000), candy.getPretzel(1));
     		break;
 		case CandyPacket.BACKWARDS_LEFT_ARC_CANDY:
 			Brain.moveArc((float)candy.getPretzel(0) / 10000, -candy.getPretzel(1));

@@ -9,15 +9,14 @@ public class TestServer {
 			s = new Server();
 //			s.sendExit();
 			
-			s.sendGoForward(100, 0);
-			Thread.sleep(2000);
-			for (int i = 0; i < 2; ++i)
-			{
-				s.sendForwardArcLeft(20f, 180);
-				System.out.println("After move");
-				Thread.sleep(5000);
-			}
-
+			s.sendForwardArcRight(20, 90);
+			Thread.sleep(4000);
+			s.sendBackwardsArcRight(20, 90);
+			Thread.sleep(4000);
+			s.sendForwardArcLeft(20, 90);
+			Thread.sleep(4000);
+			s.sendBackwardsArcLeft(20, 90);
+			Thread.sleep(4000);
 			s.sendStop();
 			s.sendReset();
 
