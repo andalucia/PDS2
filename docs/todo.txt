@@ -4,7 +4,7 @@ actually starts with things that adhere fully to the design.txt so it is
 not advisable to change them.
 
 Working things:
- 1. LCHColourSettings,
+ 1. LCH Colour Settings,
  2. Camera,
  3. Pitch,
  4. Global Info,
@@ -18,7 +18,7 @@ Working things:
 Awaiting approval:
  None yet.
 
-Todo:
+TODO:
  1. Static Robot Info: copy the information from the design.txt to the 
      javadoc of the class; add ball possession information (boolean),
  2. Dynamic Robot Info: copy the information from the design.txt to the 

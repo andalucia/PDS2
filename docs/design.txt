@@ -146,7 +146,7 @@ Bakery: a Static Info Consumer
                Bakery.
 
 Visual Cortex: an Image Consumer
- Description: The visual cortex of Alfie. Does main procesing on the image. 
+ Description: The visual cortex of Alfie. Does main processing on the image. 
  Main client: Bakery.
  Actions:     Extracts image features, like position of the ball and the 
                robots, and orientation of the T-shapes on the top of the 
@@ -247,7 +247,7 @@ Path Step:
                the arc should be at the left hand side of Alfie.
       Parameters:
               Radius and angle of the arc and threshold distance. (Target 
-               position should be computed on construction of the Arc Foward 
+               position should be computed on construction of the Arc Forward 
                Left object.)
       Succeed:
               If Alfie is within the specified threshold distance from the
@@ -320,24 +320,24 @@ Planning Pipeline:
 
 Overlord: a Dynamic Info Consumer
  Description: "If they have no bread, let them eat cake!" The popularity of 
-               this misquotation and the subjects of its metaphore suggest that
+               this misquotation and the subjects of its metaphor suggest that
                the products of a bakery would be of interest to a majesty. Thus
                the name of the class that consumes the products of the Bakery 
                and produces decisions on what Strategy to use is Overlord. It 
                passes the Strategy to a Strategy Consumer, supplied on 
                construction of the Overlord. Also passes the Dynamic Info that
-               was recieved down to another Dynamic Info Consumer, supplied on
+               was received down to another Dynamic Info Consumer, supplied on
                construction of the Overlord. Note that the two Consumers can 
                be the same object, but the Overlord does not need to know.
- Main client: FieldMarshal.
+ Main client: Field Marshal.
  Produces:    Strategy.
- Responsiblities:
+ Responsibilities:
               Producing a Strategy and monitoring if it is successful or if a 
                problem occurs.
  Policy:      
-  Planning:   Analyzing the DI (how?), the Overlord comes up with a Strategy.
+  Planning:   Analysing the DI (how?), the Overlord comes up with a Strategy.
                After that, it checks the success of the strategy or if a 
-               problem occurred on each DI it recieves. If there is either,
+               problem occurred on each DI it receives. If there is either,
                the Overlord comes up with a new Strategy. Otherwise, just 
                passes the DI to its Dynamic Info Consumer.
   Success: 1. Strategy is Offensive - successful if we score a goal;
@@ -365,15 +365,15 @@ Field Marshal: a Strategy Consumer and a Dynamic Info Consumer
                on construction of the Field Marshal. Also passes down the 
                Dynamic Info it was given to a Dynamic Info Consumer, supplied
                on construction of the Field Marshal.
- Main client: PathFinder.
+ Main client: Path Finder.
  Produces:    Operation.
- Responsiblities:
+ Responsibilities:
               Producing an Operation and monitoring if it is successful or if
                a problem occurs.
  Policy:      
-  Planning:   Analyzing the DI (how?), the Field Marshal comes up with an
+  Planning:   Analysing the DI (how?), the Field Marshal comes up with an
                Operation. After that, it checks the success of the operation or
-               if a problem occurred on each DI it recieves. If there is either,
+               if a problem occurred on each DI it receives. If there is either,
                the Field Marshal comes up with a new Operation. Otherwise, just 
                passes the DI to its Dynamic Info Consumer.
   Success: 1. Operation is Reallocation - successful if the position is reached
@@ -398,14 +398,14 @@ Path Finder: an Operation Consumer and a Dynamic Info Consumer
                of Path Step objects. 
  Main client: None
  Produces:    A list of Path Step objects.
- Responsiblities:
+ Responsibilities:
               Producing and maintaining a list of Path Step objects, according
                to the current Operation in execution; issuing the acts of the 
                Path Step objects; monitoring when the current act succeeds or
                fails and acting accordingly.
  Policy:      When none of the Path Steps is being executed, issues the action 
                of the next one and monitors its success or failure. On success,
-               issues the action of the next Path Step. On failure, destroyes 
+               issues the action of the next Path Step. On failure, destroys 
                the current list, and makes a new one. The way of issuing the 
                act of a Path Step is implemented by invoking a method of a 
                Mouth (see Communication section below) object, supplied on the 
@@ -433,7 +433,7 @@ Mouth:
  Location:    On the computer.
 
 Ear:
- Description: Recieves Candy Packet objects from the Mouth through blue-tooth.
+ Description: Receives Candy Packet objects from the Mouth through blue-tooth.
  Location:    On the robot.
 
 End of Communication.
@@ -442,13 +442,13 @@ End of Communication.
 Control:
 TODO: Make section more detailed
 
- The classes that are used for controling the robot, setting up, and feedback.
+ The classes that are used for controlling the robot, setting up, and feedback.
 
 Artist:
- Description: Previously ImagePreviwer. Draws image information in a window.
+ Description: Previously Image Previewr. Draws image information in a window.
 
 Commander Control Station:
- Description: Used for controling the robot and setting up global data. Start
+ Description: Used for controlling the robot and setting up global data. Start
                up sequence is: Connect, Run, Use the buttons for left or right
                goal. During a match: Use the Start Planning to start the robot,
                and STOP to stop it.
@@ -475,7 +475,7 @@ group2.sdp.pc.globalinfo:
  in the Commander Control Station.
 
 group2.sdp.pc.mouth:
- Contains the Mouth and MouthInterface.
+ Contains the Mouth and Mouth Interface.
 
 group2.sdp.pc.planner:
  Contains the classes from the Planner Pipeline.
@@ -487,7 +487,7 @@ group2.sdp.pc.planner.strategy:
  Contains the Strategy enumeration.
 
 group2.sdp.pc.vision:
- Contains the Artist, the Bakery, the Eye, the VisualCortex, and the LCHColour 
+ Contains the Artist, the Bakery, the Eye, the Visual Cortex, and the LCH Colour 
  classes.
 
 group2.sdp.pc.vision.skeleton:
@@ -499,7 +499,7 @@ End of Packages.
 Making Stan happy 2:
 Similarly to the previous part, I am quite unhappy after spending a total of
  more than 18 hours this weekend on writing this documentation. So if you want 
- to make me happy, comment on the post on facebook, that is advertising this 
+ to make me happy, comment on the post on Facebook, that is advertising this 
  file with your previous digit, divided by 10^(your order of commenting), 
  multiplied by 0.318181818. So since I would be first, I would post 1 /
  10^(1) * 0.318181818 = 0.0318181818.
