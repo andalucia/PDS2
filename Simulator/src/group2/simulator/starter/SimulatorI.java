@@ -2,7 +2,7 @@ package group2.simulator.starter;
 
 import group2.sdp.common.util.Tools;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
@@ -125,7 +125,7 @@ public class SimulatorI implements ServerSkeleton {
 		imageGrabberTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				DynamicPitchInfo dpi = generateDynamicInfo();
+				DynamicInfo dpi = generateDynamicInfo();
 				executor.setOperation(
 					new OperationReallocation(
 						dpi.getBallInfo().getPosition(), 
@@ -170,12 +170,12 @@ public class SimulatorI implements ServerSkeleton {
 		
 	}
 	
-	private DynamicPitchInfo generateDynamicInfo() {
+	private DynamicInfo generateDynamicInfo() {
 		long start = System.currentTimeMillis();
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
 		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 0,start, null, null);
 		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start, null, null);
-		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
+		DynamicInfo dpi = new DynamicInfo(dball, dalfie, dopp);
 		return dpi;
 	}
 

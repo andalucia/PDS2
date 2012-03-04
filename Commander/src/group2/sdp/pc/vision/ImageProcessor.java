@@ -1,6 +1,7 @@
 package group2.sdp.pc.vision;
 
-import group2.sdp.pc.vision.LCHColour.ColourClass;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.LCHColourSettings.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
 import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
@@ -54,19 +55,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	*/
 	private BufferedImage backgroundImage;
 
-	private static final boolean pitchOne = true;
 	private static final boolean VERBOSE = false;
-	
-	/**
-	 * The boundaries of the pitch rectangle in the real world. In cm.
-	 */
-	private final Rectangle2D pitchPhysicalRectangle = new Rectangle2D.Float(-122, -60.5f, 244, 121);
-	
-	/*
-	 * The boundaries of the goal post. TODO: use them.
-	 */
-	private final float topGoalPostYCoordinate = 30.25f;
-	private final float bottomGoalPostYCoordinate = -30.25f; 
 	
 	private String backgroundFileName = "background.png";
 	private boolean saveBackground = false;
@@ -79,13 +68,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
-
-
-	/**
-	 * The rectangle that contains the whole pitch.
-	 */
-	private final Rectangle pitchCrop1 = new Rectangle(10, 58, 630-10, 421-58);
-	private final Rectangle pitchCrop2 = new Rectangle(53, 100, 592 - 53, 383 - 100);
 	
 	// TODO: think of a better name/way of doing this
 	private boolean isYellowRobotRightGoal = true;
@@ -94,41 +76,18 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private final int EXPECTED_BALL_SIZE = 120;
 	
 	/**
-	 * The goal post positions for the goal on the right
-	 */
-	// TODO: ALSO NOT REALLY MESSY
-	Point2D leftTop2 = convertPixelsToCm(new Point(61,175));
-	Point2D leftBottom2 = convertPixelsToCm(new Point(65,305));
-	Point2D rightTop2 = convertPixelsToCm(new Point(570,182));
-	Point2D rightBottom2 = convertPixelsToCm(new Point(568,312));
-	
-	Point2D leftTop1 = convertPixelsToCm(new Point(23,178));
-	Point2D leftBottom1 = convertPixelsToCm(new Point(24,323));
-	Point2D rightTop1 = convertPixelsToCm(new Point(595,174));
-	Point2D rightBottom1 = convertPixelsToCm(new Point(597,315));
-	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(rightTop1,rightBottom1));
-	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(rightTop2,rightBottom2));
-
-	/**
-	 * The goal post positions for the goal on the left
-	 */
-	// TODO: ALSO NOT REALLY MESSY
-	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(leftTop1,leftBottom1));
-	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(leftTop2,leftBottom2));
-
-	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie) {
-		super(consumer, yellowAlfie);
+	public ImageProcessor(GlobalInfo globalInfo, StaticInfoConsumer consumer) {
+		super(globalInfo, consumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
 	}
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
-		super(consumer, yellowAlfie, imageConsumer);
+	public ImageProcessor(GlobalInfo globalInfo, Bakery bakery, ImageConsumer imageConsumer) {
+		super(globalInfo, bakery, imageConsumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
 	}
@@ -208,13 +167,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @see isDifferent
 	 */
 	private ArrayList<Point> getDifferentPixels(BufferedImage image) {
-		Rectangle pitchCrop = new Rectangle();
-		if (pitchOne){
-			pitchCrop = pitchCrop1;
-		}
-		else{
-			pitchCrop = pitchCrop2;
-		}
+		Rectangle pitchCrop = globalInfo.getPitch().getCamera().getPitchCrop();
+		
 		int minX = Math.max(pitchCrop.x, image.getMinX());
 		int minY = Math.max(pitchCrop.y, image.getMinY());
 		int w = Math.min(pitchCrop.width, image.getWidth());
@@ -245,12 +199,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold;
-		if (pitchOne) {
-			threshold = 60;
-		} else {
-			threshold = 90;
-		}
+		int threshold = 90;
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -284,7 +233,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
 			LCHColour lch = new LCHColour(c);
-			ColourClass cc = lch.getColourClass();
+			ColourClass cc = globalInfo.getPitch().getCamera().getColourSettings().getColourClass(lch);
 
 			switch (cc) {
 			case RED:
@@ -417,7 +366,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
 			LCHColour lch = new LCHColour(c);
-			ColourClass cc = lch.getColourClass();
+			ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
 
 			Color dc = null;
 			switch (cc) {
@@ -655,7 +604,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 		Color c = new Color(image.getRGB(pixel.x, pixel.y));
 		LCHColour lch = new LCHColour(c);
-		ColourClass cc = lch.getColourClass();
+		ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
 		switch (cc) {
 		case BLUE:
 			if (!isYellow) {
@@ -740,12 +689,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private Point2D convertPixelsToCm(Point2D point) {
 		Point2D p = new Point2D.Float();
-		Rectangle pitchImageRectangle;
-		if (pitchOne) {
-			pitchImageRectangle = pitchCrop1;
-		} else {
-			pitchImageRectangle = pitchCrop2;
-		}
+		Rectangle2D pitchPhysicalRectangle = 
+			globalInfo.getPitch().getMinimumEnclosingRectangle();
+		Rectangle pitchImageRectangle = 
+			globalInfo.getCamera().getPitchCrop();
 		double x = linearRemap(point.getX(), 
 				pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
 				pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
@@ -880,15 +827,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		}
 
 	}
-	/**
-	 * Used by the GUI
-	 * @param isYellowRobotRight
-	 */
-	
-	public void setYellowRobotRight(boolean isYellowRobotRight) {
-		isYellowRobotRightGoal = isYellowRobotRight;
-	}
-	
+
 	/**
 	 * Set the mode of output.
 	 * @param currentMode The mode of output.
@@ -935,35 +874,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			return yellowDir;
 		} else {
 			return blueDir;
-		}
-	}
-	
-	
-	// FIXME:  
-	@Override
-	protected ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image,
-			boolean yellow) {
-		ArrayList<Point2D> rightGoalPostInfo;
-		ArrayList<Point2D> leftGoalPostInfo;
-		if (pitchOne) {
-			rightGoalPostInfo = rightGoalPostInfo1;
-			leftGoalPostInfo = leftGoalPostInfo1;
-		} else {
-			rightGoalPostInfo = rightGoalPostInfo2;
-			leftGoalPostInfo = leftGoalPostInfo2;
-		}
-		if (yellow) {
-			if (isYellowRobotRightGoal) {
-				return rightGoalPostInfo;
-			} else {
-				return leftGoalPostInfo;
-			}
-		} else {
-			if (!isYellowRobotRightGoal) {
-				return rightGoalPostInfo;
-			} else {
-				return leftGoalPostInfo;
-			}
 		}
 	}
 }

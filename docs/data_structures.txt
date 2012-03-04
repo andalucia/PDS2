@@ -126,3 +126,17 @@ As we all know the most important thing about SDP is to make me (Stan) happy.
  
  If you want to make me *extremely* happy, you might also comment on the 
  quality of the document and whether there are poorly explained pieces.
+
+
+The next classes to be refactored are:
+/Commander/src/group2/sdp/pc/controlstation/CommanderControlStation.java
+/Commander/src/group2/sdp/pc/planner/FieldMarshal.java
+/Commander/src/group2/sdp/pc/planner/Overlord.java
+/Commander/src/group2/sdp/pc/planner/PathFinder.java
+/Commander/src/group2/sdp/pc/planner/Penalty.java
+/Commander/src/group2/sdp/pc/vision/Bakery.java
+/Commander/src/group2/sdp/pc/vision/BakeryTest.java
+/Commander/src/group2/sdp/pc/vision/ImageProcessor.java
+/Commander/src/group2/sdp/pc/vision/skeleton/BakerySkeleton.java
+/Commander/src/group2/sdp/pc/vision/skeleton/ImageProcessorSkeleton.java
+

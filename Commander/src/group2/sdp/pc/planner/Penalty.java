@@ -1,6 +1,6 @@
 package group2.sdp.pc.planner;
 
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.server.Server;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
@@ -29,7 +29,7 @@ public class Penalty implements DynamicInfoConsumer {
 
 
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
 		return;
 
 	}

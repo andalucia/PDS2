@@ -18,7 +18,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	/**
 	 * The queue of past static infos. The front of the queue is the oldest SPI.
 	 */
-	private StaticPitchInfoHistory staticInfoHistory;
+	private StaticInfoHistory staticInfoHistory;
 
 	/**
 	 * The consumer that is going to consume the output of this class.
@@ -34,17 +34,17 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 */
 	public BakerySkeleton (DynamicInfoConsumer consumer) {
 		this.dynamicConsumer = consumer;
-		staticInfoHistory = new StaticPitchInfoHistory();
+		staticInfoHistory = new StaticInfoHistory();
 	}
 
 
 	@Override
-	public void consumeInfo(StaticPitchInfo spi) {
+	public void consumeInfo(StaticInfo spi) {
 		if (counter < 10) {
 			counter++;
 		} else {
 			addInfoToHistory(spi);
-			DynamicPitchInfo dpi = produceDynamicInfo(spi);
+			DynamicInfo dpi = produceDynamicInfo(spi);
 			dynamicConsumer.consumeInfo(dpi);
 		}
 	}
@@ -53,7 +53,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * Adds the given static info to the internal history queue.
 	 * @param spi The given static info to the internal history queue.
 	 */
-	private void addInfoToHistory(StaticPitchInfo spi) {
+	private void addInfoToHistory(StaticInfo spi) {
 		if (staticInfoHistory.size() == MAX_HISTORY_LENGTH) {
 			staticInfoHistory.poll();
 		}
@@ -114,7 +114,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		opponentInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getOpponentInfos()));
 		
 		// Dynamic pitch information
-		DynamicPitchInfo result = new DynamicPitchInfo(ballInfo, alfieInfo, opponentInfo);
+		DynamicInfo result = new DynamicInfo(ballInfo, alfieInfo, opponentInfo);
 		return result;
 	}
 

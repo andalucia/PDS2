@@ -2,7 +2,7 @@ package group2.simulator.planner;
 
 import java.awt.geom.Point2D;
 
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
@@ -16,18 +16,18 @@ public class TestingPlanner extends Overlord {
 	}
 
 
-	protected Operation planNextCommand(DynamicPitchInfo dpi) {
+	protected Operation planNextCommand(DynamicInfo dpi) {
 		return new OperationReallocation(
 				new Point2D.Double(100, 0), 
 				dpi.getAlfieInfo().getPosition(), 
 				dpi.getAlfieInfo().getFacingDirection(), dpi.getOpponentInfo().getPosition() );
 	}
 
-	protected boolean operationSuccessful(DynamicPitchInfo dpi) {
+	protected boolean operationSuccessful(DynamicInfo dpi) {
 		return false;
 	}
 
-	protected boolean problemExists(DynamicPitchInfo dpi) {
+	protected boolean problemExists(DynamicInfo dpi) {
 		return false;
 	}
 	
