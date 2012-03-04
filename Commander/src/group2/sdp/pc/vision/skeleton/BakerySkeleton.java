@@ -67,7 +67,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * @return Dynamic information about the pitch based on a history of previous
 	 * informations.
 	 */
-	private DynamicPitchInfo produceDynamicInfo(StaticPitchInfo spi) {
+	private DynamicInfo produceDynamicInfo(StaticInfo spi) {
 		
 		// if we didn't find the ball(null) then set it 
 		// to the previous known position
