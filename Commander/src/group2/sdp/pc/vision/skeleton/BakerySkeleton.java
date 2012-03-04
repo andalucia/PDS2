@@ -68,23 +68,52 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 * informations.
 	 */
 	private DynamicPitchInfo produceDynamicInfo(StaticPitchInfo spi) {
+		
+		// if we didn't find the ball(null) then set it 
+		// to the previous known position
+		if (spi.getBallInfo() == null) {
+			spi.setBallInfo(staticInfoHistory.getLast().getBallInfo());
+		}
+		// Dynamic ball information
 		double rollingSpeed = computeBallRollingSpeed(staticInfoHistory.getBallInfos());
 		double rollingDirection = computeBallRollingDirection(staticInfoHistory.getBallInfos());
-		DynamicBallInfo ballInfo = new DynamicBallInfo(spi.getBallInfo().getPosition(), 
-				rollingSpeed, rollingDirection,spi.getBallInfo().getTimeStamp());
-
+		DynamicBallInfo ballInfo = new DynamicBallInfo(
+				spi.getBallInfo().getPosition(), 
+				rollingSpeed, 
+				rollingDirection, 
+				spi.getBallInfo().getTimeStamp());
+		
+		// if the position of Alfie is unknown then we use the 
+		// last known position
+		if (spi.getAlfieInfo() == null) {
+			spi.setAlfieInfo(staticInfoHistory.getLast().getAlfieInfo());
+		}
+		// Dynamic Alfie information
 		double alfieTravelSpeed = computeAlfieTravelSpeed();
 		double alfieTravelDirection = computeAlfieTravelDirection();
-		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(spi.getAlfieInfo(), 
-				alfieTravelSpeed, alfieTravelDirection); 
+		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(
+				spi.getAlfieInfo(), 
+				alfieTravelSpeed, 
+				alfieTravelDirection);
+		
 		alfieInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getAlfieInfos()));
 		
+		// if the position of the opponent is unknown then use the 
+		// last known position
+		if (spi.getOpponentInfo() == null) {
+			spi.setOpponentInfo(staticInfoHistory.getLast().getOpponentInfo());
+		}
+		// Dynamic opponent information
 		double opponentTravelSpeed = computeOpponentTravelSpeed();
 		double opponentTravelDirection = computeOpponentTravelDirection();
-		DynamicRobotInfo opponentInfo = new DynamicRobotInfo(spi.getOpponentInfo(), 
-				opponentTravelSpeed, opponentTravelDirection);
+		DynamicRobotInfo opponentInfo = new DynamicRobotInfo(
+				spi.getOpponentInfo(), 
+				opponentTravelSpeed, 
+				opponentTravelDirection);
+		
 		opponentInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getOpponentInfos()));
 		
+		// Dynamic pitch information
 		DynamicPitchInfo result = new DynamicPitchInfo(ballInfo, alfieInfo, opponentInfo);
 		return result;
 	}
