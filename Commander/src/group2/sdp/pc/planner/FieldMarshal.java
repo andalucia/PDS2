@@ -3,6 +3,7 @@ package group2.sdp.pc.planner;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationCharge;
@@ -41,6 +42,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * True if the FieldMarshal need to re-plan the current operation. 
 	 */
 	protected boolean replan;
+	
+	protected DynamicInfoChecker dynamicInfoChecker;
 
 	public FieldMarshal(GlobalInfo globalInfo, PathFinder pathFinder) {
 		this.globalInfo = globalInfo;
@@ -73,7 +76,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		case DEFENSIVE:
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
-			} else if (inDefensivePosition(AlfieInfo, ball)) {
+			} else if (dynamicInfoChecker.inDefensivePosition(AlfieInfo, ball)) {
 				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing, opponentInfo.getPosition());
 				return cmd;
 			} else {
@@ -94,7 +97,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			}
 
 		case OFFENSIVE:
-			if(Overlord.hasBall(AlfieInfo, ball)){
+			if(dynamicInfoChecker.hasBall(AlfieInfo, ball)){
 				System.out.println("HAS BALL");
 				if(shotOnGoal(AlfieInfo, opponentInfo, ball)){
 					System.out.println("SHOT ON GOAL");
@@ -174,6 +177,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 */
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
+		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
@@ -262,50 +266,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		return angle;
 	}
 
-	/**
-	 * Checks if the robot is in a defensive position. If true it means the robot is closer 
-	 * to the robot's goal than the ball and is not facing the robot's goal. Or it is facing 
-	 * the robot's goal and is around halfway between the ball and the goal (see threshold)
-	 * @param robotInfo
-	 * @param ballInfo
-	 * @return
-	 */
-	public boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
-		
-		double goalX = 		
-				globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-		;
-		double ballX = ball.getX();
-		double robotX = robotInfo.getPosition().getX();
-		double betweenBallAndGoalX = (goalX + ballX)/2;
-
-		int threshold = 30;
-
-		if (!correctSide(robotInfo, ball)) {
-			return false;
-		} else {
-			float x = (float) (
-					globalInfo.isAttackingRight() 
-					? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-					: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-			);
-			float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
-			Point2D topGoalPost = new Point2D.Float(x, y);
-			double angleToGoal = PathFinder.getAngleToTarget(topGoalPost, robotInfo.getPosition(), robotInfo.getFacingDirection());
-			if (Math.abs(angleToGoal) > 90) {
-				return true;
-			} else {
-				if (Math.abs(robotX - betweenBallAndGoalX) < threshold) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
-	}
+	
 
 
 	/**

@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
@@ -20,6 +21,8 @@ public class Overlord implements DynamicInfoConsumer {
 	 * Indicates if the overlord is running or not.
 	 */
 	protected boolean running = false;
+	
+	protected DynamicInfoChecker dynamicInfoChecker;
 	
 	// FIXME: restructure
 	public static final int RweClose = 20;
@@ -70,6 +73,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
+		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
 		if (running) {
 			Strategy strategy = computeStrategy(dpi);
 			if (strategy != currentStrategy) {
@@ -101,79 +105,10 @@ public class Overlord implements DynamicInfoConsumer {
 		// FIXME: restructure
 		Point2D ball = ballInfo.getPosition();  
 		
-		if((hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)) || !correctSide(alfieInfo,ball)){
+		if((dynamicInfoChecker.hasBall(opponentInfo, ball) && dynamicInfoChecker.correctSide(opponentInfo, ball)) || !dynamicInfoChecker.correctSide(alfieInfo,ball)){
 			return Strategy.DEFENSIVE;
 		} else {
 			return Strategy.OFFENSIVE;
-		}
-	}
-	
-	/**
-	 * FIXME: restructure
-	 * added elegant version of angle check, awkward version is commented out
-	 * 
-	 * checks to see it the robot is with a certain distance of the ball,
-	 * if it is then this robot check to see is the robot is facing the ball.
-	 * this is done by checking the angle to the ball with the angle facing.
-	 * if the angle to the ball is within the threshold its facing it
-	 * @param robot is the Dynamic pitch info of robot were checking
-	 * @param ball position of the ball
-	 * @return boolean
-	 */
-	public static boolean hasBall(DynamicRobotInfo robot, Point2D ball){
-		
-		
-		Point2D robotPos = robot.getPosition(); 
-		double facing = robot.getFacingDirection();
-		
-		//threshold is the give we set in checking if the robot has the ball
-		if(robotPos.distance(ball)<=RweClose){
-			//this is the angle from the origin
-
-			int threshold = 10;
-		
-			double angle = Math.abs(PathFinder.getAngleToTarget(ball, robotPos, facing));
-		
-			if(angle<=threshold){
-				return true;
-			}else{
-				return false;
-			}
-		}else{
-			return false;
-		}
-	}
-	
-	/**
-	 * FIXME: restructure
-	 * checks to see if the robot is on the right side of the ball, does this by
-	 * comparing the distance along x axis of the robot to its goal line and distance of ball to goal line.
-	 * if the robot is closer its on the right/correct side so return true 
-	 * @param robotInfo
-	 * @param ballPos
-	 * @return
-	 */
-	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
-		float x = (float) (
-				globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-		);
-		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
-		Point2D TopGoal = new Point2D.Float(x, y);
-		double goalLine = TopGoal.getX();
-		
-		Point2D robotPos = robotInfo.getPosition();
-		double robot = robotPos.getX();
-		double ball = ballPos.getX();
-		
-		double robotDis = Math.abs(goalLine - robot);
-		double ballDis = Math.abs(goalLine - ball);
-		
-		if(robotDis < ballDis) {
-			return true;
-		} else{ 
-			return false;
 		}
 	}
 	

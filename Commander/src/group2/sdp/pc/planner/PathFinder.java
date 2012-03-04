@@ -2,11 +2,9 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.planner.operation.Operation;
-import group2.sdp.pc.planner.operation.OperationCharge;
-import group2.sdp.pc.planner.operation.OperationOverload;
-import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.sdp.pc.planner.operation.OperationStrike;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.planner.operation.*;
 import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -32,7 +30,6 @@ public class PathFinder implements DynamicInfoConsumer {
 	private static final int MAX_SPEED = 54;
 	private static final int CRUISING_SPEED = 35;
 	private static final int TURNING_SPEED = 54;	
-
 	
 	int movetype =0;
 	
@@ -62,11 +59,12 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	private Operation currentOperation; 
 
-	/**
-	 * If Alfie is turning right now.
-	 */
-	private boolean turning;
+	private GlobalInfo globalInfo;
 
+	/**
+	 * Used to perform functions on the DynamicInfo
+	 */
+	private DynamicInfoChecker dynamicInfoChecker;
 	
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
@@ -74,7 +72,8 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * @param alfieServer The initialised bluetooth server or the simulator object
 	 */
-	public PathFinder(ServerSkeleton alfieServer) {
+	public PathFinder(GlobalInfo globalInfo,ServerSkeleton alfieServer) {
+		this.globalInfo = globalInfo;
 		this.alfieServer = alfieServer;
 	}
 
@@ -101,7 +100,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		Point2D enemyPosition = currentCommand.getOpponent();
 		double alfieDirection = currentCommand.getFacingDirection();
 
-		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
+		int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, alfiePosition, alfieDirection);
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
 		int threshold;
 
@@ -177,43 +176,11 @@ public class PathFinder implements DynamicInfoConsumer {
 		alfieServer.sendStop();
 	}
 
-	/**
-	 * This function finds the smallest angle between Alfie and his target.
-	 * 
-	 * @param targetPosition Position of the target.
-	 * @param alfiePosition Position of Alfie.
-	 * @param facingDirection The angle Alfie is facing.
-	 * 
-	 * @return The angle to turn at.
-	 */
-	protected static double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
-		double dx = (targetPosition.getX() - alfiePosition.getX());
-		double dy = (targetPosition.getY() - alfiePosition.getY());
-
-		double angle = Math.toDegrees(Math.atan2(dy, dx));
-
-		if (angle < 0) {
-			angle = 360 + angle;
-		}
-		double result = angle - facingDirection;
-		// Variables angle and facingDirection are between 0 and 360. Thus result is 
-		// between -360 and 360. We need to normalize to -180 and 180. 
-		if (result < -180) {
-			result += 360;
-		} else if (result > 180) {
-			result -= 360;
-		}
-		return result;
-	}
 
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
 		//TODO act upon all commands correctly
-
-		/*
-		 * OperationReallocation should either make Alfi spin until he is facing his target or move forward
-		 * until he is within STOP_TURNING_ERROR_THRESHOLD 
-		 */
+		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
 		if (currentOperation instanceof OperationReallocation) {
 
 			if (VERBOSE) { 
@@ -226,7 +193,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			Point2D targetPosition = cmd.getTarget();
 
 			// Calculate the angle between the ball and the target (usually the ball)
-			int angleToTurn = (int) getAngleToTarget(targetPosition, 
+			int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, 
 					dpi.getAlfieInfo().getPosition(), 
 					dpi.getAlfieInfo().getFacingDirection());
 			
