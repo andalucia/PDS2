@@ -81,12 +81,43 @@ public class Server implements ServerSkeleton {
 		sendCandyPacket(new CandyPacket(CandyPacket.STOP_CANDY));
 	}
 	
-	/**
-	 * Tells Alfie to move in an arc. The radius is in centimetres.
+	/** Tells Alfie to move in an arc going forward and turning right.
+	 * @param radius in cm
+	 * @param angle in degrees
 	 */
-	public void sendMoveArc(float radius, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.MOVE_ARC_CANDY, (int)(10000 * radius), angle));
+	public void sendForwardArcRight(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.FORWARD_RIGHT_ARC_CANDY, (int)(10000 * radius), angle));
 	}
+	
+	/**
+	 * Tells Alfie to move in an arc going forward and turning left.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendForwardArcLeft(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.FORWARD_LEFT_ARC_CANDY, (int)(10000 * radius), angle));
+	}
+	
+	/**
+	 * Tells Alfie to move in an arc going backwards and turning right.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendBackwardsArcRight(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.BACKWARDS_RIGHT_ARC_CANDY, (int)(10000 * radius), angle));
+	}
+
+	
+	
+	/**
+	 * Tells Alfie to move in an arc going backwards and turning left.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendBackwardsArcLeft(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.BACKWARDS_LEFT_ARC_CANDY, (int)(10000 * radius), angle));
+	}
+	
 	/**
 	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.

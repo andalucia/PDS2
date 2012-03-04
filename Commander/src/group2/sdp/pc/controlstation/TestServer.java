@@ -13,7 +13,7 @@ public class TestServer {
 			Thread.sleep(2000);
 			for (int i = 0; i < 2; ++i)
 			{
-				s.sendMoveArc(20f, 180);
+				s.sendForwardArcLeft(20f, 180);
 				System.out.println("After move");
 				Thread.sleep(5000);
 			}

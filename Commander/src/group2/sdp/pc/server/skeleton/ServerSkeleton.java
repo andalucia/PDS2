@@ -43,5 +43,5 @@ public interface ServerSkeleton {
 	 */
 	public void sendSpinRight(int speed, int angle);
 	
-	public void sendMoveArc(float radius, int angle);
+	public void sendForwardArcLeft(float radius, int angle);
 }

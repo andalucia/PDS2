@@ -158,7 +158,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		// between the ball and the goal, so that it has time to shoot before it is facing 
 		// the goal
 		//double distance = (currentCommand.getAlfie().distance(currentCommand.getMiddle()));
-		alfieServer.sendMoveArc((int)(5), 45);
+		alfieServer.sendForwardArcLeft((int)(5), 45);
 	}
 
 	/**

@@ -138,8 +138,17 @@ public class Client {
 		case CandyPacket.SPIN_LEFT_CANDY:
 			Brain.spin(candy.getPretzel(0), candy.getPretzel(1));
     		break;
-		case CandyPacket.MOVE_ARC_CANDY:
+		case CandyPacket.FORWARD_RIGHT_ARC_CANDY:
+			Brain.moveArc((float)-candy.getPretzel(0) / 10000, candy.getPretzel(1));
+    		break;
+		case CandyPacket.FORWARD_LEFT_ARC_CANDY:
 			Brain.moveArc((float)candy.getPretzel(0) / 10000, candy.getPretzel(1));
+    		break;
+		case CandyPacket.BACKWARDS_RIGHT_ARC_CANDY:
+			Brain.moveArc((float)-candy.getPretzel(0) / 10000, -candy.getPretzel(1));
+    		break;
+		case CandyPacket.BACKWARDS_LEFT_ARC_CANDY:
+			Brain.moveArc((float)candy.getPretzel(0) / 10000, -candy.getPretzel(1));
     		break;
 		case CandyPacket.SPIN_RIGHT_CANDY:
 			// The pretzels are always positive, so we need to negate the angle
