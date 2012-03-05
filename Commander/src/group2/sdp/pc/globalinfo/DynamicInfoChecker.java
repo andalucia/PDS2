@@ -1,6 +1,8 @@
 package group2.sdp.pc.globalinfo;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 import group2.sdp.pc.breadbin.*;
 
@@ -46,6 +48,23 @@ public class DynamicInfoChecker {
 			result -= 360;
 		}
 		return (int) result;
+	}
+	
+	/**
+	 * returns the angle from a point to another point with repect the plane of are zero angle. 
+	 * @param origin 
+	 * @param targetPosition position of the target we are working out the angle to the ball
+	 * @return double
+	 */
+	public static double getAngleFromOrigin(Point2D origin, Point2D targetPosition) {
+		double dx = (targetPosition.getX() - origin.getX());
+		double dy = (targetPosition.getY() - origin.getY());
+
+		double angle = Math.toDegrees(Math.atan2(dy, dx));
+		if(angle<0){
+			angle = 360 +angle;
+		}
+		return angle;
 	}
 
 	/**
@@ -159,5 +178,222 @@ public class DynamicInfoChecker {
 					}
 				}
 			}
+	}
+
+	/**
+	 * Finds the position "behind" the ball. Checks which part of the pitch 
+	 * the ball is in an then gets to a position based on that. If the ball 
+	 * is near one of the top or bottom walls then it gets to a position so that 
+	 * when it turns to face the ball it will be at a 45 degree angle and therefore 
+	 * more likely to score if we kick. If we are within the y coordinates of the goal 
+	 * then we get behind the ball so that when we face the ball we will face the goal.
+	 * @param ballPosition
+	 * @return
+	 */
+	public Point2D getKickingPosition(Point2D ballPosition) {
+		float kickingPositionX,kickingPositionY;
+		
+		// distance to be away from the ball
+		int distance = 30;
+		// distance to be away from the ball by x and y coordinates.
+		double sideDistance = Math.sqrt(2*distance*distance);
+		// if the ball is within the y coordinates of the goal then get immediately behind it
+		if (globalInfo.getPitch().getTopGoalPostYCoordinate() - 5 > ballPosition.getY() &&
+				globalInfo.getPitch().getBottomGoalPostYCoordinate() + 5 < ballPosition.getY()) {
+			
+			kickingPositionX = (float) (globalInfo.isAttackingRight()
+					?  ballPosition.getX() - distance
+							: ballPosition.getX() + distance);
+					kickingPositionY = (float) (ballPosition.getY());
+		// have already checked if ball is near middle of pitch so this check is sufficient
+		} else if (ballPosition.getY() > 0) {
+			kickingPositionX = (float) (globalInfo.isAttackingRight()
+					? ballPosition.getX() - sideDistance
+							: ballPosition.getX() + sideDistance);
+			kickingPositionY = (float) (ballPosition.getY() + sideDistance);
+		} else {
+			kickingPositionX = (float) (globalInfo.isAttackingRight()
+					? ballPosition.getX() - sideDistance
+							: ballPosition.getX() + sideDistance);
+			kickingPositionY = (float) (ballPosition.getY() - sideDistance);
+		}
+		Point2D kickingPosition = new Point.Float(kickingPositionX,kickingPositionY);
+		
+		// check if position is within bounds
+		//TODO test
+		if ((kickingPositionY > globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
+		(kickingPositionY < globalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
+			//out of bounds :(
+			kickingPositionX = (float) (globalInfo.isAttackingRight()
+					?  ballPosition.getX() - distance
+							: ballPosition.getX() + distance);
+					kickingPositionY = (float) (ballPosition.getY());
+		}	
+		return kickingPosition;
+		
+	}
+	
+	/**
+	 * See http://en.wikipedia.org/wiki/Line-line_intersection for calculation
+	 * @param robotPosition
+	 * @param ballPosition
+	 * @param opponentPosition
+	 * @param radius
+	 * @return
+	 */
+	public static 	Point2D.Double findTangentIntersect(Point2D robotPosition, Point2D ballPosition, Point2D opponentPosition, double radius) {
+		
+		Point2D.Double alfieDangerZoneIntersection = findCircleTangentIntersect(robotPosition, opponentPosition, radius);
+		Point2D.Double ballDangerZoneIntersection = findCircleTangentIntersect(ballPosition, opponentPosition, radius);
+		
+		// purely for shortness and to fit with wikipedia maths
+		double x1 = alfieDangerZoneIntersection.getX();
+		double y1 = alfieDangerZoneIntersection.getY();
+		double x2 = robotPosition.getX();
+		double y2 = robotPosition.getY();
+		double x3 = ballPosition.getX();
+		double y3 = ballPosition.getY();
+		double x4 = ballDangerZoneIntersection.getX();
+		double y4 = ballDangerZoneIntersection.getY();
+		
+		double intersectionX = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)) / 
+					(((x1 - x2)*(y3 - y4)) - ((y1 - y2)*(x3 - x4)));
+		
+		double intersectionY = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4)) / 
+		(((x1 - x2)*(y3 - y4)) - ((y1 - y2)*(x3 - x4)));
+		
+		return new Point2D.Double(intersectionX, intersectionY);
+	}
+	/**
+	 * See http://paulbourke.net/geometry/2circle/
+	 * @param P0 Alfie or ball (outside circle)
+	 * @param P1 Opponent (circle center)
+	 * @param r1 radius of danger zone
+	 * @return
+	 */
+	public static Point2D.Double findCircleTangentIntersect(Point2D p0, Point2D p1, double r1) {
+		
+		double d = p1.distance(p0);
+		double r0 = Math.sqrt(r1*r1 + d*d);
+		double a = ((r0*r0 - r1*r1) + d*d)/(2*d);
+		double h = Math.sqrt(r0*r0 - a*a);
+		
+		//TODO check signs
+		double halfWayPointX = p0.getX() + (a*(p1.getX() - p0.getX())/d);
+		double halfWayPointY = p0.getY() + (a*(p1.getY() - p0.getY())/d);
+
+		double x1 = halfWayPointX + h*(p1.getY() - p0.getY())/d;
+		double y1 = halfWayPointY - h*(p1.getX() - p0.getX())/d;
+		
+		double x2 = halfWayPointX - h*(p1.getY() - p0.getY())/d;
+		double y2 = halfWayPointY + h*(p1.getX() - p0.getX())/d;
+		
+		Point2D.Double point1 = new Point.Double(x1,y1);
+		Point2D.Double point2 = new Point.Double(x2,y2);
+		
+		if (p1.getY() > 0) {
+			if (y1 > y2) {
+				return point2;
+			} else {
+				return point1;
+			}
+		} else {
+			if (y1 > y2) {
+				return point1;
+			} else {
+				return point2;
+			}
+		}
+		
+	}
+	
+	/**
+	 * Method for comparison of angles. If angle within certain threshold of each other then
+	 * return true else false
+	 * @param angle1 first angle for comparison
+	 * @param angle2 second angle for comparison
+	 * @param threshold max difference for angles to be similar
+	 * @return are angles within threshold of each other
+	 */
+	public static boolean isSimilarAngle(double angle1, double angle2, double threshold){
+		double bigAngle;
+		double smallAngle;
+		if (angle1==angle2){
+			return true;
+		}
+		if (angle1>=angle2){
+			bigAngle=angle1;
+			smallAngle=angle2;
+		}else{
+			bigAngle=angle2;
+			smallAngle=angle1;
+		}
+		if(bigAngle-smallAngle<=threshold){
+			return true;
+		}
+		//check to solve 360-0 problem
+		if(bigAngle>=(360-threshold) && smallAngle<=0+(threshold-(360-bigAngle))){
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * this function will tell us if we are facing the oppositions goal
+	 * it compares the angle we are facing with the angle to the extremes
+	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
+	 * @param robotInfo robot's info
+	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
+	 * @param ball nuff said
+	 * @return boolean
+	 */
+	public boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+		float x = (float) (
+				globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		);
+		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		float y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
+		
+		
+		Point2D topGoal = new Point2D.Float(x, y1);
+		Point2D bottomGoal = new Point2D.Float(x, y2);
+		Point2D alfiePos = robotInfo.getPosition();
+		Point2D enemyPos = opponentInfo.getPosition();
+		double facing = robotInfo.getFacingDirection();
+
+		x = (float) (
+				!globalInfo.isAttackingRight() 
+				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+		);
+		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+
+		Point2D ourGoal = new Point2D.Float(x, y);
+		double ourGoalLine = ourGoal.getX();
+		double theirGoalLine = topGoal.getX();
+
+		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
+		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
+		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
+		if((alfiePos.distance(enemyPos)<30)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
+			System.out.println("ENEMY CLOSE NO SHOT");
+			return false;
+		}
+
+		if(theirGoalLine > ourGoalLine) {
+			if(facing>bottomAngle || facing<topAngle) {
+				return true;
+			}else{
+				return false;
+			}
+		} else {
+			if (facing<bottomAngle && facing>topAngle) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 }
