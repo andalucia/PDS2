@@ -1,9 +1,13 @@
+
 package group2.simulator.starter;
 
 import group2.sdp.common.util.Tools;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.Pitch;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.Operation;
@@ -46,6 +50,7 @@ import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
 
 public class SimulatorI implements ServerSkeleton {
+	
 
 	/** The frame displaying the simulation */
 	
@@ -76,10 +81,12 @@ public class SimulatorI implements ServerSkeleton {
 
 	private Overlord planner;
 	private PathFinder executor;
+	private DynamicInfoChecker dynamicInfoChecker;
 	private final Lock commandLock = new ReentrantLock();
 	
 	
 	private static Boolean isGoal;
+	GlobalInfo globalInfo;
 
 	/** The title of the simulation */
 	private String title;
@@ -117,22 +124,34 @@ public class SimulatorI implements ServerSkeleton {
 
 		SimulatorI.robotState = new RobotState();
 		
-		executor = new PathFinder(this);
+		globalInfo = new GlobalInfo(false, true, Pitch.TWO);
 		
-		//System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
+		
+		executor = new PathFinder(globalInfo,this);
+		
 		
 		Timer imageGrabberTimer = new Timer();
 		imageGrabberTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				DynamicInfo dpi = generateDynamicInfo();
+				dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
+				
+				//int angleToTurn = dynamicInfoChecker.getAngleToBall(dpi.getBallInfo().getPosition(), 
+					//	dpi.getAlfieInfo().getPosition(), 
+						//dpi.getAlfieInfo().getFacingDirection());
+				
 				executor.setOperation(
-					new OperationReallocation(
+						new OperationReallocation(
 						dpi.getBallInfo().getPosition(), 
 						dpi.getAlfieInfo().getPosition(), 
 						dpi.getAlfieInfo().getFacingDirection(), dpi.getOpponentInfo().getPosition()
 					)
+						
 				);
+				executor.consumeInfo(dpi);
+				
+				
 			}
 		}, 0, 100);
 		
@@ -173,8 +192,8 @@ public class SimulatorI implements ServerSkeleton {
 	private DynamicInfo generateDynamicInfo() {
 		long start = System.currentTimeMillis();
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 0,start, null, null);
-		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start, null, null);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 10,start);
+		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
 		DynamicInfo dpi = new DynamicInfo(dball, dalfie, dopp);
 		return dpi;
 	}
@@ -568,8 +587,10 @@ public class SimulatorI implements ServerSkeleton {
 		commandLock.unlock();
 	}
 
+
+
 	@Override
-	public void sendMoveArc(int radius, int angle) {
+	public void sendForwardArcLeft(float radius, int angle) {
 		// TODO Auto-generated method stub
 		
 	}
