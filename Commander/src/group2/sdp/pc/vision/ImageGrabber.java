@@ -27,7 +27,7 @@ public class ImageGrabber implements CaptureCallback {
 	private int contrast;
 	private int hue;
 
-	private static final boolean VERBOSE = true;
+	private static final boolean VERBOSE = false;
 	
 	private VideoDevice     videoDevice;
 	private FrameGrabber    frameGrabber;

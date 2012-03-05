@@ -846,7 +846,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
-		if (ballCentroid == null) {
+		if (ballCentroid == null || ballCentroid.getLocation() == null) {
 			return null;
 		}
 		return convertPixelsToCm(ballCentroid);

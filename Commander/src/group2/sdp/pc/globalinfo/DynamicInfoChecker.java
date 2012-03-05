@@ -29,8 +29,8 @@ public class DynamicInfoChecker {
 	 */
 	public int getAngleToBall(Point2D targetPosition, Point2D robotPosition, double facingDirection) {
 
-		double dx = (ballInfo.getPosition().getX() - robotPosition.getX());
-		double dy = (ballInfo.getPosition().getY() - robotPosition.getY());
+		double dx = (targetPosition.getX() - robotPosition.getX());
+		double dy = (targetPosition.getY() - robotPosition.getY());
 
 		double angle = Math.toDegrees(Math.atan2(dy, dx));
 
@@ -60,7 +60,7 @@ public class DynamicInfoChecker {
 	 */
 	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
 
-		int threshold = 20;
+		int threshold = 30;
 
 		Point2D robotPos = robot.getPosition(); 
 		double facing = robot.getFacingDirection();

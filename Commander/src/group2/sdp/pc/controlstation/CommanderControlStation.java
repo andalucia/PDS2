@@ -215,7 +215,7 @@ public class CommanderControlStation implements KeyListener {
 	 * Starts the processing pipeline.
 	 */
 	private void startPipeline() {
-		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.TWO);
+		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.ONE);
 		
 		PathFinder finder = new PathFinder(globalInfo,alfieServer);
 		
@@ -416,33 +416,27 @@ public class CommanderControlStation implements KeyListener {
 		});
 		
 		robotPositionButtonLeft = new Button();
-		robotPositionButtonLeft.setLabel("Yellow robot defends left");
+		robotPositionButtonLeft.setLabel("Alfie defending left");
 		robotPositionButtonLeft.setBounds(726, 350, 200, 25);
 		robotPositionButtonLeft.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (yellowAlfieCheckbox.getState()) {
-					attackingRight = true;
-				}
+					attackingRight = false;
 			}
 			
 			
 		});
 		
 		robotPositionButtonRight = new Button();
-		robotPositionButtonRight.setLabel("Yellow robot defends right");
+		robotPositionButtonRight.setLabel("Alfie defending right");
 		robotPositionButtonRight.setBounds(726, 320, 200, 25);
 		robotPositionButtonRight.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {				
-				if (yellowAlfieCheckbox.getState()) {
-					attackingRight = false;
-				}
+				attackingRight = true;
 			}
-			
-			
 		});
 		
 		// Image filtering controls

@@ -15,7 +15,7 @@ import lejos.pc.comm.NXTConnector;
  */
 public class Server implements ServerSkeleton {
 
-	private final boolean verbose = true;
+	private final boolean verbose = false;
 	
 	private String nxtAddress = "btspp://group2";
 	

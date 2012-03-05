@@ -45,9 +45,11 @@ public class Bakery extends BakerySkeleton {
 		double sumTime=0.0;
 		//find average position of last 3 points
 		for (int i=ballHistoryInfos.size()-1; i>=ballHistoryInfos.size()-3 ; i--){
-			sumx+=ballHistoryInfos.get(i).getPosition().getX();
-			sumy+=ballHistoryInfos.get(i).getPosition().getY();
-			sumTime+=ballHistoryInfos.get(i).getTimeStamp();
+			if (ballHistoryInfos.get(i).getPosition() != null) {
+				sumx+=ballHistoryInfos.get(i).getPosition().getX();
+				sumy+=ballHistoryInfos.get(i).getPosition().getY();
+				sumTime+=ballHistoryInfos.get(i).getTimeStamp();
+			}
 		}
 		double recentTime=sumTime/3;
 
@@ -57,9 +59,11 @@ public class Bakery extends BakerySkeleton {
 		sumTime=0.0;
 		//find average position of 3 points before that
 		for (int i=ballHistoryInfos.size()-4; i>=ballHistoryInfos.size()-6 ; i--){
-			sumx+=ballHistoryInfos.get(i).getPosition().getX();
-			sumy+=ballHistoryInfos.get(i).getPosition().getY();
-			sumTime+=ballHistoryInfos.get(i).getTimeStamp();
+			if (ballHistoryInfos.get(i).getPosition() != null) {
+				sumx+=ballHistoryInfos.get(i).getPosition().getX();
+				sumy+=ballHistoryInfos.get(i).getPosition().getY();
+				sumTime+=ballHistoryInfos.get(i).getTimeStamp();
+			}
 		}
 
 		double oldTime=sumTime/3;
@@ -88,16 +92,20 @@ public class Bakery extends BakerySkeleton {
 		double sumy=0.0;
 		//find average of last 3 points
 		for (int i=ballHistoryInfos.size()-1; i>=ballHistoryInfos.size()-3 ; i--){
-			sumx+=ballHistoryInfos.get(i).getPosition().getX();
-			sumy+=ballHistoryInfos.get(i).getPosition().getY();
+			if (ballHistoryInfos.get(i).getPosition() != null) {
+				sumx+=ballHistoryInfos.get(i).getPosition().getX();
+				sumy+=ballHistoryInfos.get(i).getPosition().getY();
+			}
 		}
 		Point2D.Double recentAvg=new Point2D.Double(sumx/3,sumy/3);
 		sumx=0.0;
 		sumy=0.0;
 		//find average of 3 points before
 		for (int i=ballHistoryInfos.size()-4; i>=ballHistoryInfos.size()-6 ; i--){
-			sumx+=ballHistoryInfos.get(i).getPosition().getX();
-			sumy+=ballHistoryInfos.get(i).getPosition().getY();
+			if (ballHistoryInfos.get(i).getPosition() != null) {
+				sumx+=ballHistoryInfos.get(i).getPosition().getX();
+				sumy+=ballHistoryInfos.get(i).getPosition().getY();
+			}
 		}
 		Point2D.Double oldAvg=new Point2D.Double(sumx/3,sumy/3);
 		//test if robot is moving
@@ -133,9 +141,11 @@ public class Bakery extends BakerySkeleton {
 		double sumTime=0.0;
 		//find average position of last 3 points
 		for (int i=historyInfos.size()-1; i>=historyInfos.size()-3 ; i--){
-			sumx+=historyInfos.get(i).getPosition().getX();
-			sumy+=historyInfos.get(i).getPosition().getY();
-			sumTime+=historyInfos.get(i).getTimeStamp();
+			if (historyInfos.get(i).getPosition() != null) {
+				sumx+=historyInfos.get(i).getPosition().getX();
+				sumy+=historyInfos.get(i).getPosition().getY();
+				sumTime+=historyInfos.get(i).getTimeStamp();
+			}
 		}
 		double recentTime=sumTime/3;
 
@@ -145,9 +155,11 @@ public class Bakery extends BakerySkeleton {
 		sumy=0.0;
 		sumTime=0.0;
 		for (int i=historyInfos.size()-4; i>=historyInfos.size()-6 ; i--){
-			sumx+=historyInfos.get(i).getPosition().getX();
-			sumy+=historyInfos.get(i).getPosition().getY();
-			sumTime+=historyInfos.get(i).getTimeStamp();
+			if (historyInfos.get(i).getPosition() != null) {
+				sumx+=historyInfos.get(i).getPosition().getX();
+				sumy+=historyInfos.get(i).getPosition().getY();
+				sumTime+=historyInfos.get(i).getTimeStamp();
+			}
 		}
 
 		double oldTime=sumTime/3;
@@ -258,15 +270,19 @@ public class Bakery extends BakerySkeleton {
 		double sumy=0.0;
 		//find average of last 3 points
 		for (int i=historyInfos.size()-1; i>=historyInfos.size()-3 ; i--){
-			sumx+=historyInfos.get(i).getPosition().getX();
-			sumy+=historyInfos.get(i).getPosition().getY();
+			if (historyInfos.get(i).getPosition() != null) {
+				sumx+=historyInfos.get(i).getPosition().getX();
+				sumy+=historyInfos.get(i).getPosition().getY();
+			}
 		}
 		Point2D.Double recentAvg=new Point2D.Double(sumx/3,sumy/3);
 		sumx=0.0;
 		sumy=0.0;
 		for (int i=historyInfos.size()-4; i>=historyInfos.size()-6 ; i--){
-			sumx+=historyInfos.get(i).getPosition().getX();
-			sumy+=historyInfos.get(i).getPosition().getY();
+			if (historyInfos.get(i).getPosition() != null) {
+				sumx+=historyInfos.get(i).getPosition().getX();
+				sumy+=historyInfos.get(i).getPosition().getY();
+			}
 		}
 		Point2D.Double oldAvg=new Point2D.Double(sumx/3,sumy/3);
 		//test if robot is moving
