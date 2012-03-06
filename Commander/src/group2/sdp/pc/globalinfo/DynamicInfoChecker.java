@@ -1,5 +1,8 @@
 package group2.sdp.pc.globalinfo;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
@@ -179,6 +182,68 @@ public class DynamicInfoChecker {
 				}
 			}
 	}
+	/**
+	 * Checks if the robot is blocking our path(in the current facing direction). Projects a line from our 
+	 * centroid to a box drawn around the opponent and checks for intersection. 
+	 * @param alfie
+	 * @param opponent
+	 * @return is the opponent blocking our path
+	 */
+		
+	public boolean opponentBlockingPath(DynamicRobotInfo alfie, DynamicRobotInfo opponent){
+		
+		Point2D.Double alfiePos= new Point2D.Double(0,0);
+		double x=alfiePos.getX();
+		double y=alfiePos.getY();
+		double angle=alfie.getFacingDirection();
+		double constant;
+		double slope;
+		//calculating equation of the line from our centroid in facing direction
+		if (angle == 90 || angle == 270){
+			angle= angle+1;
+		}
+		slope=Math.tan(Math.toRadians(angle));
+		//round off slope to 3dp
+		slope=(Math.round(slope*1000)) / 1000;
+		//now work out constant for y=mx+c using c=y-mx
+		constant=y-(slope*x);
+		
+		
+		//increase x or y by 100 to create arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
+		Point2D.Double endP;
+		//case increase y
+		if (angle>=45 && angle<135){
+			double yEnd=alfiePos.getY()+100;
+			double xEnd=(yEnd-constant)/slope;
+			endP=new Point2D.Double(xEnd, yEnd);
+		}
+		else if ( (angle >= 0 && angle < 45) || angle >= 315 ){									
+			double xEnd = alfiePos.getX() + 100;
+			double yEnd = (slope * xEnd) + constant;
+			endP=new Point2D.Double(xEnd, yEnd);
+		}
+		else if (angle >= 135 && angle < 225){
+			double xEnd = alfiePos.getX() - 100;
+			double yEnd = (slope * xEnd) + constant;
+			endP = new Point2D.Double(xEnd, yEnd);
+		}else if (angle >= 225 && angle < 315){
+			double yEnd = alfiePos.getY() - 100;
+			double xEnd = (yEnd-constant) / slope;
+			endP = new Point2D.Double(xEnd, yEnd);
+		}else{
+			endP = new Point2D.Double(0, 0);
+			System.out.print("angle not included logical error in code: DynamicInfoChecker opblockpath");
+		}
+		//line created
+		Line2D.Double ourLine = new Line2D.Double(alfiePos, endP);
+		
+		//now create box around opposing robot 21 by 21 (non rotating)
+		double topLeftX=opponent.getPosition().getX()-21;
+		double topLeftY=opponent.getPosition().getY()+21;
+		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 15, 15);
+		
+		//now check if the line intersects the box 
+		return enemyBox.intersectsLine(ourLine);
 
 	/**
 	 * Finds the position "behind" the ball. Checks which part of the pitch 
