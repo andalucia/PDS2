@@ -76,7 +76,7 @@ public class Robot extends BoardObject {
 		move(w,b,1);
 	}
 	
-	private void move(World world, Body ball, int mult) {
+	public void move(World world, Body ball, int mult) {
 		// moves 5px forwards unless touching a wall
 		Ball b = (Ball)ball.getUserData();
 		boolean squashingBall = false;
