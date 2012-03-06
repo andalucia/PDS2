@@ -201,7 +201,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			newAngle = angleToTurn;
 			
 			if (VERBOSE) {
-				System.out.println("Target at " + angleToTurn + " degrees");
+				//System.out.println("Target at " + angleToTurn + " degrees");
 			}
 
 			/*
@@ -211,7 +211,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			switch(movetype){
 			
 			case(0):
-				System.out.println("why are you here!!!!");
+				//System.out.println("why are you here!!!!");
 				cmd = new OperationReallocation(cmd.getTarget(), 
 						dpi.getAlfieInfo().getPosition(), 
 						dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
@@ -228,7 +228,7 @@ public class PathFinder implements DynamicInfoConsumer {
 					if(VERBOSE) {
 						System.out.println("Alfie is facing the correct direction!");
 					}
-					System.out.println("we are facing the right way");
+					//System.out.println("we are facing the right way");
 					// Create new OperationReallocation command which should make Alfi move forward
 					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
@@ -238,7 +238,7 @@ public class PathFinder implements DynamicInfoConsumer {
 					executeOperationReallocation(cmd);
 				} else {
 					if(oldAngle<newAngle){
-						System.out.println("the old angle was smaller than the new angle");
+						//System.out.println("the old angle was smaller than the new angle");
 						cmd = new OperationReallocation(cmd.getTarget(), 
 								dpi.getAlfieInfo().getPosition(), 
 								dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
@@ -253,7 +253,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 			// moving case
 			case(2):
-				System.out.println("we are currently moving forward");
+				//System.out.println("we are currently moving forward");
 				if(Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD ){
 					System.out.println("we are currently moving but angle is out");
 					cmd = new OperationReallocation(cmd.getTarget(), 
@@ -263,7 +263,7 @@ public class PathFinder implements DynamicInfoConsumer {
 					// Perform the Alfie magic!
 					executeOperationReallocation(cmd);
 				}
-				System.out.println("Previously we would sit still here");
+				//System.out.println("Previously we would sit still here");
 				executeOperationReallocation(cmd);
 //				Point2D alfiePosition = dpi.getAlfieInfo().getPosition();
 //				Point2D enemyPosition = dpi.getOpponentInfo().getPosition();

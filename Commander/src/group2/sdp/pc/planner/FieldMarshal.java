@@ -131,7 +131,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				//FIXME use robbie's version
 				if((alfiePosition.distance(opponentPosition)<DANGER_ZONE)&&
 								dynamicInfoChecker.opponentBlockingPath(AlfieInfo, opponentInfo)){
-					DANGER_ZONE = 90;
+					DANGER_ZONE = 50;
 					// they are in the way!
 					System.out.println("Using checkpoint");
 					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, 40);
@@ -203,7 +203,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
-			System.out.println("REPLANNING");
+			//System.out.println("REPLANNING");
 			currentOperation = planNextOperation(dpi);;
 			pathFinder.setOperation(currentOperation);
 			replan = false;
