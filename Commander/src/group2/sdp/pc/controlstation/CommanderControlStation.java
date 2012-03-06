@@ -107,7 +107,7 @@ public class CommanderControlStation implements KeyListener {
 	private JLabel Info2;
 	
 	private GlobalInfo globalInfo;
-	private boolean attackingRight = true;
+	private boolean attackingRight = false;
 	/**
 	 * The server that sends commands to Alfie.
 	 */

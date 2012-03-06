@@ -160,7 +160,7 @@ public class Brain {
 		distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 		
 		stopOnTouch = true;
-//		pilot.setTravelSpeed(speed);
+		pilot.setTravelSpeed(speed);
 		if (distance == 0) {
 			pilot.forward();
 		} else {
@@ -218,7 +218,7 @@ public class Brain {
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
-		//speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
+		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
 		pilot.setRotateSpeed(angle);

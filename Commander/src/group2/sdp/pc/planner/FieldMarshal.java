@@ -44,6 +44,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	protected boolean replan;
 	
 	protected DynamicInfoChecker dynamicInfoChecker;
+	
+	protected int DANGER_ZONE = 70;
 
 	public FieldMarshal(GlobalInfo globalInfo, PathFinder pathFinder) {
 		this.globalInfo = globalInfo;
@@ -61,7 +63,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-
+		
+		Point2D opponentPosition = opponentInfo.getPosition();
 		Point2D ballPosition = ballInfo.getPosition();
 		Point2D alfiePosition = AlfieInfo.getPosition();
 		double alfieFacing = AlfieInfo.getFacingDirection();
@@ -107,6 +110,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
+					// no shot on goal
 					double y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
 					double y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
 					Point2D middleOfGoal = 
@@ -119,10 +123,28 @@ public class FieldMarshal implements DynamicInfoConsumer {
 								(int) (y1 + y2) / 2
 						);
 					System.out.println("CHAAAAARGE");
-					return new OperationCharge(ballPosition, alfiePosition, alfieFacing, middleOfGoal);
+					return new OperationCharge(middleOfGoal, alfiePosition, alfieFacing, middleOfGoal);
+				}
+			} else {
+				// no ball
+				// check if enemy robot is in the way
+				//FIXME use robbie's version
+				if((alfiePosition.distance(opponentPosition)<DANGER_ZONE)&&
+						(dynamicInfoChecker.isSimilarAngle(
+								dynamicInfoChecker.getAngleFromOrigin(alfiePosition,opponentPosition),
+								alfieFacing,
+								30
+								))){
+					DANGER_ZONE = 90;
+					// they are in the way!
+					System.out.println("Using checkpoint");
+					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, 40);
+					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
+				} else {
+					DANGER_ZONE = 70;
+					return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
 				}
 			}
-			return new OperationReallocation(ballPosition, alfiePosition, alfieFacing,opponentInfo.getPosition());
 
 		case STOP:
 			return new OperationOverload();
@@ -185,7 +207,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
-			//System.out.println("REPLANNING");
+			System.out.println("REPLANNING");
 			currentOperation = planNextOperation(dpi);;
 			pathFinder.setOperation(currentOperation);
 			replan = false;
