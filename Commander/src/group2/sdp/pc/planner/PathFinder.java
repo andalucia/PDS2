@@ -221,12 +221,12 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 			//turning case
 			case(1):
-				System.out.println("we are turning");
+				//System.out.println("we are turning");
 				
 			
 				if(Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD){
 					if(VERBOSE) {
-						System.out.println("Alfie is facing the correct direction!");
+						//System.out.println("Alfie is facing the correct direction!");
 					}
 					//System.out.println("we are facing the right way");
 					// Create new OperationReallocation command which should make Alfi move forward
@@ -255,7 +255,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			case(2):
 				//System.out.println("we are currently moving forward");
 				if(Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD ){
-					System.out.println("we are currently moving but angle is out");
+					//System.out.println("we are currently moving but angle is out");
 					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());

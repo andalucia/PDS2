@@ -191,8 +191,11 @@ public class DynamicInfoChecker {
 	 */
 		
 	public boolean opponentBlockingPath(DynamicRobotInfo alfie, DynamicRobotInfo opponent){
-		
-		Point2D.Double alfiePos= new Point2D.Double(0,0);
+		if(alfie.getFacingDirection()==-1 || opponent.getFacingDirection()==-1){
+			System.out.println("angle negative return false");
+			return false;
+		}
+		Point2D alfiePos = alfie.getPosition();
 		double x=alfiePos.getX();
 		double y=alfiePos.getY();
 		double angle=alfie.getFacingDirection();
@@ -203,50 +206,45 @@ public class DynamicInfoChecker {
 			angle= angle+1;
 		}
 		slope=Math.tan(Math.toRadians(angle));
-		//round off slope to 3dp
-		slope=(Math.round(slope*1000)) / 1000;
 		//now work out constant for y=mx+c using c=y-mx
 		constant=y-(slope*x);
 		
-		//System.out.print("slope :"+slope);
 		//increase x or y by 100 to create arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
 		Point2D.Double endP;
 		//case increase y
 		if (angle>=45 && angle<135){
-			double yEnd=alfiePos.getY()+100;
+			double yEnd=alfiePos.getY()+50;
 			double xEnd=(yEnd-constant)/slope;
 			endP=new Point2D.Double(xEnd, yEnd);
 		}
 		else if ( (angle >= 0 && angle < 45) || angle >= 315 ){									
-			double xEnd = alfiePos.getX() + 100;
+			double xEnd = alfiePos.getX() + 50;
 			double yEnd = (slope * xEnd) + constant;
 			endP=new Point2D.Double(xEnd, yEnd);
 		}
 		else if (angle >= 135 && angle < 225){
-			double xEnd = alfiePos.getX() - 100;
+			double xEnd = alfiePos.getX() - 50;
 			double yEnd = (slope * xEnd) + constant;
 			endP = new Point2D.Double(xEnd, yEnd);
 		}else if (angle >= 225 && angle < 315){
-			double yEnd = alfiePos.getY() - 100;
+			double yEnd = alfiePos.getY() - 50;
 			double xEnd = (yEnd-constant) / slope;
 			endP = new Point2D.Double(xEnd, yEnd);
 		}else{
-			endP = new Point2D.Double(0, 0);
-			System.out.print("angle not included logical error in code: DynamicInfoChecker opblockpath");
+		
+			System.out.print("angle weird return false");
+			return false;
 		}
 		//line created
 		Line2D.Double ourLine = new Line2D.Double(alfiePos, endP);
-		
 		//now create box around opposing robot 21 by 21 (non rotating)
-		double topLeftX=opponent.getPosition().getX()-21;
-		double topLeftY=opponent.getPosition().getY()-21;
-		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 42, 42);
-		//System.out.println("box c="+enemyBox.getCenterX()+","+enemyBox.getCenterY()+ " centroid of robot= " +opponent.getPosition().getX()+" , "+ opponent.getPosition().getY());
+		double topLeftX=opponent.getPosition().getX()-12;
+		double topLeftY=opponent.getPosition().getY()-12;
+		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 24, 24);
 		//now check if the line intersects the box 
 		
-		boolean returner = enemyBox.intersectsLine(ourLine);
-		System.out.println("other robot in our path = "+ returner);
-		return returner;
+		return enemyBox.intersectsLine(ourLine);
+		
 	}
 
 	/**
@@ -310,7 +308,7 @@ public class DynamicInfoChecker {
 	 * @param radius
 	 * @return
 	 */
-	public static 	Point2D.Double findTangentIntersect(Point2D robotPosition, Point2D ballPosition, Point2D opponentPosition, double radius) {
+	public static Point2D.Double findTangentIntersect(Point2D robotPosition, Point2D ballPosition, Point2D opponentPosition, double radius) {
 		
 		Point2D.Double alfieDangerZoneIntersection = findCircleTangentIntersect(robotPosition, opponentPosition, radius);
 		Point2D.Double ballDangerZoneIntersection = findCircleTangentIntersect(ballPosition, opponentPosition, radius);
