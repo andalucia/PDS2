@@ -130,11 +130,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				// check if enemy robot is in the way
 				//FIXME use robbie's version
 				if((alfiePosition.distance(opponentPosition)<DANGER_ZONE)&&
-						(dynamicInfoChecker.isSimilarAngle(
-								dynamicInfoChecker.getAngleFromOrigin(alfiePosition,opponentPosition),
-								alfieFacing,
-								30
-								))){
+								dynamicInfoChecker.opponentBlockingPath(AlfieInfo, opponentInfo)){
 					DANGER_ZONE = 90;
 					// they are in the way!
 					System.out.println("Using checkpoint");

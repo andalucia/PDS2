@@ -244,6 +244,7 @@ public class DynamicInfoChecker {
 		
 		//now check if the line intersects the box 
 		return enemyBox.intersectsLine(ourLine);
+	}
 
 	/**
 	 * Finds the position "behind" the ball. Checks which part of the pitch 
