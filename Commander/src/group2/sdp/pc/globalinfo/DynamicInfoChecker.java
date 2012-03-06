@@ -341,9 +341,7 @@ public class DynamicInfoChecker {
 	public static Point2D.Double findCircleTangentIntersect(Point2D p0, Point2D p1, double r1) {
 		
 		double d = p1.distance(p0);
-		System.out.println("distance d = " + d);
 		double r0 = Math.sqrt(r1*r1 + d*d);
-		System.out.println("r0 = " + r0);
 		double a = ((r0*r0 - r1*r1) + d*d)/(2*d);
 		double h = Math.sqrt(r0*r0 - a*a);
 		
