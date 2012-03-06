@@ -17,8 +17,9 @@ public class Camera {
 	 */
 	final static Camera ONE = 
 		new Camera(
-				new Rectangle(10, 58, 630-10, 421-58),
-				LCHColourSettings.ONE
+				new Rectangle(10, 58, 630 - 10, 421 - 58),
+				LCHColourSettings.ONE, 
+				248.0
 		);
 	// Package visibility - should be used only in Pitch
 	/**
@@ -27,8 +28,14 @@ public class Camera {
 	final static Camera TWO = 
 		new Camera(
 				new Rectangle(53, 100, 592 - 53, 383 - 100),
-				LCHColourSettings.TWO
+				LCHColourSettings.TWO, 
+				248.0
 		);
+	
+	/**
+	 * The distance, in centimetres, of the camera from the pitch.
+	 */
+	private double distanceFromPitch;
 	
 	/**
 	 * The minimum visual crop that encloses the pitch below the camera.
@@ -45,11 +52,13 @@ public class Camera {
 	 * Fully initialising constructor.
 	 * @param pitchCrop The minimum visual crop that encloses the pitch below the camera.
 	 * @param colourSettings The colour settings of the camera.
+	 * @param distanceFromPitch The distance of the camera from the pitch.
 	 */
-	public Camera(Rectangle pitchCrop, LCHColourSettings colourSettings) {
+	public Camera(Rectangle pitchCrop, LCHColourSettings colourSettings, double distanceFromPitch) {
 		super();
 		this.pitchCrop = pitchCrop;
 		this.colourSettings = colourSettings;
+		this.setDistanceFromPitch(distanceFromPitch);
 	}
 
 	
@@ -85,5 +94,21 @@ public class Camera {
 	 */
 	public void setColourSettings(LCHColourSettings colourSettings) {
 		this.colourSettings = colourSettings;
+	}
+
+	/**
+	 * Set the distance, in centimetres, of the camera from the pitch.
+	 * @param distanceFromPitch The distance, in centimetres, of the camera from the pitch.
+	 */
+	public void setDistanceFromPitch(double distanceFromPitch) {
+		this.distanceFromPitch = distanceFromPitch;
+	}
+
+	/**
+	 * Get the distance, in centimetres, of the camera from the pitch.
+	 * @return The distance, in centimetres, of the camera from the pitch.
+	 */
+	public double getDistanceFromPitch() {
+		return distanceFromPitch;
 	}
 }
