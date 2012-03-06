@@ -208,7 +208,7 @@ public class DynamicInfoChecker {
 		//now work out constant for y=mx+c using c=y-mx
 		constant=y-(slope*x);
 		
-		
+		//System.out.print("slope :"+slope);
 		//increase x or y by 100 to create arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
 		Point2D.Double endP;
 		//case increase y
@@ -239,11 +239,14 @@ public class DynamicInfoChecker {
 		
 		//now create box around opposing robot 21 by 21 (non rotating)
 		double topLeftX=opponent.getPosition().getX()-21;
-		double topLeftY=opponent.getPosition().getY()+21;
-		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 15, 15);
-		
+		double topLeftY=opponent.getPosition().getY()-21;
+		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 42, 42);
+		//System.out.println("box c="+enemyBox.getCenterX()+","+enemyBox.getCenterY()+ " centroid of robot= " +opponent.getPosition().getX()+" , "+ opponent.getPosition().getY());
 		//now check if the line intersects the box 
-		return enemyBox.intersectsLine(ourLine);
+		
+		boolean returner = enemyBox.intersectsLine(ourLine);
+		System.out.println("other robot in our path = "+ returner);
+		return returner;
 	}
 
 	/**
