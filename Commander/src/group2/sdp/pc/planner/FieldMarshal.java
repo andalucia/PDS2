@@ -46,11 +46,16 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	protected DynamicInfoChecker dynamicInfoChecker;
 	
 	protected int DANGER_ZONE = 30;
+	protected int BALL_DANGER_ZONE = 10;
 	
-	protected boolean checkpointing = false;
+	protected boolean offensiveCheckpointing = false;
+	protected boolean defensiveRobotCheckpointing = false;
+	protected boolean defensiveBallCheckpointing = false;
 	
 	
-	protected Point2D checkpoint;
+	protected Point2D offensiveCheckpoint;
+	protected Point2D defensiveRobotCheckpoint;
+	protected Point2D defensiveBallCheckpoint;
 
 	public FieldMarshal(GlobalInfo globalInfo, PathFinder pathFinder) {
 		this.globalInfo = globalInfo;
@@ -88,7 +93,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
 			} else if (dynamicInfoChecker.inDefensivePosition(alfieInfo, ballPosition)) {
-				//TODO check for obstacle
+				System.err.println("Shouldn't get here :(:(:(");
 				OperationReallocation cmd = new OperationReallocation(ballPosition, alfiePosition, alfieFacing, opponentInfo.getPosition());
 				return cmd;
 			} else {
@@ -105,6 +110,65 @@ public class FieldMarshal implements DynamicInfoConsumer {
 							),
 							(int) (y1 + y2) / 2
 					);
+				
+				
+				
+				
+				
+				//check if opponent is blocking our path
+				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
+						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
+						|| defensiveRobotCheckpointing){
+					System.out.println("CHECKPOINTING");
+					if (!defensiveRobotCheckpointing) {
+						defensiveRobotCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
+					} if (defensiveRobotCheckpoint.distance(alfiePosition) < 10) {
+						defensiveRobotCheckpointing = false;
+					} else {
+						defensiveRobotCheckpointing = true;
+					}
+					DANGER_ZONE = 40;
+					// they are in the way!
+					//System.out.println("Using checkpoint");
+					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, 40);
+					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
+				} else {
+					DANGER_ZONE = 30;
+					System.out.println("GETTING TO MIDDLE OF GOAL");
+					
+				}
+				
+				
+				
+				
+				
+				// check if ball is blocking our path
+				if (dynamicInfoChecker.opponentBlockingPath(alfieInfo, ballPosition)
+						&&(alfiePosition.distance(ballPosition)<BALL_DANGER_ZONE)
+						|| defensiveBallCheckpointing){
+					System.out.println("CHECKPOINTING");
+					if (!defensiveBallCheckpointing) {
+						defensiveBallCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
+					} if (defensiveBallCheckpoint.distance(alfiePosition) < 10) {
+						defensiveBallCheckpointing = false;
+					} else {
+						defensiveBallCheckpointing = true;
+					}
+					BALL_DANGER_ZONE = 15;
+					// they are in the way!
+					//System.out.println("Using checkpoint");
+					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
+					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
+				} else {
+					BALL_DANGER_ZONE = 10;
+					System.out.println("GETTING TO MIDDLE OF GOAL");
+				}
+				
+				
+				
+				
+				
+				
 				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentInfo.getPosition());
 				return cmd;
 			}
@@ -137,16 +201,16 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			} else {
 				// no ball
 				// check if enemy robot is in the way
-				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo)
+				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
 						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
-						|| checkpointing){
+						|| offensiveCheckpointing){
 					System.out.println("CHECKPOINTING");
-					if (!checkpointing) {
-						checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
-					} if (checkpoint.distance(alfiePosition) < 10) {
-						checkpointing = false;
+					if (!offensiveCheckpointing) {
+						offensiveCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
+					} if (offensiveCheckpoint.distance(alfiePosition) < 10) {
+						offensiveCheckpointing = false;
 					} else {
-						checkpointing = true;
+						offensiveCheckpointing = true;
 					}
 					DANGER_ZONE = 40;
 					// they are in the way!

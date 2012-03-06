@@ -190,8 +190,8 @@ public class DynamicInfoChecker {
 	 * @return is the opponent blocking our path
 	 */
 		
-	public boolean opponentBlockingPath(DynamicRobotInfo alfie, DynamicRobotInfo opponent){
-		if(alfie.getFacingDirection()==-1 || opponent.getFacingDirection()==-1){
+	public boolean opponentBlockingPath(DynamicRobotInfo alfie, Point2D obstaclePosition){
+		if(alfie.getFacingDirection()==-1){
 			System.out.println("angle negative return false");
 			return false;
 		}
@@ -237,9 +237,9 @@ public class DynamicInfoChecker {
 		}
 		//line created
 		Line2D.Double ourLine = new Line2D.Double(alfiePos, endP);
-		//now create box around opposing robot 21 by 21 (non rotating)
-		double topLeftX=opponent.getPosition().getX()-12;
-		double topLeftY=opponent.getPosition().getY()-12;
+		//now create box around obstacle 21 by 21 (non rotating)
+		double topLeftX=obstaclePosition.getX()-12;
+		double topLeftY=obstaclePosition.getY()-12;
 		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 24, 24);
 		//now check if the line intersects the box 
 		
