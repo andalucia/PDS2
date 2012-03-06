@@ -215,7 +215,7 @@ public class CommanderControlStation implements KeyListener {
 	 * Starts the processing pipeline.
 	 */
 	private void startPipeline() {
-		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.ONE);
+		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.TWO);
 		
 		PathFinder finder = new PathFinder(globalInfo,alfieServer);
 		
