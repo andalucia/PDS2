@@ -27,9 +27,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * TODO THESE THRESHOLDS STILL NEED TO BE TESTED TO FIND IDEAL VALUES 
 	 */
 
-	private static final int MAX_SPEED = 54;
+	private static final int MAX_SPEED = 45;
 	private static final int CRUISING_SPEED = 35;
-	private static final int TURNING_SPEED = 54;	
+	private static final int TURNING_SPEED = 1;	
 	
 	int movetype =0;
 	
@@ -133,7 +133,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			// Alfie is facing the ball: go forwards
 			
 			//adding in stuff to avoid other player
-			if((alfiePosition.distance(enemyPosition)<50)&&(FieldMarshal.isSimilarAngle(FieldMarshal.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
+			if((alfiePosition.distance(enemyPosition)<35)&&(dynamicInfoChecker.isSimilarAngle(dynamicInfoChecker.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
 				System.out.println("ENEMY CLOSE SIT STILL");
 				alfieServer.sendStop();
 				return;
@@ -267,7 +267,7 @@ public class PathFinder implements DynamicInfoConsumer {
 				Point2D enemyPosition = dpi.getOpponentInfo().getPosition();
 				double alfieDirection = dpi.getAlfieInfo().getFacingDirection();
 				
-				if((alfiePosition.distance(enemyPosition)<50)&&(FieldMarshal.isSimilarAngle(FieldMarshal.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
+				if((alfiePosition.distance(enemyPosition)<50)&&(dynamicInfoChecker.isSimilarAngle(dynamicInfoChecker.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
 					System.out.println("ENEMY CLOSE SIT STILL");
 					alfieServer.sendStop();
 					return;

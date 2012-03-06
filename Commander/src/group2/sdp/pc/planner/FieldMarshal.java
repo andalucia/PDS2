@@ -62,9 +62,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 
-		Point2D ball = ballInfo.getPosition();
-		Point2D alfie = AlfieInfo.getPosition();
-		double facing = AlfieInfo.getFacingDirection();
+		Point2D ballPosition = ballInfo.getPosition();
+		Point2D alfiePosition = AlfieInfo.getPosition();
+		double alfieFacing = AlfieInfo.getFacingDirection();
+		
+		Point2D kickingPosition = dynamicInfoChecker.getKickingPosition(ballPosition);
 
 		if (currentStrategy == null) {
 			System.err.println("No current strategy. Stopping.");
@@ -76,11 +78,13 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		case DEFENSIVE:
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
-			} else if (dynamicInfoChecker.inDefensivePosition(AlfieInfo, ball)) {
-				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing, opponentInfo.getPosition());
+			} else if (dynamicInfoChecker.inDefensivePosition(AlfieInfo, ballPosition)) {
+				//TODO check for obstacle
+				OperationReallocation cmd = new OperationReallocation(ballPosition, alfiePosition, alfieFacing, opponentInfo.getPosition());
 				return cmd;
 			} else {
 				//get to defensive position
+				//TODO check for obstacle
 				double y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
 				double y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
 				Point2D middleOfGoal = 
@@ -92,14 +96,14 @@ public class FieldMarshal implements DynamicInfoConsumer {
 							),
 							(int) (y1 + y2) / 2
 					);
-				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing, opponentInfo.getPosition());
+				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentInfo.getPosition());
 				return cmd;
 			}
 
 		case OFFENSIVE:
-			if(dynamicInfoChecker.hasBall(AlfieInfo, ball)){
+			if(dynamicInfoChecker.hasBall(AlfieInfo, ballPosition)){
 				System.out.println("HAS BALL");
-				if(shotOnGoal(AlfieInfo, opponentInfo, ball)){
+				if(dynamicInfoChecker.shotOnGoal(AlfieInfo, opponentInfo, ballPosition)){
 					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
@@ -115,10 +119,10 @@ public class FieldMarshal implements DynamicInfoConsumer {
 								(int) (y1 + y2) / 2
 						);
 					System.out.println("CHAAAAARGE");
-					return new OperationCharge(ball, alfie, facing, middleOfGoal);
+					return new OperationCharge(ballPosition, alfiePosition, alfieFacing, middleOfGoal);
 				}
 			}
-			return new OperationReallocation(ball, alfie, facing,opponentInfo.getPosition());
+			return new OperationReallocation(ballPosition, alfiePosition, alfieFacing,opponentInfo.getPosition());
 
 		case STOP:
 			return new OperationOverload();
@@ -187,149 +191,5 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			replan = false;
 		}
 		pathFinder.consumeInfo(dpi);
-	}
-
-	/**
-	 * this function will tell us if we are facing the oppositions goal
-	 * it compares the angle we are facing with the angle to the extremes
-	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
-	 * @param robotInfo robot's info
-	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
-	 * @param ball nuff said
-	 * @return boolean
-	 */
-	public boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
-		float x = (float) (
-				globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-		);
-		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
-		float y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
-		
-		
-		Point2D topGoal = new Point2D.Float(x, y1);
-		Point2D bottomGoal = new Point2D.Float(x, y2);
-		Point2D alfiePos = robotInfo.getPosition();
-		Point2D enemyPos = opponentInfo.getPosition();
-		double facing = robotInfo.getFacingDirection();
-
-		x = (float) (
-				!globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-		);
-		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
-
-		Point2D ourGoal = new Point2D.Float(x, y);
-		double ourGoalLine = ourGoal.getX();
-		double theirGoalLine = topGoal.getX();
-
-		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
-		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
-		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
-		if((alfiePos.distance(enemyPos)<30)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
-			System.out.println("ENEMY CLOSE NO SHOT");
-			return false;
-		}
-
-		if(theirGoalLine > ourGoalLine) {
-			if(facing>bottomAngle || facing<topAngle) {
-				return true;
-			}else{
-				return false;
-			}
-		} else {
-			if (facing<bottomAngle && facing>topAngle) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-
-
-	/**
-	 * returns the angle from a point to another point with repect the plane of are zero angle. 
-	 * @param origin 
-	 * @param targetPosition position of the target we are working out the angle to the ball
-	 * @return double
-	 */
-	protected static double getAngleFromOrigin(Point2D origin, Point2D targetPosition) {
-		double dx = (targetPosition.getX() - origin.getX());
-		double dy = (targetPosition.getY() - origin.getY());
-
-		double angle = Math.toDegrees(Math.atan2(dy, dx));
-		if(angle<0){
-			angle = 360 +angle;
-		}
-		return angle;
-	}
-
-	
-
-
-	/**
-	 * Method for comparison of angles. If angle within certain threshold of each other then
-	 * return true else false
-	 * @param angle1 first angle for comparison
-	 * @param angle2 second angle for comparison
-	 * @param threshold max difference for angles to be similar
-	 * @return are angles within threshold of each other
-	 */
-	protected static boolean isSimilarAngle(double angle1, double angle2, double threshold){
-		double bigAngle;
-		double smallAngle;
-		if (angle1==angle2){
-			return true;
-		}
-		if (angle1>=angle2){
-			bigAngle=angle1;
-			smallAngle=angle2;
-		}else{
-			bigAngle=angle2;
-			smallAngle=angle1;
-		}
-		if(bigAngle-smallAngle<=threshold){
-			return true;
-		}
-		//check to solve 360-0 problem
-		if(bigAngle>=(360-threshold) && smallAngle<=0+(threshold-(360-bigAngle))){
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * FIXME: restructure
-	 * checks to see if the robot is on the right side of the ball, does this by
-	 * comparing the distance along x axis of the robot to its goal line and distance of ball to goal line.
-	 * if the robot is closer its on the right/correct side so return true 
-	 * @param robotInfo
-	 * @param ballPos
-	 * @return
-	 */
-	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
-		float x = (float) (
-				globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-		);
-		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
-		Point2D TopGoal = new Point2D.Float(x, y);
-		double goalLine = TopGoal.getX();
-		
-		Point2D robotPos = robotInfo.getPosition();
-		double robot = robotPos.getX();
-		double ball = ballPos.getX();
-		
-		double robotDis = Math.abs(goalLine - robot);
-		double ballDis = Math.abs(goalLine - ball);
-		
-		if(robotDis < ballDis) {
-			return true;
-		} else{ 
-			return false;
-		}
 	}
 }

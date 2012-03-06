@@ -4,6 +4,8 @@ import group2.sdp.pc.breadbin.*;
 
 import java.util.LinkedList;
 
+import lejos.geom.Point;
+
 /**
  * This class consumes static information about the pitch from an image 
  * processor and produces dynamic information about the pitch.
@@ -57,6 +59,20 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		if (staticInfoHistory.size() == MAX_HISTORY_LENGTH) {
 			staticInfoHistory.poll();
 		}
+		if (spi.getBallInfo().getPosition() == null) {
+			StaticBallInfo lastKnownBallInfo = staticInfoHistory.getBallInfos().get(staticInfoHistory.size()-1);
+			spi.setBallInfo(lastKnownBallInfo);
+
+		}
+		if (spi.getAlfieInfo().getPosition() == null) {
+			StaticRobotInfo lastKnownAlfieInfo = staticInfoHistory.getAlfieInfos().get(staticInfoHistory.size()-1);
+			spi.setAlfieInfo(lastKnownAlfieInfo);
+
+		}
+		if (spi.getOpponentInfo().getPosition() == null) {
+			StaticRobotInfo lastKnownOpponentInfo = staticInfoHistory.getOpponentInfos().get(staticInfoHistory.size()-1);
+			spi.setOpponentInfo(lastKnownOpponentInfo);
+		}
 		staticInfoHistory.add(spi);
 	}
 
@@ -69,11 +85,6 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 */
 	private DynamicInfo produceDynamicInfo(StaticInfo spi) {
 		
-		// if we didn't find the ball(null) then set it 
-		// to the previous known position
-		if (spi.getBallInfo() == null) {
-			spi.setBallInfo(staticInfoHistory.getLast().getBallInfo());
-		}
 		// Dynamic ball information
 		double rollingSpeed = computeBallRollingSpeed(staticInfoHistory.getBallInfos());
 		double rollingDirection = computeBallRollingDirection(staticInfoHistory.getBallInfos());
@@ -83,11 +94,6 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 				rollingDirection, 
 				spi.getBallInfo().getTimeStamp());
 		
-		// if the position of Alfie is unknown then we use the 
-		// last known position
-		if (spi.getAlfieInfo() == null) {
-			spi.setAlfieInfo(staticInfoHistory.getLast().getAlfieInfo());
-		}
 		// Dynamic Alfie information
 		double alfieTravelSpeed = computeAlfieTravelSpeed();
 		double alfieTravelDirection = computeAlfieTravelDirection();
@@ -97,12 +103,8 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 				alfieTravelDirection);
 		
 		alfieInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getAlfieInfos()));
+	
 		
-		// if the position of the opponent is unknown then use the 
-		// last known position
-		if (spi.getOpponentInfo() == null) {
-			spi.setOpponentInfo(staticInfoHistory.getLast().getOpponentInfo());
-		}
 		// Dynamic opponent information
 		double opponentTravelSpeed = computeOpponentTravelSpeed();
 		double opponentTravelDirection = computeOpponentTravelDirection();
