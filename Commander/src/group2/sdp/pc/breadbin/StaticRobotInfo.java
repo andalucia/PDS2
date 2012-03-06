@@ -17,6 +17,10 @@ public class StaticRobotInfo {
 	 * The width of the robot.
 	 */
 	protected static final double WIDTH = 18;
+	/**
+	 * The height of the robot.
+	 */
+	protected static final double HEIGHT = 17;
 
 	/**
 	 * The position of the robot with respect to the centre of the pitch. The 
@@ -134,6 +138,14 @@ public class StaticRobotInfo {
 	public static double getLength() {
 		return LENGTH;
 	}
+	
+	/**
+	 * Get the height of the robot.
+	 * @return The height of the robot.
+	 */
+	public static double getHeight() {
+		return HEIGHT;
+	}
 
 	/**
 	 * Get the time, in milliseconds, at which the information was recorded.
@@ -145,8 +157,8 @@ public class StaticRobotInfo {
 	}
 
 	/**
-	 * Returns true if robot is Alfie
-	 * @return Is the robot Alfie
+	 * Returns true if robot is Alfie.
+	 * @return True if the robot is Alfie, false otherwise.
 	 */
 	public boolean isAlfie() {
 		return alfie;
