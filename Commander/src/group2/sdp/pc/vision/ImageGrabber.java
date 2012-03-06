@@ -43,7 +43,7 @@ public class ImageGrabber implements CaptureCallback {
 		this.consumer = consumer;
 		
 		saturation = 100;
-		brightness = 60;
+		brightness = 130;
 		contrast = 80;
 		hue = 0;
 

@@ -45,7 +45,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	
 	protected DynamicInfoChecker dynamicInfoChecker;
 	
-	protected int DANGER_ZONE = 70;
+	protected int DANGER_ZONE = 30;
 	
 	protected boolean checkpointing = false;
 	
@@ -65,17 +65,17 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @return The next operation to execute.
 	 */
 	private Operation planNextOperation(DynamicInfo dpi) {
-		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
+		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		
 		Point2D opponentPosition = opponentInfo.getPosition();
 		Point2D ballPosition = ballInfo.getPosition();
-		Point2D alfiePosition = AlfieInfo.getPosition();
-		double alfieFacing = AlfieInfo.getFacingDirection();
+		Point2D alfiePosition = alfieInfo.getPosition();
+		double alfieFacing = alfieInfo.getFacingDirection();
 		
 		Point2D kickingPosition = dynamicInfoChecker.getKickingPosition(ballPosition);
-
+		
 		if (currentStrategy == null) {
 			System.err.println("No current strategy. Stopping.");
 			System.exit(1);
@@ -84,9 +84,10 @@ public class FieldMarshal implements DynamicInfoConsumer {
 
 		switch (currentStrategy) {
 		case DEFENSIVE:
+			System.out.println("DEFENSIVE");
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
-			} else if (dynamicInfoChecker.inDefensivePosition(AlfieInfo, ballPosition)) {
+			} else if (dynamicInfoChecker.inDefensivePosition(alfieInfo, ballPosition)) {
 				//TODO check for obstacle
 				OperationReallocation cmd = new OperationReallocation(ballPosition, alfiePosition, alfieFacing, opponentInfo.getPosition());
 				return cmd;
@@ -109,9 +110,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			}
 
 		case OFFENSIVE:
-			if(dynamicInfoChecker.hasBall(AlfieInfo, ballPosition)){
-				//System.out.println("HAS BALL");
-				if(dynamicInfoChecker.shotOnGoal(AlfieInfo, opponentInfo, ballPosition)){
+			System.out.println("OFFENSIVE");
+			if(dynamicInfoChecker.hasBall(alfieInfo, ballPosition) 
+					|| kickingPosition.distance(alfiePosition) < 5){
+				System.out.println("HAS BALL");
+				if(dynamicInfoChecker.shotOnGoal(alfieInfo, opponentInfo, ballPosition)){
 					//System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
@@ -128,31 +131,31 @@ public class FieldMarshal implements DynamicInfoConsumer {
 								(int) (y1 + y2) / 2
 						);
 					//System.out.println("CHAAAAARGE");
-					return new OperationCharge(middleOfGoal, alfiePosition, alfieFacing, middleOfGoal);
+					return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
+					//return new OperationCharge(ballPosition, alfiePosition, alfieFacing, middleOfGoal);
 				}
 			} else {
 				// no ball
 				// check if enemy robot is in the way
-				//FIXME use robbie's version
-				if(dynamicInfoChecker.opponentBlockingPath(AlfieInfo, opponentInfo)
+				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo)
 						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
 						|| checkpointing){
-					if (checkpointing) {
-						// ?
-					} else {
+					System.out.println("CHECKPOINTING");
+					if (!checkpointing) {
 						checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
 					} if (checkpoint.distance(alfiePosition) < 10) {
 						checkpointing = false;
 					} else {
 						checkpointing = true;
 					}
-					DANGER_ZONE = 70;
+					DANGER_ZONE = 40;
 					// they are in the way!
 					//System.out.println("Using checkpoint");
 					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, 40);
 					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
 				} else {
-					DANGER_ZONE = 50;
+					DANGER_ZONE = 30;
+					System.out.println("GETTING TO KICKING POSITION");
 					return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
 				}
 			}

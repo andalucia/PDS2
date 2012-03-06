@@ -107,7 +107,7 @@ public class CommanderControlStation implements KeyListener {
 	private JLabel Info2;
 	
 	private GlobalInfo globalInfo;
-	private boolean attackingRight = false;
+	private boolean attackingRight = true;
 	/**
 	 * The server that sends commands to Alfie.
 	 */
@@ -215,7 +215,7 @@ public class CommanderControlStation implements KeyListener {
 	 * Starts the processing pipeline.
 	 */
 	private void startPipeline() {
-		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.TWO);
+		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.ONE);
 		
 		PathFinder finder = new PathFinder(globalInfo,alfieServer);
 		

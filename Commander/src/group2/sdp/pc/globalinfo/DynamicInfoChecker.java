@@ -82,7 +82,7 @@ public class DynamicInfoChecker {
 	 */
 	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
 
-		int threshold = 30;
+		int threshold = 23;
 
 		Point2D robotPos = robot.getPosition(); 
 		double facing = robot.getFacingDirection();
@@ -261,7 +261,7 @@ public class DynamicInfoChecker {
 		float kickingPositionX,kickingPositionY;
 		
 		// distance to be away from the ball
-		int distance = 30;
+		int distance = 17;
 		// distance to be away from the ball by x and y coordinates.
 		double sideDistance = Math.sqrt(2*distance*distance);
 		// if the ball is within the y coordinates of the goal then get immediately behind it
@@ -416,7 +416,7 @@ public class DynamicInfoChecker {
 	 */
 	public boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
 		float x = (float) (
-				globalInfo.isAttackingRight() 
+				!globalInfo.isAttackingRight() 
 				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
 				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
@@ -431,7 +431,7 @@ public class DynamicInfoChecker {
 		double facing = robotInfo.getFacingDirection();
 
 		x = (float) (
-				!globalInfo.isAttackingRight() 
+				globalInfo.isAttackingRight() 
 				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
 				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
@@ -443,7 +443,7 @@ public class DynamicInfoChecker {
 
 		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
 		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
-		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
+		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 30cm distance
 		if((alfiePos.distance(enemyPos)<30)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
 			System.out.println("ENEMY CLOSE NO SHOT");
 			return false;
