@@ -323,12 +323,12 @@ public class CommanderControlStation {
 		
 		
 		planningLabel = new JLabel();
-		planningLabel.setText("Planning");
-		planningLabel.setBounds(380, 270, 75, 25);
+		planningLabel.setText("Adaptive Learnification");
+		planningLabel.setBounds(380, 270, 250, 25);
 		
 		shootingDirectionGroup = new CheckboxGroup();
 		
-	    leftAlfieCheckbox = new Checkbox("Alfie defending left", shootingDirectionGroup, true);
+	    leftAlfieCheckbox = new Checkbox("Alfie shooting right", shootingDirectionGroup, true);
 	    leftAlfieCheckbox.setBounds(380, 310, 160, 25);
 	    leftAlfieCheckbox.addItemListener(new ItemListener() {
 			
@@ -342,7 +342,7 @@ public class CommanderControlStation {
 			}
 	    });
 	    
-	    rightAlfieCheckbox = new Checkbox("Alfie defending right", shootingDirectionGroup, false);
+	    rightAlfieCheckbox = new Checkbox("Alfie shooting left", shootingDirectionGroup, false);
 	    rightAlfieCheckbox.setBounds(380, 340, 160, 25);
 	    rightAlfieCheckbox.addItemListener(new ItemListener() {
 			

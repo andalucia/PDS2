@@ -83,7 +83,7 @@ public class DynamicInfoChecker {
 	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
 		
 
-		int threshold = 30;
+		int threshold = 35;
 
 		Point2D robotPos = robot.getPosition(); 
 		double facing = robot.getFacingDirection();
@@ -92,7 +92,7 @@ public class DynamicInfoChecker {
 		if(robotPos.distance(ball)<=threshold){
 			//this is the angle from the origin
 
-			int threshold2 = 20;
+			int threshold2 = 10;
 
 			double angle = Math.abs(getAngleToBall(ball, robotPos, facing));
 

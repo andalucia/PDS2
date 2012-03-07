@@ -30,6 +30,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private static final int MAX_SPEED = 54;
 	private static final int CRUISING_SPEED = 10;
 	private static final int TURNING_SPEED = 10;	
+	private static final int MOVING_KICK_SPEED = 25;
 	
 	int movetype =0;
 	
@@ -119,12 +120,23 @@ public class PathFinder implements DynamicInfoConsumer {
 		if (Math.abs(angleToTurn) > threshold) {
 			movetype = 1;
 			if (angleToTurn < 0) {
-				alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn)-10);
+				if (angleToTurn >=  40 ){
+					alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn)-20);
+				}else{
+					alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn)-10);
+				}
 				if(VERBOSE) {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn -10);
+				if (angleToTurn >=  40 ){
+					alfieServer.sendSpinLeft(TURNING_SPEED, Math.abs(angleToTurn)-20);
+				}else{
+					alfieServer.sendSpinLeft(TURNING_SPEED, Math.abs(angleToTurn)-10);
+				}
+				if(VERBOSE) {
+					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
+				}
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn + " degrees");
 				}
@@ -167,7 +179,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * @param currentCommand Contains absolutely no useful information at all
 	 */	
 	private void executeOperationStrike(OperationStrike currentCommand) {
-		alfieServer.sendGoForward(CRUISING_SPEED, 10);
+		alfieServer.sendGoForward(MOVING_KICK_SPEED, 10);
 		alfieServer.sendKick(MAX_SPEED);
 	}
 
