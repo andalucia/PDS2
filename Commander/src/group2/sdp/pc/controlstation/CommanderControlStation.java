@@ -180,7 +180,6 @@ public class CommanderControlStation {
 	 */
 	private void initializeConnectionThreads() {
 		init_thread = new Thread() {		
-
 			public void run() {
 				for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
 					log("Connection attempt: " + i);
@@ -293,7 +292,7 @@ public class CommanderControlStation {
 		processImageCheckbox.setState(true);
 		
 		runButton = new Button();
-		runButton.setLabel("Start Vision");
+		runButton.setLabel("Initialise");
 		runButton.setBounds(380, 208, 100, 25);
 		runButton.setBackground(Color.yellow);
 		runButton.addActionListener(new ActionListener() {
@@ -384,6 +383,7 @@ public class CommanderControlStation {
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
 					lord.stop();
+					alfieServer.sendStop();
 				}
 			}
 			
