@@ -392,7 +392,7 @@ public class CommanderControlStation {
 		
 		
 		penaltyButton = new Button();
-		penaltyButton.setLabel("Take Penalty!*");
+		penaltyButton.setLabel("Take Penalty!");
 		penaltyButton.setBounds(750, 345, 100, 25);
 		penaltyButton.addActionListener(new ActionListener() {
 			
@@ -410,7 +410,7 @@ public class CommanderControlStation {
 			
 		});
 		goalieButton = new Button();
-		goalieButton.setLabel("Goalkeeper!*");
+		goalieButton.setLabel("Goalkeeper!");
 		goalieButton.setBounds(750, 310, 100, 25);
 		goalieButton.addActionListener(new ActionListener() {
 			

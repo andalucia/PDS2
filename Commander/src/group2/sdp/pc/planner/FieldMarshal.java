@@ -45,7 +45,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	
 	protected DynamicInfoChecker dynamicInfoChecker;
 	
-	protected int DANGER_ZONE = 40;
+	protected int DANGER_ZONE = 50;
 	protected int BALL_DANGER_ZONE = 35;
 	
 	protected boolean offensiveCheckpointing = false;
@@ -129,12 +129,12 @@ public class FieldMarshal implements DynamicInfoConsumer {
 					} else {
 						defensiveRobotCheckpointing = true;
 					}
-					DANGER_ZONE = 50;
+					DANGER_ZONE = 60;
 					// they are in the way!
 					//System.out.println("Using checkpoint");
 					return new OperationReallocation(defensiveRobotCheckpoint, alfiePosition, alfieFacing, opponentPosition);
 				} else {
-					DANGER_ZONE = 40;
+					DANGER_ZONE = 50;
 					defensiveRobotCheckpointing = false;
 					System.out.println("GETTING TO MIDDLE OF GOAL");
 					
@@ -219,12 +219,12 @@ public class FieldMarshal implements DynamicInfoConsumer {
 					} else {
 						offensiveCheckpointing = true;
 					}
-					DANGER_ZONE = 50;
+					DANGER_ZONE = 60;
 					// they are in the way!
 					//System.out.println("Using checkpoint");
 					return new OperationReallocation(offensiveCheckpoint, alfiePosition, alfieFacing, opponentPosition);
 				} else {
-					DANGER_ZONE = 40;
+					DANGER_ZONE = 50;
 					offensiveCheckpointing = false;
 					System.out.println("GETTING TO KICKING POSITION");
 					return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
