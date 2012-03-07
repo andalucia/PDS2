@@ -105,8 +105,6 @@ public class CommanderControlStation {
 	
 	private JTextPane txtLog;
 
-
-	
 	private GlobalInfo globalInfo;
 	private boolean attackingRight = true;
 	/**
@@ -226,7 +224,6 @@ public class CommanderControlStation {
 		
 		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.ONE);
 		
-		
 		PathFinder finder = new PathFinder(globalInfo,alfieServer);
 		
 		FieldMarshal marshal = new FieldMarshal(globalInfo, finder);
@@ -294,12 +291,6 @@ public class CommanderControlStation {
 		processImageCheckbox.setLabel("Process image");
 		processImageCheckbox.setBounds(380, 150, 160, 25);
 		processImageCheckbox.setState(true);
-		
-		
-		
-		
-		
-		
 		
 		runButton = new Button();
 		runButton.setLabel("Start Vision");
@@ -388,8 +379,6 @@ public class CommanderControlStation {
 		stopPlanningButton.setBounds(750, 395, 100, 25);
 		stopPlanningButton.setBackground(Color.red);
 		stopPlanningButton.addActionListener(new ActionListener() {
-		
-			
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -591,8 +580,6 @@ public class CommanderControlStation {
 		frmAlfieCommandCentre.getContentPane().add(connectButton);
 		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
-		
-
 
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
 		frmAlfieCommandCentre.getContentPane().add(penaltyButton);
@@ -667,8 +654,5 @@ public class CommanderControlStation {
 		txtLog.setText(txtLog.getText() + logString + "\n");
 		txtLog.repaint();
 	}
-
-
-
 
 }

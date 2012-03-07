@@ -57,20 +57,24 @@ public class Server implements ServerSkeleton {
 		dis = conn.getDataIn();
 	}
 	
+	public void cleanup() {
+		try {
+			dis.close();
+			dos.close();
+			conn.close();
+		} catch (IOException e) {
+			System.out.println("IOException closing connection:");
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	/**
 	 * Called when the object is garbage-collected. Closes the connections.
 	 */
 	@Override
 	protected void finalize() throws Throwable {
-		try {
-			sendStop();
-			dis.close();
-			dos.close();
-			conn.close();
-		} catch (IOException ioe) {
-			System.out.println("IOException closing connection:");
-			System.out.println(ioe.getMessage());
-		}
+		sendStop();
+		cleanup();
 		super.finalize();
 	}
 	

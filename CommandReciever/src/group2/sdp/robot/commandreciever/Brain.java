@@ -1,6 +1,7 @@
 package group2.sdp.robot.commandreciever;
 
 import group2.sdp.common.util.Tools;
+
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
@@ -98,6 +99,11 @@ public class Brain {
 	// If set to true, Alfie will stop when one of his touch sensors fires.
 	private static boolean stopOnTouch = false;
 	
+	private static final int BACKING_TIMEOUT = 500;
+	private static final int BACKING_SPEED = 28;
+	private static final int BACKING_DISTANCE = 20;
+	private static boolean backingOff = false;
+	
 	// These flags are true during the period after the corresponding touch 
 	// sensor was fired and before a command was issued to Alfie. When Alfie 
 	// drools on a candy packet, he returns these flags and sets them to false.
@@ -105,7 +111,7 @@ public class Brain {
 	private static boolean rightTouchFired = false;
 	// Create a Thread to detect whether touch sensors have been touched
 	private static Thread touchSensorsThread;
-
+	
 	/**
 	 * All methods in this class are static so there is no constructor.
 	 * This method should be called before running any other methods in the class.	
@@ -121,23 +127,29 @@ public class Brain {
 	 */
 	private static void initTouchThread() {
 		touchSensorsThread = new Thread() {
-			
+
 			public void run() {
 				while (true) {			
 					if (LEFT_TOUCH_SENSOR.isPressed() || 
 						RIGHT_TOUCH_SENSOR.isPressed()) {
-						if (!kicking) {
-							stop();
-							pilot.travel(-10);
-						}
-						if (stopOnTouch) {
-							if (LEFT_TOUCH_SENSOR.isPressed()) {
-								leftTouchFired = true;
+						if (stopOnTouch && !kicking) {
+							backingOff = true;
+							goBackwards(BACKING_SPEED, BACKING_DISTANCE);
+							try {
+								Thread.sleep(BACKING_TIMEOUT);
+							} catch (InterruptedException e) {
+								LCD.clear();
+								LCD.drawString("Sleep interupt.", 0, 0);
+								LCD.refresh();
 							}
-							if (RIGHT_TOUCH_SENSOR.isPressed()) {
-								rightTouchFired = true;
-							}
+							backingOff = false;
 						}
+					}
+					if (LEFT_TOUCH_SENSOR.isPressed()) {
+						leftTouchFired = true;
+					}
+					if (RIGHT_TOUCH_SENSOR.isPressed()) {
+						rightTouchFired = true;
 					}
 				}
 			}
@@ -156,24 +168,30 @@ public class Brain {
 	 */
 	public static void goForward(int speed, int distance) {
 		assert(initialized);
-		speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-		distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
-		
-		stopOnTouch = true;
-		pilot.setTravelSpeed(speed);
-		if (distance == 0) {
-			pilot.forward();
+		if (!backingOff) {
+			speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
+			distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
+			
+			stopOnTouch = true;
+			pilot.setTravelSpeed(speed);
+			if (distance == 0) {
+				pilot.forward();
+			} else {
+				pilot.travel(distance,true);
+			}
+			
+			if (VERBOSE) {
+				LCD.clear();
+				LCD.drawString(FWD1, 0, 0);
+				LCD.drawString(FWD2, 0, 1);
+				LCD.drawInt(speed, 1, 2);
+				LCD.drawString("MAX SPEED", 0, 3);
+				LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+				LCD.refresh();
+			}
 		} else {
-			pilot.travel(distance,true);
-		}
-		
-		if (VERBOSE) {
 			LCD.clear();
-			LCD.drawString(FWD1, 0, 0);
-			LCD.drawString(FWD2, 0, 1);
-			LCD.drawInt(speed, 1, 2);
-			LCD.drawString("MAX SPEED", 0, 3);
-			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+			LCD.drawString("Ignored.", 0, 0);
 			LCD.refresh();
 		}
 	}
