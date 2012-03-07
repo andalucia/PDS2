@@ -45,8 +45,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	
 	protected DynamicInfoChecker dynamicInfoChecker;
 	
-	protected int DANGER_ZONE = 30;
-	protected int BALL_DANGER_ZONE = 10;
+	protected int DANGER_ZONE = 40;
+	protected int BALL_DANGER_ZONE = 35;
 	
 	protected boolean offensiveCheckpointing = false;
 	protected boolean defensiveRobotCheckpointing = false;
@@ -118,22 +118,24 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				//check if opponent is blocking our path
 				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
 						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
+						&& dynamicInfoChecker.isSimilarAngle(alfieFacing,dynamicInfoChecker.getAngleFromOrigin(alfiePosition, middleOfGoal),15)
 						|| defensiveRobotCheckpointing){
 					System.out.println("CHECKPOINTING");
 					if (!defensiveRobotCheckpointing) {
 						defensiveRobotCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
 					} if (defensiveRobotCheckpoint.distance(alfiePosition) < 10) {
 						defensiveRobotCheckpointing = false;
+						return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
 					} else {
 						defensiveRobotCheckpointing = true;
 					}
-					DANGER_ZONE = 40;
+					DANGER_ZONE = 50;
 					// they are in the way!
 					//System.out.println("Using checkpoint");
-					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, 40);
-					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
+					return new OperationReallocation(defensiveRobotCheckpoint, alfiePosition, alfieFacing, opponentPosition);
 				} else {
-					DANGER_ZONE = 30;
+					DANGER_ZONE = 40;
+					defensiveRobotCheckpointing = false;
 					System.out.println("GETTING TO MIDDLE OF GOAL");
 					
 				}
@@ -144,23 +146,25 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				
 				// check if ball is blocking our path
 				if (dynamicInfoChecker.opponentBlockingPath(alfieInfo, ballPosition)
-						&&(alfiePosition.distance(ballPosition)<BALL_DANGER_ZONE)
+						&&(alfiePosition.distance(ballPosition)<BALL_DANGER_ZONE) 
+						//&& dynamicInfoChecker.isSimilarAngle(alfieFacing,dynamicInfoChecker.getAngleFromOrigin(alfiePosition, middleOfGoal),15)
 						|| defensiveBallCheckpointing){
 					System.out.println("CHECKPOINTING");
 					if (!defensiveBallCheckpointing) {
 						defensiveBallCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
 					} if (defensiveBallCheckpoint.distance(alfiePosition) < 10) {
 						defensiveBallCheckpointing = false;
+						return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
 					} else {
 						defensiveBallCheckpointing = true;
 					}
-					BALL_DANGER_ZONE = 15;
+					BALL_DANGER_ZONE = 40;
 					// they are in the way!
 					//System.out.println("Using checkpoint");
-					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
-					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
+					return new OperationReallocation(defensiveBallCheckpoint, alfiePosition, alfieFacing, opponentPosition);
 				} else {
-					BALL_DANGER_ZONE = 10;
+					BALL_DANGER_ZONE = 35;
+					defensiveBallCheckpointing = false;
 					System.out.println("GETTING TO MIDDLE OF GOAL");
 				}
 				
@@ -178,8 +182,9 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			if(dynamicInfoChecker.hasBall(alfieInfo, ballPosition) 
 					|| kickingPosition.distance(alfiePosition) < 5){
 				System.out.println("HAS BALL");
-				if(dynamicInfoChecker.shotOnGoal(alfieInfo, opponentInfo, ballPosition)){
-					//System.out.println("SHOT ON GOAL");
+				if(dynamicInfoChecker.shotOnGoal(alfieInfo, opponentInfo, ballPosition) 
+						){
+					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
 					// no shot on goal
@@ -194,7 +199,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 								),
 								(int) (y1 + y2) / 2
 						);
-					//System.out.println("CHAAAAARGE");
+					System.out.println("CHAAAAARGE");
 					return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
 					//return new OperationCharge(ballPosition, alfiePosition, alfieFacing, middleOfGoal);
 				}
@@ -203,22 +208,24 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				// check if enemy robot is in the way
 				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
 						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
+						&& dynamicInfoChecker.isSimilarAngle(alfieFacing,dynamicInfoChecker.getAngleFromOrigin(alfiePosition, ballPosition),15)
 						|| offensiveCheckpointing){
 					System.out.println("CHECKPOINTING");
 					if (!offensiveCheckpointing) {
 						offensiveCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
 					} if (offensiveCheckpoint.distance(alfiePosition) < 10) {
 						offensiveCheckpointing = false;
+						return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
 					} else {
 						offensiveCheckpointing = true;
 					}
-					DANGER_ZONE = 40;
+					DANGER_ZONE = 50;
 					// they are in the way!
 					//System.out.println("Using checkpoint");
-					Point2D.Double checkpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, 40);
-					return new OperationReallocation(checkpoint, alfiePosition, alfieFacing, opponentPosition);
+					return new OperationReallocation(offensiveCheckpoint, alfiePosition, alfieFacing, opponentPosition);
 				} else {
-					DANGER_ZONE = 30;
+					DANGER_ZONE = 40;
+					offensiveCheckpointing = false;
 					System.out.println("GETTING TO KICKING POSITION");
 					return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
 				}

@@ -81,8 +81,9 @@ public class DynamicInfoChecker {
 	 * @return boolean
 	 */
 	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
+		
 
-		int threshold = 23;
+		int threshold = 30;
 
 		Point2D robotPos = robot.getPosition(); 
 		double facing = robot.getFacingDirection();
@@ -91,16 +92,19 @@ public class DynamicInfoChecker {
 		if(robotPos.distance(ball)<=threshold){
 			//this is the angle from the origin
 
-			int threshold2 = 10;
+			int threshold2 = 20;
 
 			double angle = Math.abs(getAngleToBall(ball, robotPos, facing));
 
 			if(angle<=threshold2){
+				System.out.println("HASBALL is TRUE");
 				return true;
 			}else{
+				System.out.println("HASBALL is FALSE");
 				return false;
 			}
 		}else{
+			System.out.println("HASBALL is FALSE");
 			return false;
 		}
 	}
@@ -243,7 +247,12 @@ public class DynamicInfoChecker {
 		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 24, 24);
 		//now check if the line intersects the box 
 		
-		return enemyBox.intersectsLine(ourLine);
+		
+		if (enemyBox.contains(alfiePos)) {
+			return isSimilarAngle(getAngleFromOrigin(alfiePos, obstaclePosition), alfie.getFacingDirection(), 30);
+		} else {
+			return enemyBox.intersectsLine(ourLine);
+		}
 		
 	}
 
@@ -261,7 +270,7 @@ public class DynamicInfoChecker {
 		float kickingPositionX,kickingPositionY;
 		
 		// distance to be away from the ball
-		int distance = 17;
+		int distance = 25;
 		// distance to be away from the ball by x and y coordinates.
 		double sideDistance = Math.sqrt(2*distance*distance);
 		// if the ball is within the y coordinates of the goal then get immediately behind it
@@ -284,10 +293,8 @@ public class DynamicInfoChecker {
 							: ballPosition.getX() + sideDistance);
 			kickingPositionY = (float) (ballPosition.getY() - sideDistance);
 		}
-		Point2D kickingPosition = new Point.Float(kickingPositionX,kickingPositionY);
 		
 		// check if position is within bounds
-		//TODO test
 		if ((kickingPositionY > globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
 		(kickingPositionY < globalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
 			//out of bounds :(
@@ -295,7 +302,16 @@ public class DynamicInfoChecker {
 					?  ballPosition.getX() - distance
 							: ballPosition.getX() + distance);
 					kickingPositionY = (float) (ballPosition.getY());
-		}	
+		}
+		if ((kickingPositionY > globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
+				(kickingPositionY < globalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
+			kickingPositionX = (float) ballPosition.getX();
+			kickingPositionY = (float) ballPosition.getY();
+		}
+		
+		Point2D kickingPosition = new Point.Float(kickingPositionX,kickingPositionY);
+
+		
 		return kickingPosition;
 		
 	}
