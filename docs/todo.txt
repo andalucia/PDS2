@@ -15,26 +15,6 @@ Working things:
  9. Dynamic Info, and
 10. Eye.
 
-Awaiting approval:
- 1. * Static Robot Info: copy the information from the design.txt to the javadoc of the class; add ball possession information (boolean)
-    * Affected: DynamicRobotInfo.java, StaticRobotInfo.java, BakeryTest.java, and VisualCortexSkeleton.java
-    * Names: Stan, Jaunius
-    * Branch: master
-
- 2.
-    * Conversation: deleted unused code, done some refactoring, some comments.
-    * Affected: Small changes - should affect no one.
-    * Names: Jaunius
-    * Branch: Conversationchanges
-
- 3.
-    * Dynamic Robot Info: copy the information from the design.txt to the javadoc of the class; add robot rotation speed and direction
-    * Affected: DynamicRobotInfo.java, Bakery.java, and BakerySkeleton.java
-    * Names: Stan
-    * Branch: master
-
-
-
 
 TODO:
  3. Bakery: copy the information from the design.txt to the javadoc of the 
