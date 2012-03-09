@@ -1,7 +1,5 @@
 package group2.sdp.pc.globalinfo;
 
-import static org.junit.Assert.*;
-
 import group2.sdp.pc.breadbin.DynamicInfo;
 
 import java.awt.geom.Point2D;
@@ -22,18 +20,18 @@ public class DynamicInfoCheckerTest {
 		double angle1A = 40.5;
 		double angle2A = 40;
 		double threshold1A = 40;
-		Assert.assertTrue(info.isSimilarAngle(angle1A, angle2A, threshold1A));
+		Assert.assertTrue(DynamicInfoChecker.isSimilarAngle(angle1A, angle2A, threshold1A));
 		
 		//this should be change; more check-condition for threshold
 		double angle1B = 40.5;
 		double angle2B = 40;
 		double threshold1B = -0.5;
-		Assert.assertFalse(info.isSimilarAngle(angle1B, angle2B, threshold1B));
+		Assert.assertFalse(DynamicInfoChecker.isSimilarAngle(angle1B, angle2B, threshold1B));
 		
 		double angle1C = 370;
 		double angle2C = 390;
 		double threshold1C = 30;
-		Assert.assertTrue(info.isSimilarAngle(angle1C, angle2C, threshold1C));
+		Assert.assertTrue(DynamicInfoChecker.isSimilarAngle(angle1C, angle2C, threshold1C));
 	}
 	
 	@Test
@@ -61,12 +59,12 @@ public class DynamicInfoCheckerTest {
 	
 	@Test
 	public void getAngleFromOriginTest(){
-		Point2D.Double origin1= new Point2D.Double(33.0,23.0);
-		Point2D.Double targetPosition1= new Point2D.Double(22.0,12.0);
-
-		
-		Point2D.Double origin2= new Point2D.Double(120.0,130.0);
-		Point2D.Double targetPosition2= new Point2D.Double(89.0,20.0);
+//		Point2D.Double origin1= new Point2D.Double(33.0,23.0);
+//		Point2D.Double targetPosition1= new Point2D.Double(22.0,12.0);
+//
+//		
+//		Point2D.Double origin2= new Point2D.Double(120.0,130.0);
+//		Point2D.Double targetPosition2= new Point2D.Double(89.0,20.0);
 		
 	}	
 }

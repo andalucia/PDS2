@@ -1,13 +1,12 @@
 package group2.sdp.pc.globalinfo;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
+
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.Point;
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
-
-import group2.sdp.pc.breadbin.*;
 
 /**
  * Contains various functions all performed on DynamicInfo
@@ -15,15 +14,15 @@ import group2.sdp.pc.breadbin.*;
  */
 public class DynamicInfoChecker {
 
-	private DynamicInfo dynamicInfo;
-	private DynamicRobotInfo alfieInfo;
-	private DynamicRobotInfo opponentInfo;
-	private DynamicBallInfo ballInfo;
+//	private DynamicInfo dynamicInfo;
+//	private DynamicRobotInfo alfieInfo;
+//	private DynamicRobotInfo opponentInfo;
+//	private DynamicBallInfo ballInfo;
 	private GlobalInfo globalInfo;
 
 	public DynamicInfoChecker(GlobalInfo globalInfo, DynamicInfo dynamicInfo) {
 		this.globalInfo = globalInfo;
-		this.dynamicInfo = dynamicInfo;
+//		this.dynamicInfo = dynamicInfo;
 	}
 
 	/**
@@ -151,7 +150,7 @@ public class DynamicInfoChecker {
 	 * @return
 	 */
 	public boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+//		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
 
 		double goalX = 		
 			globalInfo.isAttackingRight() 

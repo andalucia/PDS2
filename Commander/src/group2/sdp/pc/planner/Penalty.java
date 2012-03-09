@@ -1,7 +1,6 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -12,7 +11,7 @@ public class Penalty implements DynamicInfoConsumer {
 	/**
 	 * true when penalty mode is running
 	 */
-	private boolean running;
+//	private boolean running;
 
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 

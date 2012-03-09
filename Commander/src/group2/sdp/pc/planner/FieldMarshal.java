@@ -6,7 +6,6 @@ import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
-import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
@@ -118,11 +117,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				//check if opponent is blocking our path
 				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
 						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
-						&& dynamicInfoChecker.isSimilarAngle(alfieFacing,dynamicInfoChecker.getAngleFromOrigin(alfiePosition, middleOfGoal),15)
+						&& DynamicInfoChecker.isSimilarAngle(alfieFacing,DynamicInfoChecker.getAngleFromOrigin(alfiePosition, middleOfGoal),15)
 						|| defensiveRobotCheckpointing){
 					System.out.println("CHECKPOINTING");
 					if (!defensiveRobotCheckpointing) {
-						defensiveRobotCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
+						defensiveRobotCheckpoint = DynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
 					} if (defensiveRobotCheckpoint.distance(alfiePosition) < 10) {
 						defensiveRobotCheckpointing = false;
 						return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
@@ -151,7 +150,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 						|| defensiveBallCheckpointing){
 					System.out.println("CHECKPOINTING");
 					if (!defensiveBallCheckpointing) {
-						defensiveBallCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
+						defensiveBallCheckpoint = DynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
 					} if (defensiveBallCheckpoint.distance(alfiePosition) < 10) {
 						defensiveBallCheckpointing = false;
 						return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
@@ -208,11 +207,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 				// check if enemy robot is in the way
 				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
 						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
-						&& dynamicInfoChecker.isSimilarAngle(alfieFacing,dynamicInfoChecker.getAngleFromOrigin(alfiePosition, ballPosition),15)
+						&& DynamicInfoChecker.isSimilarAngle(alfieFacing,DynamicInfoChecker.getAngleFromOrigin(alfiePosition, ballPosition),15)
 						|| offensiveCheckpointing){
 					System.out.println("CHECKPOINTING");
 					if (!offensiveCheckpointing) {
-						offensiveCheckpoint = dynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
+						offensiveCheckpoint = DynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
 					} if (offensiveCheckpoint.distance(alfiePosition) < 10) {
 						offensiveCheckpointing = false;
 						return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);

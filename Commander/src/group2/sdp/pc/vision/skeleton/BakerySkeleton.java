@@ -1,10 +1,14 @@
 package group2.sdp.pc.vision.skeleton;
 
-import group2.sdp.pc.breadbin.*;
+import group2.sdp.pc.breadbin.DynamicBallInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticInfo;
+import group2.sdp.pc.breadbin.StaticInfoHistory;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.util.LinkedList;
-
-import lejos.geom.Point;
 
 /**
  * This class consumes static information about the pitch from an image 

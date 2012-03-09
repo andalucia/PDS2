@@ -98,7 +98,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private void executeOperationReallocation(OperationReallocation currentCommand) {
 		Point2D targetPosition = currentCommand.getTarget();
 		Point2D alfiePosition = currentCommand.getOrigin();
-		Point2D enemyPosition = currentCommand.getOpponent();
+//		Point2D enemyPosition = currentCommand.getOpponent();
 		double alfieDirection = currentCommand.getFacingDirection();
 
 		int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, alfiePosition, alfieDirection);

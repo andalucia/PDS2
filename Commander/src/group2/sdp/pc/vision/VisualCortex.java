@@ -4,14 +4,13 @@ import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.LCHColourSettings.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
-import group2.sdp.pc.vision.skeleton.VisualCortexSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
+import group2.sdp.pc.vision.skeleton.VisualCortexSkeleton;
 
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Float;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -66,11 +65,12 @@ public class VisualCortex extends VisualCortexSkeleton {
 	private ArrayList<Point> newPixels;
 
 	//values to return
-	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
+	private Point blueCentroid, yellowCentroid, ballCentroid;
+//	private Point plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 	
 	// TODO: think of a better name/way of doing this
-	private boolean isYellowRobotRightGoal = true;
+//	private boolean isYellowRobotRightGoal = true;
 	
 	private final int EXPECTED_ROBOT_SIZE = 400;
 	private final int EXPECTED_BALL_SIZE = 120;
@@ -847,7 +847,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 			int xh = c.x - 100;
 			int x = c.x;
-			int y = c.y;
+//			int y = c.y;
 
 			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
 			while (x > xh) {
@@ -862,7 +862,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 			int xh = c.x + 100;
 			int x = c.x;
-			int y = c.y;
+//			int y = c.y;
 
 			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
 			while (x < xh) {

@@ -7,29 +7,24 @@ import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.Penalty;
+import group2.sdp.pc.vision.Artist;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.Eye;
-import group2.sdp.pc.vision.Artist;
 import group2.sdp.pc.vision.VisualCortex;
 import group2.sdp.pc.vision.VisualCortex.OutputMode;
-import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -79,8 +74,8 @@ public class CommanderControlStation {
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
 	private Button penaltyButton;
-	private Button robotPositionButtonLeft;
-	private Button robotPositionButtonRight;
+//	private Button robotPositionButtonLeft;
+//	private Button robotPositionButtonRight;
 	private Button goalieButton;
 	
 	private JLabel visionLabel;
