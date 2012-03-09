@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 

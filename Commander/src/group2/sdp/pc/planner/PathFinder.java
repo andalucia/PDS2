@@ -2,12 +2,10 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
-import group2.sdp.pc.planner.operation.Operation;
-import group2.sdp.pc.planner.operation.OperationCharge;
-import group2.sdp.pc.planner.operation.OperationOverload;
-import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.sdp.pc.planner.operation.OperationStrike;
+import group2.sdp.pc.planner.operation.*;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
@@ -30,9 +28,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 
 	private static final int MAX_SPEED = 54;
-	private static final int CRUISING_SPEED = 35;
-	private static final int TURNING_SPEED = 54;	
-
+	private static final int CRUISING_SPEED = 10;
+	private static final int TURNING_SPEED = 10;	
+	private static final int MOVING_KICK_SPEED = 25;
 	
 	int movetype =0;
 	
@@ -62,11 +60,12 @@ public class PathFinder implements DynamicInfoConsumer {
 	 */
 	private Operation currentOperation; 
 
-	/**
-	 * If Alfie is turning right now.
-	 */
-	private boolean turning;
+	private GlobalInfo globalInfo;
 
+	/**
+	 * Used to perform functions on the DynamicInfo
+	 */
+	private DynamicInfoChecker dynamicInfoChecker;
 	
 	/**
 	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
@@ -74,7 +73,8 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * @param alfieServer The initialised bluetooth server or the simulator object
 	 */
-	public PathFinder(MouthInterface alfieServer) {
+	public PathFinder(GlobalInfo globalInfo,MouthInterface alfieServer) {
+		this.globalInfo = globalInfo;
 		this.alfieServer = alfieServer;
 	}
 
@@ -101,7 +101,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		Point2D enemyPosition = currentCommand.getOpponent();
 		double alfieDirection = currentCommand.getFacingDirection();
 
-		int angleToTurn = (int)getAngleToTarget(targetPosition, alfiePosition, alfieDirection);
+		int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, alfiePosition, alfieDirection);
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
 		int threshold;
 
@@ -125,7 +125,10 @@ public class PathFinder implements DynamicInfoConsumer {
 					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
 				}
 			} else {
-				alfieServer.sendSpinLeft(TURNING_SPEED, angleToTurn -10);
+				alfieServer.sendSpinLeft(TURNING_SPEED, Math.abs(angleToTurn)-10);
+				if(VERBOSE) {
+					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
+				}
 				if(VERBOSE) {
 					System.out.println("Turning left " + angleToTurn + " degrees");
 				}
@@ -134,11 +137,11 @@ public class PathFinder implements DynamicInfoConsumer {
 			// Alfie is facing the ball: go forwards
 			
 			//adding in stuff to avoid other player
-			if((alfiePosition.distance(enemyPosition)<50)&&(FieldMarshal.isSimilarAngle(FieldMarshal.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
-				System.out.println("ENEMY CLOSE SIT STILL");
-				alfieServer.sendStop();
-				return;
-			}
+//			if((alfiePosition.distance(enemyPosition)<35)&&(dynamicInfoChecker.isSimilarAngle(dynamicInfoChecker.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
+//				System.out.println("ENEMY CLOSE SIT STILL");
+//				alfieServer.sendStop();
+//				return;
+//			}
 			movetype = 2;
 			alfieServer.sendGoForward(CRUISING_SPEED, 0);
 			if(VERBOSE) {
@@ -158,7 +161,8 @@ public class PathFinder implements DynamicInfoConsumer {
 		// between the ball and the goal, so that it has time to shoot before it is facing 
 		// the goal
 		//double distance = (currentCommand.getAlfie().distance(currentCommand.getMiddle()));
-		alfieServer.sendForwardArcLeft((int)(5), 45);
+		//alfieServer.sendForwardArcLeft((int)(5), 45);
+		System.err.println("HOW DID WE GET HERE.");
 	}
 
 	/**
@@ -167,7 +171,20 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * @param currentCommand Contains absolutely no useful information at all
 	 */	
 	private void executeOperationStrike(OperationStrike currentCommand) {
+		alfieServer.sendGoForward(MOVING_KICK_SPEED, 22);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		alfieServer.sendKick(MAX_SPEED);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -177,43 +194,11 @@ public class PathFinder implements DynamicInfoConsumer {
 		alfieServer.sendStop();
 	}
 
-	/**
-	 * This function finds the smallest angle between Alfie and his target.
-	 * 
-	 * @param targetPosition Position of the target.
-	 * @param alfiePosition Position of Alfie.
-	 * @param facingDirection The angle Alfie is facing.
-	 * 
-	 * @return The angle to turn at.
-	 */
-	protected static double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
-		double dx = (targetPosition.getX() - alfiePosition.getX());
-		double dy = (targetPosition.getY() - alfiePosition.getY());
-
-		double angle = Math.toDegrees(Math.atan2(dy, dx));
-
-		if (angle < 0) {
-			angle = 360 + angle;
-		}
-		double result = angle - facingDirection;
-		// Variables angle and facingDirection are between 0 and 360. Thus result is 
-		// between -360 and 360. We need to normalize to -180 and 180. 
-		if (result < -180) {
-			result += 360;
-		} else if (result > 180) {
-			result -= 360;
-		}
-		return result;
-	}
 
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
 		//TODO act upon all commands correctly
-
-		/*
-		 * OperationReallocation should either make Alfi spin until he is facing his target or move forward
-		 * until he is within STOP_TURNING_ERROR_THRESHOLD 
-		 */
+		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
 		if (currentOperation instanceof OperationReallocation) {
 
 			if (VERBOSE) { 
@@ -226,7 +211,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			Point2D targetPosition = cmd.getTarget();
 
 			// Calculate the angle between the ball and the target (usually the ball)
-			int angleToTurn = (int) getAngleToTarget(targetPosition, 
+			int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, 
 					dpi.getAlfieInfo().getPosition(), 
 					dpi.getAlfieInfo().getFacingDirection());
 			
@@ -234,7 +219,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			newAngle = angleToTurn;
 			
 			if (VERBOSE) {
-				System.out.println("Target at " + angleToTurn + " degrees");
+				//System.out.println("Target at " + angleToTurn + " degrees");
 			}
 
 			/*
@@ -244,7 +229,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			switch(movetype){
 			
 			case(0):
-				System.out.println("why are you here!!!!");
+				//System.out.println("why are you here!!!!");
 				cmd = new OperationReallocation(cmd.getTarget(), 
 						dpi.getAlfieInfo().getPosition(), 
 						dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
@@ -254,14 +239,14 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 			//turning case
 			case(1):
-				System.out.println("we are turning");
+				//System.out.println("we are turning");
 				
 			
 				if(Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD){
 					if(VERBOSE) {
-						System.out.println("Alfie is facing the correct direction!");
+						//System.out.println("Alfie is facing the correct direction!");
 					}
-					System.out.println("we are facing the right way");
+					//System.out.println("we are facing the right way");
 					// Create new OperationReallocation command which should make Alfi move forward
 					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
@@ -271,7 +256,7 @@ public class PathFinder implements DynamicInfoConsumer {
 					executeOperationReallocation(cmd);
 				} else {
 					if(oldAngle<newAngle){
-						System.out.println("the old angle was smaller than the new angle");
+						//System.out.println("the old angle was smaller than the new angle");
 						cmd = new OperationReallocation(cmd.getTarget(), 
 								dpi.getAlfieInfo().getPosition(), 
 								dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
@@ -286,9 +271,9 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 			// moving case
 			case(2):
-				System.out.println("we are currently moving forward");
+				//System.out.println("we are currently moving forward");
 				if(Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD ){
-					System.out.println("we are currently moving but angle is out");
+					//System.out.println("we are currently moving but angle is out");
 					cmd = new OperationReallocation(cmd.getTarget(), 
 							dpi.getAlfieInfo().getPosition(), 
 							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
@@ -296,15 +281,17 @@ public class PathFinder implements DynamicInfoConsumer {
 					// Perform the Alfie magic!
 					executeOperationReallocation(cmd);
 				}
-				Point2D alfiePosition = dpi.getAlfieInfo().getPosition();
-				Point2D enemyPosition = dpi.getOpponentInfo().getPosition();
-				double alfieDirection = dpi.getAlfieInfo().getFacingDirection();
-				
-				if((alfiePosition.distance(enemyPosition)<50)&&(FieldMarshal.isSimilarAngle(FieldMarshal.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
-					System.out.println("ENEMY CLOSE SIT STILL");
-					alfieServer.sendStop();
-					return;
-				}
+				//System.out.println("Previously we would sit still here");
+				executeOperationReallocation(cmd);
+//				Point2D alfiePosition = dpi.getAlfieInfo().getPosition();
+//				Point2D enemyPosition = dpi.getOpponentInfo().getPosition();
+//				double alfieDirection = dpi.getAlfieInfo().getFacingDirection();
+//				
+//				if((alfiePosition.distance(enemyPosition)<50)&&(dynamicInfoChecker.isSimilarAngle(dynamicInfoChecker.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
+//					System.out.println("ENEMY CLOSE SIT STILL");
+//					alfieServer.sendStop();
+//					return;
+//				}
 				break;
 			}
 				

@@ -8,6 +8,8 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
+import lejos.geom.Point;
+
 /**
  * An abstract implementation of the class processing image data and producing static pitch info.
  */
@@ -58,13 +60,22 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 		
 		long time = System.currentTimeMillis();
 		Point2D ballPosition = extractBallPosition(image);
+		if (ballPosition == null) {
+			ballPosition = new Point(0,0);
+		}
 		StaticBallInfo ballInfo = new StaticBallInfo(ballPosition,time);
 		
 		Point2D alfiePosition = extractAlfiePosition(image);
 		double alfieFacingDirection = extractAlfieFacingDirection(image);
+		if (alfiePosition == null) {
+			alfiePosition = new Point(0,0);
+		}
 		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true, time);
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
+		if (opponentPosition == null) {
+			opponentPosition = new Point(0,0);
+		}
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
 		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false, time);		
 		

@@ -1,9 +1,13 @@
+
 package group2.simulator.starter;
 
 import group2.sdp.common.util.Tools;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.Pitch;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
@@ -44,6 +48,7 @@ import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
 
 public class SimulatorI implements MouthInterface {
+	
 
 	/** The frame displaying the simulation */
 	
@@ -74,10 +79,14 @@ public class SimulatorI implements MouthInterface {
 
 	private Overlord planner;
 	private PathFinder executor;
+	private DynamicInfoChecker dynamicInfoChecker;
 	private final Lock commandLock = new ReentrantLock();
+	
+	public static final Color pitchColor = new Color(0, 150, 0);
 	
 	
 	private static Boolean isGoal;
+	GlobalInfo globalInfo;
 
 	/** The title of the simulation */
 	private String title;
@@ -115,22 +124,30 @@ public class SimulatorI implements MouthInterface {
 
 		SimulatorI.robotState = new RobotState();
 		
-		executor = new PathFinder(this);
+		globalInfo = new GlobalInfo(false, true, Pitch.TWO);
 		
-		//System.out.println("initial speed of travel for robot state is" + SimulatorI.robotState.getSpeedOfTravel());
+		
+		executor = new PathFinder(globalInfo,this);
+		
 		
 		Timer imageGrabberTimer = new Timer();
 		imageGrabberTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				DynamicInfo dpi = generateDynamicInfo();
+				dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
+							
 				executor.setOperation(
-					new OperationReallocation(
+						new OperationReallocation(
 						dpi.getBallInfo().getPosition(), 
 						dpi.getAlfieInfo().getPosition(), 
 						dpi.getAlfieInfo().getFacingDirection(), dpi.getOpponentInfo().getPosition()
 					)
+						
 				);
+				executor.consumeInfo(dpi);
+				
+				
 			}
 		}, 0, 100);
 		
@@ -138,7 +155,6 @@ public class SimulatorI implements MouthInterface {
 		timeSimulatorTimer.scheduleAtFixedRate(new TimerTask() {
 			  @Override
 			  public void run() {
-				//System.out.println(SimulatorI.robotState.getCurrentMovement());
 			    
 			    switch (SimulatorI.robotState.getCurrentMovement()) {
 				case DO_NOTHING:
@@ -155,11 +171,9 @@ public class SimulatorI implements MouthInterface {
 					break;
 				case SPIN_RIGHT:
 					SimulatorI.robot.turn((int)SimulatorI.robotState.getAngleOfRotation());
-					System.out.println("!!!! angle to rotate is  " +(int)SimulatorI.robotState.getAngleOfRotation());
 					break;
 				case SPIN_LEFT:
 					SimulatorI.robot.turn((int)SimulatorI.robotState.getAngleOfRotation());
-					System.out.println("!!!to rotate is  " +(int)SimulatorI.robotState.getAngleOfRotation());
 					break;
 				}
 			  }
@@ -171,7 +185,7 @@ public class SimulatorI implements MouthInterface {
 	private DynamicInfo generateDynamicInfo() {
 		long start = System.currentTimeMillis();
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 0,start);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 10,start);
 		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
 		DynamicInfo dpi = new DynamicInfo(dball, dalfie, dopp);
 		return dpi;
@@ -191,9 +205,9 @@ public class SimulatorI implements MouthInterface {
 		int newBallStartX = ballStartX;
 
 	
-		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY , 70, 50, Color.BLUE, blueImage, 0),
+		SimulatorI simulatoor = new SimulatorI (world,new Robot(newRobotStartX, robotStartY+23 , 70, 50, Color.BLUE, blueImage, 0),
 				new Robot(newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW, yellowImage, 180),
-				new Ball(newBallStartX, ballStartY+30, 10, Color.RED, 15));
+				new Ball(newBallStartX, ballStartY, 10, Color.RED, 15));
 		System.out.println("simulator created");
 	}
 
@@ -210,7 +224,7 @@ public class SimulatorI implements MouthInterface {
 			  // initialise the simulator
 
 			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-			g.setColor(Color.pink);
+			g.setColor(pitchColor);
 
 			g.fillRect(0,0,(boardWidth + 2*padding),(boardHeight + 2*padding));
 			BoardObject.draw(g, world);  // draw the object in the world
@@ -242,6 +256,7 @@ public class SimulatorI implements MouthInterface {
 		frame.setTitle("Alfie Simulator");
 		frame.setVisible(true);
 		frame.setFocusable(true);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		
 		//Me messing with buttons, no need for them now
@@ -268,15 +283,16 @@ public class SimulatorI implements MouthInterface {
 		});*/
 		
 		frame.addWindowListener(new WindowAdapter() {
+			
 			public void windowClosing(WindowEvent e) {
 				running = false;
-				System.exit(0);
+				System.exit(0);				
 			}
-			public void windowClosed(WindowEvent arg0) {
-	            	
+			public void windowClosed(WindowEvent arg0) {			
+				System.exit(0);
 	        }
-			public void windowOpened(WindowEvent arg0) {
-            	
+			public void windowOpened(WindowEvent arg0) {				
+				
             }
 		});
 		
@@ -292,7 +308,7 @@ public class SimulatorI implements MouthInterface {
 	private static void initSimulation() {
 		world.clear();
 		world.setGravity(0, 0);
-		ball.stop();
+		//ball.stop();
 
 		float newOppRobotStartX = oppRobot.getX();
 		float newOppRobotStartY = oppRobot.getY();
@@ -425,10 +441,10 @@ public class SimulatorI implements MouthInterface {
 							System.exit(0);
 							break;
 					case KeyEvent.VK_UP :	
-							oppRobot.moveForwards(world, ball.getBody());
+							oppRobot.move(world, ball.getBody(), 2);
 							break;
 					case KeyEvent.VK_DOWN :	
-							oppRobot.moveBackward(world, ball.getBody());
+							oppRobot.move(world, ball.getBody(), -2);
 							break;
 					case KeyEvent.VK_RIGHT:
 							oppRobot.turn(10);
@@ -514,7 +530,9 @@ public class SimulatorI implements MouthInterface {
 	
 	@Override
 	public void sendStop() {
-		// TODO Auto-generated method stub
+		while (!commandLock.tryLock());
+		robotState.setCurrentMovement(RobotState.Movement.DO_NOTHING);
+		commandLock.unlock();
 		
 	}
 
@@ -528,19 +546,24 @@ public class SimulatorI implements MouthInterface {
 		commandLock.unlock();
 	}
 
-	private int convertSpeed(int speed) {
-		return Tools.sanitizeInput(speed, 0, 54);
-	}
+
 
 	@Override
 	public void sendGoBackwards(int speed, int distance) {
-		// TODO Auto-generated method stub
+		while (!commandLock.tryLock());
+		
+		speed = convertSpeed(speed);
+		robotState.setCurrentMovement(RobotState.Movement.GOING_BACKWARDS);
+		robotState.setSpeedOfTravel(speed);
+		commandLock.unlock();
 		
 	}
 
 	@Override
 	public void sendKick(int power) {
-		// TODO Auto-generated method stub
+		while (!commandLock.tryLock());
+		robotState.setCurrentMovement(RobotState.Movement.KICK);
+		commandLock.unlock();
 		
 	}
 
@@ -548,9 +571,7 @@ public class SimulatorI implements MouthInterface {
 	public void sendSpinLeft(int speed, int angle) {
 		while (!commandLock.tryLock());
 		robotState.setAngleOfRotation(angle);
-		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);
-		
-//		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
+		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);		
 		robot.turn(angle);
 		commandLock.unlock();
 	}
@@ -561,14 +582,22 @@ public class SimulatorI implements MouthInterface {
 		
 		robotState.setAngleOfRotation(-angle);
 		robotState.setCurrentMovement(RobotState.Movement.SPIN_RIGHT);
-//		System.out.println("robot state current movement is " + RobotState.getCurrentMovement());
 		robot.turn(-angle);
 		commandLock.unlock();
 	}
+
+
 
 	@Override
 	public void sendForwardArcLeft(float radius, int angle) {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	private int convertSpeed(int speed) {
+		return Tools.sanitizeInput(speed, 0, 54);
+	}
+	
+
+
 }

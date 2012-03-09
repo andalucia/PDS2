@@ -26,7 +26,7 @@ public class Ear {
 	 */
 	private static DataOutputStream dos;
 	
-	public static void main(String [] args)  throws Exception 
+	public static void main(String [] args) 
 	{
 		String connected = "Connected";
         String waiting = "Waiting...";
@@ -63,16 +63,21 @@ public class Ear {
 					reset = true;
 				}
 			}
-		
-			dis.close();
-			dos.close();
-			Thread.sleep(100); // wait for data to drain
+
+	        try {
+				dis.close();
+				dos.close();
+				Thread.sleep(100); // wait for data to drain
+	        } catch (Exception exc) {
+	        	// Ignore, the connection is already closed.
+	        }
 			LCD.clear();
 			LCD.drawString(closing,0,0);
 			LCD.refresh();
 			btc.close();
 			LCD.clear();
 		}
+		
 	}
 	
 	/**

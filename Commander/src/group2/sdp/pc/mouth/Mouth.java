@@ -14,7 +14,7 @@ import lejos.pc.comm.NXTConnector;
  */
 public class Mouth implements MouthInterface {
 
-	private final boolean verbose = true;
+	private final boolean verbose = false;
 	
 	private String nxtAddress = "btspp://group2";
 	
@@ -56,20 +56,24 @@ public class Mouth implements MouthInterface {
 		dis = conn.getDataIn();
 	}
 	
+	public void cleanup() {
+		try {
+			dis.close();
+			dos.close();
+			conn.close();
+		} catch (IOException e) {
+			System.out.println("IOException closing connection:");
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	/**
 	 * Called when the object is garbage-collected. Closes the connections.
 	 */
 	@Override
 	protected void finalize() throws Throwable {
-		try {
-			sendStop();
-			dis.close();
-			dos.close();
-			conn.close();
-		} catch (IOException ioe) {
-			System.out.println("IOException closing connection:");
-			System.out.println(ioe.getMessage());
-		}
+		sendStop();
+		cleanup();
 		super.finalize();
 	}
 	

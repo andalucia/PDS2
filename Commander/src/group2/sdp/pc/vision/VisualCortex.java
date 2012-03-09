@@ -1,5 +1,6 @@
 package group2.sdp.pc.vision;
 
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.LCHColourSettings.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
@@ -10,6 +11,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Float;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -53,7 +55,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	*/
 	private BufferedImage backgroundImage;
 
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 	
 	private String backgroundFileName = "background.png";
 	private boolean saveBackground = false;
@@ -691,6 +693,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			globalInfo.getPitch().getMinimumEnclosingRectangle();
 		Rectangle pitchImageRectangle = 
 			globalInfo.getCamera().getPitchCrop();
+		
 		double x = linearRemap(point.getX(), 
 				pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
 				pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
@@ -698,7 +701,55 @@ public class VisualCortex extends VisualCortexSkeleton {
 				pitchImageRectangle.getMinY(), pitchImageRectangle.getHeight(), 
 				pitchPhysicalRectangle.getMinY(), pitchPhysicalRectangle.getHeight());
 		p.setLocation(x, -y);
+		
 		return p;
+	}
+	
+	/**
+	 * Corrects the position of a robot. The converted position is our initial
+	 * estimation of the position, assuming the plate lies on the pitch. There 
+	 * is an error proportional to the distance of the robot from the centre
+	 * of the pitch. This is corrected in this function. Here is a rough 
+	 * sketch:
+	 * Camera
+	 *   .
+	 *   |\
+	 *   | \
+	 *   |  \
+	 * H |   \
+	 *   |____\  <- robot centroid.
+	 *   |   h|\ 
+	 *   |____|_\
+	 *       delta  
+	 *      d
+	 *      
+	 * @param robotPosition The pixel position of the robot. 
+	 * @param convertedPosition The converted position of the robot, before correction.
+	 * @param height The height of the robot.
+	 * @return The corrected position of the robot.
+	 */
+	private Point2D correctRobotPosition(Point robotPosition,
+			Point2D convertedPosition, double height) {
+		
+		Rectangle pitchImageRectangle = 
+			globalInfo.getCamera().getPitchCrop();
+		
+		// Correction
+		double H = globalInfo.getCamera().getDistanceFromPitch();
+		double h = height;
+		double d = 
+			robotPosition.distance(
+					pitchImageRectangle.getCenterX(), 
+					pitchImageRectangle.getCenterY()
+			);
+		double delta = d * h / H;
+		double quotient = (d - delta) / d;
+		Point2D result = 
+			new Point2D.Float(
+					(float) (convertedPosition.getX() * quotient),
+					(float) (convertedPosition.getY() * quotient)
+			);
+		return result;
 	}
 
 	/**
@@ -844,7 +895,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
-		if (ballCentroid == null) {
+		if (ballCentroid == null || ballCentroid.getLocation() == null) {
 			return null;
 		}
 		return convertPixelsToCm(ballCentroid);
@@ -852,17 +903,19 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 	@Override
 	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
-		if (yellow) {
-			if (yellowCentroid == null) {
-				return null;
-			}
-			return convertPixelsToCm(yellowCentroid);
-		} else {
-			if (blueCentroid == null) {
-				return null;
-			}
-			return convertPixelsToCm(blueCentroid);
+		Point robotPosition = yellow 
+			? yellowCentroid
+			: blueCentroid;
+		if (robotPosition == null) {
+			return null;
 		}
+		Point2D convertedPosition = convertPixelsToCm(robotPosition);
+		return 
+			correctRobotPosition(
+					robotPosition, 
+					convertedPosition, 
+					StaticRobotInfo.getHeight()
+			);
 	}
 
 	@Override
