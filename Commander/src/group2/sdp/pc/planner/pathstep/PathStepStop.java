@@ -12,6 +12,11 @@ package group2.sdp.pc.planner.pathstep;
  */
 public class PathStepStop implements PathStep {
 
+	public PathStepStop(){
+		
+	}
+	
+	
 	@Override
 	public Type getType() {
 		return Type.STOP;

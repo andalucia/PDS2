@@ -1,36 +1,35 @@
 package group2.sdp.pc.planner.pathstep;
 
+
 /**
  * 
  * 
  * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
  *
- * Act: Tell Alfie to start moving backwards in an anti-clock-wise arc, specifying the radius and
- * angle of the arc. Thus the centre of the arc should be at the left hand side of Alfie.
+ * Act: Tell Alfie to start moving forward in an clock-wise arc, specifying the radius and
+ * angle of the arc. Thus the centre of the arc should be at the right hand side of Alfie.
  * 
  * Parameters:
  * Radius and angle of the arc and threshold distance. (Target position should be
  * computed on construction of the Arc Forward Left object.)
  * 
  */
-public class PathStepArcBackWardsLeft implements PathStep {
+public class PathStepArcForWardsRight implements PathStep {
 	
 	private int radius;
 	private int angle;
 	private int threshold;
 	
-	public PathStepArcBackWardsLeft(int radius, int angle, int threshold){
+	public PathStepArcForWardsRight(int radius, int angle, int threshold){
 		this.angle = angle;
 		this.radius = radius;
 		this.threshold = threshold;
 	}
 	
-	
 	@Override
 	public Type getType() {
-		return Type.ARC_BACKWARDS_LEFT;
+		return Type.ARC_FORWARDS_RIGHT;
 	}
-	
 
 	
 	public int getAngle(){
@@ -48,7 +47,7 @@ public class PathStepArcBackWardsLeft implements PathStep {
 	
 	/**
 	 * Succeed:
-	 * If Alfie is within the specified threshold distance from the target position.
+	 *	  If Alfie is within the specified threshold distance from the target position.
 	 */
 	@Override
 	public boolean isSuccessful() {
@@ -73,4 +72,5 @@ public class PathStepArcBackWardsLeft implements PathStep {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
 }

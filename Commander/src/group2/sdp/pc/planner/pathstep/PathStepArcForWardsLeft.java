@@ -5,7 +5,7 @@ package group2.sdp.pc.planner.pathstep;
  * 
  * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
  *
- * Act: Tell Alfie to start moving backwards in an anti-clock-wise arc, specifying the radius and
+ * Act: Tell Alfie to start moving forward in an anti-clock-wise arc, specifying the radius and
  * angle of the arc. Thus the centre of the arc should be at the left hand side of Alfie.
  * 
  * Parameters:
@@ -13,25 +13,25 @@ package group2.sdp.pc.planner.pathstep;
  * computed on construction of the Arc Forward Left object.)
  * 
  */
-public class PathStepArcBackWardsLeft implements PathStep {
-	
+
+public class PathStepArcForWardsLeft implements PathStep {
+
 	private int radius;
 	private int angle;
 	private int threshold;
 	
-	public PathStepArcBackWardsLeft(int radius, int angle, int threshold){
+	public PathStepArcForWardsLeft(int radius, int angle, int threshold){
 		this.angle = angle;
 		this.radius = radius;
 		this.threshold = threshold;
 	}
 	
-	
 	@Override
 	public Type getType() {
-		return Type.ARC_BACKWARDS_LEFT;
+		return Type.ARC_FORWARDS_LEFT;
 	}
 	
-
+	
 	
 	public int getAngle(){
 		return this.angle;
@@ -73,4 +73,7 @@ public class PathStepArcBackWardsLeft implements PathStep {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	
+	
 }

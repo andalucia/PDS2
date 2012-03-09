@@ -2,25 +2,25 @@ package group2.sdp.pc.planner.pathstep;
 
 import java.awt.geom.Point2D;
 
-
 /**
  * 
- * @author  Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
+ * 
+ * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
  *
- * Act: Start moving backwards, possibly specifying the distance to be covered (but not
- * speed as this messes up arc movement).
+ * Act: Tell Alfie to start moving forward, possibly specifying the distance to be covered
+ * (but not speed as this messes up arc movement).
  * 
  * Parameters:
  * A position to reach, threshold distance for success, threshold angle for failure.
  * 
  */
-public class PathStepGoBackWards implements PathStep {
-
+public class PathStepGoForWards implements PathStep {
+	
 	private Point2D destination;
 	private int distance;
 	private int threshold;
 	
-	public PathStepGoBackWards(Point2D destination, int distance, int threshold){
+	public PathStepGoForWards(Point2D destination, int distance, int threshold){
 		this.destination = destination;
 		this.distance = distance;
 		this.threshold = threshold;
@@ -28,10 +28,9 @@ public class PathStepGoBackWards implements PathStep {
 	
 	@Override
 	public Type getType() {
-		return Type.GO_BACKWARDS;
+		return Type.GO_FORWARDS;
 	}
-	
-	
+
 	
 	public Point2D getDestination(){
 		return this.destination;
@@ -44,9 +43,11 @@ public class PathStepGoBackWards implements PathStep {
 	public int getThreshold(){
 		return this.threshold;
 	}
+	
+	
 	/**
 	 * Succeed:
-	 * If Alfie is within the specified threshold distance from the target point.
+ 	 * If Alfie is within the specified threshold distance from the target point.
 	 */
 	@Override
 	public boolean isSuccessful() {
@@ -57,8 +58,8 @@ public class PathStepGoBackWards implements PathStep {
 
 	/**
 	 *
-     * Fail: If Alfie's facing direction is not within the specified threshold angle from the same
-     * point.
+	 * Fail: If Alfie's facing direction is not within the specified threshold angle from the same
+	 * point.
 	 */
 	@Override
 	public boolean problemExists() {
@@ -66,4 +67,6 @@ public class PathStepGoBackWards implements PathStep {
 		//Coming soon Logic!
 		return false;
 	}
+
+	
 }

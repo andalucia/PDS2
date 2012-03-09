@@ -12,6 +12,10 @@ package group2.sdp.pc.planner.pathstep;
  */
 public class PathStepKick implements PathStep {
 
+	public PathStepKick () {
+		
+	}
+	
 	@Override
 	public Type getType() {
 		return Type.KICK;
