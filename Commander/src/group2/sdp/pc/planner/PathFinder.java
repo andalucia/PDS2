@@ -201,22 +201,22 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 		case ARC_FORWARDS_LEFT:
 			PathStepArcForwardsLeft arcForwardsLeft = (PathStepArcForwardsLeft) currentStep;
-			mouth.sendForwardArcLeft(arcForwardsLeft.getRadius(), arcForwardsLeft.getAngle);
+			mouth.sendForwardArcLeft(arcForwardsLeft.getRadius(), arcForwardsLeft.getAngle());
 			break;
 			
 		case ARC_FORWARDS_RIGHT:
 			PathStepArcForwardsRight arcForwardsRight = (PathStepArcForwardsRight) currentStep;
-			mouth.sendForwardArcRight(arcForwardsRight.getRadius(), arcForwardsRight.getAngle);
+			mouth.sendForwardArcRight(arcForwardsRight.getRadius(), arcForwardsRight.getAngle());
 			break;
 			
 		case ARC_BACKWARDS_LEFT:
 			PathStepArcBackWardsLeft arcBackwardsLeft = (PathStepArcBackWardsLeft) currentStep;
-			mouth.sendBackwardArcLeft(arcBackwardsLeft.getRadius(), arcBackwardsLeft.getAngle);
+			mouth.sendBackwardArcLeft(arcBackwardsLeft.getRadius(), arcBackwardsLeft.getAngle());
 			break;
 			
 		case ARC_BACKWARDS_RIGHT:
 			PathStepArcBackWardsRight arcBackwardsRight = (PathStepArcBackWardsRight) currentStep;
-			mouth.sendBackwardArcRight(arcBackwardsRight.getRadius(), arcBackwardsRight.getAngle);
+			mouth.sendBackwardArcRight(arcBackwardsRight.getRadius(), arcBackwardsRight.getAngle());
 			break;
 			
 		case KICK:
