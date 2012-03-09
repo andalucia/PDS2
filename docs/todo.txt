@@ -15,24 +15,9 @@ Working things:
  9. Dynamic Info, and
 10. Eye.
 
-Awaiting approval:
- None yet.
-
 TODO:
- 1. Static Robot Info: copy the information from the design.txt to the 
-     javadoc of the class; add ball possession information (boolean),
- 2. Dynamic Robot Info: copy the information from the design.txt to the 
-     javadoc of the class; add turning speed (double; degrees per second) 
-     and turning direction (boolean; clock-wise / anti-clock-wise),
- 3. Bakery: copy the information from the design.txt to the javadoc of the 
-     class; audit code and see what should be modified so it adheres to the
-     design,
- 4. Visual Cortex: copy the information from the design.txt to the javadoc 
-     of the class; audit code and see what should be modified so it adheres 
-     to the design,
  5. Strategy: add comments from the design.txt to the code,
  6. Operation: add comments from the design.txt to the code,
- 7. Path Step: create according to the design - use Operation as a template,
  8. Overlord: copy the information from the design.txt to the javadoc of the
      class; audit code and see what should be modified so it adheres to the 
      design,

@@ -40,5 +40,4 @@ public class PathStepStop implements PathStep {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
 }

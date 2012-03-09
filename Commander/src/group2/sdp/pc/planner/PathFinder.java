@@ -1,7 +1,4 @@
-
 package group2.sdp.pc.planner;
-
-import java.util.LinkedList;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
@@ -17,14 +14,15 @@ import group2.sdp.pc.planner.pathstep.PathStepGoForwards;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
-import group2.sdp.pc.planner.pathstep.PathStepStop;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
+
+import java.util.LinkedList;
 
 /**
  * The PathFinder decides how to execute a particular operation.
  * 
  * It does this by checking the operation to be executed and creating a queue of pathStepList. It then
- * procedes to execute them in order and checking whether they are success or have failed in every
+ * proceeds to execute them in order and checking whether they are success or have failed in every
  * consumeInfo() cycle
  */
 public class PathFinder implements DynamicInfoConsumer {
@@ -186,7 +184,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 		case GO_BACKWARDS:
 			PathStepGoBackwards goBackwards = (PathStepGoBackwards) currentStep;
-			mouth.sendGoBackwards(goForwards.getSpeed(), goForwards.getDistance());
+			mouth.sendGoBackwards(goBackwards.getSpeed(), goBackwards.getDistance());
 			break;
 			
 		case SPIN_LEFT:
@@ -211,12 +209,12 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 		case ARC_BACKWARDS_LEFT:
 			PathStepArcBackwardsLeft arcBackwardsLeft = (PathStepArcBackwardsLeft) currentStep;
-			mouth.sendBackwardArcLeft(arcBackwardsLeft.getRadius(), arcBackwardsLeft.getAngle());
+			mouth.sendBackwardsArcLeft(arcBackwardsLeft.getRadius(), arcBackwardsLeft.getAngle());
 			break;
 			
 		case ARC_BACKWARDS_RIGHT:
 			PathStepArcBackwardsRight arcBackwardsRight = (PathStepArcBackwardsRight) currentStep;
-			mouth.sendBackwardArcRight(arcBackwardsRight.getRadius(), arcBackwardsRight.getAngle());
+			mouth.sendBackwardsArcRight(arcBackwardsRight.getRadius(), arcBackwardsRight.getAngle());
 			break;
 			
 		case KICK:
@@ -225,12 +223,8 @@ public class PathFinder implements DynamicInfoConsumer {
 			break;
 			
 		case STOP:
-			PathStepStop stop = (PathStepStop) currentStep;
 			mouth.sendStop();
-			break;		
-				
+			break;
 		}
-
 	}
-
 }
