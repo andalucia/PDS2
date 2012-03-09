@@ -2,46 +2,24 @@ package group2.sdp.pc.controlstation;
 
 import group2.sdp.pc.mouth.Mouth;
 
+/**
+ * Used for quick test of Mouth-to-Ear communication.
+ * Do not forget about Thread.sleep() after each command and s.cleanup()
+ * after all commands were executed.
+ */
 public class Conversation {
-	public static void main (String [] args) throws InterruptedException {
-		Mouth s;
-		try {
-			s = new Mouth();
-//			s.sendExit();
+	
+	public static void main (String [] args) throws Exception {
+		Mouth s = new Mouth();
 			
-//			s.sendGoForward(35, 10);
-//			Thread.sleep(4000);
-//			s.sendSpinLeft(0, 90);
-//			Thread.sleep(4000);
-//			s.sendGoForward(35,10);
-//			Thread.sleep(4000);
-//			s.sendSpinRight(0,90);
-//			Thread.sleep(4000);
-//			s.sendGoForward(35, 30);
-//			s.sendSpinRight(0, 90);
-//			Thread.sleep(4000);
-//			s.sendGoForward(35, 30);
-//			Thread.sleep(4000);
-//			s.sendSpinRight(0,90);
-//			
-//			Paul's Test ^^^
-			
-			long prev = 0;
-			for (int i = 0; i < 2000; ++i) {
-				s.sendGoForward(15, 0);
-				Thread.sleep(40); // 5 FPS
-				System.out.println(1000.0 / (System.currentTimeMillis() - prev));
-				prev = System.currentTimeMillis();
-			}
-			
-			s.sendStop();
-			Thread.sleep(1000);
-			s.sendReset();
-			Thread.sleep(1000);
-			s.cleanup();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+	}
+	
+	/**
+	 * @param prevSysTime - previous state System time in Miliseconds
+	 * @return FPS - frames per second.
+	 */
+	public static double getFPS(long prevSysTime){
+		return (1000.0 / (System.currentTimeMillis() - prevSysTime));
 	}
 }
