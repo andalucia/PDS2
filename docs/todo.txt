@@ -16,11 +16,12 @@ Working things:
 10. Eye.
 
 Awaiting approval:
- None yet.
+ 1. * Static Robot Info: copy the information from the design.txt to the javadoc of the class; add ball possession information (boolean)
+    * Affected: DynamicRobotInfo.java, StaticRobotInfo.java, BakeryTest.java, and VisualCortexSkeleton.java
+    * Names: Stan
+
 
 TODO:
- 1. Static Robot Info: copy the information from the design.txt to the 
-     javadoc of the class; add ball possession information (boolean),
  2. Dynamic Robot Info: copy the information from the design.txt to the 
      javadoc of the class; add turning speed (double; degrees per second) 
      and turning direction (boolean; clock-wise / anti-clock-wise),

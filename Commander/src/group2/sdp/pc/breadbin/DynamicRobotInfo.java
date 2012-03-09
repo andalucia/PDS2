@@ -33,19 +33,20 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 	 * is 0 degrees, and the angle grows counter clock-wise. Thus 12 o'clock is
 	 * 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
 	 * @param alfie Indicates if the robot is Alfie or his opponent.
-	 * @param timeStamp The time, in milliseconds, at which the information 
-	 * was recorded.
+	 * @param hasBall Indicates if the robot has the ball or not.
 	 * @param travelSpeed The speed, in centimetres per second, at which the 
 	 * robot is travelling.
 	 * @param travelDirection The direction in which the robot is travelling. 
 	 * The range is [0, 360), 3 o'clock is 0 degrees, and the angle grows 
 	 * counter clock-wise. Thus 12 o'clock is 90 degrees, 9 o'clock is 180 
 	 * degrees and 6 o'clock is 270 degrees.
+	 * @param timeStamp The time, in milliseconds, at which the information 
+	 * was recorded.
 	 */
 	public DynamicRobotInfo(Point2D position, double facingDirection, 
-			boolean alfie, double travelSpeed, double travelDirection, 
-			long timeStamp) {
-		super(position, facingDirection, alfie, timeStamp);
+			boolean alfie, boolean hasBall, double travelSpeed, 
+			double travelDirection, long timeStamp) {
+		super(position, facingDirection, alfie, hasBall, timeStamp);
 		this.travelSpeed = travelSpeed;
 		this.travelDirection = travelDirection;
 	}

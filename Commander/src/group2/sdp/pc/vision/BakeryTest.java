@@ -140,14 +140,14 @@ public class BakeryTest {
 		
 	
 		//create robots
-		StaticRobotInfo robot1=new StaticRobotInfo(position1,0,true,0);
-		StaticRobotInfo robot2=new StaticRobotInfo(position2,0,true,0);
-		StaticRobotInfo robot3=new StaticRobotInfo(position3,0,true,0);
-		StaticRobotInfo robot4=new StaticRobotInfo(position4,0,true,0);
-		StaticRobotInfo robot5=new StaticRobotInfo(position5,0,true,0);
-		StaticRobotInfo robot6=new StaticRobotInfo(position6,0,true,0);
-		StaticRobotInfo robot7=new StaticRobotInfo(position7,0,true,0);
-		StaticRobotInfo robot8=new StaticRobotInfo(position8,0,true,0);
+		StaticRobotInfo robot1=new StaticRobotInfo(position1,0,true,true,0);
+		StaticRobotInfo robot2=new StaticRobotInfo(position2,0,true,true,0);
+		StaticRobotInfo robot3=new StaticRobotInfo(position3,0,true,true,0);
+		StaticRobotInfo robot4=new StaticRobotInfo(position4,0,true,true,0);
+		StaticRobotInfo robot5=new StaticRobotInfo(position5,0,true,true,0);
+		StaticRobotInfo robot6=new StaticRobotInfo(position6,0,true,true,0);
+		StaticRobotInfo robot7=new StaticRobotInfo(position7,0,true,true,0);
+		StaticRobotInfo robot8=new StaticRobotInfo(position8,0,true,true,0);
 		
 		LinkedList<StaticRobotInfo> robotHistoryInfos= new LinkedList<StaticRobotInfo>();
 		Bakery bake= new Bakery(null);
