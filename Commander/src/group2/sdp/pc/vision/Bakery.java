@@ -79,7 +79,6 @@ public class Bakery extends BakerySkeleton {
 
 	}
 
-
 	@Override
 	protected double computeBallRollingDirection(LinkedList<StaticBallInfo> ballHistoryInfos) {
 		//use similar algorithm to travel speed except work out angle with 
@@ -125,7 +124,6 @@ public class Bakery extends BakerySkeleton {
 		return angle;
 
 	}
-
 
 	@Override
 	protected double computeRobotTravelSpeed(LinkedList<StaticRobotInfo> historyInfos) {
@@ -173,8 +171,6 @@ public class Bakery extends BakerySkeleton {
 		double speed= (recentAvg.distance(oldAvg))/(timeDif);
 		return speed;
 	}
-
-
 
 	protected double correctRobotFacingDirection(LinkedList<StaticRobotInfo> historyInfos){
 		//TODO check for negative angles (i.e. when robot is missing)
@@ -302,6 +298,20 @@ public class Bakery extends BakerySkeleton {
 
 	}
 
+	@Override
+	protected double computeRobotRotatingSpeed(
+			LinkedList<StaticRobotInfo> historyInfos) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected boolean isRobotRotatingCCW(
+			LinkedList<StaticRobotInfo> historyInfos) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	/**
 	 * Method for comparison of angles. If angle within certain threshold of each other then
 	 * return true else false
@@ -332,7 +342,6 @@ public class Bakery extends BakerySkeleton {
 		}
 		return false;
 	}
-
 }
 
 

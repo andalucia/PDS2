@@ -16,12 +16,11 @@ Working things:
 10. Eye.
 
 Awaiting approval:
- 1. * Static Robot Info: copy the information from the design.txt to the javadoc of the class; add ball possession information (boolean)
-    * Affected: DynamicRobotInfo.java, StaticRobotInfo.java, BakeryTest.java, and VisualCortexSkeleton.java
-    * Names: Stan
-
+ None yet.
 
 TODO:
+ 1. Static Robot Info: copy the information from the design.txt to the 
+     javadoc of the class; add ball possession information (boolean),
  2. Dynamic Robot Info: copy the information from the design.txt to the 
      javadoc of the class; add turning speed (double; degrees per second) 
      and turning direction (boolean; clock-wise / anti-clock-wise),
@@ -55,6 +54,8 @@ TODO:
      see what should be modified so it adheres to the design, and
 16. Conversation: make the design more detailed; audit code and see what 
      should be modified so it adheres to the design.
+17. Brain, Client & Server: Add and implement methods for arcing forwards
+     right and backwards left and right.
 
 
 If you fancy eliminating todos, you should execute the needed steps, and 

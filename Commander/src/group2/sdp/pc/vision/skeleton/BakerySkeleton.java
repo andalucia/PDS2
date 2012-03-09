@@ -101,10 +101,14 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		// Dynamic Alfie information
 		double alfieTravelSpeed = computeAlfieTravelSpeed();
 		double alfieTravelDirection = computeAlfieTravelDirection();
+		double alfieRotatingSpeed = computeAlfieRotatingSpeed();
+		boolean alfieRotatingCCW = isAlfieRotatingCCW();
 		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(
 				spi.getAlfieInfo(), 
 				alfieTravelSpeed, 
-				alfieTravelDirection);
+				alfieTravelDirection,
+				alfieRotatingSpeed,
+				alfieRotatingCCW);
 		
 		alfieInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getAlfieInfos()));
 	
@@ -112,10 +116,14 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 		// Dynamic opponent information
 		double opponentTravelSpeed = computeOpponentTravelSpeed();
 		double opponentTravelDirection = computeOpponentTravelDirection();
+		double opponentRotatingSpeed = computeOpponentRotatingSpeed();
+		boolean opponentRotatingCCW = isOpponentRotatingCCW();
 		DynamicRobotInfo opponentInfo = new DynamicRobotInfo(
 				spi.getOpponentInfo(), 
 				opponentTravelSpeed, 
-				opponentTravelDirection);
+				opponentTravelDirection,
+				opponentRotatingSpeed,
+				opponentRotatingCCW);
 		
 		opponentInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getOpponentInfos()));
 		
@@ -142,6 +150,7 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 */
 	protected abstract double computeBallRollingDirection(LinkedList<StaticBallInfo> ballHistoryInfos);
 
+	
 	/**
 	 * Computes the travel speed of Alfie. Units are cm/s.
 	 * @return The travel speed of Alfie.
@@ -163,6 +172,23 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	}
 
 	/**
+	 * Computes the rotating speed of Alfie in degrees per second.
+	 * @return The rotating speed of Alfie in degrees per second.
+	 */
+	private double computeAlfieRotatingSpeed() {
+		return computeRobotRotatingSpeed(staticInfoHistory.getAlfieInfos());
+	}
+	
+	/**
+	 * Finds out if Alfie is rotating counter-clock-wise or not.
+	 * @return True if Alfie is rotating counter-clock-wise, false otherwise.
+	 */
+	private boolean isAlfieRotatingCCW() {
+		return isRobotRotatingCCW(staticInfoHistory.getAlfieInfos());
+	}
+
+	
+	/**
 	 * Computes the travel speed of Alfie's opponent. Units are cm/s.
 	 * @return The travel speed of Alfie's opponent
 	 */
@@ -180,6 +206,23 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 	 */
 	private double computeOpponentTravelDirection() {
 		return computeRobotTravelDirection(staticInfoHistory.getOpponentInfos());
+	}
+
+	/**
+	 * Computes the rotating speed of Alfie's opponent in degrees per second.
+	 * @return The rotating speed of Alfie's opponent in degrees per second.
+	 */
+	private double computeOpponentRotatingSpeed() {
+		return computeRobotRotatingSpeed(staticInfoHistory.getAlfieInfos());
+	}
+	
+	/**
+	 * Finds out if Alfie's opponent is rotating counter-clock-wise or not.
+	 * @return True if Alfie's opponent is rotating counter-clock-wise, false 
+	 * otherwise.
+	 */
+	private boolean isOpponentRotatingCCW() {
+		return isRobotRotatingCCW(staticInfoHistory.getAlfieInfos());
 	}
 
 
@@ -204,8 +247,25 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 
 	/**
 	 * Compares against previous frames to remove extreme values from facing direction
-	 * @param historyInfos  The list of infos (some used for comparison to current angle).
+	 * @param historyInfos The list of infos (some used for comparison to current angle).
 	 * @return A value for facing direction
 	 */
 	protected abstract double correctRobotFacingDirection(LinkedList<StaticRobotInfo> historyInfos);
+	
+	/**
+	 * Computes rotating speed of the robot, depending on angle on the previous
+	 * frames.
+	 * @param historyInfos The list of Static Robot Info objects to use.
+	 * @return The rotating speed of the robot that has the given history.
+	 */
+	protected abstract double computeRobotRotatingSpeed(LinkedList<StaticRobotInfo> historyInfos);
+	
+	/**
+	 * Finds out if the robot with the given history is turning 
+	 * counter-clock-wise or not.
+	 * @param historyInfos The list of Static Robot Info objects to use.
+	 * @return True if the robot with the given history is turning 
+	 * counter-clock-wise, false otherwise.
+	 */
+	protected abstract boolean isRobotRotatingCCW(LinkedList<StaticRobotInfo> historyInfos);
 }
