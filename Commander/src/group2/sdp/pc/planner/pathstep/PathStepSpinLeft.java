@@ -5,24 +5,24 @@ package group2.sdp.pc.planner.pathstep;
  * 
  * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
  *
- * Act: Tell Alfie to start moving forward, possibly specifying the distance to be covered
- * (but not speed as this messes up arc movement).
+ * Act: Tell Alfie to start spinning anti-clock-wise, possibly specifying the angle to be
+ * covered.
  * 
  * Parameters:
- * A position to reach, threshold distance for success, threshold angle for failure.
+ * An angle for the turn, threshold delta angle for success.
  * 
  */
-public class PathStepGoForwards implements PathStep {
+public class PathStepSpinLeft implements PathStep {
 
 	@Override
 	public Type getType() {
-		return Type.GO_FORWARDS;
+		return Type.SPIN_LEFT;
 	}
 
 	
 	/**
 	 * Succeed:
- 	 * If Alfie is within the specified threshold distance from the target point.
+	 * If Alfie is within the specified threshold delta from the specified angle.
 	 */
 	@Override
 	public boolean isSuccessful() {
@@ -33,8 +33,8 @@ public class PathStepGoForwards implements PathStep {
 
 	/**
 	 *
-	 * Fail: If Alfie's facing direction is not within the specified threshold angle from the same
-	 * point.
+	 * Fail:
+	 * If Alfie is turning away from the destination angle.
 	 */
 	@Override
 	public boolean problemExists() {
@@ -45,3 +45,4 @@ public class PathStepGoForwards implements PathStep {
 
 	
 }
+
