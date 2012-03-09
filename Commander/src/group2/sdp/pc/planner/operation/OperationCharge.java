@@ -8,12 +8,14 @@ public class OperationCharge implements Operation{
 	Point2D ball;
 	Point2D alfie;
 	double facing;
+	Point2D goalMiddle;
 	
 	
-	public OperationCharge(Point2D ball, Point2D alfie, double facing) {
+	public OperationCharge(Point2D ball, Point2D alfie, double facing, Point2D goalMiddle) {
 		this.ball = ball;
 		this.alfie = alfie;
-		this.facing = facing;	
+		this.facing = facing;
+		this.goalMiddle = goalMiddle;
 	}
 	
 
@@ -27,6 +29,10 @@ public class OperationCharge implements Operation{
 	
 	public double getFacing(){
 		return facing;
+	}
+	
+	public Point2D getMiddle() {
+		return goalMiddle;
 	}
 	
 	@Override

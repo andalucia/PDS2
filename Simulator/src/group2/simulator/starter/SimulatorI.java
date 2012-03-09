@@ -2,18 +2,17 @@ package group2.simulator.starter;
 
 import group2.sdp.common.util.Tools;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.core.RobotState;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.BoardObject;
 import group2.simulator.physical.Robot;
-import group2.simulator.planner.TestingPlanner;
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -24,7 +23,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -45,7 +43,7 @@ import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
 
-public class SimulatorI implements ServerSkeleton {
+public class SimulatorI implements MouthInterface {
 
 	/** The frame displaying the simulation */
 	
@@ -125,12 +123,12 @@ public class SimulatorI implements ServerSkeleton {
 		imageGrabberTimer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				DynamicPitchInfo dpi = generateDynamicInfo();
+				DynamicInfo dpi = generateDynamicInfo();
 				executor.setOperation(
 					new OperationReallocation(
 						dpi.getBallInfo().getPosition(), 
 						dpi.getAlfieInfo().getPosition(), 
-						dpi.getAlfieInfo().getFacingDirection()
+						dpi.getAlfieInfo().getFacingDirection(), dpi.getOpponentInfo().getPosition()
 					)
 				);
 			}
@@ -170,12 +168,12 @@ public class SimulatorI implements ServerSkeleton {
 		
 	}
 	
-	private DynamicPitchInfo generateDynamicInfo() {
+	private DynamicInfo generateDynamicInfo() {
 		long start = System.currentTimeMillis();
 		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,start);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, 0, 0,start);
+		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(), robot.getFacingDirection(), true, robot.setSpeed(7), 0,start);
 		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(), oppRobot.getFacingDirection(), false, 0, 0,start);
-		DynamicPitchInfo dpi = new DynamicPitchInfo(dball, dalfie, dopp);
+		DynamicInfo dpi = new DynamicInfo(dball, dalfie, dopp);
 		return dpi;
 	}
 
@@ -567,8 +565,10 @@ public class SimulatorI implements ServerSkeleton {
 		robot.turn(-angle);
 		commandLock.unlock();
 	}
-	
-	
 
-
+	@Override
+	public void sendForwardArcLeft(float radius, int angle) {
+		// TODO Auto-generated method stub
+		
+	}
 }

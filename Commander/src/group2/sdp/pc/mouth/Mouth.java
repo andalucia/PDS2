@@ -1,7 +1,6 @@
-package group2.sdp.pc.server;
+package group2.sdp.pc.mouth;
 
 import group2.sdp.common.candypacket.CandyPacket;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,9 +12,9 @@ import lejos.pc.comm.NXTConnector;
 /**
  * Connects to the robot and can send commands to it.
  */
-public class Server implements ServerSkeleton {
+public class Mouth implements MouthInterface {
 
-	private final boolean verbose = false;
+	private final boolean verbose = true;
 	
 	private String nxtAddress = "btspp://group2";
 	
@@ -29,7 +28,7 @@ public class Server implements ServerSkeleton {
 	 * Default constructor. Initialises the blue-tooth connection.
 	 * @throws Exception 
 	 */
-	public Server() throws Exception {
+	public Mouth() throws Exception {
 		conn = new NXTConnector();
 		conn.addLogListener(new NXTCommLogListener() {
 			public void logEvent(String message) {
@@ -81,12 +80,43 @@ public class Server implements ServerSkeleton {
 		sendCandyPacket(new CandyPacket(CandyPacket.STOP_CANDY));
 	}
 	
-	/**
-	 * Tells Alfie to move in an arc
+	/** Tells Alfie to move in an arc going forward and turning right.
+	 * @param radius in cm
+	 * @param angle in degrees
 	 */
-	public void sendMoveArc(int radius, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.MOVE_ARC_CANDY, radius, angle));
+	public void sendForwardArcRight(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.FORWARD_RIGHT_ARC_CANDY, (int)(10000 * radius), angle));
 	}
+	
+	/**
+	 * Tells Alfie to move in an arc going forward and turning left.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendForwardArcLeft(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.FORWARD_LEFT_ARC_CANDY, (int)(10000 * radius), angle));
+	}
+	
+	/**
+	 * Tells Alfie to move in an arc going backwards and turning right.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendBackwardsArcRight(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.BACKWARDS_RIGHT_ARC_CANDY, (int)(10000 * radius), angle));
+	}
+
+	
+	
+	/**
+	 * Tells Alfie to move in an arc going backwards and turning left.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendBackwardsArcLeft(float radius, int angle) {
+		sendCandyPacket(new CandyPacket(CandyPacket.BACKWARDS_LEFT_ARC_CANDY, (int)(10000 * radius), angle));
+	}
+	
 	/**
 	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.

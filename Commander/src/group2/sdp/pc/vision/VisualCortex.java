@@ -1,8 +1,9 @@
 package group2.sdp.pc.vision;
 
-import group2.sdp.pc.vision.LCHColour.ColourClass;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.LCHColourSettings.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
-import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
+import group2.sdp.pc.vision.skeleton.VisualCortexSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
 import java.awt.Color;
@@ -15,11 +16,9 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
-import javax.print.attribute.standard.Finishings;
 
 /**
  * This is how I process what I see on the pitch. I first remove the background to 
@@ -30,7 +29,19 @@ import javax.print.attribute.standard.Finishings;
  * @author Alfie
  *
  */
-public class ImageProcessor extends ImageProcessorSkeleton {
+public class VisualCortex extends VisualCortexSkeleton {
+	
+	/**
+	 * The mode of the output from the processor: MATCH is the default, 
+	 * CHROMA and LUMA are used during setup. 
+	 */
+	public enum OutputMode {
+		MATCH,
+		CHROMA,
+		LUMA
+	}
+	
+	private OutputMode currentMode = OutputMode.MATCH;
 	
 	/**
 	* Shows whether the background has to be updated or not.
@@ -42,12 +53,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	*/
 	private BufferedImage backgroundImage;
 
-	private static final boolean pitchOne = false;
 	private static final boolean VERBOSE = false;
-	/**
-	 * The boundaries of the pitch rectangle in the real world. In cm.
-	 */
-	private final Rectangle2D pitchPhysicalRectangle = new Rectangle2D.Float(-122, -60.5f, 244, 121);
+	
 	private String backgroundFileName = "background.png";
 	private boolean saveBackground = false;
 
@@ -59,46 +66,26 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
-
-
-	/**
-	 * The rectangle that contains the whole pitch.
-	 */
-	private final Rectangle pitchCrop1 = new Rectangle(10, 58, 630-10, 421-58);
-	private final Rectangle pitchCrop2 = new Rectangle(63, 100, 572 - 63, 383 - 100);
 	
 	// TODO: think of a better name/way of doing this
-	private final boolean isYellowRobotRightGoal = true;
+	private boolean isYellowRobotRightGoal = true;
 	
-	/**
-	 * The goal post positions for the goal on the right
-	 */
-	// TODO: SET ACTUAL POSITIONS
-	// TODO: ALSO NOT REALLY MESSY
-	private final ArrayList<Point2D> rightGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-	private final ArrayList<Point2D> rightGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-
-	/**
-	 * The goal post positions for the goal on the left
-	 */
-	// TODO: SET ACTUAL POSITIONS
-	// TODO: ALSO NOT REALLY MESSY
-	private final ArrayList<Point2D> leftGoalPostInfo1 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-	private final ArrayList<Point2D> leftGoalPostInfo2 = new ArrayList<Point2D>(Arrays.asList(new Point(0,0),new Point(0,0)));
-
+	private final int EXPECTED_ROBOT_SIZE = 400;
+	private final int EXPECTED_BALL_SIZE = 120;
+	
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie) {
-		super(consumer, yellowAlfie);
+	public VisualCortex(GlobalInfo globalInfo, StaticInfoConsumer consumer) {
+		super(globalInfo, consumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
 	}
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor(StaticInfoConsumer consumer, boolean yellowAlfie, ImageConsumer imageConsumer) {
-		super(consumer, yellowAlfie, imageConsumer);
+	public VisualCortex(GlobalInfo globalInfo, Bakery bakery, ImageConsumer imageConsumer) {
+		super(globalInfo, bakery, imageConsumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
 	}
@@ -178,13 +165,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @see isDifferent
 	 */
 	private ArrayList<Point> getDifferentPixels(BufferedImage image) {
-		Rectangle pitchCrop = new Rectangle();
-		if (pitchOne){
-			pitchCrop = pitchCrop1;
-		}
-		else{
-			pitchCrop = pitchCrop2;
-		}
+		Rectangle pitchCrop = globalInfo.getPitch().getCamera().getPitchCrop();
+		
 		int minX = Math.max(pitchCrop.x, image.getMinX());
 		int minY = Math.max(pitchCrop.y, image.getMinY());
 		int w = Math.min(pitchCrop.width, image.getWidth());
@@ -215,12 +197,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold;
-		if (pitchOne) {
-			threshold = 60;
-		} else {
-			threshold = 90;
-		}
+		int threshold = 90;
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -254,7 +231,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
 			LCHColour lch = new LCHColour(c);
-			ColourClass cc = lch.getColourClass();
+			ColourClass cc = globalInfo.getPitch().getCamera().getColourSettings().getColourClass(lch);
 
 			switch (cc) {
 			case RED:
@@ -271,11 +248,21 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				break;
 			}
 		}
-
-		ArrayList<Point> yellowPointsClean = getGreatestArea(yellowPoints);
-		ArrayList<Point> bluePointsClean = getGreatestArea(bluePoints);
-		ArrayList<Point> ballPointsClean = getGreatestArea(ballPoints);
-
+		ArrayList<Point> yellowPointsClean = new ArrayList<Point>(0);
+		ArrayList<Point> bluePointsClean = new ArrayList<Point>(0);
+		ArrayList<Point> ballPointsClean = new ArrayList<Point>(0);
+		
+		if (sizeCheck(bluePoints,EXPECTED_ROBOT_SIZE)) {
+			
+			bluePointsClean = getGreatestArea(bluePoints);
+		}
+		if (sizeCheck(yellowPoints,EXPECTED_ROBOT_SIZE)) {
+			
+			yellowPointsClean = getGreatestArea(yellowPoints);
+		}
+		if (sizeCheck(ballPoints,EXPECTED_BALL_SIZE)) {
+			ballPointsClean = getGreatestArea(ballPoints);
+		}
 
 		this.ballCentroid = calcCentroid(ballPointsClean);
 		this.blueCentroid = calcCentroid(bluePointsClean);
@@ -286,6 +273,22 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	}
 
+	/**
+	 * Checks if the array list is within some bounds of the expected size.
+	 * @param points
+	 * @param expectedSize
+	 * @return
+	 */
+	private boolean sizeCheck(ArrayList<Point> points,
+			int expectedSize) {
+		if (points.size() > expectedSize*4) {
+			return false;
+		} else if (points.size() < expectedSize*0.4) {
+			return false;
+		} else {
+			return true;
+		}
+	}
 	/**
 	 * Loops through allPoints calling {@link #mindFlower(ArrayList,ArrayList,Point)} on pixels in it. mindFlower 
 	 * removes pixels from allPoints if it determines they are connected to another 
@@ -361,7 +364,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
 			LCHColour lch = new LCHColour(c);
-			ColourClass cc = lch.getColourClass();
+			ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
 
 			Color dc = null;
 			switch (cc) {
@@ -388,11 +391,20 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 				dc = Color.CYAN;
 				break;
 			}
-			//			int v = lch.getHue() * 255 / 360;
-			//			result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
-			//result.setRGB(p.x, p.y, new Color(lch.getLuma(), lch.getLuma(), lch.getLuma()).getRGB());
-			//result.setRGB(p.x, p.y, new Color(lch.getChroma(), lch.getChroma(), lch.getChroma()).getRGB());
-			result.setRGB(p.x, p.y, dc.getRGB());
+			int v;
+			switch (currentMode) {
+			case MATCH:
+				result.setRGB(p.x, p.y, dc.getRGB());
+				break;
+			case CHROMA:
+				v = lch.getChroma();
+				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+				break;
+			case LUMA:
+				v = lch.getLuma();
+				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+				break;
+			}
 		}
 		return result;
 	}
@@ -466,6 +478,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	public int findFacingDirection(BufferedImage image, Point centroid,
 			boolean isYellow) {
+		if (centroid == null) {
+			return -1;
+		}
 		int cur_score = 0;
 		int cur_score2 = 0;
 		int best_score = 0;
@@ -580,9 +595,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	private boolean isBlueYellow(BufferedImage image, Point pixel, boolean isYellow) {
 		boolean returnValue = false;
 		//TODO check bounds
+		int width = 640;
+		int height = 480;
+		if (!(pixel.x >= 0 && pixel.x < width && pixel.y >= 0 && pixel.y < height)) {
+			return false;
+		}
 		Color c = new Color(image.getRGB(pixel.x, pixel.y));
 		LCHColour lch = new LCHColour(c);
-		ColourClass cc = lch.getColourClass();
+		ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
 		switch (cc) {
 		case BLUE:
 			if (!isYellow) {
@@ -617,6 +637,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @return
 	 */
 	public Point calcCentroid(ArrayList<Point> fixels){
+		if (fixels.size() == 0) {
+			return null;
+		}
 		Point centroid = new Point(0,0);
 		Point fixelsInArrayList = new Point(0,0);
 		for (int i = 0; i < fixels.size(); i++){
@@ -664,12 +687,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private Point2D convertPixelsToCm(Point2D point) {
 		Point2D p = new Point2D.Float();
-		Rectangle pitchImageRectangle;
-		if (pitchOne) {
-			pitchImageRectangle = pitchCrop1;
-		} else {
-			pitchImageRectangle = pitchCrop2;
-		}
+		Rectangle2D pitchPhysicalRectangle = 
+			globalInfo.getPitch().getMinimumEnclosingRectangle();
+		Rectangle pitchImageRectangle = 
+			globalInfo.getCamera().getPitchCrop();
 		double x = linearRemap(point.getX(), 
 				pitchImageRectangle.getMinX(), pitchImageRectangle.getWidth(), 
 				pitchPhysicalRectangle.getMinX(), pitchPhysicalRectangle.getWidth());
@@ -703,7 +724,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * @param targetRange
 	 * @return
 	 */
-
 	private double linearRemap(double x, double x0, double domainRange, double y0, double targetRange) {
 		return (x - x0) * (targetRange / domainRange) + y0;
 	}
@@ -732,11 +752,17 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private void drawStuff(BufferedImage internalImage) {
 		WritableRaster raster = internalImage.getRaster();
-		drawLine_Robot_Facing(raster, this.blueCentroid , this.blueDir );
-		drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
-		drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
-		drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
-		drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
+		if (blueCentroid != null) {
+			drawLine_Robot_Facing(raster, this.blueCentroid , this.blueDir );
+			drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
+		}
+		if (yellowCentroid != null) {
+			drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
+			drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
+		}
+		if (ballCentroid != null){
+			drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
+		}
 	}
 
 	/**
@@ -800,6 +826,21 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 
 	}
 
+	/**
+	 * Set the mode of output.
+	 * @param currentMode The mode of output.
+	 */
+	public void setCurrentMode(OutputMode currentMode) {
+		this.currentMode = currentMode;
+	}
+	
+	/**
+	 * Get the mode of output.
+	 * @return The mode of output.
+	 */
+	public OutputMode getCurrentMode() {
+		return currentMode;
+	}
 
 	@Override
 	protected Point2D extractBallPosition(BufferedImage image) {
@@ -831,33 +872,6 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			return yellowDir;
 		} else {
 			return blueDir;
-		}
-	}
-	
-	@Override
-	protected ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image,
-			boolean yellow) {
-		ArrayList<Point2D> rightGoalPostInfo;
-		ArrayList<Point2D> leftGoalPostInfo;
-		if (pitchOne) {
-			rightGoalPostInfo = rightGoalPostInfo1;
-			leftGoalPostInfo = leftGoalPostInfo1;
-		} else {
-			rightGoalPostInfo = rightGoalPostInfo2;
-			leftGoalPostInfo = leftGoalPostInfo2;
-		}
-		if (yellow) {
-			if (isYellowRobotRightGoal) {
-				return rightGoalPostInfo;
-			} else {
-				return leftGoalPostInfo;
-			}
-		} else {
-			if (!isYellowRobotRightGoal) {
-				return rightGoalPostInfo;
-			} else {
-				return leftGoalPostInfo;
-			}
 		}
 	}
 }

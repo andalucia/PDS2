@@ -165,6 +165,7 @@ public class Bakery extends BakerySkeleton {
 
 
 	protected double correctRobotFacingDirection(LinkedList<StaticRobotInfo> historyInfos){
+		//TODO check for negative angles (i.e. when robot is missing)
 		//if we are correcting more than half the frames in the last 10 frames then
 		//set method to stop correcting for next 10 frames to avoid loop. use vision values instead
 		//use seperate counters for different robots.

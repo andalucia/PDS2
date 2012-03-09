@@ -1,0 +1,66 @@
+This is the current list of things that need to be refactored, in order for 
+the design.txt file to be correct, rather than a wish-list. The list 
+actually starts with things that adhere fully to the design.txt so it is 
+not advisable to change them.
+
+Working things:
+ 1. LCH Colour Settings,
+ 2. Camera,
+ 3. Pitch,
+ 4. Global Info,
+ 5. Static Ball Info,
+ 6. Static Info,
+ 7. Static Info History,
+ 8. Dynamic Ball Info,
+ 9. Dynamic Info, and
+10. Eye.
+
+Awaiting approval:
+ None yet.
+
+TODO:
+ 1. Static Robot Info: copy the information from the design.txt to the 
+     javadoc of the class; add ball possession information (boolean),
+ 2. Dynamic Robot Info: copy the information from the design.txt to the 
+     javadoc of the class; add turning speed (double; degrees per second) 
+     and turning direction (boolean; clock-wise / anti-clock-wise),
+ 3. Bakery: copy the information from the design.txt to the javadoc of the 
+     class; audit code and see what should be modified so it adheres to the
+     design,
+ 4. Visual Cortex: copy the information from the design.txt to the javadoc 
+     of the class; audit code and see what should be modified so it adheres 
+     to the design,
+ 5. Strategy: add comments from the design.txt to the code,
+ 6. Operation: add comments from the design.txt to the code,
+ 7. Path Step: create according to the design - use Operation as a template,
+ 8. Overlord: copy the information from the design.txt to the javadoc of the
+     class; audit code and see what should be modified so it adheres to the 
+     design,
+ 9. Field Marshal: copy the information from the design.txt to the javadoc 
+     of the class; audit code and see what should be modified so it adheres 
+     to the design,
+10. Path Finder: copy the information from the design.txt to the javadoc of 
+     the class; audit code and see what should be modified so it adheres to 
+     the design,
+11. Candy Packet: make the design more detailed; audit code and see what 
+     should be modified so it adheres to the design,
+12. Mouth: make the design more detailed; audit code and see what should be
+     modified so it adheres to the design,
+13. Ear: make the design more detailed; audit code and see what should be
+     modified so it adheres to the design,
+14. Artist: make the design more detailed; audit code and see what should be
+     modified so it adheres to the design,
+15. Commander Control Station: make the design more detailed; audit code and
+     see what should be modified so it adheres to the design, and
+16. Conversation: make the design more detailed; audit code and see what 
+     should be modified so it adheres to the design.
+
+
+If you fancy eliminating todos, you should execute the needed steps, and 
+ append information on what was fixed to the Awaiting Approval list, with
+ your name next to it. Then two persons should separately check your 
+ implementation and sign that they are happy with the changes, next to the 
+ list item in the AA list. Items with more than three names next to them, 
+ get moved to the perfect list.
+
+No code should be considered perfect if it has no javadoc comments.

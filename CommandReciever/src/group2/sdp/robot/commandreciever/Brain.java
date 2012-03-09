@@ -24,8 +24,10 @@ public class Brain {
 	private static final int MAX_SPEED = 1024;
 	
 	// The minimum turn speed that could ever be received.
+	@SuppressWarnings("unused")
 	private static final int MIN_TURN_SPEED = -1024;
 	// The maximum turn speed that could ever be received.
+	@SuppressWarnings("unused")
 	private static final int MAX_TURN_SPEED = 1024;
 	
 	// The minimum speed that could ever be received.
@@ -44,9 +46,9 @@ public class Brain {
 	private static final int MAX_ANGLE = 360;
 	
 	// The minimum radius that could ever be received.
-	private static final int MIN_RADIUS = 1;
+	private static final float MIN_RADIUS = -360.0f;
 	// The maximum radius that could ever be received.
-	private static final int MAX_RADIUS = 360;
+	private static final float MAX_RADIUS = 360.0f;
 	
 	
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
@@ -63,8 +65,8 @@ public class Brain {
 	
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
-	private static final float TRACK_WIDTH = (float) 12.65;
-	private static final float WHEEL_DIAMETER = (float) 8.16;
+	private static final float TRACK_WIDTH = 13.52f;
+	private static final float WHEEL_DIAMETER = 8.16f;
 	
 	// Alfie's legs and arms. The motors to be controlled.
 	private static final NXTRegulatedMotor LEFT_WHEEL = Motor.C;
@@ -80,9 +82,9 @@ public class Brain {
 	// The speed to set the kicker motor, determines the power of the kick.
 	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
-	private static final int KICKER_ANGLE = 90;
+	private static final int KICKER_ANGLE = 30;
 	// The delay before resetting the kicker.
-	private static final int KICKER_DELAY = 1000;
+	private static final int KICKER_DELAY = 300;
 	
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
@@ -93,7 +95,7 @@ public class Brain {
 	private static DifferentialPilot pilot;
 	
 	// Indicates whether messages should be output to the LCD or not.
-	private static boolean verbose = true;
+	private static boolean VERBOSE = true;
 	
 	// If set to true, Alfie will stop when one of his touch sensors fires.
 	private static boolean stopOnTouch = false;
@@ -126,14 +128,17 @@ public class Brain {
 				while (true) {			
 					if (LEFT_TOUCH_SENSOR.isPressed() || 
 						RIGHT_TOUCH_SENSOR.isPressed()) {
-						if (stopOnTouch) {
+						if (!kicking) {
 							stop();
+							pilot.travel(-10);
 						}
-						if (LEFT_TOUCH_SENSOR.isPressed()) {
-							leftTouchFired = true;
-						}
-						if (RIGHT_TOUCH_SENSOR.isPressed()) {
-							rightTouchFired = true;
+						if (stopOnTouch) {
+							if (LEFT_TOUCH_SENSOR.isPressed()) {
+								leftTouchFired = true;
+							}
+							if (RIGHT_TOUCH_SENSOR.isPressed()) {
+								rightTouchFired = true;
+							}
 						}
 					}
 				}
@@ -157,14 +162,14 @@ public class Brain {
 		distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 		
 		stopOnTouch = true;
-		pilot.setTravelSpeed(speed);
+//		pilot.setTravelSpeed(speed);
 		if (distance == 0) {
 			pilot.forward();
 		} else {
 			pilot.travel(distance,true);
 		}
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(FWD1, 0, 0);
 			LCD.drawString(FWD2, 0, 1);
@@ -194,7 +199,7 @@ public class Brain {
 			pilot.travel(-distance,true);
 		}
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(BWD1, 0, 0);
 			LCD.drawString(BWD2, 0, 1);
@@ -215,22 +220,13 @@ public class Brain {
 	 */
 	public static void spin(int speed, int angle) {
 		assert(initialized);
-		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
-		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
+		//speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
-		pilot.setRotateSpeed(speed);
-		if (angle != 0) {
-			pilot.rotate(-angle,true);
-		} else {
-			if (speed > 0)
-				pilot.rotateLeft();
-			else 
-				pilot.rotateRight();
-		}
+		pilot.setRotateSpeed(angle);
+	    pilot.rotate(angle,true);
 		
-		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(SPN, 0, 0);
 			LCD.refresh();
@@ -241,21 +237,19 @@ public class Brain {
 	 * @param radius
 	 * @param angle
 	 */
-	public static void moveArc(int radius, int angle) {
+	public static void moveArc(float radius, int angle) {
 		assert(initialized);
-		
 		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
-		radius =Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
+		radius = Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
 		stopOnTouch = true;
 		
-		if (angle != 0 && radius !=0) {
-			pilot.arc(radius, angle);
+		if (angle != 0 && radius != 0) {
+			pilot.arc(radius, angle, true);
 		} 
 		
-		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
-			LCD.drawString(ARC, 0, 0);
+			LCD.drawString(ARC,0,0);
 			LCD.refresh();
 		}
 	}
@@ -269,7 +263,7 @@ public class Brain {
 		stopOnTouch = false;
 		pilot.stop();
 		
-		if (verbose) {
+		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(STP, 0, 0);
 			LCD.refresh();
@@ -281,6 +275,7 @@ public class Brain {
 	 * 
 	 * Starts a new thread and makes the robot kick if it isn't already kicking
 	 * @param power How hard should the motor rotate in degrees/s.
+	 * 
 	 */
 	public static void kick(int power) {
 		assert(initialized);
@@ -289,10 +284,11 @@ public class Brain {
 	
 			public void run() {
 				try {
-					KICKER.rotate(KICKER_ANGLE, true);
+					kicking = true;
+					KICKER.rotate(KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 								
-					KICKER.rotate(-KICKER_ANGLE, true);
+					KICKER.rotate(-KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 				} catch (InterruptedException exc) {
 					System.out.println(exc.toString());
@@ -309,10 +305,10 @@ public class Brain {
 			power = Tools.sanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
 			if (power == 0)
 				power = MAX_KICK_POWER;
-			KICKER.setSpeed(power);
+			KICKER.setSpeed(KICKER.getMaxSpeed());
 			Kick_thread.start();
 
-			if (verbose) {
+			if (VERBOSE) {
 				LCD.clear();
 				LCD.drawString(KCK1, 0, 0);
 				LCD.drawString(KCK2, 0, 1);
@@ -326,7 +322,7 @@ public class Brain {
 	 * Sets whether the brain should output messages to the screen or not.
 	 */
 	public static void setVerbose(boolean value) {
-		verbose = value;
+		VERBOSE = value;
 	}
 	
 	/**
