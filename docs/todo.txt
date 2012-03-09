@@ -20,6 +20,13 @@ Awaiting approval:
     * Affected: DynamicRobotInfo.java, StaticRobotInfo.java, BakeryTest.java, and VisualCortexSkeleton.java
     * Names: Stan
 
+ 2.
+    * Conversation: deleted unused code, done some refactoring, some comments.
+    * Affected: Small changes - should affect no one.
+    * Names: Jaunius
+    * Branch: Conversationchanges
+
+
 
 TODO:
  2. Dynamic Robot Info: copy the information from the design.txt to the 
