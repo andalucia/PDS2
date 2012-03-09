@@ -17,9 +17,6 @@ Working things:
 
 
 TODO:
- 3. Bakery: copy the information from the design.txt to the javadoc of the 
-     class; audit code and see what should be modified so it adheres to the
-     design,
  4. Visual Cortex: copy the information from the design.txt to the javadoc 
      of the class; audit code and see what should be modified so it adheres 
      to the design,

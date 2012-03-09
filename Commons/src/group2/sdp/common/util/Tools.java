@@ -2,6 +2,7 @@ package group2.sdp.common.util;
 
 /**
  * A class containing useful methods.
+ * TODO: rename to LanguageTools.
  */
 public class Tools {
 	/**

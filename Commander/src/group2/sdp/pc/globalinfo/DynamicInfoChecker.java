@@ -10,7 +10,7 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * Contains various functions all performed on DynamicInfo
- *
+ * TODO: move to util, rename to Geometry; move Tests file also
  */
 public class DynamicInfoChecker {
 
@@ -192,7 +192,6 @@ public class DynamicInfoChecker {
 	 * @param opponent
 	 * @return is the opponent blocking our path
 	 */
-		
 	public boolean opponentBlockingPath(DynamicRobotInfo alfie, Point2D obstaclePosition){
 		if(alfie.getFacingDirection()==-1){
 			System.out.println("angle negative return false");
