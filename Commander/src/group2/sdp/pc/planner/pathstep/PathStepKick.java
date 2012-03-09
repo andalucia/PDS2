@@ -7,13 +7,15 @@ package group2.sdp.pc.planner.pathstep;
  *
  * Act: Tell Alfie to kick.
  * 
- * Parameters: None.
+ * Parameters: power.
  * 
  */
 public class PathStepKick implements PathStep {
 
-	public PathStepKick () {
-		
+	private int power;
+	
+	public PathStepKick (int power) {
+		this.power = power; 
 	}
 	
 	@Override
@@ -21,6 +23,10 @@ public class PathStepKick implements PathStep {
 		return Type.KICK;
 	}
 
+	
+	public int getPower(){
+		return this.power;
+	}
 	
 	/**
 	 * Succeed:

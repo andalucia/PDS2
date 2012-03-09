@@ -1,5 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
+import java.awt.geom.Point2D;
+
 /**
  * 
  * 
@@ -13,12 +15,41 @@ package group2.sdp.pc.planner.pathstep;
  * 
  */
 public class PathStepGoForwards implements PathStep {
-
+	
+	private Point2D destination;
+	private int distance;
+	private int threshold;
+	private int speed;
+	
+	public PathStepGoForwards(Point2D destination, int distance, int threshold, int speed){
+		this.destination = destination;
+		this.distance = distance;
+		this.threshold = threshold;
+		this.speed = speed;
+	}
+	
 	@Override
 	public Type getType() {
 		return Type.GO_FORWARDS;
 	}
 
+	
+	public Point2D getDestination(){
+		return this.destination;
+	}
+	
+	public int getDistance(){
+		return this.distance;
+	}
+	
+	public int getThreshold(){
+		return this.threshold;
+	}
+	
+	public int getSpeed(){
+		return this.speed;
+	}
+	
 	
 	/**
 	 * Succeed:

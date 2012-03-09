@@ -8,11 +8,11 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.pathstep.PathStep;
-import group2.sdp.pc.planner.pathstep.PathStepArcBackWardsLeft;
-import group2.sdp.pc.planner.pathstep.PathStepArcBackWardsRight;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
-import group2.sdp.pc.planner.pathstep.PathStepGoBackWards;
+import group2.sdp.pc.planner.pathstep.PathStepGoBackwards;
 import group2.sdp.pc.planner.pathstep.PathStepGoForwards;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
@@ -178,15 +178,15 @@ public class PathFinder implements DynamicInfoConsumer {
 	private void execute() {
 		
 		switch(currentStep.getType()) {
-		
+	
 		case GO_FORWARDS:
 			PathStepGoForwards goForwards = (PathStepGoForwards) currentStep;
 			mouth.sendGoForward(goForwards.getSpeed(), goForwards.getDistance());
 			break;
 			
 		case GO_BACKWARDS:
-			PathStepGoBackWards goBackwards = (PathStepGoBackWards) currentStep;
-			mouth.sendGoBackward(goForwards.getSpeed(), goForwards.getDistance());
+			PathStepGoBackwards goBackwards = (PathStepGoBackwards) currentStep;
+			mouth.sendGoBackwards(goForwards.getSpeed(), goForwards.getDistance());
 			break;
 			
 		case SPIN_LEFT:
@@ -196,7 +196,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 		case SPIN_RIGHT:
 			PathStepSpinRight spinRight = (PathStepSpinRight) currentStep;
-			mouth.sendSpinRight((spinRight.getSpeed(), spinRight.getDistance());
+			mouth.sendSpinRight(spinRight.getSpeed(), spinRight.getAngle());
 			break;
 			
 		case ARC_FORWARDS_LEFT:
@@ -210,12 +210,12 @@ public class PathFinder implements DynamicInfoConsumer {
 			break;
 			
 		case ARC_BACKWARDS_LEFT:
-			PathStepArcBackWardsLeft arcBackwardsLeft = (PathStepArcBackWardsLeft) currentStep;
+			PathStepArcBackwardsLeft arcBackwardsLeft = (PathStepArcBackwardsLeft) currentStep;
 			mouth.sendBackwardArcLeft(arcBackwardsLeft.getRadius(), arcBackwardsLeft.getAngle());
 			break;
 			
 		case ARC_BACKWARDS_RIGHT:
-			PathStepArcBackWardsRight arcBackwardsRight = (PathStepArcBackWardsRight) currentStep;
+			PathStepArcBackwardsRight arcBackwardsRight = (PathStepArcBackwardsRight) currentStep;
 			mouth.sendBackwardArcRight(arcBackwardsRight.getRadius(), arcBackwardsRight.getAngle());
 			break;
 			

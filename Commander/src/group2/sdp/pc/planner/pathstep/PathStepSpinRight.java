@@ -18,10 +18,12 @@ public class PathStepSpinRight implements PathStep {
 	
 	private int angle;
 	private int threshold;
+	private int speed;
 	
-	public PathStepSpinRight(int angle, int threshold){
+	public PathStepSpinRight(int angle, int threshold, int speed){
 		this.angle = angle;
 		this.threshold= threshold;
+		this.speed = speed;
 	}
 	
 	@Override
@@ -38,6 +40,10 @@ public class PathStepSpinRight implements PathStep {
 	
 	public int getThreshold(){
 		return this.threshold;
+	}
+	
+	public int getSpeed(){
+		return this.speed;
 	}
 	
 	/**
