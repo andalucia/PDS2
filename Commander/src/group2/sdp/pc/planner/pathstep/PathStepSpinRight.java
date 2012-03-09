@@ -15,11 +15,30 @@ package group2.sdp.pc.planner.pathstep;
  */
 public class PathStepSpinRight implements PathStep {
 
+	
+	private int angle;
+	private int threshold;
+	
+	public PathStepSpinRight(int angle, int threshold){
+		this.angle = angle;
+		this.threshold= threshold;
+	}
+	
 	@Override
 	public Type getType() {
 		return Type.SPIN_RIGHT;
 	}
 
+
+	
+	
+	public int getAngle(){
+		return this.angle;
+	}
+	
+	public int getThreshold(){
+		return this.threshold;
+	}
 	
 	/**
 	 * Succeed:

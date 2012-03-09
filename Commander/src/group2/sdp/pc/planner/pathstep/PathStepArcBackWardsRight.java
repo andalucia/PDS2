@@ -17,11 +17,36 @@ package group2.sdp.pc.planner.pathstep;
  */
 public class PathStepArcBackWardsRight implements PathStep {
 
+	
+	private int radius;
+	private int angle;
+	private int threshold;
+	
+	public PathStepArcBackWardsRight(int radius, int angle, int threshold){
+		this.angle = angle;
+		this.radius = radius;
+		this.threshold = threshold;
+	}
+	
 	@Override
 	public Type getType() {
 		return Type.ARC_BACKWARDS_RIGHT;
 	}
 
+
+	
+	public int getAngle(){
+		return this.angle;
+	}
+	
+	public int getThreshold(){
+		return this.threshold;
+	}
+	
+	public int getRadius(){
+		return this.radius;
+	}
+	
 	
 	/**
 	 * Succeed:
