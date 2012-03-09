@@ -70,14 +70,14 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 		if (alfiePosition == null) {
 			alfiePosition = new Point(0,0);
 		}
-		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true, time);
+		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true, false, time);
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		if (opponentPosition == null) {
 			opponentPosition = new Point(0,0);
 		}
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
-		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false, time);		
+		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false, false, time);		
 		
 		StaticInfo spi = new StaticInfo(ballInfo, alfieInfo, opponentInfo);
 		

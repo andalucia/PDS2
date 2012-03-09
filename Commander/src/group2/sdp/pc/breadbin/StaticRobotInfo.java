@@ -6,7 +6,8 @@ import java.awt.geom.Point2D;
  * Description: Information about a robot that is frame-specific and can be
  *               extracted from a single frame (as opposed to multiple frames).
  * Contains:    Physical attributes (width, height), absolute position and 
- *               orientation, the robot being Alfie or not, time-stamp
+ *               orientation, the robot being Alfie or not, ball possession, and
+ *               time-stamp.
  */
 public class StaticRobotInfo {
 	/**
@@ -21,18 +22,11 @@ public class StaticRobotInfo {
 	 * The height of the robot.
 	 */
 	protected static final double HEIGHT = 17;
-
 	/**
 	 * The position of the robot with respect to the centre of the pitch. The 
 	 * units are centimetres.
 	 */
 	protected Point2D position;
-
-	/**
-	 * The time, in milliseconds, at which the information was recorded.
-	 */
-	protected long timeStamp;
-
 	/**
 	 * The direction, in degrees, at which the T shape on the top of the robot 
 	 * is pointing at. The range is [0, 360), 3 o'clock is 0 degrees, and the 
@@ -44,7 +38,15 @@ public class StaticRobotInfo {
 	 * Indicates if the robot is Alfie or his opponent.
 	 */
 	protected boolean alfie;
-	
+	/**
+	 * Indicates if the robot has the ball or not.
+	 */
+	protected boolean hasBall;
+	/**
+	 * The time, in milliseconds, at which the information was recorded.
+	 */
+	protected long timeStamp;
+
 	
 	/**
 	 * A constructor that takes all the needed information for a complete 
@@ -56,11 +58,12 @@ public class StaticRobotInfo {
 	 * is 0 degrees, and the angle grows counter clock-wise. Thus 12 o'clock is
 	 * 90 degrees, 9 o'clock is 180 degrees and 6 o'clock is 270 degrees.
 	 * @param alfie Indicates if the robot is Alfie or his opponent.
+	 * @param hasBall Indicates if the robot has the ball or not.
 	 * @param timeStamp The time, in milliseconds, at which the information 
 	 * was recorded.
 	 */
 	public StaticRobotInfo(Point2D position, double facingDirection, 
-			boolean alfie, long timeStamp) {
+			boolean alfie, boolean hasBall, long timeStamp) {
 		this.position = position;
 		this.facingDirection = facingDirection;
 		this.alfie = alfie;
@@ -148,20 +151,36 @@ public class StaticRobotInfo {
 	}
 
 	/**
+	 * Returns true if robot is Alfie.
+	 * @return True if the robot is Alfie, false otherwise.
+	 */
+	public boolean isAlfie() {
+		return alfie;
+	}
+
+	/**
+	 * Returns true if the robot has the ball.
+	 * @return True if the robot has the ball.
+	 */
+	public boolean isHasBall() {
+		return hasBall;
+	}
+
+	/**
+	 * Set the if the robot has the ball or not.
+	 * @param hasBall If the robot has the ball or not.
+	 */
+	public void setHasBall(boolean hasBall) {
+		this.hasBall = hasBall;
+	}
+	
+	/**
 	 * Get the time, in milliseconds, at which the information was recorded.
 	 * @return The time, in milliseconds, at which the information was 
 	 * recorded.
 	 */
 	public long getTimeStamp(){
 		return timeStamp;
-	}
-
-	/**
-	 * Returns true if robot is Alfie.
-	 * @return True if the robot is Alfie, false otherwise.
-	 */
-	public boolean isAlfie() {
-		return alfie;
 	}
 }
 
