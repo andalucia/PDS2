@@ -54,8 +54,6 @@ TODO:
      see what should be modified so it adheres to the design, and
 16. Conversation: make the design more detailed; audit code and see what 
      should be modified so it adheres to the design.
-17. Brain, Client & Server: Add and implement methods for arcing forwards
-     right and backwards left and right.
 
 
 If you fancy eliminating todos, you should execute the needed steps, and 
