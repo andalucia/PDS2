@@ -14,7 +14,7 @@ import lejos.geom.Point;
 /**
  * An abstract implementation of the class processing image data and producing static pitch info.
  */
-public abstract class ImageProcessorSkeleton implements ImageConsumer {
+public abstract class VisualCortexSkeleton implements ImageConsumer {
 	
 	/**
 	 * The object that is going to consume the output of the Vision class.
@@ -30,12 +30,12 @@ public abstract class ImageProcessorSkeleton implements ImageConsumer {
 	 * A constructor that takes the object that is going to consume the output.
 	 * @param consumer The object that is going to consume the output.
 	 */
-	public ImageProcessorSkeleton (GlobalInfo globalInfo, StaticInfoConsumer consumer) {
+	public VisualCortexSkeleton (GlobalInfo globalInfo, StaticInfoConsumer consumer) {
 		this.globalInfo = globalInfo;
 		this.staticInfoConsumer = consumer;
 	}
 	
-	public ImageProcessorSkeleton (GlobalInfo globalInfo, StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
+	public VisualCortexSkeleton (GlobalInfo globalInfo, StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
 		this.globalInfo = globalInfo;
 		this.staticInfoConsumer = consumer;
 		this.imageConsumer = imageConsumer;

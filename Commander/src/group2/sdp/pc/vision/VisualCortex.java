@@ -4,7 +4,7 @@ import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.LCHColourSettings.ColourClass;
 import group2.sdp.pc.vision.skeleton.ImageConsumer;
-import group2.sdp.pc.vision.skeleton.ImageProcessorSkeleton;
+import group2.sdp.pc.vision.skeleton.VisualCortexSkeleton;
 import group2.sdp.pc.vision.skeleton.StaticInfoConsumer;
 
 import java.awt.Color;
@@ -33,7 +33,7 @@ import javax.print.attribute.standard.Finishings;
  * @author Alfie
  *
  */
-public class ImageProcessor extends ImageProcessorSkeleton {
+public class VisualCortex extends VisualCortexSkeleton {
 	
 	/**
 	 * The mode of the output from the processor: MATCH is the default, 
@@ -80,7 +80,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor(GlobalInfo globalInfo, StaticInfoConsumer consumer) {
+	public VisualCortex(GlobalInfo globalInfo, StaticInfoConsumer consumer) {
 		super(globalInfo, consumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();
@@ -88,7 +88,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	/**
 	 * See parent's comment.
 	 */
-	public ImageProcessor(GlobalInfo globalInfo, Bakery bakery, ImageConsumer imageConsumer) {
+	public VisualCortex(GlobalInfo globalInfo, Bakery bakery, ImageConsumer imageConsumer) {
 		super(globalInfo, bakery, imageConsumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point> ();

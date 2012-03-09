@@ -1,6 +1,6 @@
 package group2.sdp.pc.controlstation;
 
-import group2.sdp.pc.server.Server;
+import group2.sdp.pc.mouth.Mouth;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -21,7 +21,7 @@ public class CommanderTerminal {
 	JFrame frmAlfieCommandCentre;
 	private JTextPane txtLog;
 
-	private Server alfieServer;
+	private Mouth alfieServer;
 	public boolean connected = false;
 	
 	// No of connection attempts before giving up
@@ -66,7 +66,7 @@ public class CommanderTerminal {
 					log("Connection attempt: " + i);
 					
 					try {
-						alfieServer = new Server();
+						alfieServer = new Mouth();
 						connected = true;
 						log("Connected to Alfie");
 						break;

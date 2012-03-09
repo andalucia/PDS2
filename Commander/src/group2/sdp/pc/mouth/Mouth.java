@@ -1,7 +1,6 @@
-package group2.sdp.pc.server;
+package group2.sdp.pc.mouth;
 
 import group2.sdp.common.candypacket.CandyPacket;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,7 +12,7 @@ import lejos.pc.comm.NXTConnector;
 /**
  * Connects to the robot and can send commands to it.
  */
-public class Server implements ServerSkeleton {
+public class Mouth implements MouthInterface {
 
 	private final boolean verbose = false;
 	
@@ -29,7 +28,7 @@ public class Server implements ServerSkeleton {
 	 * Default constructor. Initialises the blue-tooth connection.
 	 * @throws Exception 
 	 */
-	public Server() throws Exception {
+	public Mouth() throws Exception {
 		conn = new NXTConnector();
 		conn.addLogListener(new NXTCommLogListener() {
 			public void logEvent(String message) {

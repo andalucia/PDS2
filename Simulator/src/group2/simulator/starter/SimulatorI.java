@@ -8,11 +8,11 @@ import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.Pitch;
+import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
 import group2.simulator.core.RobotState;
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.BoardObject;
@@ -49,7 +49,7 @@ import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
 
-public class SimulatorI implements ServerSkeleton {
+public class SimulatorI implements MouthInterface {
 	
 
 	/** The frame displaying the simulation */

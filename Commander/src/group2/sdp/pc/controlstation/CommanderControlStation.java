@@ -4,16 +4,16 @@ import group2.sdp.pc.globalinfo.Camera;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.LCHColourSettings;
 import group2.sdp.pc.globalinfo.Pitch;
+import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.Penalty;
-import group2.sdp.pc.server.Server;
 import group2.sdp.pc.vision.Bakery;
-import group2.sdp.pc.vision.ImageGrabber;
-import group2.sdp.pc.vision.ImagePreviewer;
-import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.ImageProcessor.OutputMode;
+import group2.sdp.pc.vision.Eye;
+import group2.sdp.pc.vision.Artist;
+import group2.sdp.pc.vision.VisualCortex;
+import group2.sdp.pc.vision.VisualCortex.OutputMode;
 import group2.sdp.pc.vision.LCHColour;
 
 import java.awt.Button;
@@ -110,8 +110,8 @@ public class CommanderControlStation {
 	/**
 	 * The server that sends commands to Alfie.
 	 */
-	private Server alfieServer;
-	private ImageProcessor processor;
+	private Mouth alfieServer;
+	private VisualCortex processor;
 	private Overlord lord;
 
 	/**
@@ -185,7 +185,7 @@ public class CommanderControlStation {
 					log("Connection attempt: " + i);
 					
 					try {
-						alfieServer = new Server();
+						alfieServer = new Mouth();
 						log("Connected to Alfie");
 						connectButton.setBackground(Color.WHITE);
 						connectButton.setEnabled(false);
@@ -231,14 +231,14 @@ public class CommanderControlStation {
 		
 		Bakery bakery = new Bakery(lord);
 		
-		ImagePreviewer previewer = new ImagePreviewer();
+		Artist previewer = new Artist();
 		
 		if (processImageCheckbox.getState()) {
-			processor = new ImageProcessor(globalInfo, bakery, previewer);
-			new ImageGrabber(processor);
+			processor = new VisualCortex(globalInfo, bakery, previewer);
+			new Eye(processor);
 			isProcessing=true;
 		} else {
-			new ImageGrabber(previewer);
+			new Eye(previewer);
 		}
 		
 	}
