@@ -24,6 +24,8 @@ Awaiting approval:
 4. Visual Cortex: copy the information from the design.txt to the javadoc 
      of the class; audit code and see what should be modified so it adheres 
      to the design,
+5. Strategy: add comments from the design.txt to the code,
+6. Operation: add comments from the design.txt to the code,
 7. Path Step: create according to the design - use Operation as a template,
 8. Overlord: copy the information from the design.txt to the javadoc of the
      class; audit code and see what should be modified so it adheres to the 
@@ -34,8 +36,11 @@ Awaiting approval:
 10. Path Finder: copy the information from the design.txt to the javadoc of 
      the class; audit code and see what should be modified so it adheres to 
      the design,
+14. Artist: make the design more detailed; audit code and see what should be
+     modified so it adheres to the design,
 16. Conversation: make the design more detailed; audit code and see what 
      should be modified so it adheres to the design.
+
 
 
 
@@ -43,18 +48,12 @@ TODO:
 
  3. Bakery: copy the information from the design.txt to the javadoc of the 
      class; audit code and see what should be modified so it adheres to the
-     design,
- 
- 5. Strategy: add comments from the design.txt to the code,
- 6. Operation: add comments from the design.txt to the code,
- 
+     design
 11. Candy Packet: make the design more detailed; audit code and see what 
      should be modified so it adheres to the design,
 12. Mouth: make the design more detailed; audit code and see what should be
      modified so it adheres to the design,
 13. Ear: make the design more detailed; audit code and see what should be
-     modified so it adheres to the design,
-14. Artist: make the design more detailed; audit code and see what should be
      modified so it adheres to the design,
 15. Commander Control Station: make the design more detailed; audit code and
      see what should be modified so it adheres to the design, and
