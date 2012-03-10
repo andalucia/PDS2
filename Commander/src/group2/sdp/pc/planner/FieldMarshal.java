@@ -17,10 +17,25 @@ import java.awt.geom.Point2D;
 import lejos.geom.Point;
 
 /**
- * A field marshal decides what operations to start, knowing what strategy 
- * should be currently executed.
+ * Field Marshal: a Strategy Consumer and a Dynamic Info Consumer
+ Description: The highest military rank in the army. Decides what Operations 
+               should be executed. Passes them to a Operation Consumer, supplied
+               on construction of the Field Marshal. Also passes down the 
+               Dynamic Info it was given to a Dynamic Info Consumer, supplied
+               on construction of the Field Marshal.
+ Main client: Path Finder.
+ Produces:    Operation.
+ Responsibilities:
+              Producing an Operation and monitoring if it is successful or if
+               a problem occurs.
+ Policy:      
+  Planning:   Analysing the DI (how?), the Field Marshal comes up with an
+               Operation. After that, it checks the success of the operation or
+               if a problem occurred on each DI it receives. If there is either,
+               the Field Marshal comes up with a new Operation. Otherwise, just 
+               passes the DI to its Dynamic Info Consumer.
  */
-public class FieldMarshal implements DynamicInfoConsumer {
+public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 	/**
 	 * The current strategy to employ.
@@ -43,6 +58,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	protected boolean replan;
 	
 	protected DynamicInfoChecker dynamicInfoChecker;
+	protected OperationConsumer operationConsumer;
+	protected DynamicInfoConsumer dynamicInfoConsumer;
 	
 	protected int DANGER_ZONE = 50;
 	protected int BALL_DANGER_ZONE = 35;
@@ -56,9 +73,10 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	protected Point2D defensiveRobotCheckpoint;
 	protected Point2D defensiveBallCheckpoint;
 
-	public FieldMarshal(GlobalInfo globalInfo, PathFinder pathFinder) {
+	public FieldMarshal(GlobalInfo globalInfo, OperationConsumer operationConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
 		this.globalInfo = globalInfo;
-		this.pathFinder = pathFinder;
+		this.operationConsumer = operationConsumer;
+		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
 
 	/**

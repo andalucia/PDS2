@@ -11,9 +11,27 @@ import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 /**
- * The skeleton of an Overlord class. Depending on the DynamicPitchInfo, 
- * decides on the high-level strategy to employ: Offensive, Defensive, Penalty
- * Defend, or Penalty Take. 
+ * Description: "If they have no bread, let them eat cake!" The popularity of 
+*               this misquotation and the subjects of its metaphor suggest that
+*              the products of a bakery would be of interest to a majesty. Thus
+*               the name of the class that consumes the products of the Bakery 
+*               and produces decisions on what Strategy to use is Overlord. It 
+*               passes the Strategy to a Strategy Consumer, supplied on 
+*               construction of the Overlord. Also passes the Dynamic Info that
+*               was received down to another Dynamic Info Consumer, supplied on
+*               construction of the Overlord. Note that the two Consumers can 
+*               be the same object, but the Overlord does not need to know.
+* Main client: Field Marshal.
+* Produces:    Strategy.
+* Responsibilities:
+*              Producing a Strategy and monitoring if it is successful or if a 
+*               problem occurs.
+* Policy:      
+*  Planning:   Analysing the DI (how?), the Overlord comes up with a Strategy.
+*               After that, it checks the success of the strategy or if a 
+*               problem occurred on each DI it receives. If there is either,
+*               the Overlord comes up with a new Strategy. Otherwise, just 
+*               passes the DI to its Dynamic Info Consumer.
  */
 public class Overlord implements DynamicInfoConsumer {
 	 
@@ -22,16 +40,19 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	protected boolean running = false;
 	
-	protected DynamicInfoChecker dynamicInfoChecker;
 	
-	// FIXME: restructure
-	public static final int RweClose = 20;
+	protected DynamicInfoChecker dynamicInfoChecker;
+
+	/**
+	 * The object to which we pass the Strategy
+	 */
+	protected StrategyConsumer strategyConsumer;
 	
 	/**
-	 * The FieldMarshal that will be executing the strategies that the overlord
-	 * comes up with.
+	 * The object to which we pass on the DynamicInfo
 	 */
-	protected FieldMarshal fieldMarshal;
+	protected DynamicInfoConsumer dynamicInfoConsumer;
+	
 	/**
 	 * The current strategy that is being executed.
 	 */
@@ -44,9 +65,10 @@ public class Overlord implements DynamicInfoConsumer {
 	
 	private GlobalInfo globalInfo;
 	
-	public Overlord(GlobalInfo globalInfo, FieldMarshal fieldMarshal) {
+	public Overlord(GlobalInfo globalInfo, StrategyConsumer strategyConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
 		this.globalInfo = globalInfo;
-		this.fieldMarshal = fieldMarshal;
+		this.strategyConsumer = strategyConsumer;
+		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
 	
 	/**
@@ -77,9 +99,10 @@ public class Overlord implements DynamicInfoConsumer {
 		if (running) {
 			Strategy strategy = computeStrategy(dpi);
 			if (strategy != currentStrategy) {
-				fieldMarshal.setStrategy(strategy);
+				strategyConsumer.setStrategy(strategy);
+				currentStrategy = strategy;
 			}
-			fieldMarshal.consumeInfo(dpi);
+			dynamicInfoConsumer.consumeInfo(dpi);
 		}
 	}
 
@@ -101,11 +124,11 @@ public class Overlord implements DynamicInfoConsumer {
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		
+		Point2D ballPosition = ballInfo.getPosition();  
 		
-		// FIXME: restructure
-		Point2D ball = ballInfo.getPosition();  
-		
-		if((dynamicInfoChecker.hasBall(opponentInfo, ball) && dynamicInfoChecker.correctSide(opponentInfo, ball)) || !dynamicInfoChecker.correctSide(alfieInfo,ball)){
+		if((dynamicInfoChecker.hasBall(opponentInfo, ballPosition) 
+				&& dynamicInfoChecker.correctSide(opponentInfo, ballPosition)) 
+				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)){
 			return Strategy.DEFENSIVE;
 			
 		} else {
@@ -113,4 +136,38 @@ public class Overlord implements DynamicInfoConsumer {
 		}
 	}
 	
+	/**
+	 * 1. Strategy is Offensive - successful if we score a goal;
+       2. Strategy is Defensive - successful if there is no threat of the 
+           other team scoring a goal; 
+       3. Strategy is Take a Penalty - successful if we score a goal;
+       4. Strategy is Defend a Penalty - successful if Alfie prevents the 
+           opponent from scoring a penalty; and 
+       5. Strategy is Stealth - successful if Alfie stops.
+       TODO: implement the above
+	 * @param di
+	 * @return
+	 */
+	protected boolean strategySuccessful(DynamicInfo di) {
+		return true;
+	}
+	
+	/**
+	 * 1. Strategy is Offensive - problem exists if the other robot gets the
+           ball;
+       2. Strategy is Defensive - problem exists if the other team scores 
+           a goal; 
+       3. Strategy is Take a Penalty - problem exists if Alfie misses after 
+           the shot;
+       4. Strategy is Defend a Penalty - problem exists if the opponent 
+           scores a goal; and 
+       5. Strategy is Stealth - problem exists if Alfie is being moved by 
+          the other robot.
+          TODO: implement the above
+	 * @param di
+	 * @return
+	 */
+	protected boolean problemExists(DynamicInfo di) {
+		return true;
+	}
 }

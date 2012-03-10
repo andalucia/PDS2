@@ -105,7 +105,8 @@ public class PathFinder implements DynamicInfoConsumer {
 		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
 		int threshold;
 
-		if(distanceToTarget < Overlord.RweClose) {
+		//FIXME 20 used to be RweClose
+		if(distanceToTarget < 20) {
 			threshold = STOP_TURNING_ERROR_THRESHOLD;
 		} else {
 			threshold = LONG_TURNING_ERROR_THRESHOLD;
