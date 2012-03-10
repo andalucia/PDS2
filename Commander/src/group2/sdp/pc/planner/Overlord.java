@@ -126,11 +126,9 @@ public class Overlord implements DynamicInfoConsumer {
 		
 		Point2D ballPosition = ballInfo.getPosition();  
 		
-		if((dynamicInfoChecker.hasBall(opponentInfo, ballPosition) 
-				&& dynamicInfoChecker.correctSide(opponentInfo, ballPosition)) 
+		if(dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
 				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)){
 			return Strategy.DEFENSIVE;
-			
 		} else {
 			return Strategy.OFFENSIVE;
 		}

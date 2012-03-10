@@ -14,10 +14,6 @@ import java.awt.geom.Rectangle2D;
  */
 public class DynamicInfoChecker {
 
-//	private DynamicInfo dynamicInfo;
-//	private DynamicRobotInfo alfieInfo;
-//	private DynamicRobotInfo opponentInfo;
-//	private DynamicBallInfo ballInfo;
 	private GlobalInfo globalInfo;
 
 	public DynamicInfoChecker(GlobalInfo globalInfo, DynamicInfo dynamicInfo) {
@@ -476,5 +472,20 @@ public class DynamicInfoChecker {
 				return false;
 			}
 		}
+	}
+	
+	/**
+	 * This method was created for clarity. It just combines two other methods. 
+	 * This should only be used for the opponent robot (unless you decide otherwise)
+	 * @param robotInfo
+	 * @param ballPosition
+	 * @return True if the (opponent) robot has the ball and is on the correct side of the ball 
+	 * i.e. they are in an attacking position
+	 */
+	public boolean isInAttackingPosition(DynamicRobotInfo robotInfo, Point2D ballPosition) {
+		boolean condition1 = hasBall(robotInfo, ballPosition);
+		boolean condition2 = correctSide(robotInfo, ballPosition);
+		
+		return condition1 && condition2;
 	}
 }
