@@ -11,27 +11,27 @@ import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 /**
- * Description: "If they have no bread, let them eat cake!" The popularity of 
+ *<p><b>Description</b>: "If they have no bread, let them eat cake!" The popularity of 
 *               this misquotation and the subjects of its metaphor suggest that
 *              the products of a bakery would be of interest to a majesty. Thus
-*               the name of the class that consumes the products of the Bakery 
-*               and produces decisions on what Strategy to use is Overlord. It 
+*               the name of the class that consumes the products of the {@link Bakery} 
+*               and produces decisions on what {@link Strategy} to use is Overlord. It 
 *               passes the Strategy to a Strategy Consumer, supplied on 
-*               construction of the Overlord. Also passes the Dynamic Info that
-*               was received down to another Dynamic Info Consumer, supplied on
+*               construction of the Overlord. Also passes the {@link DynamicInfo} that
+*               was received down to another {@link DynamicInfoConsumer}, supplied on
 *               construction of the Overlord. Note that the two Consumers can 
-*               be the same object, but the Overlord does not need to know.
-* Main client: Field Marshal.
-* Produces:    Strategy.
-* Responsibilities:
+*               be the same object, but the Overlord does not need to know.</p>
+* <p><b>Main client</b>:	{@link FieldMarshal}</p>
+* <p><b>Produces</b>:	{@link Strategy}</p>
+* <p><b>Responsibilities</b>:</br>
 *              Producing a Strategy and monitoring if it is successful or if a 
-*               problem occurs.
-* Policy:      
-*  Planning:   Analysing the DI (how?), the Overlord comes up with a Strategy.
+*               problem occurs.</p>
+* <p><b>Policy</b>:</br>      
+*  Planning:</br>   Analysing the DynamicInfo (*how*), the Overlord comes up with a Strategy.
 *               After that, it checks the success of the strategy or if a 
-*               problem occurred on each DI it receives. If there is either,
+*               problem occurred on each DynamicInfo it receives. If there is either,
 *               the Overlord comes up with a new Strategy. Otherwise, just 
-*               passes the DI to its Dynamic Info Consumer.
+*               passes the DynamicInfo to its DynamicInfoConsumer.</p>
  */
 public class Overlord implements DynamicInfoConsumer {
 	 

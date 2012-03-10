@@ -6,6 +6,7 @@ import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
+import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
@@ -17,23 +18,23 @@ import java.awt.geom.Point2D;
 import lejos.geom.Point;
 
 /**
- * Field Marshal: a Strategy Consumer and a Dynamic Info Consumer
- Description: The highest military rank in the army. Decides what Operations 
-               should be executed. Passes them to a Operation Consumer, supplied
-               on construction of the Field Marshal. Also passes down the 
-               Dynamic Info it was given to a Dynamic Info Consumer, supplied
-               on construction of the Field Marshal.
- Main client: Path Finder.
- Produces:    Operation.
- Responsibilities:
-              Producing an Operation and monitoring if it is successful or if
-               a problem occurs.
- Policy:      
-  Planning:   Analysing the DI (how?), the Field Marshal comes up with an
-               Operation. After that, it checks the success of the operation or
-               if a problem occurred on each DI it receives. If there is either,
-               the Field Marshal comes up with a new Operation. Otherwise, just 
-               passes the DI to its Dynamic Info Consumer.
+ * <p> <b>Field Marshal</b>:	A {@link StrategyConsumer} and a {@link DynamicInfoConsumer}</p>
+<p><b>Description</b>:	The highest military rank in the army. Decides what Operations 
+				should be executed. Passes them to a {@link OperationConsumer}, supplied
+				on construction of the FieldMarshal. Also passes down the 
+				{@link DynamicInfo} it was given to a DynamicInfoConsumer, supplied
+				on construction of the Field Marshal. </p>
+<p><b>Main client</b>:	{@link PathFinder}</p>
+<p><b>Produces</b>:	{@link Operation}</p>
+<p><b>Responsibilities</b>:</br>
+		Producing an Operation and monitoring if it is successful or if
+		a problem occurs.</p>
+<p><b>Policy</b>:</br>      
+	Planning:</br>   Analysing the DynamicInfo (*how*), the FieldMarshal comes up with an
+	Operation. After that, it checks the success of the operation or
+	if a problem occurred on each DynamicInfo it receives. If there is either,
+	the FieldMarshal comes up with a new Operation. Otherwise, just 
+	passes the DynamicInfo to its DynamicInfoConsumer.</p>
  */
 public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
@@ -60,18 +61,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	protected DynamicInfoChecker dynamicInfoChecker;
 	protected OperationConsumer operationConsumer;
 	protected DynamicInfoConsumer dynamicInfoConsumer;
-	
-	protected int DANGER_ZONE = 50;
-	protected int BALL_DANGER_ZONE = 35;
-	
-	protected boolean offensiveCheckpointing = false;
-	protected boolean defensiveRobotCheckpointing = false;
-	protected boolean defensiveBallCheckpointing = false;
-	
-	
-	protected Point2D offensiveCheckpoint;
-	protected Point2D defensiveRobotCheckpoint;
-	protected Point2D defensiveBallCheckpoint;
 
 	public FieldMarshal(GlobalInfo globalInfo, OperationConsumer operationConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
 		this.globalInfo = globalInfo;
@@ -106,146 +95,38 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 		switch (currentStrategy) {
 		case DEFENSIVE:
-			System.out.println("DEFENSIVE");
 			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
 				return null;
-			} else if (dynamicInfoChecker.inDefensivePosition(alfieInfo, ballPosition)) {
-				System.err.println("Shouldn't get here :(:(:(");
-				OperationReallocation cmd = new OperationReallocation(ballPosition, alfiePosition, alfieFacing, opponentInfo.getPosition());
-				return cmd;
 			} else {
 				//get to defensive position
 				//TODO check for obstacle
 				double y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
 				double y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
-				Point2D middleOfGoal = 
-					new Point(
-							(int) (
-									globalInfo.isAttackingRight() 
-									? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-									: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-							),
-							(int) (y1 + y2) / 2
-					);
-				
-				
-				
-				
-				
-				//check if opponent is blocking our path
-				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
-						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
-						&& DynamicInfoChecker.isSimilarAngle(alfieFacing,DynamicInfoChecker.getAngleFromOrigin(alfiePosition, middleOfGoal),15)
-						|| defensiveRobotCheckpointing){
-					System.out.println("CHECKPOINTING");
-					if (!defensiveRobotCheckpointing) {
-						defensiveRobotCheckpoint = DynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
-					} if (defensiveRobotCheckpoint.distance(alfiePosition) < 10) {
-						defensiveRobotCheckpointing = false;
-						return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
-					} else {
-						defensiveRobotCheckpointing = true;
-					}
-					DANGER_ZONE = 60;
-					// they are in the way!
-					//System.out.println("Using checkpoint");
-					return new OperationReallocation(defensiveRobotCheckpoint, alfiePosition, alfieFacing, opponentPosition);
-				} else {
-					DANGER_ZONE = 50;
-					defensiveRobotCheckpointing = false;
-					System.out.println("GETTING TO MIDDLE OF GOAL");
-					
-				}
-				
-				
-				
-				
-				
-				// check if ball is blocking our path
-				if (dynamicInfoChecker.opponentBlockingPath(alfieInfo, ballPosition)
-						&&(alfiePosition.distance(ballPosition)<BALL_DANGER_ZONE) 
-						//&& dynamicInfoChecker.isSimilarAngle(alfieFacing,dynamicInfoChecker.getAngleFromOrigin(alfiePosition, middleOfGoal),15)
-						|| defensiveBallCheckpointing){
-					System.out.println("CHECKPOINTING");
-					if (!defensiveBallCheckpointing) {
-						defensiveBallCheckpoint = DynamicInfoChecker.findTangentIntersect(alfiePosition, middleOfGoal, ballPosition, BALL_DANGER_ZONE);
-					} if (defensiveBallCheckpoint.distance(alfiePosition) < 10) {
-						defensiveBallCheckpointing = false;
-						return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
-					} else {
-						defensiveBallCheckpointing = true;
-					}
-					BALL_DANGER_ZONE = 40;
-					// they are in the way!
-					//System.out.println("Using checkpoint");
-					return new OperationReallocation(defensiveBallCheckpoint, alfiePosition, alfieFacing, opponentPosition);
-				} else {
-					BALL_DANGER_ZONE = 35;
-					defensiveBallCheckpointing = false;
-					System.out.println("GETTING TO MIDDLE OF GOAL");
-				}
-				
-				
-				
-				
-				
-				
+				int x = dynamicInfoChecker.getDefensiveGoalOfRobot(true);
+				int middleY = (int)(y1 + y2) / 2;
+				Point2D middleOfGoal = new Point(x,middleY);
 				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentInfo.getPosition());
 				return cmd;
 			}
 
 		case OFFENSIVE:
-			System.out.println("OFFENSIVE");
 			if(dynamicInfoChecker.hasBall(alfieInfo, ballPosition) 
 					|| kickingPosition.distance(alfiePosition) < 5){
-				System.out.println("HAS BALL");
 				if(dynamicInfoChecker.shotOnGoal(alfieInfo, opponentInfo, ballPosition) 
 						){
-					System.out.println("SHOT ON GOAL");
 					return new OperationStrike();
 				} else {
 					// no shot on goal
 					double y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
 					double y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
-					Point2D middleOfGoal = 
-						new Point(
-								(int) (
-										!globalInfo.isAttackingRight() 
-										? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-										: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-								),
-								(int) (y1 + y2) / 2
-						);
-					System.out.println("CHAAAAARGE");
-					return new OperationReallocation(middleOfGoal, alfiePosition, alfieFacing, opponentPosition);
-					//return new OperationCharge(ballPosition, alfiePosition, alfieFacing, middleOfGoal);
-				}
-			} else {
-				// no ball
-				// check if enemy robot is in the way
-				if(dynamicInfoChecker.opponentBlockingPath(alfieInfo, opponentInfo.getPosition())
-						&&(alfiePosition.distance(opponentPosition)<DANGER_ZONE)
-						&& DynamicInfoChecker.isSimilarAngle(alfieFacing,DynamicInfoChecker.getAngleFromOrigin(alfiePosition, ballPosition),15)
-						|| offensiveCheckpointing){
-					System.out.println("CHECKPOINTING");
-					if (!offensiveCheckpointing) {
-						offensiveCheckpoint = DynamicInfoChecker.findTangentIntersect(alfiePosition, ballPosition, opponentPosition, DANGER_ZONE);
-					} if (offensiveCheckpoint.distance(alfiePosition) < 10) {
-						offensiveCheckpointing = false;
-						return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
-					} else {
-						offensiveCheckpointing = true;
+					int middleY = (int)(y1 + y2) / 2;
+					int x = dynamicInfoChecker.getDefensiveGoalOfRobot(false);
+					Point2D middleOfGoal = new Point(x, middleY);
+					return new OperationCharge(ballPosition, alfiePosition, alfieFacing, middleOfGoal);
 					}
-					DANGER_ZONE = 60;
-					// they are in the way!
-					//System.out.println("Using checkpoint");
-					return new OperationReallocation(offensiveCheckpoint, alfiePosition, alfieFacing, opponentPosition);
-				} else {
-					DANGER_ZONE = 50;
-					offensiveCheckpointing = false;
-					System.out.println("GETTING TO KICKING POSITION");
-					return new OperationReallocation(kickingPosition, alfiePosition, alfieFacing, opponentPosition);
-				}
+			} else {
+				// we don't have the ball in our possession so we need to go get it
+				return new OperationReallocation(ballPosition, alfiePosition, alfieFacing, opponentPosition);
 			}
 
 		case STOP:
@@ -264,7 +145,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	public void setStrategy(Strategy strategy) {
 		if (strategy == null) {
-			System.out.println("Setting strategy to null");
 			currentStrategy = null;
 		}
 		currentStrategy = strategy;
@@ -275,7 +155,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 * Checks if the current operation succeeded, given the current pitch info.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
-	 * WARNING: Override in children classes and call this method first thing.
+	 * TODO implement
 	 */
 	protected boolean operationSuccessful(DynamicInfo dpi) {
 		if (currentStrategy == null)
@@ -287,11 +167,10 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 * Checks if there is a problem with executing the current operation.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
-	 * WARNING: Override in children classes and call this method first thing.
+	 * TODO implement
 	 */
 	protected boolean problemExists(DynamicInfo dpi) {
 		if (currentStrategy == null) {
-			System.out.println("Returning true");
 			return true;
 		}
 		return false;
@@ -309,8 +188,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
-			//System.out.println("REPLANNING");
-			currentOperation = planNextOperation(dpi);;
+			currentOperation = planNextOperation(dpi);
 			pathFinder.setOperation(currentOperation);
 			replan = false;
 		}
