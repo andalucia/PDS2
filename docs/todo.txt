@@ -37,6 +37,8 @@ Awaiting approval:
 16. Conversation: make the design more detailed; audit code and see what 
      should be modified so it adheres to the design.
 
+
+
 TODO:
 
  3. Bakery: copy the information from the design.txt to the javadoc of the 
