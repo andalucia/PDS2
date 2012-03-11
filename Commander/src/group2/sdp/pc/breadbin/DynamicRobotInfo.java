@@ -167,7 +167,7 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 	}
 
 	/**
-	 * Is the robot is rotating counter-clock-wise?
+	 * Is the robot rotating counter-clock-wise?
 	 * @param rotatingCounterClockWise True if the robot is rotating 
 	 * counter-clock-wise.
 	 */
