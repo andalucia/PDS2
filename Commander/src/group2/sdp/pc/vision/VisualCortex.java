@@ -22,11 +22,24 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 /**
- * This is how I process what I see on the pitch. I first remove the background to 
- * determine what pixels have changed, and therefore what pixels I need to consider when 
- * looking for myself, the other robot and the ball.
- * To find the robots I look for the largest connected area of that colour. I then 
- * use repeated regression to ensure the angle is correct.
+ * 
+ *<p><b>VisualCortex:</b> An Image Consumer</br>
+ *<p><b>Description:</b></br>
+ *The visual cortex of Alfie. Does main processing on the image. 
+ *<p><b>Main client:</b> Bakery
+ *<p><b>Responsibilities:</b></br>
+ *Extracts image features: position of the ball and the 
+ *robots, and orientation of the T-shapes on the top of the 
+ *robots. Passes that information to a Static Info Consumer 
+ *that is supplied on construction of the VisualCortex.
+ *<p><b> According to Alfie:</b></br>
+ *"This is how I process what I see on the pitch.
+ *I first remove the background to determine what pixels have
+ *changed, and therefore what pixels I need to consider when 
+ *looking for myself, the other robot and the ball.
+ *To find the robots I look for the largest connected area 
+ *of that colour. I then use repeated regression to ensure 
+ *the angle is correct.
  * @author Alfie
  *
  */
@@ -50,7 +63,8 @@ public class VisualCortex extends VisualCortexSkeleton {
 	private boolean extractBackground;
 
 	/**
-	* An image of the background compare each frame with.
+	* An image of the background - image in each frame is 
+	* 							compared to the background
 	*/
 	private BufferedImage backgroundImage;
 
@@ -66,11 +80,11 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
-//	private Point plateCentroidYellowRobot;
+	//	private Point plateCentroidYellowRobot;
 	private double blueDir, yellowDir;
 	
 	// TODO: think of a better name/way of doing this
-//	private boolean isYellowRobotRightGoal = true;
+	//	private boolean isYellowRobotRightGoal = true;
 	
 	private final int EXPECTED_ROBOT_SIZE = 400;
 	private final int EXPECTED_BALL_SIZE = 120;
@@ -291,6 +305,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			return true;
 		}
 	}
+	
 	/**
 	 * Loops through allPoints calling {@link #mindFlower(ArrayList,ArrayList,Point)} on pixels in it. mindFlower 
 	 * removes pixels from allPoints if it determines they are connected to another 
@@ -300,7 +315,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * area
 	 * 
 	 */
-
 	public ArrayList<Point> getGreatestArea(ArrayList<Point> allPoints) {
 		ArrayList<Point> bestArea = new ArrayList<Point>();
 		// this while loop should end because mindFlower
@@ -326,7 +340,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * @param isYellow
 	 * @return the direction 0 < x < 360 degrees.
 	 */
-
 	public double regressionAndDirection(BufferedImage image,
 			ArrayList<Point> fixels, boolean isYellow) {
 
@@ -389,7 +402,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 				dc = Color.DARK_GRAY;
 				break;
 			default:
-				//System.out.println(c);
 				dc = Color.CYAN;
 				break;
 			}
@@ -541,12 +553,13 @@ public class VisualCortex extends VisualCortexSkeleton {
 	}
 
 	/**
-	 * regression function
+	 * Performs regression on the pixels, using the angle that
+	 * {@link #findFacingDirection(BufferedImage, Point, boolean)}
+	 * returns  
 	 * @param fixels
 	 * @param angle
-	 * @return
+	 * @return angle
 	 */
-
 	protected double regression(ArrayList<Point> fixels, double angle, boolean isYellow) {
 
 		Point actualCentroid = blueCentroid;
@@ -554,49 +567,56 @@ public class VisualCortex extends VisualCortexSkeleton {
 			actualCentroid = yellowCentroid;
 		}
 
-		double allx = 0;
-		double ally = 0;
-		double allxy = 0;
-		double allx_sqr = 0;
-		double ally_sqr = 0;
-		int n = fixels.size();
+		double sumX = 0;
+		double sumY = 0;
+		double productXY = 0;
+		double productXsquared = 0;
+		double productYsquared = 0;
+		int size = fixels.size();
 
 		for (int i = 0; i < fixels.size(); i++) {
 
-			int x_for_rotate = fixels.get(i).x - actualCentroid.x;
-			int y_for_rotate = fixels.get(i).y - actualCentroid.y;
+			//translate the point onto the main axes
+			int normalisedX = fixels.get(i).x - actualCentroid.x;
+			int normalisedY = fixels.get(i).y - actualCentroid.y;
 
-			double x_rotated = x_for_rotate * Math.cos(Math.toRadians(angle))
-			- y_for_rotate * Math.sin(Math.toRadians(angle));
-			double y_rotated = x_for_rotate * Math.sin(Math.toRadians(angle))
-			+ y_for_rotate * Math.cos(Math.toRadians(angle));
+			//rotate the point while it's still on the main axes
+			double cosAngle = Math.cos(Math.toRadians(angle));
+			double sinAngle = Math.sin(Math.toRadians(angle));
+			double rotatedX = normalisedX * cosAngle
+			- normalisedY * sinAngle;
+			double rotatedY = normalisedX * sinAngle
+			+ normalisedY * cosAngle;
 
-			x_rotated = x_rotated + actualCentroid.x;
-			y_rotated = y_rotated + actualCentroid.y;
+			//translate the point back to its original position
+			rotatedX += actualCentroid.x;
+			rotatedY += actualCentroid.y;
 
-			allx += x_rotated;
-			ally += y_rotated;
+			//sum together the x and y coordinates of every point
+			//in the ArrayList of pixels
+			sumX += rotatedX;
+			sumY += rotatedY;
 
-			allxy += x_rotated * y_rotated;
+			productXY += rotatedX * rotatedY;
 
-			allx_sqr += x_rotated * x_rotated;
-			ally_sqr += y_rotated * y_rotated;
+			productXsquared += Math.pow(rotatedX, 2);
+			productYsquared += Math.pow(rotatedY, 2);
 
 		}
 
-		return (n * allxy - allx * ally) / (n * allx_sqr - allx * allx);
+		return (size * productXY - sumX * sumY) / (size * productXsquared - sumX * sumX);
 	}
 
 
 	/**
-	 * 
+	 * Checks if a given pixel on the image is blue or is yellow  
+	 * depending on the parameter isYellow
 	 * @param colour The colour you are checking
 	 * @param isYellow If you are looking for yellow (the other option is blue)
-	 * @return
+	 * @return --
 	 */
 	private boolean isBlueYellow(BufferedImage image, Point pixel, boolean isYellow) {
 		boolean returnValue = false;
-		//TODO check bounds
 		int width = 640;
 		int height = 480;
 		if (!(pixel.x >= 0 && pixel.x < width && pixel.y >= 0 && pixel.y < height)) {
@@ -620,23 +640,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return returnValue;
 	}
 
-
 	/**
-	 * Calculates distance between two points.
-	 * @param p1 start point
-	 * @param p2 end point
-	 * @return sqrt((x1-x2)^2+(y1-y2)^2)
-	 */
-	public static double calcDistanceBetweenPoints(Point p1, Point p2)
-	{
-		return Math.sqrt((double)(Math.pow(p1.x-p2.x,2)+(Math.pow(p1.y-p2.y,2))));
-	}
-
-	/**
-	 * 
-	 * @param fixels - for every ArrayList<Point> robot/ball,
-	 * 					calculate its centroid and return it
-	 * @return
+	 * For every ArrayList<Point> (robot/ball), calculate its centroid
+	 * @param pixels robot/ball pixels
+	 * @return Point centroid
 	 */
 	public Point calcCentroid(ArrayList<Point> fixels){
 		if (fixels.size() == 0) {
@@ -662,20 +669,20 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 
 	/**
-	 * WARNING: DO NOT USE p2 AFTER THIS FUNCTION HAS BEEN CALLED.
 	 * This function will change the values of p2. Use the returned point 
 	 * and create a copy of p2 if you want to use it. This will also perform 
 	 * very badly if continually used to rotate by 1 degrees.
+	 * @return coordinates of the *rounded* and rotated point
 	 */
-
 	public Point rotatePoint(Point pivot, Point rotate, int deg) {
 		Point point = new Point(rotate.x,rotate.y);
 		point.x -= pivot.x;
 		point.y -= pivot.y;
-		double rad = (double) Math.toRadians(deg);
-		int xtemp;
-		xtemp = (int) Math.round((point.x * (double)Math.cos(rad)) - (point.y * (double)Math.sin(rad)));
-		point.y = (int) Math.round((point.x * (double)Math.sin(rad)) + (point.y * (double)Math.cos(rad)));
+		double rad = Math.toRadians(deg);
+		double cosAngle = Math.cos(rad);
+		double sinAngle = Math.sin(rad); 
+		int xtemp = (int) Math.round((point.x * cosAngle) - (point.y * sinAngle));
+		point.y = (int) Math.round((point.x * sinAngle) + (point.y * cosAngle));
 		point.x = xtemp;
 		return new Point (point.x+pivot.x, point.y+pivot.y);
 	}
@@ -804,12 +811,12 @@ public class VisualCortex extends VisualCortexSkeleton {
 	private void drawStuff(BufferedImage internalImage) {
 		WritableRaster raster = internalImage.getRaster();
 		if (blueCentroid != null) {
-			drawLine_Robot_Facing(raster, this.blueCentroid , this.blueDir );
+			drawRobotFacingDirection(raster, this.blueCentroid , this.blueDir );
 			drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
 		}
 		if (yellowCentroid != null) {
 			drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
-			drawLine_Robot_Facing(raster, this.yellowCentroid , this.yellowDir );
+			drawRobotFacingDirection(raster, this.yellowCentroid , this.yellowDir );
 		}
 		if (ballCentroid != null){
 			drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
@@ -839,42 +846,30 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * @param c
 	 * @param angle
 	 */
-	private void drawLine_Robot_Facing(WritableRaster raster, Point c,
+	private void drawRobotFacingDirection(WritableRaster raster, Point c,
 			double angle) {
+		
 		angle = 360 - angle;
-		int[] colour = { 255, 255, 255 };
+		double tanAngle = Math.tan(Math.toRadians(angle));
+		int[] colour = {255, 255, 255};
+		
 		if (angle < 270 && angle > 90) {
-
-			int xh = c.x - 100;
-			int x = c.x;
-//			int y = c.y;
-
-			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
-			while (x > xh) {
-				drawPixel(
-						raster,
-						new Point(x,
-								(int) (Math.tan(Math.toRadians(angle)) * x + b)),
-								colour);
-				x--;
+			int counter = c.x - 100;
+			double b = c.y - c.x * tanAngle;
+			while (c.x > counter) {
+				Point pointToDraw = new Point(c.x, (int)(b + c.x * tanAngle));
+				drawPixel(raster, pointToDraw, colour);
+				counter++;
 			}
 		} else {
-
-			int xh = c.x + 100;
-			int x = c.x;
-//			int y = c.y;
-
-			double b = c.y - Math.tan(Math.toRadians(angle)) * c.x;
-			while (x < xh) {
-				drawPixel(
-						raster,
-						new Point(x,
-								(int) (Math.tan(Math.toRadians(angle)) * x + b)),
-								colour);
-				x++;
+			int counter = c.x + 100;
+			double b = c.y - c.x * tanAngle;
+			while (c.x < counter) {
+				Point pointToDraw = new Point(c.x,(int)(b + c.x * tanAngle));
+				drawPixel(raster, pointToDraw, colour);
+				counter--;
 			}
 		}
-
 	}
 
 	/**
@@ -893,7 +888,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return currentMode;
 	}
 
-	@Override
+	/**
+	 * @return ball position
+	 */
 	protected Point2D extractBallPosition(BufferedImage image) {
 		if (ballCentroid == null || ballCentroid.getLocation() == null) {
 			return null;
@@ -901,7 +898,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return convertPixelsToCm(ballCentroid);
 	}
 
-	@Override
+	/**
+	 * @return robot positions
+	 */
 	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
 		Point robotPosition = yellow 
 			? yellowCentroid
@@ -918,7 +917,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 			);
 	}
 
-	@Override
+	/**
+	 * @return angle of the robot facing direction
+	 */
 	protected double extractRobotFacingDirection(BufferedImage image,
 			boolean yellow) {
 		if (yellow) {
