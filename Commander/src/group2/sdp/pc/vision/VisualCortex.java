@@ -823,14 +823,14 @@ public class VisualCortex extends VisualCortexSkeleton {
 	private void drawStuff(BufferedImage internalImage) {
 		WritableRaster raster = internalImage.getRaster();
 		if (blueCentroid != null) {
-			drawLine_Robot_Facing(raster, this.blueCentroid, this.blueDir);
+			drawRobotFacingDirection(raster, this.blueCentroid, this.blueDir);
 			drawCentroidCircle(raster, blueCentroid, new int[] { 0, 0, 255 },
 					50);
 		}
 		if (yellowCentroid != null) {
 			drawCentroidCircle(raster, yellowCentroid,
 					new int[] { 255, 255, 0 }, 50);
-			drawLine_Robot_Facing(raster, this.yellowCentroid, this.yellowDir);
+			drawRobotFacingDirection(raster, this.yellowCentroid, this.yellowDir);
 		}
 		if (ballCentroid != null) {
 			drawCentroidCircle(raster, ballCentroid, new int[] { 255, 0, 0 },
