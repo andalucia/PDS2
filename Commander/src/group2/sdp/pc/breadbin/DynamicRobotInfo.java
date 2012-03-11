@@ -3,17 +3,22 @@ package group2.sdp.pc.breadbin;
 import java.awt.geom.Point2D;
 
 /**
- * Description: Extends the Static Robot Info type, thus containing all of SRI's
- *               contents. Also adds information about a robot that is 
- *               frame-specific, but that can only be extracted from multiple 
- *               frames.
- * Contains:    Physical attributes (width, height), absolute position and 
- *               orientation, the robot being Alfie or not, time-stamp, 
- *               'derivative' or movement information (speed, direction of 
- *               travel, turning speed and direction), and whether the robot is 
- *               kicking the ball or not (REMOVE ME: do this by checking if the 
- *               robot had the ball and if the ball suddenly accelerated).
+ * <p><b>Description:</b></br>
+ * Extends the {@link StaticRobotInfo} type, thus containing all of
+ * StaticRobotInfo's contents. Also adds information about a robot that is 
+ * frame-specific, but that can only be extracted from multiple frames.</p>
+ * <p><b>Contains:</b></br>
+ * Physical attributes (width, height), absolute position and 
+ * orientation, is the robot Alfie or not, time-stamp, 
+ * 'derivative' or movement information (speed, direction of 
+ * travel, turning speed and direction), and whether the robot is 
+ * kicking the ball or not.</p>
  */
+
+//TODO Check whether the robot is kicking the ball or not
+// (do this by checking if the robot had the ball and if
+//the ball suddenly accelerated)
+
 public class DynamicRobotInfo extends StaticRobotInfo {
 	/**
 	 * The speed, in centimetres per second, at which the robot is travelling.
