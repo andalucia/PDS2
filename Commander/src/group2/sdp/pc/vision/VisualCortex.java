@@ -69,6 +69,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 	private BufferedImage backgroundImage;
 
 	private static final boolean VERBOSE = true;
+
+	// true if we want to draw on the raster
+	private static final boolean pleaseDraw = true;
 	
 	private String backgroundFileName = "background.png";
 	private boolean saveBackground = false;
@@ -80,14 +83,12 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 	// values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
-	// private Point plateCentroidYellowRobot;
-	private double blueDir, yellowDir;
+	private double directionBlueRobot, directionYellowRobot;
 	
-	// TODO: think of a better name/way of doing this
-	// private boolean isYellowRobotRightGoal = true;
-
-	private final int EXPECTED_ROBOT_SIZE = 400;
-	private final int EXPECTED_BALL_SIZE = 120;
+	// used to check if what we think is a robot/ball is 
+	// actually a robot/ball or is noise
+	private final int meanRobotSize = 400;
+	private final int meanBallSize = 120;
 
 	/**
 	 * See parent's comment.
@@ -111,7 +112,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 	/**
 	 * In addition to processing the frame extracts the background if needed.
 	 */
-	@Override
 	public void process(BufferedImage image) {
 		if (extractBackground) {
 			if (!saveBackground) {
@@ -130,7 +130,8 @@ public class VisualCortex extends VisualCortexSkeleton {
 		} else {
 			newPixels = getDifferentPixels(image);
 			internalImage = drawPixels(image, newPixels);
-			drawStuff(internalImage);
+			if(pleaseDraw)
+				drawStuff(internalImage);
 			super.process(image);
 		}
 		detectRobotsAndBall(image, newPixels);
@@ -185,7 +186,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * 
 	 * @param image
 	 *            The image to subtract from the background image.
-	 * @return A list of the _different_ points.
+	 * @return A list of the *different* points.
 	 * @see isDifferent
 	 */
 	private ArrayList<Point> getDifferentPixels(BufferedImage image) {
@@ -237,7 +238,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return delta[0] + delta[1] + delta[2] > threshold;
 	}
 
-	// TODO: probably better to split this up.
 	/**
 	 * This function is where everything except background removal is done. The
 	 * robot 'T's are detected, processed and have their centroids and
@@ -282,15 +282,15 @@ public class VisualCortex extends VisualCortexSkeleton {
 		ArrayList<Point> bluePointsClean = new ArrayList<Point>(0);
 		ArrayList<Point> ballPointsClean = new ArrayList<Point>(0);
 
-		if (sizeCheck(bluePoints, EXPECTED_ROBOT_SIZE)) {
+		if (sizeCheck(bluePoints, meanRobotSize)) {
 
 			bluePointsClean = getGreatestArea(bluePoints);
 		}
-		if (sizeCheck(yellowPoints, EXPECTED_ROBOT_SIZE)) {
+		if (sizeCheck(yellowPoints, meanRobotSize)) {
 
 			yellowPointsClean = getGreatestArea(yellowPoints);
 		}
-		if (sizeCheck(ballPoints, EXPECTED_BALL_SIZE)) {
+		if (sizeCheck(ballPoints, meanBallSize)) {
 			ballPointsClean = getGreatestArea(ballPoints);
 		}
 
@@ -298,22 +298,30 @@ public class VisualCortex extends VisualCortexSkeleton {
 		this.blueCentroid = calcCentroid(bluePointsClean);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
 
-		this.blueDir = regressionAndDirection(image, bluePointsClean, false) % 360;
-		this.yellowDir = regressionAndDirection(image, yellowPointsClean, true) % 360;
+		this.directionBlueRobot = regressionAndDirection(image, bluePointsClean, false) % 360;
+		this.directionYellowRobot = regressionAndDirection(image, yellowPointsClean, true) % 360;
 
 	}
 
-	// TODO: Fix comments, extract constants.
 	/**
-	 * Checks if the array list is within some bounds of the expected size.
+	 * Given an ArrayList of points we think are a robot,
+	 * perform a check on the size of the ArrayList and
+	 * decide if it is actually a robot or a noise.
+	 * it is used to prevent the system from crashing when 
+	 * there is a lot of noise on the pitch or whether 
+	 * we think there's a robot present when in reality it 
+	 * is noise from the other robots (wheels, sensors...) 
 	 * 
 	 * @param points
-	 * @param expectedSize
-	 * @return
+	 * @param expectedSize ({@link #meanRobotSize}/{@link #meanBallSize})
+	 * @return true if the size of the ArrayList is in bounds
 	 */
 	private boolean sizeCheck(ArrayList<Point> points, int expectedSize) {
-		if (points.size() > expectedSize * 4
-				&& points.size() < expectedSize * 0.4) {
+		int upperBound = 4;
+		double lowerBound = 0.4;
+		int size = points.size(); 
+		if (size > expectedSize * upperBound
+				&& size < expectedSize * lowerBound) {
 			return false;
 		} else {
 			return true;
@@ -349,7 +357,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return bestArea;
 	}
 
-	// TODO: fix comments (arguments), names
 	/**
 	 * Uses {@link #findFacingDirection(BufferedImage, Point, boolean)} to get a
 	 * starting direction and then refines it using
@@ -363,36 +370,41 @@ public class VisualCortex extends VisualCortexSkeleton {
 	public double regressionAndDirection(BufferedImage image,
 			ArrayList<Point> fixels, boolean isYellow) {
 
-		// for regression
-		double end_angle = 0;
-
+		double angleToReturn = 0;
 		Point fixelsCentroid = calcCentroid(fixels);
 
-		double actualDir;
+		double direction;
 		if (isYellow) {
-			actualDir = (findFacingDirection(image, fixelsCentroid, true));
+			// if we want the yellow direction
+			// 'true' means we're looking for yellow
+			direction = (findFacingDirection(image, fixelsCentroid, true));
 		} else {
-			actualDir = (findFacingDirection(image, fixelsCentroid, false));
+			// if we want the blue direction
+			direction = (findFacingDirection(image, fixelsCentroid, false));
 		}
 
-		double m = 0;
-		double newangle = actualDir;
+		double angleReturnedByRegression = 0;
+		double newAngle = direction;
+		// perform regression 5 times on the angle 
 		for (int i = 0; i < 5; i++) {
-			m = regression(fixels, newangle, isYellow);
-			newangle = (newangle) - Math.toDegrees(Math.atan(m));
+			angleReturnedByRegression = regression(fixels, newAngle, isYellow);
+			double subtractAngle = Math.toDegrees(Math.atan(angleReturnedByRegression));
+			newAngle -= subtractAngle;
 
 		}
-		end_angle = newangle;
-		return end_angle;
+		angleToReturn = newAngle;
+		return angleToReturn;
 	}
 
-	// TODO: figure out if it is actually slow, then act accordingly.
 	/**
-	 * This function is supposed to be *slow*. Do not use apart from testing.
+	 * The function is used to draw pixels on the image we get from
+	 * the camera. It is used once only after we detect the robots
+	 * and the ball.
 	 * 
 	 * @param pixels
 	 *            The pixels to draw on a new image.
-	 * @return
+	 * @return image
+	 * 				The image with the pixels drawn on it
 	 */
 	private BufferedImage drawPixels(BufferedImage image, List<Point> pixels) {
 		int w = backgroundImage.getWidth();
@@ -448,7 +460,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 	/**
 	 * Called by {@link #getGreatestArea(ArrayList)}. Looks for adjacent points
-	 * to determine connected areas
+	 * to determine connected areas.
 	 * 
 	 * @param newArea
 	 *            connected pixels are stored in here
@@ -486,7 +498,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return newArea;
 	}
 
-	// TODO: fix comments (almost perfect), names, code structure redesign
 	/**
 	 * Cycles through all (360) possible angles and finds the longest unbroken
 	 * line from the centroid. The angle at which this line was found is the
@@ -505,73 +516,68 @@ public class VisualCortex extends VisualCortexSkeleton {
 		if (centroid == null) {
 			return -1;
 		}
-		int cur_score = 0;
-		int cur_score2 = 0;
-		int best_score = 0;
-		int best_angle = 0;
+		int currentScore = 0;
+		int currentScoreOppositeDirection = 0;
+		int bestScore = 0;
+		int bestAngle = 0;
 		if (centroid.x != 0) {
 
+			// for every possible direction
+			// rotate by 1 degree at a time
 			for (int i = 0; i < 360; i++) {
-				cur_score = 0;
-				cur_score2 = 0;
-				Point nextPixel = new Point();
-				nextPixel.x = centroid.x;
-				nextPixel.y = centroid.y;
-				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
-						nextPixel.y), i);
+				currentScore = 0;
+				currentScoreOppositeDirection = 0;
+				Point nextPixel = new Point();			
+				Point rotatedPixel = new Point();
 				/**
 				 * Do not stop until the next pixel colour is not the colour we
 				 * are looking for. The next pixel is determined by travelling
 				 * in the negative x direction and then rotating the point i
 				 * degrees around the centroid.
 				 */
-
-				while (isBlueYellow(image, rot_pixel, isYellow)) {
-
-					cur_score++; // Since we sort in ascending order, lower
+				while (isBlueYellow(image, rotatedPixel, isYellow)) {
+					nextPixel = new Point(centroid.x + currentScore, centroid.y);
+					rotatedPixel = rotatePoint(centroid, nextPixel, i);
+					// Since we sort in ascending order, lower
 					// score is longer segments
-
-					nextPixel = new Point(centroid.x + cur_score, centroid.y);
-					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
-							nextPixel.y), i);
+					currentScore++;
 				}
-				while (isBlueYellow(image, rot_pixel, isYellow)) {
-
-					cur_score2++; // Since we sort in ascending order, lower
-					// score is longer segments
-
-					nextPixel = new Point(centroid.x + cur_score, centroid.y);
-					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
-							nextPixel.y), i + 180);
+				/**
+				 * The second while loop is because the function is checking
+				 * if a line is 'unbroken' (all pixels on it are the same colour)
+				 * in *both* directions. That is, if the line (centroid, Point(0,1)) 
+				 * is unbroken, you have to also check if the line (centroid, Point(0,-1)) 
+				 * is unbroken and only then say that is the right direction.
+				 */
+				while (isBlueYellow(image, rotatedPixel, isYellow)) {
+					nextPixel = new Point(centroid.x + currentScore, centroid.y);
+					rotatedPixel = rotatePoint(centroid, nextPixel, i + 180);
+					currentScoreOppositeDirection++;
 				}
-
-				if (cur_score + cur_score2 > best_score) {
-
-					if (cur_score > cur_score2) {
-						best_angle = i;
+				if (currentScore + currentScoreOppositeDirection > bestScore) {
+					if (currentScore > currentScoreOppositeDirection) {
+						bestAngle = i;
 					} else {
-						best_angle = (i + 180) % 360;
+						bestAngle = (i + 180) % 360;
 					}
-
-					best_score = cur_score + cur_score2;
+					bestScore = currentScore + currentScoreOppositeDirection;
 				}
-
 			}
 		}
-
-		return 360 - best_angle;
+		return 360 - bestAngle;
 	}
 
 	/**
 	 * Performs regression on the pixels, using the angle that
 	 * {@link #findFacingDirection(BufferedImage, Point, boolean)}
-	 * returns  
+	 * returns as the starting point 
 	 * @param fixels
 	 * @param angle
 	 * @return angle
 	 */
 	protected double regression(ArrayList<Point> fixels, double angle, boolean isYellow) {
 
+		// we want the function to be generic:
 		Point actualCentroid = blueCentroid;
 		if (isYellow) {
 			actualCentroid = yellowCentroid;
@@ -626,9 +632,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	private boolean isBlueYellow(BufferedImage image, Point pixel, boolean isYellow) {
 		boolean returnValue = false;
-		int width = 640;
-		int height = 480;
-		if (!(pixel.x >= 0 && pixel.x < width && pixel.y >= 0 && pixel.y < height)) {
+		if (!(withinBounds(pixel))) {
 			return false;
 		}
 		Color c = new Color(image.getRGB(pixel.x, pixel.y));
@@ -659,15 +663,16 @@ public class VisualCortex extends VisualCortexSkeleton {
 			return null;
 		}
 		Point centroid = new Point(0,0);
-		Point fixelsInArrayList = new Point(0,0);
+		Point totalFixels = new Point(0,0);
+		
 		for (int i = 0; i < fixels.size(); i++){
 			Point current = fixels.get(i);
-			fixelsInArrayList.x += current.x;
-			fixelsInArrayList.y += current.y;
+			totalFixels.x += current.x;
+			totalFixels.y += current.y;
 		}
 		if (!fixels.isEmpty()){
-			centroid.x = fixelsInArrayList.x / fixels.size();
-			centroid.y = fixelsInArrayList.y / fixels.size();}
+			centroid.x = totalFixels.x / fixels.size();
+			centroid.y = totalFixels.y / fixels.size();}
 		else {
 			if (VERBOSE) {
 				System.out.println("Robot's missing.");
@@ -677,9 +682,8 @@ public class VisualCortex extends VisualCortexSkeleton {
 	}
 
 	/**
-	 * This function will change the values of p2. Use the returned point 
-	 * and create a copy of p2 if you want to use it. This will also perform 
-	 * very badly if continually used to rotate by 1 degrees.
+	 * Given a point, rotate it by a given angle (in degrees) 
+	 * around a pivot point
 	 * @return coordinates of the *rounded* and rotated point
 	 */
 	public Point rotatePoint(Point pivot, Point rotate, int deg) {
@@ -796,9 +800,30 @@ public class VisualCortex extends VisualCortexSkeleton {
 		return (x - x0) * (targetRange / domainRange) + y0;
 	}
 
-	// TODO: use a method for the check, see earlier todo-s.
 	/**
-	 * A safe way to draw a pixel
+	 * Checks if the point is within the bounds of the background image because 
+	 * we assume the background image is the same size as the current image.
+	 * @param point
+	 * @return
+	 */
+	private boolean withinBounds(Point point) {	
+		int width, height;
+		if (backgroundImage == null) {
+			width = 640;
+			height = 480;
+		} else {
+			width = backgroundImage.getWidth();
+			height = backgroundImage.getHeight();
+		}
+		if (point.x < 0 && point.x >= width && point.y < 0 && point.y >= height){
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Draw a method on a Writable raster derived from the captured image.
 	 * 
 	 * @param raster
 	 *            draw on writable raster
@@ -808,37 +833,41 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 *            colour
 	 */
 	private void drawPixel(WritableRaster raster, Point p1, int[] colour) {
-		int width = 640;
-		int height = 480;
-		if (p1.x >= 0 && p1.x < width && p1.y >= 0 && p1.y < height)
+		if (withinBounds(p1))
 			raster.setPixel(p1.x, p1.y, colour);
 	}
 
-	// TODO: fix comments, nice function
 	/**
-	 * This function is used to keep all drawing/printing in one place.
+	 * This function puts together two drawing functions:
+	 * drawCentroidCircle - draw a circle of a certain radius 
+	 * around the centroid of the robot 
+	 * drawRobotFacingDirection - draw the orientation of the robot (a line)
 	 * 
 	 * @param internalImage
 	 */
 	private void drawStuff(BufferedImage internalImage) {
 		WritableRaster raster = internalImage.getRaster();
+		int[] blue = new int[] { 0, 0, 255 };
+		int[] yellow = new int[] { 255, 255, 0 };
+		int[] red = new int[] { 255, 0, 0 };
+		// if there is a blue robot on the pitch,
+		// draw a blue circle around it (facilitates the human eye...)
+		// radius if the circle is 50 for the robots and 25 for the ball
+		// draw orientation of the robot
 		if (blueCentroid != null) {
-			drawRobotFacingDirection(raster, this.blueCentroid, this.blueDir);
-			drawCentroidCircle(raster, blueCentroid, new int[] { 0, 0, 255 },
-					50);
+			drawCentroidCircle(raster, blueCentroid, blue, 50);
+			drawRobotFacingDirection(raster, this.blueCentroid, this.directionBlueRobot);
+			
 		}
 		if (yellowCentroid != null) {
-			drawCentroidCircle(raster, yellowCentroid,
-					new int[] { 255, 255, 0 }, 50);
-			drawRobotFacingDirection(raster, this.yellowCentroid, this.yellowDir);
+			drawCentroidCircle(raster, yellowCentroid, yellow, 50);
+			drawRobotFacingDirection(raster, this.yellowCentroid, this.directionYellowRobot);
 		}
 		if (ballCentroid != null) {
-			drawCentroidCircle(raster, ballCentroid, new int[] { 255, 0, 0 },
-					25);
+			drawCentroidCircle(raster, ballCentroid, red, 25);
 		}
 	}
 
-	// TODO: simple, but add comments, should be disable-able :] (but not here).
 	/**
 	 * Simply used to draw a circle around the point centroid.
 	 * 
@@ -850,11 +879,20 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	private void drawCentroidCircle(WritableRaster raster, Point centroid,
 			int[] colour, int radius) {
-		Point rotPoint = new Point(centroid.x + radius, centroid.y);
+		/**
+		 * Think of it that way:
+		 * Pick up a point at a distance, say 20 (future radius)
+		 * and start rotating it by 1 degree around another point.
+		 * What will happen in the end is that you will get a circle 
+		 * of radius 20 whose origin is the point around which you rotate. 
+		 */
+		Point pointToRotate = new Point(centroid.x + radius, centroid.y);
 		for (int i = 0; i < 360; i++) {
-			Point tempPoint = new Point(centroid.x + radius, centroid.y);
-			rotPoint = rotatePoint(centroid, tempPoint, i);
-			drawPixel(raster, rotPoint, colour);
+			Point previousPointToRotate = new Point(centroid.x + radius, centroid.y);
+			pointToRotate = rotatePoint(centroid, previousPointToRotate, i);
+			// the aim is for us (people) to see where the vision system
+			// thinks the robot is, therefore - draw the point while rotating it
+			drawPixel(raster, pointToRotate, colour);
 		}
 	}
 
@@ -862,10 +900,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * Used to draw the facing direction of robots.
 	 * 
 	 * @param raster
-	 * @param c
+	 * @param point
 	 * @param angle
 	 */
-	private void drawRobotFacingDirection(WritableRaster raster, Point c,
+	private void drawRobotFacingDirection(WritableRaster raster, Point centroid,
 			double angle) {
 		
 		angle = 360 - angle;
@@ -873,18 +911,18 @@ public class VisualCortex extends VisualCortexSkeleton {
 		int[] colour = {255, 255, 255};
 		
 		if (angle < 270 && angle > 90) {
-			int counter = c.x - 100;
-			double b = c.y - c.x * tanAngle;
-			while (c.x > counter) {
-				Point pointToDraw = new Point(c.x, (int)(b + c.x * tanAngle));
+			int counter = centroid.x - 100;
+			double b = centroid.y - centroid.x * tanAngle;
+			while (centroid.x > counter) {
+				Point pointToDraw = new Point(centroid.x, (int)(b + centroid.x * tanAngle));
 				drawPixel(raster, pointToDraw, colour);
 				counter++;
 			}
 		} else {
-			int counter = c.x + 100;
-			double b = c.y - c.x * tanAngle;
-			while (c.x < counter) {
-				Point pointToDraw = new Point(c.x,(int)(b + c.x * tanAngle));
+			int counter = centroid.x + 100;
+			double b = centroid.y - centroid.x * tanAngle;
+			while (centroid.x < counter) {
+				Point pointToDraw = new Point(centroid.x,(int)(b + centroid.x * tanAngle));
 				drawPixel(raster, pointToDraw, colour);
 				counter--;
 			}
@@ -945,9 +983,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 	protected double extractRobotFacingDirection(BufferedImage image,
 			boolean yellow) {
 		if (yellow) {
-			return yellowDir;
+			return directionYellowRobot;
 		} else {
-			return blueDir;
+			return directionBlueRobot;
 		}
 	}
 }
