@@ -1,366 +1,231 @@
-
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
-import group2.sdp.pc.planner.operation.*;
+import group2.sdp.pc.planner.operation.Operation;
+import group2.sdp.pc.planner.pathstep.PathStep;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
+import group2.sdp.pc.planner.pathstep.PathStepGoBackwards;
+import group2.sdp.pc.planner.pathstep.PathStepGoForwards;
+import group2.sdp.pc.planner.pathstep.PathStepKick;
+import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
+import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
-import java.awt.geom.Point2D;
+import java.util.LinkedList;
 
 /**
- * Takes a command from the planner and executes it. This class is responsible for 
- * sending the "physical" instructions to Alfie or the simulator.
+ * The PathFinder decides how to execute a particular operation.
  * 
- * Every new command should be added to the switch statement and to the enum in ComplexCommand.
+ * It does this by checking the operation to be executed and creating a queue of pathStepList. It then
+ * proceeds to execute them in order and checking whether they are success or have failed in every
+ * consumeInfo() cycle
  */
 public class PathFinder implements DynamicInfoConsumer {
-
-	/**
-	 * Sets verbose mode on or off, for debugging
-	 */
-	private static final boolean VERBOSE = false;
-
-	/**
-	 * TODO THESE THRESHOLDS STILL NEED TO BE TESTED TO FIND IDEAL VALUES 
-	 */
-
-	private static final int MAX_SPEED = 54;
-	private static final int CRUISING_SPEED = 10;
-	private static final int TURNING_SPEED = 10;	
-	private static final int MOVING_KICK_SPEED = 25;
-	
-	int movetype =0;
 	
 	/**
-	 * Alfie needs to be within this angle when he is *FAR AWAY* from the ball (> TARGET_SHORT_THRESHOLD)
-	 * before he's satisfied that he's facing in an accurate enough direction
+	 * This is a queue which stores a list of paths 
 	 */
-	private static final int LONG_TURNING_ERROR_THRESHOLD = 25;
-
-	/**
-	 * Alfi needs to be within this angle when he is *CLOSE* to the ball (<= TARGET_SHORT_THRESHOLD)
-	 * before he's satisfied that he's facing in an accurate enough direction
-	 */
-	private static final int STOP_TURNING_ERROR_THRESHOLD = 10;
-
-	double oldAngle = 0;
-	double newAngle =0;
+	private LinkedList<PathStep> pathStepList = new LinkedList<PathStep>();
+	private PathStep currentStep = null;
+	private Operation currentOperation;
 	
-	/**
-	 * The SeverSkeleton implementation to use for executing the commands. 
-	 * Can be the Alfie bluetooth server or the simulator.
-	 */
-	private MouthInterface alfieServer;
-
-	/**
-	 * The command that is currently being executed.
-	 */
-	private Operation currentOperation; 
-
 	private GlobalInfo globalInfo;
-
-	/**
-	 * Used to perform functions on the DynamicInfo
-	 */
-	private DynamicInfoChecker dynamicInfoChecker;
+	private MouthInterface mouth;
 	
 	/**
-	 * Initialise the class and the ServerSkeleton to send commands to Alfie or the simulator, make sure
-	 * the ServerSkeleton object passed is already initialised and connected
+	 * Create the path finder object and setup the GlobalInfo and Mouth
 	 * 
-	 * @param alfieServer The initialised bluetooth server or the simulator object
+	 * @param Persistant global pitch info
+	 * @param the mouth used for communicating with Alfie or the simulator
 	 */
-	public PathFinder(GlobalInfo globalInfo,MouthInterface alfieServer) {
+	public PathFinder(GlobalInfo globalInfo, MouthInterface mouth) {
 		this.globalInfo = globalInfo;
-		this.alfieServer = alfieServer;
+		this.mouth = mouth;
 	}
-
-
-	/**
-	 * Sets the operation. Called when field marshal re-plans. consumeInfo handles execution of command
-	 *  
-	 * @param currentOperation The command to be set.
-	 */
-	public void setOperation(Operation currentOperation) {
-		this.currentOperation = currentOperation;
-	}
-
-
-	/**
-	 * This function is the basic movement function. It will take the passed command and use its 
-	 * relevant information to work out how to navigate to the target.
-	 *
-	 * @param currentCommand Contains the state information for Alfie and the target 
-	 */
-	private void executeOperationReallocation(OperationReallocation currentCommand) {
-		Point2D targetPosition = currentCommand.getTarget();
-		Point2D alfiePosition = currentCommand.getOrigin();
-//		Point2D enemyPosition = currentCommand.getOpponent();
-		double alfieDirection = currentCommand.getFacingDirection();
-
-		int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, alfiePosition, alfieDirection);
-		int distanceToTarget = (int) alfiePosition.distance(targetPosition);
-		int threshold;
-
-		//FIXME 20 used to be RweClose
-		if(distanceToTarget < 20) {
-			threshold = STOP_TURNING_ERROR_THRESHOLD;
-		} else {
-			threshold = LONG_TURNING_ERROR_THRESHOLD;
-		}
-
-		if (VERBOSE) {
-			System.out.println("Angle to turn to: " + angleToTurn);
-			System.err.println("Distance: " + distanceToTarget);
-		}
-
-		// If Alfie is not facing the ball:
-		if (Math.abs(angleToTurn) > threshold) {
-			movetype = 1;
-			if (angleToTurn < 0) {
-				alfieServer.sendSpinRight(TURNING_SPEED, Math.abs(angleToTurn)-10);
-				if(VERBOSE) {
-					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
-				}
-			} else {
-				alfieServer.sendSpinLeft(TURNING_SPEED, Math.abs(angleToTurn)-10);
-				if(VERBOSE) {
-					System.out.println("Turning right " + Math.abs(angleToTurn) + " degrees");
-				}
-				if(VERBOSE) {
-					System.out.println("Turning left " + angleToTurn + " degrees");
-				}
-			}
-		} else {
-			// Alfie is facing the ball: go forwards
-			
-			//adding in stuff to avoid other player
-//			if((alfiePosition.distance(enemyPosition)<35)&&(dynamicInfoChecker.isSimilarAngle(dynamicInfoChecker.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
-//				System.out.println("ENEMY CLOSE SIT STILL");
-//				alfieServer.sendStop();
-//				return;
-//			}
-			movetype = 2;
-			alfieServer.sendGoForward(CRUISING_SPEED, 0);
-			if(VERBOSE) {
-				System.err.println("Going forward at speed: " + CRUISING_SPEED);
-			}
-		}
-	}
-
-	/**
-	 * This function is the basic dribbling function. Currently it just dribbles forward
-	 * Later, logic should be added to steer Alfie towards goal and away from the opponent
-	 *
-	 * @param currentCommand Contains the state information for Alfie, the ball and the opponent robot
-	 */	
-	private void executeOperationCharge(OperationCharge currentCommand) {
-		// moves in an arc to face the goal. The arc diameter is half the distance 
-		// between the ball and the goal, so that it has time to shoot before it is facing 
-		// the goal
-		//double distance = (currentCommand.getAlfie().distance(currentCommand.getMiddle()));
-		//alfieServer.sendForwardArcLeft((int)(5), 45);
-		System.err.println("HOW DID WE GET HERE.");
-	}
-
-	/**
-	 * This function is called directly before we kick ass and explode into rampant celebration 
-	 * 
-	 * @param currentCommand Contains absolutely no useful information at all
-	 */	
-	private void executeOperationStrike(OperationStrike currentCommand) {
-		alfieServer.sendGoForward(MOVING_KICK_SPEED, 22);
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		alfieServer.sendKick(MAX_SPEED);
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * This function stops Alfie and makes him wait for the next instruction
-	 */
-	private void executeOperationOverload(OperationOverload currentCommand) {
-		alfieServer.sendStop();
-	}
-
-
+	
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
-		//TODO act upon all commands correctly
-		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
-		if (currentOperation instanceof OperationReallocation) {
 
-			if (VERBOSE) { 
-				System.out.println("OperationReallocation"); 
-			}
-
-			OperationReallocation cmd = (OperationReallocation) currentOperation;
-
-			// Get the position of the target from OperationReallocation
-			Point2D targetPosition = cmd.getTarget();
-
-			// Calculate the angle between the ball and the target (usually the ball)
-			int angleToTurn = dynamicInfoChecker.getAngleToBall(targetPosition, 
-					dpi.getAlfieInfo().getPosition(), 
-					dpi.getAlfieInfo().getFacingDirection());
+		// Check whether there is an operation to execute, if there isn't re-plan!
+		if(currentStep != null) {
 			
-            oldAngle = newAngle;
-			newAngle = angleToTurn;
-			
-			if (VERBOSE) {
-				//System.out.println("Target at " + angleToTurn + " degrees");
-			}
-
-			/*
-			 * If Alfi is turning and the angle is within STOP_TURNING_ERROR_THRESHOLD then we need to stop
-			 * and have the FieldMarshall decide what he should do next
-			 */
-			switch(movetype){
-			
-			case(0):
-				//System.out.println("why are you here!!!!");
-				cmd = new OperationReallocation(cmd.getTarget(), 
-						dpi.getAlfieInfo().getPosition(), 
-						dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-				// Perform the Alfi magic!
-				executeOperationReallocation(cmd);
-			
-			//turning case
-			case(1):
-				//System.out.println("we are turning");
+			// Check whether the operation is successful
+			if(currentStep.isSuccessful() && !currentStep.problemExists()) {
 				
-			
-				if(Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD){
-					if(VERBOSE) {
-						//System.out.println("Alfie is facing the correct direction!");
-					}
-					//System.out.println("we are facing the right way");
-					// Create new OperationReallocation command which should make Alfi move forward
-					cmd = new OperationReallocation(cmd.getTarget(), 
-							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-					// Perform the Alfi magic!
-					executeOperationReallocation(cmd);
+				// Get the next PathStep from the queue
+				currentStep = pathStepList.pollFirst();
+				
+				// If it is successful, try and execute the next PathStep in the queue
+				if(currentStep != null) {
+					execute();						
 				} else {
-					if(oldAngle<newAngle){
-						//System.out.println("the old angle was smaller than the new angle");
-						cmd = new OperationReallocation(cmd.getTarget(), 
-								dpi.getAlfieInfo().getPosition(), 
-								dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-						// Perform the Alfi magic!
-						executeOperationReallocation(cmd);
-					}
-					
+					// The queue is empty so re-plan
+					plan();
 				}
-				
-				break;
-			
-			// moving case
-			case(2):
-				//System.out.println("we are currently moving forward");
-				if(Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD ){
-					//System.out.println("we are currently moving but angle is out");
-					cmd = new OperationReallocation(cmd.getTarget(), 
-							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-					// Perform the Alfie magic!
-					executeOperationReallocation(cmd);
-				}
-				//System.out.println("Previously we would sit still here");
-				executeOperationReallocation(cmd);
-//				Point2D alfiePosition = dpi.getAlfieInfo().getPosition();
-//				Point2D enemyPosition = dpi.getOpponentInfo().getPosition();
-//				double alfieDirection = dpi.getAlfieInfo().getFacingDirection();
-//				
-//				if((alfiePosition.distance(enemyPosition)<50)&&(dynamicInfoChecker.isSimilarAngle(dynamicInfoChecker.getAngleFromOrigin(alfiePosition,enemyPosition),alfieDirection,30))){
-//					System.out.println("ENEMY CLOSE SIT STILL");
-//					alfieServer.sendStop();
-//					return;
-//				}
-				break;
 			}
 				
-			
-			
-			
-			
-			
-			
-			
-			
-			/*
-			if (turning && Math.abs(angleToTurn) <= STOP_TURNING_ERROR_THRESHOLD) {
-
-				// Makes Alfi stop turning
-				if(VERBOSE) {
-					System.out.println("Alfie is facing the correct direction!");
-				}
-
-				// Create new OperationReallocation command which should make Alfi move forward
-				cmd = new OperationReallocation(cmd.getTarget(), 
-						dpi.getAlfieInfo().getPosition(), 
-						dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-				// Perform the Alfi magic!
-				executeOperationReallocation(cmd);
-
-			} else {
-
-				// Alfie isn't facing the ball so we need to reposition him
-				if (Math.abs(angleToTurn) > STOP_TURNING_ERROR_THRESHOLD) {
-
-					if(VERBOSE) {
-						System.out.println("in moving forward the robot is no longer facing the robot new operation");
-					}
-
-				
-					cmd = new OperationReallocation(cmd.getTarget(), 
-							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-					// Do the magic!
-					executeOperationReallocation(cmd);
-
-				} else {
-					cmd = new OperationReallocation(cmd.getTarget(), 
-							dpi.getAlfieInfo().getPosition(), 
-							dpi.getAlfieInfo().getFacingDirection(),dpi.getOpponentInfo().getPosition());
-
-					
-					executeOperationReallocation(cmd);
-					
-					System.err.println("Field Marshall should give a new command");
-				}
-
+			// Check whether something in the queue has failed and re-plan if it has
+			if(currentStep.problemExists()) {
+				plan();
 			}
-	*/
+			
+		} else {
+			// We don't have an  operation to execute so get one!
+			plan();
+		}
+		
+	}
+	
+	/**
+	 * This method is called by the Fieldmarshal every time the operation changes. If the operation
+	 * changes something drastic and eventful has happened on the pitch and we should re-plan
+	 * @param newOperation The operation we should now execute
+	 */
+	public void setOperation(Operation newOperation) {
+		this.currentOperation = newOperation;
+		plan();
+	}
+	
+	/**
+	 * This method works out all the logic of the pathFinder and adds each step the queue which will
+	 * them be executed in turn.
+	 * 
+	 * Every time this method is called the pathStepList should be cleared and re-planning should take
+	 * place from scratch
+	 */
 
-		} else if (currentOperation instanceof OperationOverload) {
-			System.out.println("OperationOverload");
-			executeOperationOverload((OperationOverload)currentOperation);	
-		} else if (currentOperation instanceof OperationCharge) {
-			System.out.println("OperationCharge");
-			executeOperationCharge((OperationCharge)currentOperation);	
-		} else if (currentOperation instanceof OperationStrike) {
-			System.out.println("OperationStrike");
-			executeOperationStrike((OperationStrike)currentOperation);	
+	private void plan() {
+		
+		// Clear the PathStep queue
+		pathStepList.clear();
+		
+		// Plan based on the current operation type
+		switch(currentOperation.getType()) {
+			
+		case REALLOCATION:
+			planReallocation();
+			break;
+		
+		case STRIKE:
+			planStrike();
+			break;			
+			
+		case CHARGE:
+			planCharge();
+			break;	
+		
+		case OVERLOAD:
+			planOverload();
+			break;				
 		}
 	}
 	
+	/**
+	 * Create the PathSteps for an OperationReallocation
+	 * 
+	 * This method returns void but it should populate the pathStepList with pathSteps
+	 */
+	private void planReallocation() {
+		/**
+		 * TODO: Make magic happen
+		 */
+		
+	}	
+	
+	/**
+	 * Create the PathSteps for an OperationStrike
+	 * 
+	 * This method returns void but it should populate the pathStepList with pathSteps
+	 */
+	private void planStrike() {
+		/**
+		 * TODO: Make magic happen
+		 */	
+	}
+
+	/**
+	 * Create the PathSteps for an OperationCharge
+	 * 
+	 * This method returns void but it should populate the pathStepList with pathSteps
+	 */
+	private void planCharge() {
+		/**
+		 * TODO: Make magic happen
+		 */	
+	}
+	
+	/**
+	 * Create the PathSteps for an OperationOverload
+	 * 
+	 * This method returns void but it should populate the pathStepList with pathSteps
+	 */	
+	private void planOverload() {
+		/**
+		 * TODO: Make magic happen
+		 */
+	}
+
+	/**
+	 * Creates a candy packet based on the current operation and send it to MouthInstance thats been
+	 * passed in
+	 */
+	private void execute() {
+		
+		switch(currentStep.getType()) {
+	
+		case GO_FORWARDS:
+			PathStepGoForwards goForwards = (PathStepGoForwards) currentStep;
+			mouth.sendGoForward(goForwards.getSpeed(), goForwards.getDistance());
+			break;
+			
+		case GO_BACKWARDS:
+			PathStepGoBackwards goBackwards = (PathStepGoBackwards) currentStep;
+			mouth.sendGoBackwards(goBackwards.getSpeed(), goBackwards.getDistance());
+			break;
+			
+		case SPIN_LEFT:
+			PathStepSpinLeft spinLeft = (PathStepSpinLeft) currentStep;
+			mouth.sendSpinLeft(spinLeft.getSpeed(), spinLeft.getAngle());
+			break;
+			
+		case SPIN_RIGHT:
+			PathStepSpinRight spinRight = (PathStepSpinRight) currentStep;
+			mouth.sendSpinRight(spinRight.getSpeed(), spinRight.getAngle());
+			break;
+			
+		case ARC_FORWARDS_LEFT:
+			PathStepArcForwardsLeft arcForwardsLeft = (PathStepArcForwardsLeft) currentStep;
+			mouth.sendForwardArcLeft(arcForwardsLeft.getRadius(), arcForwardsLeft.getAngle());
+			break;
+			
+		case ARC_FORWARDS_RIGHT:
+			PathStepArcForwardsRight arcForwardsRight = (PathStepArcForwardsRight) currentStep;
+			mouth.sendForwardArcRight(arcForwardsRight.getRadius(), arcForwardsRight.getAngle());
+			break;
+			
+		case ARC_BACKWARDS_LEFT:
+			PathStepArcBackwardsLeft arcBackwardsLeft = (PathStepArcBackwardsLeft) currentStep;
+			mouth.sendBackwardsArcLeft(arcBackwardsLeft.getRadius(), arcBackwardsLeft.getAngle());
+			break;
+			
+		case ARC_BACKWARDS_RIGHT:
+			PathStepArcBackwardsRight arcBackwardsRight = (PathStepArcBackwardsRight) currentStep;
+			mouth.sendBackwardsArcRight(arcBackwardsRight.getRadius(), arcBackwardsRight.getAngle());
+			break;
+			
+		case KICK:
+			PathStepKick kick = (PathStepKick) currentStep;
+			mouth.sendKick(kick.getPower());
+			break;
+			
+		case STOP:
+			mouth.sendStop();
+			break;
+		}
+	}
 }

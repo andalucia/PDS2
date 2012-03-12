@@ -1,6 +1,5 @@
 package group2.sdp.pc.planner.operation;
 
-
 /**
  * 
  * @author Alfie
@@ -16,7 +15,6 @@ package group2.sdp.pc.planner.operation;
  * <b>Overload</b> - stop on the spot</p>
  *
  */
-
 public interface Operation {
 	
 	public enum Type {
