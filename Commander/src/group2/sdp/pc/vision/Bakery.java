@@ -10,12 +10,14 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 /**
  * Description: The Bakery bakes series of Static Info objects into Dynamic Info
- * objects. Main client: Overlord (see Planning Pipeline section below).
- * Actions: Stores a history of Static Info objects, uses that history to
- * estimate derivative properties of objects: speed and direction are estimated
- * from sequence of positions, rotation speed and direction are estimated from
- * sequence of directions. Passes that information to a Dynamic Info Consumer,
- * supplied on construction of the Bakery.
+ *               objects.  
+ * Main client: Overlord (see Planning Pipeline section below).
+ * Actions:     Stores a history of Static Info objects, uses that history to 
+ *               estimate derivative properties of objects: speed and direction 
+ *               are estimated from sequence of positions, rotation speed and 
+ *               direction are estimated from sequence of directions. Passes that
+ *               information to a Dynamic Info Consumer, supplied on construction
+ *               of the Bakery.
  */
 public class Bakery extends BakerySkeleton {
 
