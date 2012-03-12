@@ -14,10 +14,6 @@ import java.awt.geom.Rectangle2D;
  */
 public class DynamicInfoChecker {
 
-//	private DynamicInfo dynamicInfo;
-//	private DynamicRobotInfo alfieInfo;
-//	private DynamicRobotInfo opponentInfo;
-//	private DynamicBallInfo ballInfo;
 	private GlobalInfo globalInfo;
 
 	public DynamicInfoChecker(GlobalInfo globalInfo, DynamicInfo dynamicInfo) {
@@ -211,7 +207,7 @@ public class DynamicInfoChecker {
 		//now work out constant for y=mx+c using c=y-mx
 		constant=y-(slope*x);
 		
-		//increase x or y by 100 to create arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
+		//increase x or y by 100 to cre			System.out.println("DEFENSIVE");ate arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
 		Point2D.Double endP;
 		//case increase y
 		if (angle>=45 && angle<135){
@@ -306,7 +302,8 @@ public class DynamicInfoChecker {
 			kickingPositionX = (float) ballPosition.getX();
 			kickingPositionY = (float) ballPosition.getY();
 		}
-		
+		System.out.println("DEFENSIVE");
+
 		Point2D kickingPosition = new Point.Float(kickingPositionX,kickingPositionY);
 
 		
@@ -422,7 +419,7 @@ public class DynamicInfoChecker {
 	/**
 	 * this function will tell us if we are facing the oppositions goal
 	 * it compares the angle we are facing with the angle to the extremes
-	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
+	 * of the goal, it must act dif			System.out.println("DEFENSIVE");ferently for each goal as one of the goals has the zero angle in the middle 
 	 * @param robotInfo robot's info
 	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
 	 * @param ball nuff said
@@ -475,6 +472,41 @@ public class DynamicInfoChecker {
 			} else {
 				return false;
 			}
+		}
+	}
+	
+	/**
+	 * This method was created for clarity. It just combines two other methods. 
+	 * This should only be used for the opponent robot (unless you decide otherwise)
+	 * @param robotInfo
+	 * @param ballPosition
+	 * @return True if the (opponent) robot has the ball and is on the correct side of the ball 
+	 * i.e. they are in an attacking position
+	 */
+	public boolean isInAttackingPosition(DynamicRobotInfo robotInfo, Point2D ballPosition) {
+		boolean condition1 = hasBall(robotInfo, ballPosition);
+		boolean condition2 = correctSide(robotInfo, ballPosition);
+		
+		return condition1 && condition2;
+	}
+	
+	/**
+	 * Get the x coordinate of the defensive goal of the robot
+	 * @param isAlfie whether or not we want to get the defensive 
+	 * 			goal of Alfie
+	 * @return x coordinate of the goal we are defending
+	 */
+	public int getDefensiveGoalOfRobot(boolean isAlfie){
+		
+		if (isAlfie){
+			return globalInfo.isAttackingRight() 
+			? (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+			: (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
+		}
+		else{
+			return !globalInfo.isAttackingRight() 
+			? (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+					: (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
 		}
 	}
 }

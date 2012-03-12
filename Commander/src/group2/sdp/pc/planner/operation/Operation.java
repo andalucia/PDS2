@@ -3,18 +3,17 @@ package group2.sdp.pc.planner.operation;
 
 /**
  * 
- * @author Shaun A.K.A the bringer of bad code!!! beware
+ * @author Alfie
  * 
- * Description: - Similar to military operation. Describes what actions should be taken.
+ * <p><b>Description:</b>	Similar to military operation. Describes what actions should be taken</p>
  * 
- * Producer: Field Marshal (see Planning Pipeline section below).
+ * <p><b>Producer:</b> {@link FieldMarshal}</p>
  * 
- * Types:
- * 1. Reallocation - move to a position and face a direction;
- * 2. Strike - kick (hopefully the ball);
- * 3. Charge - dribble with the ball to a position and face a particular direction at the
- * end; and
- * 4. Overload - stop on the spot.
+ * <p><b>Types:</b></br>
+ * <b>Reallocation</b> - move to a position and face a direction</br>
+ * <b>Strike</b> - kick</br>
+ * <b>Charge</b> - dribble to a position and face a particular direction at the end</br>
+ * <b>Overload</b> - stop on the spot</p>
  *
  */
 
