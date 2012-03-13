@@ -31,7 +31,7 @@ import javax.print.attribute.standard.Finishings;
  *
  */
 public class ImageProcessor extends ImageProcessorSkeleton {
-	
+
 	/**
 	 * The mode of the output from the processor: MATCH is the default, 
 	 * CHROMA and LUMA are used during setup. 
@@ -41,17 +41,17 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		CHROMA,
 		LUMA
 	}
-	
+
 	private OutputMode currentMode = OutputMode.MATCH;
-	
+
 	/**
-	* Shows whether the background has to be updated or not.
-	*/
+	 * Shows whether the background has to be updated or not.
+	 */
 	private boolean extractBackground;
 
 	/**
-	* An image of the background compare each frame with.
-	*/
+	 * An image of the background compare each frame with.
+	 */
 	private BufferedImage backgroundImage;
 
 	private static final boolean pitchOne = false;
@@ -67,6 +67,8 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * New pixels in the last frame that was processed.
 	 */
 	private ArrayList<Point> newPixels;
+	
+	private ArrayList<Point> pointsToDraw;
 
 	//values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid, plateCentroidYellowRobot;
@@ -78,10 +80,10 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 */
 	private final Rectangle pitchCrop1 = new Rectangle(10, 58, 630-10, 421-58);
 	private final Rectangle pitchCrop2 = new Rectangle(53, 100, 592 - 53, 383 - 100);
-	
+
 	// TODO: think of a better name/way of doing this
 	private boolean isYellowRobotRightGoal = true;
-	
+
 	/**
 	 * The goal post positions for the goal on the right
 	 */
@@ -140,13 +142,14 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			// contains no objects worth of detection.
 		} else {
 			newPixels = getDifferentPixels(image);
-			internalImage = drawPixels(image, newPixels);
+			internalImage = drawPixels(image, new ArrayList<Point>());
 			drawStuff(internalImage);
 			super.process(image);
 		}
+		pointsToDraw = new ArrayList<Point>();
 		detectRobotsAndBall(image, newPixels);
 
-
+		
 
 	}
 
@@ -435,7 +438,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	public int[] getColour(BufferedImage image, Point fixel){
 
 		//TODO: it seems like this is never called?
-		
+
 		// get RGB values for a pixel
 		int[] colour = new int[3];
 		int col = image.getRGB(fixel.x, fixel.y);
@@ -499,15 +502,24 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		int cur_score2 = 0;
 		int best_score = 0;
 		int best_angle = 0;
+		Point nextPixel,rot_pixel;
+		nextPixel = new Point();
+		Point bestPointDir = new Point();
+		Point bestPointDirBack = new Point();
+		Point lastPointDir = new Point();
+		Point lastPointDirBack = new Point();
+		bestPointDir = new Point();
+		bestPointDirBack = new Point();
+		int lineScore, lineScoreBack;
 		if (centroid.x != 0) {
 
-			for (int i = 0; i < 360; i++) {
+			for (int i = 0; i < 180; i++) {
 				cur_score = 0;
 				cur_score2 = 0;
-				Point nextPixel = new Point();
+				nextPixel = new Point();
 				nextPixel.x = centroid.x;
 				nextPixel.y = centroid.y;
-				Point rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
+				rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
 						nextPixel.y), i);
 				/**
 				 * Do not stop until the next pixel colour is not the colour we
@@ -524,28 +536,73 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 					nextPixel = new Point(centroid.x + cur_score, centroid.y);
 					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
 							nextPixel.y), i);
+					lastPointDir = rot_pixel;
 				}
+				rot_pixel = centroid;
 				while (isBlueYellow(image, rot_pixel, isYellow)) {
-
 					cur_score2++; // Since we sort in ascending order, lower
 					// score is longer segments
 
-					nextPixel = new Point(centroid.x + cur_score, centroid.y);
+					nextPixel = new Point(centroid.x + cur_score2, centroid.y);
 					rot_pixel = rotatePoint(centroid, new Point(nextPixel.x,
 							nextPixel.y), i + 180);
+					lastPointDirBack = rot_pixel;
 				}
 
 				if (cur_score +cur_score2 > best_score) {
 
-					if(cur_score>cur_score2){
-						best_angle = i;
-					}else{
-						best_angle = (i+180) % 360;
-					}
-
+					//					if(cur_score>cur_score2){
+					//						best_angle = i;
+					//					}else{
+					//						best_angle = (i+180) % 360;
+					//					}
+					best_angle = i;
+					bestPointDir = lastPointDir;
+					bestPointDirBack = lastPointDirBack;
 					best_score = cur_score+cur_score2;
 				}
+			}
+			lineScore = 0;
+			lineScoreBack=0;
+			rot_pixel = new Point();
+			rot_pixel.x = (bestPointDir.x + centroid.x)/2;
+			rot_pixel.y = (bestPointDir.y + centroid.y)/2;
+			nextPixel.x = (bestPointDir.x + centroid.x)/2;
+			nextPixel.y = (bestPointDir.y + centroid.y)/2;
+			Point middlePoint = (Point) nextPixel.clone();
+			rot_pixel.x = nextPixel.x;
+			rot_pixel.y = nextPixel.y;
+			while (isBlueYellow(image, rot_pixel , isYellow)) {
 
+				lineScore++; // Since we sort in ascending order, lower
+				// score is longer segments
+
+				nextPixel = new Point(middlePoint.x + lineScore, middlePoint.y);
+				pointsToDraw.add((Point)rot_pixel.clone());
+				rot_pixel = rotatePoint(middlePoint, new Point(nextPixel.x,
+						nextPixel.y), best_angle + 90);
+				
+			}
+			nextPixel.x = (bestPointDirBack.x + centroid.x)/2;
+			nextPixel.y = (bestPointDirBack.y + centroid.y)/2;
+			Point middlePointBack = (Point) nextPixel.clone();
+			rot_pixel.x = nextPixel.x;
+			rot_pixel.y = nextPixel.y;
+			while (isBlueYellow(image, rot_pixel , isYellow)) {
+
+				lineScoreBack++; // Since we sort in ascending order, lower
+				// score is longer segments
+				pointsToDraw.add((Point)rot_pixel.clone());
+				nextPixel = new Point(middlePointBack.x + lineScoreBack, middlePointBack.y);
+				rot_pixel = rotatePoint(middlePointBack, new Point(nextPixel.x,
+						nextPixel.y), best_angle + 90);
+				
+			}
+			if(lineScore > lineScoreBack){
+
+				best_angle = (best_angle+180) % 360;
+			} else {
+				best_angle = best_angle;
 			}
 		}
 
@@ -771,6 +828,9 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 		drawCentroidCircle(raster,blueCentroid,new int[]{0,0,255},50);
 		drawCentroidCircle(raster,yellowCentroid,new int[]{255,255,0},50);
 		drawCentroidCircle(raster,ballCentroid,new int[]{255,0,0},25);
+		for (int i = 0; i < pointsToDraw.size();i++) {
+			drawPixel(raster, pointsToDraw.get(i), new int[]{255,0,0});
+		}
 	}
 
 	/**
@@ -837,11 +897,11 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	 * Used by the GUI
 	 * @param isYellowRobotRight
 	 */
-	
+
 	public void setYellowRobotRight(boolean isYellowRobotRight) {
 		isYellowRobotRightGoal = isYellowRobotRight;
 	}
-	
+
 	/**
 	 * Set the mode of output.
 	 * @param currentMode The mode of output.
@@ -849,7 +909,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 	public void setCurrentMode(OutputMode currentMode) {
 		this.currentMode = currentMode;
 	}
-	
+
 	/**
 	 * Get the mode of output.
 	 * @return The mode of output.
@@ -890,7 +950,7 @@ public class ImageProcessor extends ImageProcessorSkeleton {
 			return blueDir;
 		}
 	}
-	
+
 	@Override
 	protected ArrayList<Point2D> extractRobotGoalPostInfo(BufferedImage image,
 			boolean yellow) {

@@ -82,9 +82,9 @@ public class Brain {
 	// The speed to set the kicker motor, determines the power of the kick.
 	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
-	private static final int KICKER_ANGLE = 90;
+	private static final int KICKER_ANGLE = 35;
 	// The delay before resetting the kicker.
-	private static final int KICKER_DELAY = 1000;
+	private static final int KICKER_DELAY = 500;
 	
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
