@@ -21,6 +21,9 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
  */
 public class Bakery extends BakerySkeleton {
 
+	
+	private final boolean verbose = false;
+	
 	/**
 	 * Variables used to prevent too much correction in correct facing direction
 	 */
@@ -30,6 +33,10 @@ public class Bakery extends BakerySkeleton {
 	private int stopOp;
 	private int correctionsOp;
 	private int counterOp;
+	/**
+	 * moving is minimum distance an object has moved (between average points) to be considered moving
+	 */
+	private static final double MOVING=0.1;
 
 	public Bakery(DynamicInfoConsumer consumer) {
 		super(consumer);
@@ -41,47 +48,22 @@ public class Bakery extends BakerySkeleton {
 		// algorithm finds average position from last 3 points then average of 3
 		// before that
 		// and uses these two average positions and times to calculate speed
-		if (ballHistoryInfos.size() < 6) {
-			// TODO: add a verbose flag and display debug data when it is set
+		int historySize=ballHistoryInfos.size();
+		if (historySize < 6) {
+			if (verbose) {
+				System.out.println("Not enough history ball speed 0");
+			}
 			return 0;
 		}
-		double sumx = 0.0;
-		double sumy = 0.0;
-		double sumTime = 0.0;
 		// find average position of last 3 points
-		// TODO: BEGIN: Extract to a method in a Static/Dynamic Info HistoryInfo
-		for (int i = ballHistoryInfos.size() - 1; i >= ballHistoryInfos.size() - 3; i--) {
-			if (ballHistoryInfos.get(i).getPosition() != null) {
-				sumx += ballHistoryInfos.get(i).getPosition().getX();
-				sumy += ballHistoryInfos.get(i).getPosition().getY();
-				sumTime += ballHistoryInfos.get(i).getTimeStamp();
-			}
-		}
-		double recentTime = sumTime / 3;
+		Point2D recentAvg = findAverageBallPoint(ballHistoryInfos, ballHistoryInfos.size()-1 , ballHistoryInfos.size()-3);
+		long recentTime = findAverageTime(ballHistoryInfos, ballHistoryInfos.size()-1 , ballHistoryInfos.size()-3);
+		//find average of previous 3 points
+		Point2D oldAvg = findAverageBallPoint(ballHistoryInfos, ballHistoryInfos.size()-4 , ballHistoryInfos.size()-6);
+		long oldTime = findAverageTime(ballHistoryInfos, ballHistoryInfos.size()-4 , ballHistoryInfos.size()-6);
 
-		Point2D.Double recentAvg = new Point2D.Double(sumx / 3, sumy / 3);
-		// TODO: END.
-		sumx = 0.0;
-		sumy = 0.0;
-		sumTime = 0.0;
-		// find average position of 3 points before that
-		// TODO: BEGIN: use the method from the previous TODO
-		for (int i = ballHistoryInfos.size() - 4; i >= ballHistoryInfos.size() - 6; i--) {
-			if (ballHistoryInfos.get(i).getPosition() != null) {
-				sumx += ballHistoryInfos.get(i).getPosition().getX();
-				sumy += ballHistoryInfos.get(i).getPosition().getY();
-				sumTime += ballHistoryInfos.get(i).getTimeStamp();
-			}
-		}
-
-		double oldTime = sumTime / 3;
-		Point2D.Double oldAvg = new Point2D.Double(sumx / 3, sumy / 3);
-		// TODO: END.
-
-		// test if robot is moving
-		// TODO: Extract 0.1 to a constant; fix previous comment, as this is a
-		// ball function.
-		if (oldAvg.distance(recentAvg) < 0.1) {
+		// test if ball is moving
+		if (oldAvg.distance(recentAvg) < MOVING) {
 			return 0;
 		}
 
@@ -95,42 +77,23 @@ public class Bakery extends BakerySkeleton {
 	@Override
 	protected double computeBallRollingDirection(
 			LinkedList<StaticBallInfo> ballHistoryInfos) {
-		// TODO: make the comment on the next line easier to understand (it is 
-		// better if there is no reference to other comments, which might 
-		// disappear)
-		
-		// use similar algorithm to travel speed except work out angle with
-		// average points
+		// algorithm finds average position from last 3 points then average of 3
+		// before that
+		// and uses these two average positions and times to calculate angle
+		int numPoints=ballHistoryInfos.size();
 		double angle;
-		if (ballHistoryInfos.size() < 6) {
+		if (numPoints < 6) {
+			if (verbose) {
+				System.out.println("Not enough history ball direction 0");
+			}
 			return 0;
 		}
-		double sumx = 0.0;
-		double sumy = 0.0;
-		//TODO: reuse the method for averaging points. 
+		
 		// find average of last 3 points
-		for (int i = ballHistoryInfos.size() - 1; i >= ballHistoryInfos.size() - 3; i--) {
-			if (ballHistoryInfos.get(i).getPosition() != null) {
-				sumx += ballHistoryInfos.get(i).getPosition().getX();
-				sumy += ballHistoryInfos.get(i).getPosition().getY();
-			}
-		}
-		Point2D.Double recentAvg = new Point2D.Double(sumx / 3, sumy / 3);
-		sumx = 0.0;
-		sumy = 0.0;
-		//TODO: reuse the method for averaging points.
-		// find average of 3 points before
-		for (int i = ballHistoryInfos.size() - 4; i >= ballHistoryInfos.size() - 6; i--) {
-			if (ballHistoryInfos.get(i).getPosition() != null) {
-				sumx += ballHistoryInfos.get(i).getPosition().getX();
-				sumy += ballHistoryInfos.get(i).getPosition().getY();
-			}
-		}
-		Point2D.Double oldAvg = new Point2D.Double(sumx / 3, sumy / 3);
-		// test if robot is moving
-		//TODO: Extract 0.5 to a constant; fix previous comment, as this is a
-		// ball function.
-		if (oldAvg.distance(recentAvg) < 0.5) {
+		Point2D recentAvg = findAverageBallPoint(ballHistoryInfos, numPoints-1 , numPoints-3);
+		Point2D oldAvg = findAverageBallPoint(ballHistoryInfos, numPoints-4 , numPoints-6);		
+		// test if ball is moving
+		if (oldAvg.distance(recentAvg) < MOVING) {
 			return 0;
 		}
 		// now calculate angle
@@ -152,43 +115,25 @@ public class Bakery extends BakerySkeleton {
 		// algorithm finds average position from last 3 points then average of 3
 		// before that
 		// and uses these two average positions and times to calculate speed
-
+		int numPoints=historyInfos.size();
 		// at beginning when no history speed cannot be calculated
-		if (historyInfos.size() < 6) {
+		if (numPoints < 6) {
+			if (verbose) {
+				System.out.println("Not enough history robot speed 0");
+			}
 			return 0;
+			
 		}
-		double sumx = 0.0;
-		double sumy = 0.0;
-		double sumTime = 0.0;
-		// TODO: three times is the charm. Extract a method doing this sequence of
-		// commands.
-		// find average position of last 3 points
-		for (int i = historyInfos.size() - 1; i >= historyInfos.size() - 3; i--) {
-			if (historyInfos.get(i).getPosition() != null) {
-				sumx += historyInfos.get(i).getPosition().getX();
-				sumy += historyInfos.get(i).getPosition().getY();
-				sumTime += historyInfos.get(i).getTimeStamp();
-			}
-		}
-		double recentTime = sumTime / 3;
-
-		Point2D.Double recentAvg = new Point2D.Double(sumx / 3, sumy / 3);
-		// find average position of 3 points before that
-		sumx = 0.0;
-		sumy = 0.0;
-		sumTime = 0.0;
-		for (int i = historyInfos.size() - 4; i >= historyInfos.size() - 6; i--) {
-			if (historyInfos.get(i).getPosition() != null) {
-				sumx += historyInfos.get(i).getPosition().getX();
-				sumy += historyInfos.get(i).getPosition().getY();
-				sumTime += historyInfos.get(i).getTimeStamp();
-			}
-		}
-
-		double oldTime = sumTime / 3;
-		Point2D.Double oldAvg = new Point2D.Double(sumx / 3, sumy / 3);
+		
+		
+		// find average position of last 3 points and then average of points before
+		
+		Point2D recentAvg = findAverageRobotPoint(historyInfos, numPoints-1 , numPoints-3);
+		Point2D oldAvg = findAverageRobotPoint(historyInfos, numPoints-4 , numPoints-6);
+		long recentTime = findAverageTimeR(historyInfos, numPoints-1 , numPoints-3);
+		long oldTime = findAverageTimeR(historyInfos, numPoints-4 , numPoints-6);
 		// test if robot is moving
-		if (oldAvg.distance(recentAvg) < 0.1) {
+		if (oldAvg.distance(recentAvg) < MOVING) {
 			return 0;
 		}
 		double timeDif = (recentTime - oldTime);
@@ -283,34 +228,24 @@ public class Bakery extends BakerySkeleton {
 	@Override
 	protected double computeRobotTravelDirection(
 			LinkedList<StaticRobotInfo> historyInfos) {
-		// TODO: use common method from before.
-		// use similar algorithm to travel speed except work out angle with
-		// average points
+		// algorithm finds average position from last 3 points then average of 3
+		// before that
+		// and uses these two average positions and times to calculate angle
 		double angle;
-		if (historyInfos.size() < 6) {
+		int numPoints=historyInfos.size();
+		if (numPoints < 6) {
+			if (verbose) {
+				System.out.println("Not enough history robot direction set to facing direction");
+			}
 			return historyInfos.getLast().getFacingDirection();
 		}
-		double sumx = 0.0;
-		double sumy = 0.0;
-		// find average of last 3 points
-		for (int i = historyInfos.size() - 1; i >= historyInfos.size() - 3; i--) {
-			if (historyInfos.get(i).getPosition() != null) {
-				sumx += historyInfos.get(i).getPosition().getX();
-				sumy += historyInfos.get(i).getPosition().getY();
-			}
-		}
-		Point2D.Double recentAvg = new Point2D.Double(sumx / 3, sumy / 3);
-		sumx = 0.0;
-		sumy = 0.0;
-		for (int i = historyInfos.size() - 4; i >= historyInfos.size() - 6; i--) {
-			if (historyInfos.get(i).getPosition() != null) {
-				sumx += historyInfos.get(i).getPosition().getX();
-				sumy += historyInfos.get(i).getPosition().getY();
-			}
-		}
-		Point2D.Double oldAvg = new Point2D.Double(sumx / 3, sumy / 3);
+		
+		
+		Point2D recentAvg = findAverageRobotPoint(historyInfos, numPoints-1 , numPoints-3);
+		Point2D oldAvg = findAverageRobotPoint(historyInfos, numPoints-4 , numPoints-6);
+		
 		// test if robot is moving
-		if (oldAvg.distance(recentAvg) < 0.5) {
+		if (oldAvg.distance(recentAvg) < MOVING) {
 			return historyInfos.getLast().getFacingDirection();
 		}
 		// now calculate angle
@@ -340,6 +275,87 @@ public class Bakery extends BakerySkeleton {
 		return false;
 	}
 
+
+	/**
+	 * Works out the average time of a set of ballInfos. Bounds used to set how much of the info is used for average.
+	 * @param ballHistoryInfos list of ballInfos
+	 * @param upperBound	index of first ball used in average
+	 * @param lowerBound	index of last ball used in average
+	 * @return average time for given set balls within bounds
+	 */
+	
+	protected long findAverageTime(LinkedList<StaticBallInfo> ballHistoryInfos, int upperBound, int lowerBound){
+		long sum = 0;
+		int numPoints=(upperBound-lowerBound)+1;
+		for(int i=lowerBound ; i <= upperBound ; i++){
+			sum+=ballHistoryInfos.get(i).getTimeStamp();
+			
+		}
+		long average =sum/numPoints;
+		return average;
+	}
+	
+	
+	/**
+	 * Works out the average point of a set of ballInfos. Bounds used to set how much of the info is used for average.
+	 * @param ballHistoryInfos list of ballInfos
+	 * @param upperBound	index of first ball used in average
+	 * @param lowerBound	index of last ball used in average
+	 * @return average point for given set balls within bounds
+	 */
+	
+	protected Point2D findAverageBallPoint(LinkedList<StaticBallInfo> ballHistoryInfos, int upperBound, int lowerBound){
+		double sumx = 0.0;
+		double sumy = 0.0;
+		int numPoints=(upperBound-lowerBound)+1;
+		for(int i=lowerBound ; i <= upperBound ; i++){
+			sumx+=ballHistoryInfos.get(i).getPosition().getX();
+			sumy+=ballHistoryInfos.get(i).getPosition().getY();
+		}
+		Point2D.Double average= new Point2D.Double(sumx/numPoints , sumy/numPoints);
+		return average;
+	}
+	
+	/**
+	 * Works out the average time of a set of robotInfos. Bounds used to set how much of the info is used for average.
+	 * @param ballHistoryInfos list of robotInfos
+	 * @param upperBound	index of first robot used in average
+	 * @param lowerBound	index of last robot used in average
+	 * @return average time for given set robotInfos within bounds
+	 */
+	
+	protected long findAverageTimeR(LinkedList<StaticRobotInfo> robotHistoryInfos, int upperBound, int lowerBound){
+		long sum = 0;
+		int numPoints=(upperBound-lowerBound)+1;
+		for(int i=lowerBound ; i <= upperBound ; i++){
+			sum+=robotHistoryInfos.get(i).getTimeStamp();
+			
+		}
+		long average =sum/numPoints;
+		return average;
+	}
+	
+	
+	/**
+	 * Works out the average point of a set of robotInfos. Bounds used to set how much of the info is used for average.
+	 * @param ballHistoryInfos list of ballInfos
+	 * @param upperBound	index of first robot used in average
+	 * @param lowerBound	index of last robot used in average
+	 * @return average point for given set robotInfos within bounds
+	 */
+	
+	protected Point2D findAverageRobotPoint(LinkedList<StaticRobotInfo> robotHistoryInfos, int upperBound, int lowerBound){
+		double sumx = 0.0;
+		double sumy = 0.0;
+		int numPoints=(upperBound-lowerBound)+1;
+		for(int i=lowerBound ; i <= upperBound ; i++){
+			sumx+=robotHistoryInfos.get(i).getPosition().getX();
+			sumy+=robotHistoryInfos.get(i).getPosition().getY();
+		}
+		Point2D.Double average= new Point2D.Double(sumx/numPoints , sumy/numPoints);
+		return average;
+	}
+	
 	/**
 	 * Method for comparison of angles. If angle within certain threshold of
 	 * each other then return true else false
