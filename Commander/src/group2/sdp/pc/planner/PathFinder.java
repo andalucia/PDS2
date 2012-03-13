@@ -25,7 +25,7 @@ import java.util.LinkedList;
  * proceeds to execute them in order and checking whether they are success or have failed in every
  * consumeInfo() cycle
  */
-public class PathFinder implements DynamicInfoConsumer {
+public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	/**
 	 * This is a queue which stores a list of paths 
@@ -34,6 +34,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	private PathStep currentStep = null;
 	private Operation currentOperation;
 	
+	@SuppressWarnings("unused")
 	private GlobalInfo globalInfo;
 	private MouthInterface mouth;
 	
@@ -55,7 +56,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		if(currentStep != null) {
 			
 			// Check whether the operation is successful
-			if(currentStep.isSuccessful() && !currentStep.problemExists()) {
+			if(currentStep.isSuccessful(dpi) && !currentStep.problemExists(dpi)) {
 				
 				// Get the next PathStep from the queue
 				currentStep = pathStepList.pollFirst();
@@ -70,7 +71,7 @@ public class PathFinder implements DynamicInfoConsumer {
 			}
 				
 			// Check whether something in the queue has failed and re-plan if it has
-			if(currentStep.problemExists()) {
+			if(currentStep.problemExists(dpi)) {
 				plan();
 			}
 			
@@ -82,7 +83,7 @@ public class PathFinder implements DynamicInfoConsumer {
 	}
 	
 	/**
-	 * This method is called by the Fieldmarshal every time the operation changes. If the operation
+	 * This method is called by the FieldMarshal every time the operation changes. If the operation
 	 * changes something drastic and eventful has happened on the pitch and we should re-plan
 	 * @param newOperation The operation we should now execute
 	 */
@@ -227,5 +228,11 @@ public class PathFinder implements DynamicInfoConsumer {
 			mouth.sendStop();
 			break;
 		}
+	}
+
+	
+	@Override
+	public void consumeOperation(Operation operation) {
+		setOperation(operation);
 	}
 }

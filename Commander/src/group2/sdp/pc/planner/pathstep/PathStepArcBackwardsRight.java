@@ -1,23 +1,17 @@
 package group2.sdp.pc.planner.pathstep;
 
-
+import group2.sdp.pc.breadbin.DynamicInfo;
 
 /**
- * 
- * 
- * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
- *
  * Act: Tell Alfie to start moving backwards in an clock-wise arc, specifying the radius and
  * angle of the arc. Thus the centre of the arc should be at the right hand side of Alfie.
  * 
  * Parameters:
  * Radius and angle of the arc and threshold distance. (Target position should be
  * computed on construction of the Arc Forward Left object.)
- * 
  */
 public class PathStepArcBackwardsRight implements PathStep {
 
-	
 	private int radius;
 	private int angle;
 	private int threshold;
@@ -33,8 +27,6 @@ public class PathStepArcBackwardsRight implements PathStep {
 		return Type.ARC_BACKWARDS_RIGHT;
 	}
 
-
-	
 	public int getAngle(){
 		return this.angle;
 	}
@@ -51,10 +43,11 @@ public class PathStepArcBackwardsRight implements PathStep {
 	/**
 	 * Succeed:
 	 * If Alfie is within the specified threshold distance from the target position.
+	 * TODO implement
 	 */
 	@Override
-	public boolean isSuccessful() {
-		// TODO Auto-generated method stub
+	public boolean isSuccessful(DynamicInfo pitchStatus) {
+
 		return false;
 	}
 
@@ -69,10 +62,11 @@ public class PathStepArcBackwardsRight implements PathStep {
 	 * 			  threshold. This is hard, as the vision system might not be accurate enough to allow a
 	 * 		 	  precise computation of the circular trajectory of Alfie. However, if implemented, this
 	 * 		 	  would provide Alfie with a lot quicker reactions to problems with this Path Step.
+	 * TODO implement
 	 */
 	@Override
-	public boolean problemExists() {
-		// TODO Auto-generated method stub
+	public boolean problemExists(DynamicInfo pitchStatus) {
+
 		return false;
 	}
 }

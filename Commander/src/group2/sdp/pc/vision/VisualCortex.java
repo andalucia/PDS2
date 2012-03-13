@@ -225,7 +225,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold = 90;
+		int threshold = globalInfo.getCamera().getPixelDifferenceThreshold();
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -470,7 +470,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 *            the pixel to which all other points should be connected
 	 * @return all points connected to pixel which are present in allPoints.
 	 */
-
 	public ArrayList<Point> mindFlower(ArrayList<Point> newArea,
 			ArrayList<Point> allPoints, Point pixel) {
 		Point north = new Point(pixel.x, pixel.y - 1);
@@ -693,6 +692,8 @@ public class VisualCortex extends VisualCortexSkeleton {
 		double rad = Math.toRadians(deg);
 		double cosAngle = Math.cos(rad);
 		double sinAngle = Math.sin(rad); 
+		
+		// This is OK.
 		int xtemp = (int) Math.round((point.x * cosAngle) - (point.y * sinAngle));
 		point.y = (int) Math.round((point.x * sinAngle) + (point.y * cosAngle));
 		point.x = xtemp;
@@ -815,7 +816,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			width = backgroundImage.getWidth();
 			height = backgroundImage.getHeight();
 		}
-		if (point.x < 0 && point.x >= width && point.y < 0 && point.y >= height){
+		if (point.x < 0 || point.x >= width || point.y < 0 || point.y >= height){
 			return false;
 		} else {
 			return true;
@@ -833,8 +834,15 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 *            colour
 	 */
 	private void drawPixel(WritableRaster raster, Point p1, int[] colour) {
-		if (withinBounds(p1))
-			raster.setPixel(p1.x, p1.y, colour);
+		if (withinBounds(p1)) {
+			try {
+				raster.setPixel(p1.x, p1.y, colour);
+				
+			}
+			catch (Exception exc) {
+				System.out.println("asd");
+			}
+		}
 	}
 
 	/**
@@ -909,6 +917,8 @@ public class VisualCortex extends VisualCortexSkeleton {
 		angle = 360 - angle;
 		double tanAngle = Math.tan(Math.toRadians(angle));
 		int[] colour = {255, 255, 255};
+		
+		angle = 135;
 		
 		if (angle < 270 && angle > 90) {
 			int counter = centroid.x - 100;

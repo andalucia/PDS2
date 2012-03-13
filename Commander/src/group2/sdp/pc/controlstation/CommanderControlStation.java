@@ -219,7 +219,7 @@ public class CommanderControlStation {
 		PathFinder finder = new PathFinder(globalInfo,alfieServer);
 		
 		//FIXME change null to finder when it implements correctly
-		FieldMarshal marshal = new FieldMarshal(globalInfo, null, finder);
+		FieldMarshal marshal = new FieldMarshal(globalInfo, finder, finder);
 		
 		lord = new Overlord(globalInfo, marshal, marshal);
 		

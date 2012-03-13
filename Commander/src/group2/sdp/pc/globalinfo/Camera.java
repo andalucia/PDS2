@@ -19,7 +19,8 @@ public class Camera {
 		new Camera(
 				new Rectangle(10, 58, 630 - 10, 421 - 58),
 				LCHColourSettings.ONE, 
-				248.0
+				248.0,
+				60
 		);
 	// Package visibility - should be used only in Pitch
 	/**
@@ -29,7 +30,8 @@ public class Camera {
 		new Camera(
 				new Rectangle(53, 100, 592 - 53, 383 - 100),
 				LCHColourSettings.TWO, 
-				248.0
+				248.0,
+				90
 		);
 	
 	/**
@@ -47,6 +49,11 @@ public class Camera {
 	 */
 	private LCHColourSettings colourSettings;
 
+	/**
+	 * The threshold after which the difference between two pixels is 
+	 * considered significant.
+	 */
+	private int pixelDifferenceThreshold;
 	
 	/**
 	 * Fully initialising constructor.
@@ -54,11 +61,12 @@ public class Camera {
 	 * @param colourSettings The colour settings of the camera.
 	 * @param distanceFromPitch The distance of the camera from the pitch.
 	 */
-	public Camera(Rectangle pitchCrop, LCHColourSettings colourSettings, double distanceFromPitch) {
+	public Camera(Rectangle pitchCrop, LCHColourSettings colourSettings, double distanceFromPitch, int pixelDifferenceThreshold) {
 		super();
 		this.pitchCrop = pitchCrop;
 		this.colourSettings = colourSettings;
 		this.setDistanceFromPitch(distanceFromPitch);
+		this.setPixelDifferenceThreshold(pixelDifferenceThreshold);
 	}
 
 	
@@ -110,5 +118,25 @@ public class Camera {
 	 */
 	public double getDistanceFromPitch() {
 		return distanceFromPitch;
+	}
+
+	/**
+	 * Set the threshold after which the difference between two pixels is 
+	 * considered significant.
+	 * @param pixelDifferenceThreshold The threshold after which the difference
+	 * between two pixels is considered significant.
+	 */
+	public void setPixelDifferenceThreshold(int pixelDifferenceThreshold) {
+		this.pixelDifferenceThreshold = pixelDifferenceThreshold;
+	}
+
+	/**
+	 * Get the threshold after which the difference between two pixels is 
+	 * considered significant. 
+	 * @return The threshold after which the difference between two pixels is 
+	 * considered significant.
+	 */
+	public int getPixelDifferenceThreshold() {
+		return pixelDifferenceThreshold;
 	}
 }

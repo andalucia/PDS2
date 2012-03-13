@@ -1,11 +1,8 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
 
 /**
- * 
- * 
- * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
- *
  * Description: - A step of a [path that aims to achieve an operation]. Describes the type of Candy
  * Packet to give to Alfie (see Communication section below), the state in which it
  * would be successful and the state in which it would fail.
@@ -27,8 +24,18 @@ public interface PathStep {
 	
 	public Type getType();
 	
-	public boolean isSuccessful();
+	/**
+	 * Checks if the path step is successful or not, given the current pitch status.
+	 * @param pitchStatus The current pitch status.
+	 * @return True if the path step is successful, false otherwise. 
+	 */
+	public boolean isSuccessful(DynamicInfo pitchStatus);
 	
-	public boolean problemExists();
+	/**
+	 * Checks if the path step failed or not, given the current pitch status.
+	 * @param pitchStatus The current pitch status.
+	 * @return True if the path step failed, false otherwise. 
+	 */
+	public boolean problemExists(DynamicInfo pitchStatus);
 	
 }

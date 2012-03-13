@@ -59,6 +59,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	protected boolean replan;
 	
 	protected DynamicInfoChecker dynamicInfoChecker;
+	
 	protected OperationConsumer operationConsumer;
 	protected DynamicInfoConsumer dynamicInfoConsumer;
 
@@ -189,7 +190,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
 			currentOperation = planNextOperation(dpi);
-			pathFinder.setOperation(currentOperation);
+			operationConsumer.consumeOperation(currentOperation);
 			replan = false;
 		}
 		pathFinder.consumeInfo(dpi);

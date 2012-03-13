@@ -1,14 +1,11 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+
 /**
- * 
- * 
- * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
- *
  * Act: Tell Alfie to kick.
  * 
  * Parameters: power.
- * 
  */
 public class PathStepKick implements PathStep {
 
@@ -33,7 +30,7 @@ public class PathStepKick implements PathStep {
 	 * If Alfie managed to kick the ball.
 	 */
 	@Override
-	public boolean isSuccessful() {
+	public boolean isSuccessful(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -43,7 +40,7 @@ public class PathStepKick implements PathStep {
 	 * Fail: If Alfie did not kick the ball.
 	 */
 	@Override
-	public boolean problemExists() {
+	public boolean problemExists(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}

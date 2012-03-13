@@ -1,18 +1,15 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+
 import java.awt.geom.Point2D;
 
 /**
- * 
- * 
- * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
- *
  * Act: Tell Alfie to start moving forward, possibly specifying the distance to be covered
  * (but not speed as this messes up arc movement).
  * 
  * Parameters:
  * A position to reach, threshold distance for success, threshold angle for failure.
- * 
  */
 public class PathStepGoForwards implements PathStep {
 	
@@ -56,7 +53,7 @@ public class PathStepGoForwards implements PathStep {
  	 * If Alfie is within the specified threshold distance from the target point.
 	 */
 	@Override
-	public boolean isSuccessful() {
+	public boolean isSuccessful(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub 
 		// logic yet to be added
 		return false;
@@ -68,7 +65,7 @@ public class PathStepGoForwards implements PathStep {
 	 * point.
 	 */
 	@Override
-	public boolean problemExists() {
+	public boolean problemExists(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		//Coming soon Logic!
 		return false;

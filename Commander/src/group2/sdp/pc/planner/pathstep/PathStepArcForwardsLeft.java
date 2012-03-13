@@ -1,19 +1,15 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+
 /**
- * 
- * 
- * @author Shaun A.K.A the bringer of bad code!!! beware but chris was here so its kay :)
- *
  * Act: Tell Alfie to start moving forward in an anti-clock-wise arc, specifying the radius and
  * angle of the arc. Thus the centre of the arc should be at the left hand side of Alfie.
  * 
  * Parameters:
  * Radius and angle of the arc and threshold distance. (Target position should be
  * computed on construction of the Arc Forward Left object.)
- * 
  */
-
 public class PathStepArcForwardsLeft implements PathStep {
 
 	private int radius;
@@ -51,7 +47,7 @@ public class PathStepArcForwardsLeft implements PathStep {
 	 * If Alfie is within the specified threshold distance from the target position.
 	 */
 	@Override
-	public boolean isSuccessful() {
+	public boolean isSuccessful(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -69,7 +65,7 @@ public class PathStepArcForwardsLeft implements PathStep {
 	 * 		 	  would provide Alfie with a lot quicker reactions to problems with this Path Step.
 	 */
 	@Override
-	public boolean problemExists() {
+	public boolean problemExists(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}
