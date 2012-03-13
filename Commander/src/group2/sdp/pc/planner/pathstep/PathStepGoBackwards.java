@@ -25,7 +25,7 @@ public class PathStepGoBackwards implements PathStep {
 	 * 
 	 */
 	private Point2D destination;
-	private int distance;
+	private int distance; //im not sure we need this
 	private int distanceThreshold;
 	private int angleThreshold;
 	private int speed;
@@ -132,7 +132,7 @@ public class PathStepGoBackwards implements PathStep {
 		}
 	}
 	
-	//this is only here until we have a tools class to have these functions
+	//this is only here until we have a tools class to have these kinds of functions
 	private double getAngleToTarget(Point2D targetPosition, Point2D alfiePosition, double facingDirection) {
 		double dx = (targetPosition.getX() - alfiePosition.getX());
 		double dy = (targetPosition.getY() - alfiePosition.getY());

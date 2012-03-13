@@ -52,21 +52,33 @@ public class PathStepSpinLeft implements PathStep {
 
 	
 	/**
-	 * getter for the variable to turn
+	 * getter for the variable angleToTurn
 	 * @return Point2D
 	 */
 	public int getAngleToTurn(){
 		return this.angleToTurn;
 	}
 	
+	/**
+	 * getter for the variable Target
+	 * @return Point2D
+	 */
 	public Point2D getTarget(){
 		return this.target;
 	}
 	
+	/**
+	 * getter for the variable Threshold
+	 * @return int
+	 */
 	public int getThreshold(){
 		return this.threshold;
 	}
 	
+	/**
+	 * getter for the variable Speed
+	 * @return int
+	 */
 	public int getSpeed(){
 		return this.speed;
 	}
@@ -74,6 +86,10 @@ public class PathStepSpinLeft implements PathStep {
 	/**
 	 * Succeed:
 	 * If Alfie is within the specified threshold delta from the specified angle.
+	 * 
+	 * need to increment the Angle here as isSuccessful is called before Problem.
+	 * 
+	 * @return boolean
 	 */
 	@Override
 	public boolean isSuccessful(DynamicInfo dpi) {
@@ -93,9 +109,11 @@ public class PathStepSpinLeft implements PathStep {
 	}
 
 	/**
-	 *
 	 * Fail:
 	 * If Alfie is turning away from the destination angle.
+	 * check to see if the last angleToTurn is closer(smaller) than the current angleToTurn
+	 * 
+	 * @return boolean
 	 */
 	@Override
 	public boolean problemExists(DynamicInfo dpi) {
