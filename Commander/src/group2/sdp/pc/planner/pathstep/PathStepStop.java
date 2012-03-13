@@ -1,5 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+
 /**
  * 
  * 
@@ -27,16 +29,21 @@ public class PathStepStop implements PathStep {
 	 * If Alfie stops moving.
 	 */
 	@Override
-	public boolean isSuccessful() {
+	public boolean isSuccessful(DynamicInfo dpi) {
 		// TODO Auto-generated method stub
-		return false;
+		double speed = dpi.getAlfieInfo().getTravelSpeed();
+		if(speed >0){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
 	 * Fail: Alfie is not on the pitch he is at the local disco dancing 
 	 */
 	@Override
-	public boolean problemExists() {
+	public boolean problemExists(DynamicInfo dpi) {
 		// TODO Auto-generated method stub
 		return false;
 	}

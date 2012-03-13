@@ -1,5 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+
 
 /**
  * 
@@ -11,6 +13,12 @@ package group2.sdp.pc.planner.pathstep;
  * would be successful and the state in which it would fail.
  */
 public interface PathStep {
+	
+	/**
+	 * 
+	 * Type is the list of all possible small steps alfie can take to complete an Operation 
+	 *
+	 */
 	
 	public enum Type{
 		GO_FORWARDS,
@@ -25,10 +33,26 @@ public interface PathStep {
 		STOP,	
 	}
 	
+	/**
+	 * a getter method to return the Type of step
+	 * @return Type
+	 */
 	public Type getType();
 	
-	public boolean isSuccessful();
 	
-	public boolean problemExists();
+	/**
+	 * this method will be used by PathFinder to check if the current step
+	 * is successful (to decide if PathFinder needs a new step)
+	 * @return boolean
+	 */
+	public boolean isSuccessful(DynamicInfo dpi);
+	
+	
+	/**
+	 * this method will be used by PathFinder to check if the current step
+	 * has gone wrong (to decide if PathFinder needs to replan)
+	 * @return boolean
+	 */
+	public boolean problemExists(DynamicInfo dpi);
 	
 }

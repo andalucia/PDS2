@@ -1,5 +1,9 @@
 package group2.sdp.pc.planner.pathstep;
 
+import java.awt.geom.Point2D;
+
+import group2.sdp.pc.breadbin.DynamicInfo;
+
 /**
  * 
  * 
@@ -14,12 +18,29 @@ package group2.sdp.pc.planner.pathstep;
  */
 public class PathStepSpinLeft implements PathStep {
 
-	private int angle;
+	/**
+	 * these variables are used in construction of the step
+	 * and stored for use when the step is pulled of the queue
+	 * 
+	 */
+	private int angleToTurn;
+	private Point2D target;
 	private int threshold;
 	private int speed;
+	private double oldAngle;
 	
-	public PathStepSpinLeft(int angle, int threshold, int speed){
-		this.angle= angle;
+	
+	/**
+	 * constructor for the class
+	 * 
+	 * @param angleToTurn
+	 * @param target
+	 * @param threshold
+	 * @param speed
+	 */
+	public PathStepSpinLeft(int angleToTurn, Point2D target, int threshold, int speed){
+		this.angleToTurn = angleToTurn;
+		this.target = target;
 		this.threshold = threshold;
 		this.speed = speed;
 	}
@@ -30,9 +51,16 @@ public class PathStepSpinLeft implements PathStep {
 	}
 
 	
+	/**
+	 * getter for the variable to turn
+	 * @return Point2D
+	 */
+	public int getAngleToTurn(){
+		return this.angleToTurn;
+	}
 	
-	public int getAngle(){
-		return this.angle;
+	public Point2D getTarget(){
+		return this.target;
 	}
 	
 	public int getThreshold(){
@@ -48,10 +76,20 @@ public class PathStepSpinLeft implements PathStep {
 	 * If Alfie is within the specified threshold delta from the specified angle.
 	 */
 	@Override
-	public boolean isSuccessful() {
+	public boolean isSuccessful(DynamicInfo dpi) {
 		// TODO Auto-generated method stub 
 		// logic yet to be added
-		return false;
+		
+		double facing = dpi.getAlfieInfo().getFacingDirection();
+		Point2D alfie = dpi.getAlfieInfo().getPosition();
+		double angle = PathStepGoForwards.getAngleToTarget(target, alfie, facing);
+		
+		if(angle<=threshold){
+			return true;
+		} else {
+			oldAngle = angle;
+			return false;
+		}
 	}
 
 	/**
@@ -60,12 +98,18 @@ public class PathStepSpinLeft implements PathStep {
 	 * If Alfie is turning away from the destination angle.
 	 */
 	@Override
-	public boolean problemExists() {
+	public boolean problemExists(DynamicInfo dpi) {
 		// TODO Auto-generated method stub
 		//Coming soon Logic!
-		return false;
+		double facing = dpi.getAlfieInfo().getFacingDirection();
+		Point2D alfie = dpi.getAlfieInfo().getPosition();
+		double angle = PathStepGoForwards.getAngleToTarget(target, alfie, facing);
+		if(angle > oldAngle){
+			return true;
+		} else {
+			return false;
+		}
 	}
-
 	
 }
 

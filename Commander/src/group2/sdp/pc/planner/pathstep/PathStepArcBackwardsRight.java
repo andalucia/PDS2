@@ -1,5 +1,9 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.pc.breadbin.DynamicInfo;
+
+import java.awt.geom.Point2D;
+
 
 
 /**
@@ -17,16 +21,39 @@ package group2.sdp.pc.planner.pathstep;
  */
 public class PathStepArcBackwardsRight implements PathStep {
 
-	
+	/**
+	 * these variables are used in construction of the step
+	 * and stored for use when the step is pulled of the queue
+	 * 
+	 */
 	private int radius;
 	private int angle;
 	private int threshold;
+	private Point2D target;
+	private Point2D alfie;
+	private double distance;
 	
-	public PathStepArcBackwardsRight(int radius, int angle, int threshold){
+	
+	
+	/**
+	 * constructor for the class
+	 * 
+	 * @param radius : radius of the arc
+	 * @param angle : angle we have to turn
+	 * @param threshold : the degree of error we allow
+	 * @param target : target this step should take alfie to
+	 * @param alfie : alfie's position
+	 */
+	public PathStepArcBackwardsRight(int radius, int angle, int threshold, Point2D target, Point2D alfie){
 		this.angle = angle;
 		this.radius = radius;
 		this.threshold = threshold;
+		this.target = target;
+		this.alfie = alfie;
+		
+		this.distance = alfie.distance(target);
 	}
+	
 	
 	@Override
 	public Type getType() {
@@ -35,27 +62,58 @@ public class PathStepArcBackwardsRight implements PathStep {
 
 
 	
+	/**
+	 * getter for the variable angle 
+	 * @return int
+	 */
 	public int getAngle(){
 		return this.angle;
 	}
 	
+	/**
+	 * getter for the variable threshold 
+	 * @return int
+	 */
 	public int getThreshold(){
 		return this.threshold;
 	}
 	
+	
+	/**
+	 * getter for the variable radius 
+	 * @return int
+	 */
 	public int getRadius(){
 		return this.radius;
 	}
 	
+	/**
+	 * getter for the variable radius
+	 * @return Point
+	 */
+	public Point2D getTarget(){
+		return this.target;
+	}
+
 	
 	/**
 	 * Succeed:
 	 * If Alfie is within the specified threshold distance from the target position.
 	 */
 	@Override
-	public boolean isSuccessful() {
+	public boolean isSuccessful(DynamicInfo dpi) {
 		// TODO Auto-generated method stub
-		return false;
+		
+		Point2D alfie = dpi.getAlfieInfo().getPosition();
+		Point2D target = this.target;
+		
+		//should we check the angle?
+		double distance = alfie.distance(target);
+		if(distance <=threshold){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	
@@ -71,8 +129,19 @@ public class PathStepArcBackwardsRight implements PathStep {
 	 * 		 	  would provide Alfie with a lot quicker reactions to problems with this Path Step.
 	 */
 	@Override
-	public boolean problemExists() {
+	public boolean problemExists(DynamicInfo dpi) {
 		// TODO Auto-generated method stub
-		return false;
+		
+		//easy
+		Point2D alfie = dpi.getAlfieInfo().getPosition();
+		Point2D target = this.target;
+		
+		double newDistance = alfie.distance(target);
+		if(newDistance <= distance){
+			this.distance = newDistance;
+			return false;
+		}else{
+			return true;
+		}
 	}
 }
