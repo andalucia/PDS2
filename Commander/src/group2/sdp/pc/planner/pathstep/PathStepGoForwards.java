@@ -32,17 +32,13 @@ public class PathStepGoForwards implements PathStep {
 	
 	/**
 	 * constructor for the class
-	 * 
-	 * @param destination Point2D target destination
 	 * @param distance int distance to the target
-	 * @param threshold int how close we have to be to the target
 	 * @param speed the speed we are to move forward
+	 * @param threshold int how close we have to be to the target
 	 */
-	public PathStepGoForwards(Point2D destination, int distance, int distanceThreshold, int speed){
-		this.destination = destination;
+	public PathStepGoForwards(int distance, int distanceThreshold, int speed){
 		this.distance = distance;
 		this.distanceThreshold = distanceThreshold;
-		this.angleThreshold = angleThreshold;
 		this.speed = speed;
 	}
 	

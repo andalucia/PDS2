@@ -22,19 +22,16 @@ public class PathStepKick implements PathStep {
 	 * 
 	 */
 	private int power;
-	private Point2D ball;
 	
 	/**
 	 * constructor for the class
-	 * 
 	 * @param destination Point2D target destination
 	 * @param distance int distance to the target
 	 * @param threshold int how close we have to be to the target
 	 * @param speed the speed we are to move forward
 	 */
-	public PathStepKick (int power, Point2D ball) {
+	public PathStepKick (int power) {
 		this.power = power;
-		this.ball = ball;
 	}
 	
 	@Override
@@ -50,14 +47,6 @@ public class PathStepKick implements PathStep {
 		return this.power;
 	}
 
-	/**
-	 * getter for the variable ball
-	 * @return Point2D
-	 */
-	public Point2D getBall(){
-		return this.ball;
-	}
-	
 	/**
 	 * Succeed:
 	 * If Alfie managed to kick the ball.
