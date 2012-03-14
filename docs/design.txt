@@ -142,9 +142,10 @@ Bakery: a Static Info Consumer
  Actions:     Stores a history of Static Info objects, uses that history to 
                estimate derivative properties of objects: speed and direction 
                are estimated from sequence of positions, rotation speed and 
-               direction are estimated from sequence of directions. Passes that
-               information to a Dynamic Info Consumer, supplied on construction
-               of the Bakery.
+               direction are estimated from sequence of directions.Also corrects
+	       any extreme values(e.g jumps of 180 degrees passed by vision. 
+               Passes that information to a Dynamic Info Consumer, supplied 
+	       on construction of the Bakery.
 
 Visual Cortex: an Image Consumer
  Description: The visual cortex of Alfie. Does main processing on the image. 
