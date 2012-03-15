@@ -193,6 +193,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			operationConsumer.consumeOperation(currentOperation);
 			replan = false;
 		}
-		pathFinder.consumeInfo(dpi);
+		dynamicInfoConsumer.consumeInfo(dpi);
 	}
 }
