@@ -4,6 +4,7 @@ import group2.sdp.common.util.Tools;
 
 import lejos.nxt.LCD;
 import lejos.nxt.Motor;
+import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.TouchSensor;
@@ -66,12 +67,13 @@ public class Brain {
 	
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
-	private static final float TRACK_WIDTH = 13.52f;
+	private static final float TRACK_WIDTH = 13.0f; // 13.52f; reduce to correct oversteering
 	private static final float WHEEL_DIAMETER = 8.16f;
 	
+	private static final MotorPort LEFT_MOTOR_PORT = MotorPort.C;
+	private static final MotorPort RIGHT_MOTOR_PORT = MotorPort.A;
+	
 	// Alfie's legs and arms. The motors to be controlled.
-	private static final NXTRegulatedMotor LEFT_WHEEL = Motor.C;
-	private static final NXTRegulatedMotor RIGHT_WHEEL = Motor.A;
 	private static final NXTRegulatedMotor KICKER = Motor.B;
 	
 	// Alfie's finger tips
@@ -93,7 +95,8 @@ public class Brain {
 	private static boolean initialized = false;
 	
 	// PID controller
-	private static DifferentialPilot pilot;
+	private static DifferentialPilot straightLinePilot;
+//	private static DifferentialPilot archingPilot;
 	
 	// Indicates whether messages should be output to the LCD or not.
 	private static boolean VERBOSE = true;
@@ -119,7 +122,28 @@ public class Brain {
 	 * This method should be called before running any other methods in the class.	
 	 */
 	public static void init () {
-		pilot = new DifferentialPilot(WHEEL_DIAMETER, TRACK_WIDTH, LEFT_WHEEL, RIGHT_WHEEL);
+		NXTRegulatedMotor leftWheel = new NXTRegulatedMotor(LEFT_MOTOR_PORT);
+		NXTRegulatedMotor rightWheel = new NXTRegulatedMotor(RIGHT_MOTOR_PORT);
+		
+//		NXTRegulatedMotor leftWheel2 = new NXTRegulatedMotor(LEFT_MOTOR_PORT);
+//		NXTRegulatedMotor rightWheel2 = new NXTRegulatedMotor(RIGHT_MOTOR_PORT);
+//		
+		straightLinePilot = 
+			new DifferentialPilot(
+					WHEEL_DIAMETER, 
+					TRACK_WIDTH, 
+					leftWheel, 
+					rightWheel
+			);
+//		straightLinePilot.setAcceleration((int) ((1.25) * MAX_SPEED));
+//		
+//		archingPilot = 
+//			new DifferentialPilot(
+//					WHEEL_DIAMETER, 
+//					TRACK_WIDTH,
+//					leftWheel,
+//					rightWheel
+//			);
 		initTouchThread();		
 		initialized = true;
 	}
@@ -175,11 +199,11 @@ public class Brain {
 			distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
 			
 			stopOnTouch = true;
-			pilot.setTravelSpeed(speed);
+//			straightLinePilot.setTravelSpeed(speed);
 			if (distance == 0) {
-				pilot.forward();
+				straightLinePilot.forward();
 			} else {
-				pilot.travel(distance,true);
+				straightLinePilot.travel(distance,true);
 			}
 			
 			if (VERBOSE) {
@@ -188,7 +212,7 @@ public class Brain {
 				LCD.drawString(FWD2, 0, 1);
 				LCD.drawInt(speed, 1, 2);
 				LCD.drawString("MAX SPEED", 0, 3);
-				LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+				LCD.drawInt((int)straightLinePilot.getMaxTravelSpeed(), 1, 4);
 				LCD.refresh();
 			}
 		} else {
@@ -210,11 +234,11 @@ public class Brain {
 		speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 		
 		stopOnTouch = false;
-		pilot.setTravelSpeed(speed);
+		straightLinePilot.setTravelSpeed(speed);
 		if (distance == 0) {
-			pilot.backward();			
+			straightLinePilot.backward();			
 		} else {
-			pilot.travel(-distance,true);
+			straightLinePilot.travel(-distance,true);
 		}
 		
 		if (VERBOSE) {
@@ -223,7 +247,7 @@ public class Brain {
 			LCD.drawString(BWD2, 0, 1);
 			LCD.drawInt(speed, 1, 2);
 			LCD.drawString("MAX SPEED", 0, 3);
-			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
+			LCD.drawInt((int)straightLinePilot.getMaxTravelSpeed(), 1, 4);
 			LCD.refresh();
 		}
 	}
@@ -241,8 +265,8 @@ public class Brain {
 		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
-		pilot.setRotateSpeed(angle);
-	    pilot.rotate(angle,true);
+		straightLinePilot.setRotateSpeed(angle);
+	    straightLinePilot.rotate(angle,true);
 		
 		if (VERBOSE) {
 			LCD.clear();
@@ -262,7 +286,7 @@ public class Brain {
 		stopOnTouch = true;
 		
 		if (angle != 0 && radius != 0) {
-			pilot.arc(radius, angle, true);
+			straightLinePilot.arc(radius, angle, true);
 		} 
 		
 		if (VERBOSE) {
@@ -279,7 +303,7 @@ public class Brain {
 		assert(initialized);
 		
 		stopOnTouch = false;
-		pilot.stop();
+		straightLinePilot.stop();
 		
 		if (VERBOSE) {
 			LCD.clear();

@@ -68,14 +68,14 @@ public class Ear {
 				dis.close();
 				dos.close();
 				Thread.sleep(100); // wait for data to drain
+				LCD.clear();
+				LCD.drawString(closing,0,0);
+				LCD.refresh();
+				btc.close();
+				LCD.clear();
 	        } catch (Exception exc) {
 	        	// Ignore, the connection is already closed.
 	        }
-			LCD.clear();
-			LCD.drawString(closing,0,0);
-			LCD.refresh();
-			btc.close();
-			LCD.clear();
 		}
 		
 	}

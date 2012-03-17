@@ -926,7 +926,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			while (centroid.x > counter) {
 				Point pointToDraw = new Point(centroid.x, (int)(b + centroid.x * tanAngle));
 				drawPixel(raster, pointToDraw, colour);
-				counter++;
+				centroid.x--;
 			}
 		} else {
 			int counter = centroid.x + 100;
@@ -934,7 +934,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			while (centroid.x < counter) {
 				Point pointToDraw = new Point(centroid.x,(int)(b + centroid.x * tanAngle));
 				drawPixel(raster, pointToDraw, colour);
-				counter--;
+				centroid.x++;
 			}
 		}
 	}
