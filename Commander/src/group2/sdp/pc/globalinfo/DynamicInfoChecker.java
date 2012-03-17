@@ -92,14 +92,14 @@ public class DynamicInfoChecker {
 			double angle = Math.abs(getAngleToBall(ball, robotPos, facing));
 
 			if(angle<=threshold2){
-				System.out.println("HASBALL is TRUE");
+				//System.out.println("HASBALL is TRUE");
 				return true;
 			}else{
-				System.out.println("HASBALL is FALSE");
+				//System.out.println("HASBALL is FALSE");
 				return false;
 			}
 		}else{
-			System.out.println("HASBALL is FALSE");
+			//System.out.println("HASBALL is FALSE");
 			return false;
 		}
 	}

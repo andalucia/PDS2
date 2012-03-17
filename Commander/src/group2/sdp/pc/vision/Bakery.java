@@ -274,39 +274,50 @@ public class Bakery extends BakerySkeleton {
 	protected double computeRobotRotatingSpeed(
 			LinkedList<StaticRobotInfo> historyInfos) {
 		
-		StaticRobotInfo recentRobot = historyInfos.get(historyInfos.size()-1);
-		StaticRobotInfo oldRobot = historyInfos.get(historyInfos.size()-3);
-		double time2 = recentRobot.getTimeStamp();
-		double time1 = oldRobot.getTimeStamp();
-		double angle2 = recentRobot.getFacingDirection();
-		double angle1 = oldRobot.getFacingDirection();
-		double bigAngle;
-		double smallAngle;
-		double angleDifference;
-		
-		// get time difference (seconds)
-		double timeDifference = time2 - time1;
-		timeDifference = timeDifference/1000.0;
-		if (angle2==angle1){
-			return 0;
-		}
-		if (angle1 >= angle2) {
-			bigAngle = angle1;
-			smallAngle = angle2;
+		// We can only calculate rotation speed if we have enough frames		
+		if(historyInfos.size() >= 3) {
+			
+			StaticRobotInfo recentRobot = historyInfos.get(historyInfos.size()-1);
+			StaticRobotInfo oldRobot = historyInfos.get(historyInfos.size()-3);
+			double time2 = recentRobot.getTimeStamp();
+			double time1 = oldRobot.getTimeStamp();
+			double angle2 = recentRobot.getFacingDirection();
+			double angle1 = oldRobot.getFacingDirection();
+			double bigAngle;
+			double smallAngle;
+			double angleDifference;
+			
+			// get time difference (seconds)
+			double timeDifference = time2 - time1;
+			timeDifference = timeDifference/1000.0;
+			if (angle2==angle1){
+				return 0;
+			}
+			if (angle1 >= angle2) {
+				bigAngle = angle1;
+				smallAngle = angle2;
+			} else {
+				bigAngle = angle2;
+				smallAngle = angle1;
+			}
+			
+			angleDifference=bigAngle-smallAngle;
+			if((angleDifference) > 180){
+				angleDifference = 360 - angleDifference;
+			}
+			if(verbose){
+				System.out.println("Difference in angle between frames = " +angleDifference);
+			}
+			double rotSpeed = angleDifference / timeDifference;
+			return rotSpeed;
+			
 		} else {
-			bigAngle = angle2;
-			smallAngle = angle1;
+			
+			// We don't have enough frames to calculate the rotation speed
+			// so assume that we're not rotating yet
+			return 0;
+			
 		}
-		
-		angleDifference=bigAngle-smallAngle;
-		if((angleDifference) > 180){
-			angleDifference = 360 - angleDifference;
-		}
-		if(verbose){
-			System.out.println("Difference in angle between frames = " +angleDifference);
-		}
-		double rotSpeed = angleDifference / timeDifference;
-		return rotSpeed;
 		
 	}
 
@@ -314,33 +325,43 @@ public class Bakery extends BakerySkeleton {
 	protected boolean isRobotRotatingCCW(
 			LinkedList<StaticRobotInfo> historyInfos) {
 		
-		StaticRobotInfo recentRobot = historyInfos.get(historyInfos.size()-1);
-		StaticRobotInfo oldRobot = historyInfos.get(historyInfos.size()-3);
-		double angle2 = recentRobot.getFacingDirection();
-		double angle1 = oldRobot.getFacingDirection();
-		//not rotating case
-		if(isSimilarAngle(angle2, angle1 , ROTATING_THRESHOLD)){
+		// We can only calculate rotation speed if we have enough frames		
+		if(historyInfos.size() >= 3) {
+		
+			StaticRobotInfo recentRobot = historyInfos.get(historyInfos.size()-1);
+			StaticRobotInfo oldRobot = historyInfos.get(historyInfos.size()-3);
+			double angle2 = recentRobot.getFacingDirection();
+			double angle1 = oldRobot.getFacingDirection();
+			//not rotating case
+			if(isSimilarAngle(angle2, angle1 , ROTATING_THRESHOLD)){
+				return false;
+			}
+			if (angle2 > angle1) {
+				if (angle2 <= (angle1 +180)){
+					return true;
+				}else {
+					return false;
+				}
+			}
+			//Else solves 0-360 jump problem
+			//Works out difference between angles in the counter clock wise direction 
+			//and checks difference <180
+			else {
+				double ccwDifference = (360-angle1) + angle2;
+				if (ccwDifference <= 180){
+					return true;
+				}else{
+					return false;
+				}		
+			}	
+		
+		} else {
+			
+			// We don't have enough frames to calculate the rotation speed
+			// so assume that we're not rotating yet
 			return false;
+			
 		}
-		if (angle2 > angle1) {
-			if (angle2 <= (angle1 +180)){
-				return true;
-			}else {
-				return false;
-			}
-		}
-		//Else solves 0-360 jump problem
-		//Works out difference between angles in the counter clock wise direction 
-		//and checks difference <180
-		else{
-			double ccwDifference = (360-angle1) + angle2;
-			if (ccwDifference <= 180){
-				return true;
-			}else{
-				return false;
-			}
-					
-		}		
 		
 	}
 

@@ -16,6 +16,8 @@ import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
 /**
@@ -54,32 +56,38 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 		// Check whether there is an operation to execute, if there isn't re-plan!
 		if(currentStep != null) {
-			
+						
 			// Check whether the operation is successful
 			if(currentStep.isSuccessful(dpi) && !currentStep.problemExists(dpi)) {
-				
-				// Get the next PathStep from the queue
-				currentStep = pathStepList.pollFirst();
-				
-				// If it is successful, try and execute the next PathStep in the queue
-				if(currentStep != null) {
-					execute();						
-				} else {
-					// The queue is empty so re-plan
-					plan();
-				}
+				System.out.println("Successful");
+				executeNextStep();
 			}
 				
 			// Check whether something in the queue has failed and re-plan if it has
 			if(currentStep.problemExists(dpi)) {
+				System.out.println("Fail");
 				plan();
 			}
 			
 		} else {
-			// We don't have an  operation to execute so get one!
-			plan();
+			// Attempt to execute the next step in the pathStepList
+			// If there isn't one we'll automatically plan()
+			executeNextStep();
 		}
 		
+	}
+	
+	public void executeNextStep() {	
+		// Get the next PathStep from the queue
+		currentStep = pathStepList.pollFirst();
+		
+		// If it is successful, try and execute the next PathStep in the queue
+		if(currentStep != null) {
+			execute();						
+		} else {
+			// The queue is empty so re-plan
+			plan();
+		}		
 	}
 	
 	/**
@@ -101,6 +109,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 */
 
 	private void plan() {
+		
+		System.out.println("Planning");
 		
 		// Clear the PathStep queue
 		pathStepList.clear();
