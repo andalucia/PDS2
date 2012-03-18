@@ -11,7 +11,8 @@ import org.junit.Test;
 
 public class ButtRuleTest {
 	
-	public void testButtRuleCase(double ballX, double ballY, double endX, double endY, double endDirection, boolean expected) {
+	public void testButtRuleCase(double ballX, double ballY, 
+			double endX, double endY, double endDirection, boolean expected) {
 		
 		Point2D ballPosition = new Point2D.Double(ballX, ballY);
 		
@@ -42,14 +43,18 @@ public class ButtRuleTest {
 		else 
 			Assert.assertFalse(result);
 	}
-	
+		
 	@Test 
 	public void testButtRule() {
 		// Should return true
-		testButtRuleCase(-30, -20, -45, 10, 30, true);
-		testButtRuleCase(-30, -20, -30, 10, 45, false);
-		testButtRuleCase(17, 17, 0, 0, 270, true);
-		testButtRuleCase(17, 17, 0, 0, 90, true);
+		testButtRuleCase(-30, -20, -47, 5, 110, false);
+		testButtRuleCase(-30, -20, -47, 5, 30, true);
+		// 2 points of intersection
+		//testButtRuleCase(-30, -20, -30, 10, 45, false);
+		// on the tangent
+		testButtRuleCase(17, 17, -1, -1, 270, true);
+		testButtRuleCase(-25, 40.494, 0, 0, 315, false);
+		testButtRuleCase(0, 40.494, 0, 0, 270, false);
 		
 	}
 }

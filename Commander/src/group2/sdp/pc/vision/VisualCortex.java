@@ -54,25 +54,25 @@ public class VisualCortex extends VisualCortexSkeleton {
 		CHROMA,
 		LUMA
 	}
-	
+
 	private OutputMode currentMode = OutputMode.MATCH;
 
 	/**
-	* Shows whether the background has to be updated or not.
-	*/
+	 * Shows whether the background has to be updated or not.
+	 */
 	private boolean extractBackground;
 
 	/**
-	* An image of the background - image in each frame is 
-	* 							compared to the background
-	*/
+	 * An image of the background - image in each frame is 
+	 * 							compared to the background
+	 */
 	private BufferedImage backgroundImage;
 
 	private static final boolean VERBOSE = true;
 
 	// true if we want to draw on the raster
 	private static final boolean pleaseDraw = true;
-	
+
 	private String backgroundFileName = "background.png";
 	private boolean saveBackground = false;
 
@@ -84,7 +84,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	// values to return
 	private Point blueCentroid, yellowCentroid, ballCentroid;
 	private double directionBlueRobot, directionYellowRobot;
-	
+
 	// used to check if what we think is a robot/ball is 
 	// actually a robot/ball or is noise
 	private final int meanRobotSize = 400;
@@ -130,8 +130,14 @@ public class VisualCortex extends VisualCortexSkeleton {
 		} else {
 			newPixels = getDifferentPixels(image);
 			internalImage = drawPixels(image, newPixels);
-			if(pleaseDraw)
-				drawStuff(internalImage);
+			if(pleaseDraw) {
+				try {
+					drawStuff(internalImage);
+				} catch (InterruptedException e) {
+					// THIS SHOULD NOT HAPPEN!>?!!?>£RLEKWADKSDKASJK
+					e.printStackTrace();
+				}
+			}
 			super.process(image);
 		}
 		detectRobotsAndBall(image, newPixels);
@@ -321,7 +327,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		double lowerBound = 0.4;
 		int size = points.size(); 
 		if (size > expectedSize * upperBound
-				&& size < expectedSize * lowerBound) {
+				|| size < expectedSize * lowerBound) {
 			return false;
 		} else {
 			return true;
@@ -372,16 +378,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 		double angleToReturn = 0;
 		Point fixelsCentroid = calcCentroid(fixels);
-
-		double direction;
-		if (isYellow) {
-			// if we want the yellow direction
-			// 'true' means we're looking for yellow
-			direction = (findFacingDirection(image, fixelsCentroid, true));
-		} else {
-			// if we want the blue direction
-			direction = (findFacingDirection(image, fixelsCentroid, false));
-		}
+		double direction = (findFacingDirection(image, fixelsCentroid, isYellow));
 
 		double angleReturnedByRegression = 0;
 		double newAngle = direction;
@@ -390,9 +387,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 			angleReturnedByRegression = regression(fixels, newAngle, isYellow);
 			double subtractAngle = Math.toDegrees(Math.atan(angleReturnedByRegression));
 			newAngle -= subtractAngle;
-
 		}
-		angleToReturn = newAngle;
+		
+		angleToReturn = correctFacingDirection(image, fixelsCentroid, isYellow, newAngle);
 		return angleToReturn;
 	}
 
@@ -523,11 +520,11 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 			// for every possible direction
 			// rotate by 1 degree at a time
-			for (int i = 0; i < 360; i++) {
+			for (int i = 0; i < 180; i++) {
 				currentScore = 0;
 				currentScoreOppositeDirection = 0;
-				Point nextPixel = new Point();			
-				Point rotatedPixel = new Point();
+				Point nextPixel = new Point();
+				Point rotatedPixel = new Point(centroid.x,centroid.y);
 				/**
 				 * Do not stop until the next pixel colour is not the colour we
 				 * are looking for. The next pixel is determined by travelling
@@ -544,12 +541,13 @@ public class VisualCortex extends VisualCortexSkeleton {
 				/**
 				 * The second while loop is because the function is checking
 				 * if a line is 'unbroken' (all pixels on it are the same colour)
-				 * in *both* directions. That is, if the line (centroid, Point(0,1)) 
-				 * is unbroken, you have to also check if the line (centroid, Point(0,-1)) 
+				 * in *both* directions. That is, if the line (centroid, Point(0,1))
+				 * is unbroken, you have to also check if the line (centroid, Point(0,-1))
 				 * is unbroken and only then say that is the right direction.
 				 */
+				rotatedPixel = new Point(centroid.x,centroid.y);
 				while (isBlueYellow(image, rotatedPixel, isYellow)) {
-					nextPixel = new Point(centroid.x + currentScore, centroid.y);
+					nextPixel = new Point(centroid.x + currentScoreOppositeDirection, centroid.y);
 					rotatedPixel = rotatePoint(centroid, nextPixel, i + 180);
 					currentScoreOppositeDirection++;
 				}
@@ -561,6 +559,101 @@ public class VisualCortex extends VisualCortexSkeleton {
 					}
 					bestScore = currentScore + currentScoreOppositeDirection;
 				}
+			}
+		}
+		return 360 - bestAngle;
+	}
+
+	/**
+	 * Uses the perpendicular angle to the direction of the T to find if 
+	 * the current angle is "flipped" the wrong way. The longest, unbroken perpendicular 
+	 * line is what we consider the back of the T. We then flip the angle to correct 
+	 * it if we think it is wrong.
+	 * @param image
+	 * @param centroid
+	 * @param isYellow
+	 * @param angle
+	 * @return
+	 */
+	public double correctFacingDirection(BufferedImage image, Point centroid,
+			boolean isYellow, double angle) {
+		// rotation works opposite from our angle system, so we do this.
+		angle = 360 - angle;
+		if (centroid == null) {
+			return -1;
+		}
+		int currentScore = 0;
+		int currentScoreOppositeDirection = 0;
+		double bestAngle = angle;
+
+		Point lastPointDir = new Point();
+		Point lastPointDirBack = new Point();
+		Point nextPixel = new Point();			
+		Point rotatedPixel = new Point(centroid.x,centroid.y);
+		int lineScore = 0, lineScoreBack = 0;
+
+		if (centroid.x != 0) {
+
+			currentScore = 0;
+			currentScoreOppositeDirection = 0;
+			/**
+			 * Do not stop until the next pixel colour is not the colour we
+			 * are looking for. The next pixel is determined by travelling
+			 * in the negative x direction and then rotating the point i
+			 * degrees around the centroid.
+			 */
+			while (isBlueYellow(image, rotatedPixel, isYellow)) {
+				nextPixel = new Point(centroid.x + currentScore, centroid.y);
+				rotatedPixel = rotatePoint(centroid, nextPixel, (int)angle);
+				currentScore++;
+				lastPointDir = rotatedPixel;
+			}
+			/**
+			 * The second while loop is because the function is checking
+			 * if a line is 'unbroken' (all pixels on it are the same colour)
+			 * in *both* directions. That is, if the line (centroid, Point(0,1)) 
+			 * is unbroken, you have to also check if the line (centroid, Point(0,-1)) 
+			 * is unbroken and only then say that is the right direction.
+			 */
+			rotatedPixel = new Point(centroid.x,centroid.y);
+			while (isBlueYellow(image, rotatedPixel, isYellow)) {
+				nextPixel = new Point(centroid.x + currentScoreOppositeDirection, centroid.y);
+				rotatedPixel = rotatePoint(centroid, nextPixel, (int) (angle + 180) % 360);
+
+				currentScoreOppositeDirection++;
+				lastPointDirBack = rotatedPixel;
+			}
+
+			Point middlePoint = new Point((lastPointDir.x + centroid.x)/2,(lastPointDir.y + centroid.y)/2);
+			rotatedPixel = (Point) middlePoint.clone();
+			while (isBlueYellow(image, rotatedPixel , isYellow)) {
+
+				lineScore++; // Since we sort in ascending order, lower
+				// score is longer segments
+				nextPixel = new Point(middlePoint.x + lineScore, middlePoint.y);
+				rotatedPixel = rotatePoint(middlePoint, new Point(nextPixel.x,
+						nextPixel.y), (int) bestAngle + 90);
+
+			}
+			Point middlePointBack = new Point(
+								(lastPointDirBack.x + centroid.x)/2,
+								(lastPointDirBack.y + centroid.y)/2);
+			rotatedPixel =  (Point) middlePointBack.clone();
+			while (isBlueYellow(image, rotatedPixel, isYellow)) {
+
+				lineScoreBack++; // Since we sort in ascending order, lower
+				// score is longer segments
+				nextPixel = new Point(middlePointBack.x + lineScoreBack,
+										middlePointBack.y);
+				rotatedPixel = rotatePoint(middlePointBack,
+						new Point(nextPixel.x,
+						nextPixel.y),
+						(int) bestAngle + 90);
+
+			}
+			if(lineScore > lineScoreBack){
+
+				bestAngle = (bestAngle+180) % 360;
 			}
 		}
 		return 360 - bestAngle;
@@ -663,7 +756,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		}
 		Point centroid = new Point(0,0);
 		Point totalFixels = new Point(0,0);
-		
+
 		for (int i = 0; i < fixels.size(); i++){
 			Point current = fixels.get(i);
 			totalFixels.x += current.x;
@@ -692,7 +785,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		double rad = Math.toRadians(deg);
 		double cosAngle = Math.cos(rad);
 		double sinAngle = Math.sin(rad); 
-		
+
 		// This is OK.
 		int xtemp = (int) Math.round((point.x * cosAngle) - (point.y * sinAngle));
 		point.y = (int) Math.round((point.x * sinAngle) + (point.y * cosAngle));
@@ -710,7 +803,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	private Point2D convertPixelsToCm(Point2D point) {
 		Point2D p = new Point2D.Float();
 		Rectangle2D pitchPhysicalRectangle = globalInfo.getPitch()
-				.getMinimumEnclosingRectangle();
+		.getMinimumEnclosingRectangle();
 		Rectangle pitchImageRectangle = globalInfo.getCamera().getPitchCrop();
 
 		double x = linearRemap(point.getX(), pitchImageRectangle.getMinX(),
@@ -751,10 +844,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	private Point2D correctRobotPosition(Point robotPosition,
 			Point2D convertedPosition, double height) {
-		
+
 		Rectangle pitchImageRectangle = 
 			globalInfo.getCamera().getPitchCrop();
-		
+
 		// Correction
 		double H = globalInfo.getCamera().getDistanceFromPitch();
 		double h = height;
@@ -837,7 +930,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		if (withinBounds(p1)) {
 			try {
 				raster.setPixel(p1.x, p1.y, colour);
-				
+
 			}
 			catch (Exception exc) {
 				System.out.println("asd");
@@ -853,7 +946,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * 
 	 * @param internalImage
 	 */
-	private void drawStuff(BufferedImage internalImage) {
+	private void drawStuff(BufferedImage internalImage) throws InterruptedException {
 		WritableRaster raster = internalImage.getRaster();
 		int[] blue = new int[] { 0, 0, 255 };
 		int[] yellow = new int[] { 255, 255, 0 };
@@ -865,7 +958,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		if (blueCentroid != null) {
 			drawCentroidCircle(raster, blueCentroid, blue, 50);
 			drawRobotFacingDirection(raster, this.blueCentroid, this.directionBlueRobot);
-			
+
 		}
 		if (yellowCentroid != null) {
 			drawCentroidCircle(raster, yellowCentroid, yellow, 50);
@@ -913,13 +1006,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	private void drawRobotFacingDirection(WritableRaster raster, Point centroid,
 			double angle) {
-		
+
 		angle = 360 - angle;
 		double tanAngle = Math.tan(Math.toRadians(angle));
 		int[] colour = {255, 255, 255};
-		
-		angle = 135;
-		
 		if (angle < 270 && angle > 90) {
 			int counter = centroid.x - 100;
 			double b = centroid.y - centroid.x * tanAngle;
@@ -973,18 +1063,18 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	protected Point2D extractRobotPosition(BufferedImage image, boolean yellow) {
 		Point robotPosition = yellow 
-			? yellowCentroid
-			: blueCentroid;
+		? yellowCentroid
+				: blueCentroid;
 		if (robotPosition == null) {
 			return null;
 		}
 		Point2D convertedPosition = convertPixelsToCm(robotPosition);
 		return 
-			correctRobotPosition(
-					robotPosition, 
-					convertedPosition, 
-					StaticRobotInfo.getHeight()
-			);
+		correctRobotPosition(
+				robotPosition, 
+				convertedPosition, 
+				StaticRobotInfo.getHeight()
+		);
 	}
 
 	/**

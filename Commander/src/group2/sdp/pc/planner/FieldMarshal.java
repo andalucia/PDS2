@@ -16,9 +16,9 @@ import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
-
-import lejos.geom.Point;
+import java.awt.geom.Point2D.Double;
 
 /**
  * <p> <b>Field Marshal</b>:	A {@link StrategyConsumer} and a {@link DynamicInfoConsumer}</p>
@@ -209,18 +209,15 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 * @param ballInfo The ball info to use.
 	 * @param robotInfo Physical dimensions of this robot are used. 
 	 * @param endPosition The position where a particular path might lead to.
-	 * @param endDirection The direction of the robot after following a particular path.
+	 * @param endAngle The direction of the robot after following a particular path.
 	 * @return If the butt rule is valid or not, i.e. if the ray opposite the end ray, 
 	 * starting from the same point, does not cross the danger zone of the ball.
 	 */
 	public static boolean checkButtRule(StaticBallInfo ballInfo, 
-			StaticRobotInfo robotInfo, Point2D endPosition, double endDirection) {
+			StaticRobotInfo robotInfo, Point2D endPosition, double endAngle) {
 		double zoneRadius = ballInfo.getDangerZoneRadius(robotInfo);
-		
-		Point2D v = new Point2D.Double(
-				Math.cos(-endDirection), 
-				Math.sin(-endDirection)
-		);
+		endAngle = Math.toRadians(endAngle);
+		Point2D v = new Point2D.Double(Math.cos(endAngle),Math.sin(endAngle));
 		
 		double a = ballInfo.getPosition().getX();
 		double b = ballInfo.getPosition().getY();
@@ -229,7 +226,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		double e = v.getX();
 		double f = v.getY();
 		double r = zoneRadius;
-		
+
 		double A = e * e + f * f;
 		double B = 2 * (e * (c - a) + f * (d - b));
 		double C = (c - a) * (c - a) + (d - b) * (d - b) - r * r;
