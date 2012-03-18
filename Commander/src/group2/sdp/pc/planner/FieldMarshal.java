@@ -1,8 +1,11 @@
 package group2.sdp.pc.planner;
 
+import group2.sdp.common.util.Tools;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
@@ -194,5 +197,44 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			replan = false;
 		}
 		dynamicInfoConsumer.consumeInfo(dpi);
+	}
+	
+	/**
+	 * The butt rule is that the ray opposite the end ray, starting from the 
+	 * same point, should not cross the danger zone of the ball. This is computed
+	 * by solving a quadratic equation. If it has less than two solutions, then
+	 * the opposite ray is either not crossing the circle or it is tangent to it.
+	 * Ask Stan for the computations, he has a sheet of them. Tsvety and Chris 
+	 * agreed they are correct. 
+	 * @param ballInfo The ball info to use.
+	 * @param robotInfo Physical dimensions of this robot are used. 
+	 * @param endPosition The position where a particular path might lead to.
+	 * @param endDirection The direction of the robot after following a particular path.
+	 * @return If the butt rule is valid or not, i.e. if the ray opposite the end ray, 
+	 * starting from the same point, does not cross the danger zone of the ball.
+	 */
+	public static boolean checkButtRule(StaticBallInfo ballInfo, 
+			StaticRobotInfo robotInfo, Point2D endPosition, double endDirection) {
+		double zoneRadius = ballInfo.getDangerZoneRadius(robotInfo);
+		
+		Point2D v = new Point2D.Double(
+				Math.cos(-endDirection), 
+				Math.sin(-endDirection)
+		);
+		
+		double a = ballInfo.getPosition().getX();
+		double b = ballInfo.getPosition().getY();
+		double c = endPosition.getX();
+		double d = endPosition.getY(); 
+		double e = v.getX();
+		double f = v.getY();
+		double r = zoneRadius;
+		
+		double A = e * e + f * f;
+		double B = 2 * (e * (c - a) + f * (d - b));
+		double C = (c - a) * (c - a) + (d - b) * (d - b) - r * r;
+		
+		int n = Tools.getNumberOfQuadraticSolutions(A, B, C);
+		return n <= 1;
 	}
 }

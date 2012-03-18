@@ -1,6 +1,8 @@
-package group2.sdp.pc.globalinfo;
+package group2.sdp.pc.test;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 
 import java.awt.geom.Point2D;
 

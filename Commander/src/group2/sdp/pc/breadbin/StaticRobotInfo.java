@@ -1,6 +1,7 @@
 package group2.sdp.pc.breadbin;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 /**
  * Description: Information about a robot that is frame-specific and can be
@@ -10,6 +11,11 @@ import java.awt.geom.Point2D;
  *               time-stamp.
  */
 public class StaticRobotInfo {
+	/**
+	 * The centroid of alfie.
+	 */
+	protected static final Point2D ALFIE_CENTROID = new Point2D.Double(0, -2);
+	
 	/**
 	 * The length of the robot.
 	 */
@@ -46,6 +52,10 @@ public class StaticRobotInfo {
 	 * The time, in milliseconds, at which the information was recorded.
 	 */
 	protected long timeStamp;
+	/**
+	 * The centroid of the T on top of the robot.
+	 */
+	protected Point2D centrePoint;
 
 	
 	/**
@@ -67,9 +77,13 @@ public class StaticRobotInfo {
 		this.position = position;
 		this.facingDirection = facingDirection;
 		this.alfie = alfie;
-		this.timeStamp=timeStamp;
+		this.timeStamp = timeStamp;
+		if (!alfie)
+			this.centrePoint = new Point2D.Double(0.0, 0.0);
+		else 
+			this.centrePoint = ALFIE_CENTROID;
 	}
-
+	
 	/**
 	 * A copy constructor.
 	 * @param info The info to copy.
@@ -179,8 +193,25 @@ public class StaticRobotInfo {
 	 * @return The time, in milliseconds, at which the information was 
 	 * recorded.
 	 */
-	public long getTimeStamp(){
+	public long getTimeStamp() {
 		return timeStamp;
+	}
+	
+	/**
+	 * Gets the smallest distance from the centre of the robot, that parts of 
+	 * it can not reach. (Smallest circle enclosing the robot.) 
+	 * @return
+	 */
+	public double getSafeDistance() {
+		double dx = Math.max(
+				WIDTH / 2 - centrePoint.getX(), 
+				WIDTH / 2 + centrePoint.getX()
+		);
+		double dy = Math.max(
+				LENGTH / 2 - centrePoint.getY(), 
+				LENGTH / 2 + centrePoint.getY()
+		);
+		return Math.sqrt(dx * dx + dy * dy);
 	}
 }
 

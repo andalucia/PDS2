@@ -13,7 +13,7 @@ public class StaticBallInfo {
 	/**
 	 * The radius of the ball in centimetres.
 	 */
-	protected final static double BALL_RADIUS = 2;
+	protected final static double RADIUS = 2;
 
 	/**
 	 * The position of the ball with respect to the centre of the pitch. The 
@@ -72,7 +72,19 @@ public class StaticBallInfo {
 	 * Gets the radius of the ball in centimetres.
 	 * @return The radius of the ball in centimetres.
 	 */
-	public static double getBallRadius() {
-		return BALL_RADIUS;
+	public static double getRadius() {
+		return RADIUS;
+	}
+
+
+	/** 
+	 * Gets the radius of the danger zone around the ball, knowing which robot is
+	 * asking.
+	 * @param robotInfo The robot, with respect to which the zone should be inferred. 
+	 * @return The radius of the danger zone around the ball, knowing which robot is
+	 * asking.
+	 */
+	public double getDangerZoneRadius(StaticRobotInfo robotInfo) {
+		return robotInfo.getSafeDistance() + RADIUS;
 	}	
 }

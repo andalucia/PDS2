@@ -34,4 +34,21 @@ public class Tools {
 			value = min;
 		return value;
 	}
+	
+	/**
+	 * Gets the number of solutions of a quadratic equation of the given form:
+	 * 
+	 * a * x^2 + b * x + c = 0
+	 * 
+	 * @return The number of solutions of the quadratic equation.
+	 */
+	public static int getNumberOfQuadraticSolutions(double a, double b, double c) {
+		double discriminant = b * b - 4 * a * c;
+		if (discriminant < 0.0)
+			return 0;
+		else if (discriminant == 0.0)
+			return 1;
+		else 
+			return 2;
+	}
 }
