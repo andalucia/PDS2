@@ -292,6 +292,9 @@ public class CommanderControlStation {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (processImageCheckbox.getState()) {
+					isProcessing = true;
+				}
 				startPipeline();
 				
 			    yellowAlfieCheckbox.setEnabled(false);
