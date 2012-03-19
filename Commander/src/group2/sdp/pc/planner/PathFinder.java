@@ -145,15 +145,14 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	private void planReallocation(DynamicInfo dpi) {
 		OperationReallocation op = (OperationReallocation) currentOperation;
 		
-//		PathStepArcForwardsRight firstArc = 
-//			new PathStepArcForwardsRight(
-//					dpi.getAlfieInfo().getPosition(), 
-//					dpi.getAlfieInfo().getFacingDirection(), 
-//					30, 
-//					180, 
-//					10
-//			);
-		PathStepKick firstArc = new PathStepKick(1000);
+		PathStepArcForwardsRight firstArc = 
+			new PathStepArcForwardsRight(
+					dpi.getAlfieInfo().getPosition(), 
+					dpi.getAlfieInfo().getFacingDirection(), 
+					30, 
+					180, 
+					10
+			);
 //		PathStepArcForwardsLeft secondArc = 
 //			new PathStepArcForwardsLeft(
 //					firstArc.getTargetDestination(), 
