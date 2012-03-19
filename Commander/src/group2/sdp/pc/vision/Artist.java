@@ -8,7 +8,12 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-public class ImagePreviewer extends WindowAdapter implements ImageConsumer {
+
+/**
+ * <p><b>Description:</b>	Sets up a window in which to display images passed to it
+ * through consume</p>
+ */
+public class Artist extends WindowAdapter implements ImageConsumer {
 	private static int width = 640, height = 480;
 	
 	private JLabel          label;
@@ -26,12 +31,12 @@ public class ImagePreviewer extends WindowAdapter implements ImageConsumer {
 			consumer.consume(image);
 	}
 
-	public ImagePreviewer() {
+	public Artist() {
 		// create and initialise UI
 		initGUI();
 	}
 	
-	public ImagePreviewer(ImageConsumer consumer) {
+	public Artist(ImageConsumer consumer) {
 		this();
 		this.consumer = consumer;
 	}

@@ -1,8 +1,7 @@
 package group2.sdp.pc.planner;
 
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
-import group2.sdp.pc.server.Server;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 public class Penalty implements DynamicInfoConsumer {
@@ -12,16 +11,16 @@ public class Penalty implements DynamicInfoConsumer {
 	/**
 	 * true when penalty mode is running
 	 */
-	private boolean running;
+//	private boolean running;
 
 	/**
 	 * The SeverSkeleton implementation to use for executing the commands. 
 	 * Can be the Alfie bluetooth server or the simulator.
 	 */
-	private ServerSkeleton alfieServer;
+	private MouthInterface alfieServer;
 
 
-	public Penalty(ServerSkeleton alfieServer, Overlord lord) {
+	public Penalty(MouthInterface alfieServer, Overlord lord) {
 		this.alfieServer = alfieServer;
 		this.lord=lord;
 		
@@ -29,7 +28,7 @@ public class Penalty implements DynamicInfoConsumer {
 
 
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
 		return;
 
 	}

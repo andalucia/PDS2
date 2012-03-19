@@ -1,9 +1,13 @@
 package group2.sdp.pc.breadbin;
 
 /**
- * A class containing all the static information about the pitch at a given moment. 
+ * Description: Basically, a structure containing two Static Robot Info objects 
+ *               and one Static Ball Info object. Formally, information that is
+ *               frame-specific and can be extracted from a single frame (as 
+ *               opposed to multiple frames).
+ * Contains:    1 SBI, 2 SRIs - Alfie and opponent
  */
-public class StaticPitchInfo {
+public class StaticInfo {
 	/**
 	 * The information about the ball.
 	 */
@@ -26,7 +30,7 @@ public class StaticPitchInfo {
 	 * @param alfieGoalInfo The information about Alfie's goal.
 	 * @param opponentGoalInfo The information about the opponent's goal.
 	 */
-	public StaticPitchInfo(StaticBallInfo ballInfo, StaticRobotInfo alfieInfo,
+	public StaticInfo(StaticBallInfo ballInfo, StaticRobotInfo alfieInfo,
 			StaticRobotInfo opponentInfo) {
 		super();
 		this.ballInfo = ballInfo;
@@ -105,5 +109,8 @@ public class StaticPitchInfo {
 
 	}
 	
-	
+	@Override
+	public String toString() {
+		return "A:[" + alfieInfo + "] O:[" + opponentInfo + "] B:[" + ballInfo + "]";
+	}
 }

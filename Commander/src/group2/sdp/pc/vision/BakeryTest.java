@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
@@ -139,33 +138,16 @@ public class BakeryTest {
 		Point2D.Double position7= new Point2D.Double(1.0,-1.0);
 		Point2D.Double position8= new Point2D.Double(2.0,0.0);
 		
-		Point2D topGoalPost1 = new Point(0,0);
-		Point2D topGoalPost2 = new Point(1,1);
-		Point2D topGoalPost3 = new Point(5,5);
-		Point2D topGoalPost4 = new Point(6,6);
-		Point2D topGoalPost5 = new Point(4,4);
-		Point2D topGoalPost6 = new Point(4,4);
-		Point2D topGoalPost7 = new Point(10,11);
-		Point2D topGoalPost8 = new Point(13,14);
-		
-		Point2D bottomGoalPost1 = new Point(18,30);
-		Point2D bottomGoalPost2 = new Point(100,123);
-		Point2D bottomGoalPost3 = new Point(-200,-30);
-		Point2D bottomGoalPost4 = new Point(-400,100);
-		Point2D bottomGoalPost5 = new Point(-509,123);
-		Point2D bottomGoalPost6 = new Point(0,100);
-		Point2D bottomGoalPost7 = new Point(10,-10);
-		Point2D bottomGoalPost8 = new Point(13,14);
-		
+	
 		//create robots
-		StaticRobotInfo robot1=new StaticRobotInfo(position1,0,true,0,topGoalPost1,bottomGoalPost1);
-		StaticRobotInfo robot2=new StaticRobotInfo(position2,0,true,0,topGoalPost2,bottomGoalPost2);
-		StaticRobotInfo robot3=new StaticRobotInfo(position3,0,true,0,topGoalPost3,bottomGoalPost3);
-		StaticRobotInfo robot4=new StaticRobotInfo(position4,0,true,0,topGoalPost4,bottomGoalPost4);
-		StaticRobotInfo robot5=new StaticRobotInfo(position5,0,true,0,topGoalPost5,bottomGoalPost5);
-		StaticRobotInfo robot6=new StaticRobotInfo(position6,0,true,0,topGoalPost6,bottomGoalPost6);
-		StaticRobotInfo robot7=new StaticRobotInfo(position7,0,true,0,topGoalPost7,bottomGoalPost7);
-		StaticRobotInfo robot8=new StaticRobotInfo(position8,0,true,0,topGoalPost8,bottomGoalPost8);
+		StaticRobotInfo robot1=new StaticRobotInfo(position1,0,true,true,0);
+		StaticRobotInfo robot2=new StaticRobotInfo(position2,0,true,true,0);
+		StaticRobotInfo robot3=new StaticRobotInfo(position3,0,true,true,0);
+		StaticRobotInfo robot4=new StaticRobotInfo(position4,0,true,true,0);
+		StaticRobotInfo robot5=new StaticRobotInfo(position5,0,true,true,0);
+		StaticRobotInfo robot6=new StaticRobotInfo(position6,0,true,true,0);
+		StaticRobotInfo robot7=new StaticRobotInfo(position7,0,true,true,0);
+		StaticRobotInfo robot8=new StaticRobotInfo(position8,0,true,true,0);
 		
 		LinkedList<StaticRobotInfo> robotHistoryInfos= new LinkedList<StaticRobotInfo>();
 		Bakery bake= new Bakery(null);

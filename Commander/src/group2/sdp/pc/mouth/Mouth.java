@@ -1,7 +1,6 @@
-package group2.sdp.pc.server;
+package group2.sdp.pc.mouth;
 
 import group2.sdp.common.candypacket.CandyPacket;
-import group2.sdp.pc.server.skeleton.ServerSkeleton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,7 +12,7 @@ import lejos.pc.comm.NXTConnector;
 /**
  * Connects to the robot and can send commands to it.
  */
-public class Server implements ServerSkeleton {
+public class Mouth implements MouthInterface {
 
 	private final boolean verbose = false;
 	
@@ -29,7 +28,7 @@ public class Server implements ServerSkeleton {
 	 * Default constructor. Initialises the blue-tooth connection.
 	 * @throws Exception 
 	 */
-	public Server() throws Exception {
+	public Mouth() throws Exception {
 		conn = new NXTConnector();
 		conn.addLogListener(new NXTCommLogListener() {
 			public void logEvent(String message) {
@@ -57,20 +56,24 @@ public class Server implements ServerSkeleton {
 		dis = conn.getDataIn();
 	}
 	
+	public void cleanup() {
+		try {
+			dis.close();
+			dos.close();
+			conn.close();
+		} catch (IOException e) {
+			System.out.println("IOException closing connection:");
+			System.out.println(e.getMessage());
+		}
+	}
+	
 	/**
 	 * Called when the object is garbage-collected. Closes the connections.
 	 */
 	@Override
 	protected void finalize() throws Throwable {
-		try {
-			sendStop();
-			dis.close();
-			dos.close();
-			conn.close();
-		} catch (IOException ioe) {
-			System.out.println("IOException closing connection:");
-			System.out.println(ioe.getMessage());
-		}
+		sendStop();
+		cleanup();
 		super.finalize();
 	}
 	
@@ -81,12 +84,67 @@ public class Server implements ServerSkeleton {
 		sendCandyPacket(new CandyPacket(CandyPacket.STOP_CANDY));
 	}
 	
-	/**
-	 * Tells Alfie to move in an arc
+	/** Tells Alfie to move in an arc going forward and turning right.
+	 * @param radius in cm
+	 * @param angle in degrees
 	 */
-	public void sendMoveArc(int radius, int angle) {
-		sendCandyPacket(new CandyPacket(CandyPacket.MOVE_ARC_CANDY, radius, angle));
+	public void sendForwardArcRight(double radius, double angle) {
+		sendCandyPacket(
+				new CandyPacket(
+						CandyPacket.FORWARD_RIGHT_ARC_CANDY, 
+						(int)(10000 * radius), 
+						(int) angle // TODO: change to 10000 * and synch in the ear
+				)
+		);
 	}
+	
+	/**
+	 * Tells Alfie to move in an arc going forward and turning left.
+	 * @param radius in centimetres.
+	 * @param angle in degrees
+	 */
+	public void sendForwardArcLeft(double radius, double angle) {
+		sendCandyPacket(
+				new CandyPacket(
+						CandyPacket.FORWARD_LEFT_ARC_CANDY, 
+						(int)(10000 * radius), 
+						(int) angle // TODO: change to 10000 * and synch in the ear
+				)
+		);
+	}
+	
+	/**
+	 * Tells Alfie to move in an arc going backwards and turning right.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendBackwardsArcRight(double radius, double angle) {
+		sendCandyPacket(
+				new CandyPacket(
+						CandyPacket.BACKWARDS_RIGHT_ARC_CANDY, 
+						(int)(10000 * radius), 
+						(int) angle // TODO: change to 10000 * and synch in the ear
+				)
+		);
+	}
+
+	
+	
+	/**
+	 * Tells Alfie to move in an arc going backwards and turning left.
+	 * @param radius in cm
+	 * @param angle in degrees
+	 */
+	public void sendBackwardsArcLeft(double radius, double angle) {
+		sendCandyPacket(
+				new CandyPacket(
+						CandyPacket.BACKWARDS_LEFT_ARC_CANDY, 
+						(int)(10000 * radius), 
+						(int) angle // TODO: change to 10000 * and synch in the ear
+				)
+		);
+	}
+	
 	/**
 	 * Tells Alfie to start moving forward. 
 	 * @param speed The speed for the command.

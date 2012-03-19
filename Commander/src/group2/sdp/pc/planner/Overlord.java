@@ -1,17 +1,34 @@
 package group2.sdp.pc.planner;
 
-import java.awt.geom.Point2D;
-
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.strategy.Strategy;
+import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 /**
- * The skeleton of an Overlord class. Depending on the DynamicPitchInfo, 
- * decides on the high-level strategy to employ: Offensive, Defensive, Penalty
- * Defend, or Penalty Take. 
+ *<p><b>Description</b>: "If they have no bread, let them eat cake!" The popularity of 
+*               this misquotation and the subjects of its metaphor suggest that
+*              the products of a bakery would be of interest to a majesty. Thus
+*               the name of the class that consumes the products of the {@link Bakery} 
+*               and produces decisions on what {@link Strategy} to use is Overlord. It 
+*               passes the Strategy to a Strategy Consumer, supplied on 
+*               construction of the Overlord. Also passes the {@link DynamicInfo} that
+*               was received down to another {@link DynamicInfoConsumer}, supplied on
+*               construction of the Overlord. Note that the two Consumers can 
+*               be the same object, but the Overlord does not need to know.</p>
+* <p><b>Main client</b>:	{@link FieldMarshal}</p>
+* <p><b>Produces</b>:	{@link Strategy}</p>
+* <p><b>Responsibilities</b>:</br>
+*              Producing a Strategy and monitoring if it is successful or if a 
+*               problem occurs.</p>
+* <p><b>Policy</b>:</br>      
+*  Planning:</br>   Analysing the DynamicInfo (*how*), the Overlord comes up with a Strategy.
+*               After that, it checks the success of the strategy or if a 
+*               problem occurred on each DynamicInfo it receives. If there is either,
+*               the Overlord comes up with a new Strategy. Otherwise, just 
+*               passes the DynamicInfo to its DynamicInfoConsumer.</p>
  */
 public class Overlord implements DynamicInfoConsumer {
 	 
@@ -21,13 +38,18 @@ public class Overlord implements DynamicInfoConsumer {
 	protected boolean running = false;
 	
 	
-	public static final int RweClose = 20;
+	protected DynamicInfoChecker dynamicInfoChecker;
+
+	/**
+	 * The object to which we pass the Strategy
+	 */
+	protected StrategyConsumer strategyConsumer;
 	
 	/**
-	 * The FieldMarshal that will be executing the strategies that the overlord
-	 * comes up with.
+	 * The object to which we pass on the DynamicInfo
 	 */
-	protected FieldMarshal fieldMarshal;
+	protected DynamicInfoConsumer dynamicInfoConsumer;
+	
 	/**
 	 * The current strategy that is being executed.
 	 */
@@ -38,8 +60,12 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	private boolean stopping;
 	
-	public Overlord(FieldMarshal fieldMarshal) {
-		this.fieldMarshal = fieldMarshal;
+	private GlobalInfo globalInfo;
+	
+	public Overlord(GlobalInfo globalInfo, StrategyConsumer strategyConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
+		this.globalInfo = globalInfo;
+		this.strategyConsumer = strategyConsumer;
+		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
 	
 	/**
@@ -49,6 +75,7 @@ public class Overlord implements DynamicInfoConsumer {
 	public void start() {
 		running = true;
 	}
+	
 	/**
 	 * When this method is invoked the Overlord stops computing the strategy
 	 * and poking the FieldMarshal with new DynamicPitchInfos.
@@ -64,13 +91,15 @@ public class Overlord implements DynamicInfoConsumer {
 	 * FieldMarshal.
 	 */
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
+		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
 		if (running) {
 			Strategy strategy = computeStrategy(dpi);
 			if (strategy != currentStrategy) {
-				fieldMarshal.setStrategy(strategy);
+				strategyConsumer.setStrategy(strategy);
+				currentStrategy = strategy;
 			}
-			fieldMarshal.consumeInfo(dpi);
+			dynamicInfoConsumer.consumeInfo(dpi);
 		}
 	}
 
@@ -82,89 +111,62 @@ public class Overlord implements DynamicInfoConsumer {
 	 * should be employed.
 	 * @return The strategy that should be currently employed.
 	 */
-	protected Strategy computeStrategy(DynamicPitchInfo dpi) {
+	protected Strategy computeStrategy(DynamicInfo dpi) {
 		if (stopping) {
 			stopping = false;
 			running = false;
 			return Strategy.STOP;
 		}
-		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
-		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		
-		Point2D ball = ballInfo.getPosition();  
+		// TODO: remove after testing
+		return Strategy.TEST_FIELD_MARSHAL;
 		
-		if((hasBall(opponentInfo, ball) && correctSide(opponentInfo, ball)) || !correctSide(alfieInfo,ball)){
-			return Strategy.DEFENSIVE;
-		} else {
-			//System.out.println("OFFENSIVE");
-			return Strategy.OFFENSIVE;
-		}
+//		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
+//		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
+//		DynamicBallInfo ballInfo = dpi.getBallInfo();
+//		
+//		Point2D ballPosition = ballInfo.getPosition();  
+//		
+//		if(dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
+//				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)){
+//			return Strategy.DEFENSIVE;
+//		} else {
+//			return Strategy.OFFENSIVE;
+//		}
 	}
 	
-	
 	/**
-	 * 
-	 * added elegant version of angle check, awkward version is commented out
-	 * 
-	 * checks to see it the robot is with a certain distance of the ball,
-	 * if it is then this robot check to see is the robot is facing the ball.
-	 * this is done by checking the angle to the ball with the angle facing.
-	 * if the angle to the ball is within the threshold its facing it
-	 * @param robot is the Dynamic pitch info of robot were checking
-	 * @param ball position of the ball
-	 * @return boolean
-	 */
-	public static boolean hasBall(DynamicRobotInfo robot, Point2D ball){
-		
-		
-		Point2D robotPos = robot.getPosition(); 
-		double facing = robot.getFacingDirection();
-		
-		//threshold is the give we set in checking if the robot has the ball
-		if(robotPos.distance(ball)<=RweClose){
-			//this is the angle from the origin
-
-			int threshold = 10;
-		
-			double angle = Math.abs(PathFinder.getAngleToTarget(ball, robotPos, facing));
-		
-			if(angle<=threshold){
-				return true;
-			}else{
-				return false;
-			}
-		}else{
-			return false;
-		}
-	}
-	
-	
-	/**
-	 * checks to see if the robot is on the right side of the ball, does this by
-	 * comparing the distance along x axis of the robot to its goal line and distance of ball to goal line.
-	 * if the robot is closer its on the right/correct side so return true 
-	 * @param robotInfo
-	 * @param ballPos
+	 * 1. Strategy is Offensive - successful if we score a goal;
+       2. Strategy is Defensive - successful if there is no threat of the 
+           other team scoring a goal; 
+       3. Strategy is Take a Penalty - successful if we score a goal;
+       4. Strategy is Defend a Penalty - successful if Alfie prevents the 
+           opponent from scoring a penalty; and 
+       5. Strategy is Stealth - successful if Alfie stops.
+       TODO: implement the above
+	 * @param di
 	 * @return
 	 */
-	public static boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
-		Point2D TopGoal = robotInfo.getTopGoalPost();
-		double goalLine = TopGoal.getX();
-		
-		Point2D robotPos = robotInfo.getPosition();
-		double robot = robotPos.getX();
-		double ball = ballPos.getX();
-		
-		double robotDis = Math.abs(goalLine - robot);
-		double ballDis = Math.abs(goalLine - ball);
-		
-		if(robotDis < ballDis) {
-			return true;
-		} else{ 
-			return false;
-		}
+	protected boolean strategySuccessful(DynamicInfo di) {
+		return true;
 	}
 	
-	
+	/**
+	 * 1. Strategy is Offensive - problem exists if the other robot gets the
+           ball;
+       2. Strategy is Defensive - problem exists if the other team scores 
+           a goal; 
+       3. Strategy is Take a Penalty - problem exists if Alfie misses after 
+           the shot;
+       4. Strategy is Defend a Penalty - problem exists if the opponent 
+           scores a goal; and 
+       5. Strategy is Stealth - problem exists if Alfie is being moved by 
+          the other robot.
+          TODO: implement the above
+	 * @param di
+	 * @return
+	 */
+	protected boolean problemExists(DynamicInfo di) {
+		return true;
+	}
 }

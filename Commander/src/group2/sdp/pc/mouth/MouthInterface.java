@@ -1,10 +1,10 @@
-package group2.sdp.pc.server.skeleton;
+package group2.sdp.pc.mouth;
 
 /**
  * Interface for a server for communication with Alfie. Implemented by
  * the simulator too (apart from the obvious implementor Server).
  */
-public interface ServerSkeleton {
+public interface MouthInterface {
 	
 	/**
 	 * Tells Alfie to stop moving.
@@ -43,5 +43,9 @@ public interface ServerSkeleton {
 	 */
 	public void sendSpinRight(int speed, int angle);
 	
-	public void sendMoveArc(int radius, int angle);
+	public void sendForwardArcLeft(double radius, double angle);
+	public void sendForwardArcRight(double radius, double angle);
+	public void sendBackwardsArcLeft(double radius, double angle);
+	public void sendBackwardsArcRight(double radius, double angle);
+
 }

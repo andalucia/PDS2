@@ -1,33 +1,30 @@
 package group2.sdp.pc.controlstation;
 
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.Pitch;
+import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.Penalty;
-import group2.sdp.pc.server.Server;
+import group2.sdp.pc.vision.Artist;
 import group2.sdp.pc.vision.Bakery;
-import group2.sdp.pc.vision.ImageGrabber;
-import group2.sdp.pc.vision.ImagePreviewer;
-import group2.sdp.pc.vision.ImageProcessor;
-import group2.sdp.pc.vision.LCHColour;
-import group2.sdp.pc.vision.ImageProcessor.OutputMode;
+import group2.sdp.pc.vision.Eye;
+import group2.sdp.pc.vision.VisualCortex;
+import group2.sdp.pc.vision.VisualCortex.OutputMode;
 
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.jws.WebParam.Mode;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -38,55 +35,51 @@ import javax.swing.event.ChangeListener;
 /**
  * The main GUI program to control Alfie during match or testing.
  */
-public class CommanderControlStation implements KeyListener {
+public class CommanderControlStation {
 
 	/**
 	 * Used for the sliders.
 	 */
 	private final int MIN_BR_HUE = -120, MAX_BR_HUE = 0;
-	private int blueToRedHue = -60;
+	private int blueToRedHue;
 	
 	private final int MIN_RY_HUE = 0, MAX_RY_HUE = 60;
-	private int redToYellowHue = 16;
+	private int redToYellowHue;
 	
 	private final int MIN_YG_HUE = 60, MAX_YG_HUE = 120;
-	private int yellowToGreenHue = 80;
+	private int yellowToGreenHue;
 	
 	private final int MIN_GB_HUE = 120, MAX_GB_HUE = 240;
-	private int greenToBlueHue = 150;
+	private int greenToBlueHue;
 	
+	
+	/**
+	 * used to check if image is processing
+	 */
+	private boolean isProcessing;
 	// GUI elements
 	private JFrame frmAlfieCommandCentre;
 	
 	private CheckboxGroup yellowBlueAlfieGroup;
+	private CheckboxGroup shootingDirectionGroup;
 	private Checkbox yellowAlfieCheckbox;
 	private Checkbox blueAlfieCheckbox;
+	private Checkbox rightAlfieCheckbox;
+	private Checkbox leftAlfieCheckbox;
 	
-	private Label[] colorLabels;
-	
-	private Label lumaLabel;
-	private Checkbox [][] lumaCheckboxes;
-	
-	private Label chromaLabel;
-	private Checkbox [][] chromaCheckboxes;
-	
-	private Checkbox grabImageCheckbox;
 	private Checkbox processImageCheckbox;
-	private Checkbox bakeInfoCheckbox;
-	private Checkbox previewImageCheckbox;
-	private Checkbox planCheckbox;
-	private Checkbox executePlanCheckbox;
 
 	private Button connectButton;
 	private Button runButton;
-	private Button updateButton;
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
 	private Button penaltyButton;
-	private Button robotPositionButtonLeft;
-	private Button robotPositionButtonRight;
+//	private Button robotPositionButtonLeft;
+//	private Button robotPositionButtonRight;
 	private Button goalieButton;
 	
+	private JLabel visionLabel;
+	private JLabel planningLabel;
 	private JLabel blueToRedHueLabel;
 	private JLabel redToYellowHueLabel;
 	private JLabel yellowToGreenHueLabel;
@@ -104,20 +97,14 @@ public class CommanderControlStation implements KeyListener {
 	private Button grabImageButton;
 	
 	private JTextPane txtLog;
-	private JEditorPane Alfie_Speed;
-	private JEditorPane Alfie_Angle;
 
-	private JLabel Speed;
-	private JLabel Angle;
-
-	private JLabel Info;
-	private JLabel Info2;
-	
+	private GlobalInfo globalInfo;
+	private boolean attackingRight = true;
 	/**
 	 * The server that sends commands to Alfie.
 	 */
-	private Server alfieServer;
-	private ImageProcessor processor;
+	private Mouth alfieServer;
+	private VisualCortex processor;
 	private Overlord lord;
 
 	/**
@@ -141,6 +128,12 @@ public class CommanderControlStation implements KeyListener {
 	 * The threads for starting and stopping the communication to Alfie.
 	 */
 	private Thread init_thread, cleanup_thread;
+	/**
+	 * Singleton instance of the class.
+	 */
+	private static CommanderControlStation instance;
+
+
 
 	/**
 	 * Launch the application.
@@ -158,10 +151,20 @@ public class CommanderControlStation implements KeyListener {
 		});
 	}
 
+	
+	
 	/**
 	 * Create the application.
+	 * @throws Exception Thrown when another instance of the class already 
+	 * exists. This is done as the class is a singleton.
 	 */
-	public CommanderControlStation() {
+	public CommanderControlStation() throws Exception {
+		if (instance == null) {
+			instance = this;
+			isProcessing=false;
+		} else {
+			throw new Exception();
+		}
 		initializeFrame();
 	}
 
@@ -170,14 +173,15 @@ public class CommanderControlStation implements KeyListener {
 	 */
 	private void initializeConnectionThreads() {
 		init_thread = new Thread() {		
-
 			public void run() {
 				for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
 					log("Connection attempt: " + i);
 					
 					try {
-						alfieServer = new Server();
+						alfieServer = new Mouth();
 						log("Connected to Alfie");
+						connectButton.setBackground(Color.WHITE);
+						connectButton.setEnabled(false);
 						break;
 					} catch(Exception e) {
 						log("Failed to connect... Retrying in " + (RETRY_TIMEOUT / 1000) + " seconds");
@@ -198,34 +202,53 @@ public class CommanderControlStation implements KeyListener {
 		};
 	}
 	
+	
 	/**
 	 * Starts the processing pipeline.
 	 */
 	private void startPipeline() {
-		PathFinder finder = new PathFinder(alfieServer);
-		FieldMarshal marshal = new FieldMarshal(finder);
-		lord = new Overlord(marshal);
-		Bakery bakery = new Bakery(lord);
-		//TODO initalise penalty
-		ImagePreviewer previewer = new ImagePreviewer();
-		if (processImageCheckbox.getState()) {
-			processor = new ImageProcessor(bakery, yellowAlfieCheckbox.getState(), previewer);
-			new ImageGrabber(processor);
-		} else {
-			new ImageGrabber(previewer);
-		}				
-		if (planCheckbox.getState()) {
-			lord.start();
+		
+		if(leftAlfieCheckbox.getState()){
+			attackingRight = true;
+		}else{
+			attackingRight = false;
 		}
+		
+		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.ONE);
+		
+		PathFinder finder = new PathFinder(globalInfo,alfieServer);
+		
+		//FIXME change null to finder when it implements correctly
+		FieldMarshal marshal = new FieldMarshal(globalInfo, finder, finder);
+		
+		lord = new Overlord(globalInfo, marshal, marshal);
+		
+		Bakery bakery = new Bakery(lord);
+		
+		Artist previewer = new Artist();
+		
+		if (processImageCheckbox.getState()) {
+			processor = new VisualCortex(globalInfo, bakery, previewer);
+			new Eye(processor);
+		} else {
+			new Eye(previewer);
+		}
+		
 	}
 	
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialise the contents of the frame.
 	 */
 	private void initializeFrame() {
+		globalInfo = new GlobalInfo(true, true, Pitch.ONE);
+		blueToRedHue = globalInfo.getColourSettings().getBlueToRedHue() - 360;
+		redToYellowHue = globalInfo.getColourSettings().getRedToYellowHue();
+		yellowToGreenHue = globalInfo.getColourSettings().getYellowToGreenHue();
+		greenToBlueHue = globalInfo.getColourSettings().getGreenToBlueHue();
+		
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
-		frmAlfieCommandCentre.setBounds(100, 100, 1000, 440);
+		frmAlfieCommandCentre.setBounds(100, 100, 1000, 500);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
 		
@@ -242,49 +265,29 @@ public class CommanderControlStation implements KeyListener {
 			}
 		});
 		
+		visionLabel = new JLabel();
+		visionLabel.setText("Vision");
+		visionLabel.setBounds(380, 20, 75, 25);
+		
+		
 		yellowBlueAlfieGroup = new CheckboxGroup();
 		
 	    yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
-	    yellowAlfieCheckbox.setBounds(12, 40, 160, 25);
+	    yellowAlfieCheckbox.setBounds(380, 75, 160, 25);
 	    
 	    blueAlfieCheckbox = new Checkbox("Blue Alfie", yellowBlueAlfieGroup, false);
-	    blueAlfieCheckbox.setBounds(12, 68, 160, 25);
+	    blueAlfieCheckbox.setBounds(380, 105, 160, 25);
 		
-		grabImageCheckbox = new Checkbox();
-		grabImageCheckbox.setLabel("Grab image");
-		grabImageCheckbox.setBounds(12, 96, 160, 25);
-		grabImageCheckbox.setState(true);
 		
 		processImageCheckbox = new Checkbox();
 		processImageCheckbox.setLabel("Process image");
-		processImageCheckbox.setBounds(12, 124, 160, 25);
+		processImageCheckbox.setBounds(380, 150, 160, 25);
 		processImageCheckbox.setState(true);
 		
-		previewImageCheckbox = new Checkbox();
-		previewImageCheckbox.setLabel("Preview image");
-		previewImageCheckbox.setBounds(12, 152, 160, 25);
-		previewImageCheckbox.setState(true);
-		
-		bakeInfoCheckbox = new Checkbox();
-		bakeInfoCheckbox.setLabel("Bake dynamic info");
-		bakeInfoCheckbox.setBounds(12, 180, 160, 25);
-		bakeInfoCheckbox.setState(true);
-		
-		planCheckbox = new Checkbox();
-		planCheckbox.setLabel("Plan");
-		planCheckbox.setBounds(12, 208, 160, 25);
-		planCheckbox.setState(false);
-		
-		
-		executePlanCheckbox = new Checkbox();
-		executePlanCheckbox.setLabel("Execute plan");
-		executePlanCheckbox.setBounds(12, 264, 160, 25);
-		executePlanCheckbox.setState(true);
-		
 		runButton = new Button();
-		runButton.setLabel("RUN!");
-		runButton.setBounds(42, 292, 100, 25);
-		runButton.setBackground(Color.green);
+		runButton.setLabel("Initialise");
+		runButton.setBounds(380, 208, 100, 25);
+		runButton.setBackground(Color.yellow);
 		runButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -294,12 +297,7 @@ public class CommanderControlStation implements KeyListener {
 			    yellowAlfieCheckbox.setEnabled(false);
 			    blueAlfieCheckbox.setEnabled(false);
 				connectButton.setEnabled(false);
-				grabImageCheckbox.setEnabled(false);
 				processImageCheckbox.setEnabled(false);
-				previewImageCheckbox.setEnabled(false);
-				bakeInfoCheckbox.setEnabled(false);
-				planCheckbox.setEnabled(false);
-				executePlanCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
 				
 				blueToRedHueSlider.setEnabled(true);
@@ -314,70 +312,47 @@ public class CommanderControlStation implements KeyListener {
 				grabImageButton.setEnabled(true);
 			}
 		});
+
 		
-		final int COLOUR_NUM = 6;
-		final int LEVELS_NUM = 3;
 		
-		String [] colours = {"Yellow", "Blue", "Plate", "Pitch", "Red", "Gray"}; 
-		colorLabels = new Label[6];
-		for (int i = 0; i < COLOUR_NUM; ++i) {
-			colorLabels[i] = new Label();
-			colorLabels[i].setBounds(212, 40 + i * 28, 45, 25);
-			colorLabels[i].setText(colours[i]);
-			frmAlfieCommandCentre.getContentPane().add(colorLabels[i]);
-		}
+		planningLabel = new JLabel();
+		planningLabel.setText("Adaptive Learnification");
+		planningLabel.setBounds(380, 270, 250, 25);
 		
-		chromaLabel = new Label();
-		chromaLabel.setBounds(356, 12, 81, 25);
-		chromaLabel.setText("Chroma");
+		shootingDirectionGroup = new CheckboxGroup();
 		
-		chromaCheckboxes = new Checkbox [COLOUR_NUM][LEVELS_NUM];
-		for (int i = 0; i < COLOUR_NUM; ++i) {
-			for (int j = 0; j < LEVELS_NUM; ++j) {
-				chromaCheckboxes[i][j] = new Checkbox();
-				chromaCheckboxes[i][j].setBounds(356 + j * 28, 40 + i * 28, 25, 25);
-				chromaCheckboxes[i][j].setState(LCHColour.getChromaCheck(i, j));
-				frmAlfieCommandCentre.getContentPane().add(chromaCheckboxes[i][j]);
-			}
-		}
-		
-		lumaLabel = new Label();
-		lumaLabel.setBounds(260, 12, 81, 25);
-		lumaLabel.setText("Luminosity");
-		
-		lumaCheckboxes = new Checkbox [COLOUR_NUM][LEVELS_NUM];
-		for (int i = 0; i < COLOUR_NUM; ++i) {
-			for (int j = 0; j < LEVELS_NUM; ++j) {
-				lumaCheckboxes[i][j] = new Checkbox();
-				lumaCheckboxes[i][j].setBounds(260 + j * 28, 40 + i * 28, 25, 25);
-				lumaCheckboxes[i][j].setState(LCHColour.getLumaCheck(i, j));
-				frmAlfieCommandCentre.getContentPane().add(lumaCheckboxes[i][j]);
-			}
-		}
-		
-		Label notes= new Label();
-		notes.setBounds(600, 380, 500, 25);
-		notes.setText("*will start Overlord after shot");
-		
-		updateButton = new Button();
-		updateButton.setLabel("Update");
-		updateButton.setBounds(260, 292, 100, 25);
-		updateButton.addActionListener(new ActionListener() {
+	    leftAlfieCheckbox = new Checkbox("Alfie shooting right", shootingDirectionGroup, true);
+	    leftAlfieCheckbox.setBounds(380, 310, 160, 25);
+	    leftAlfieCheckbox.addItemListener(new ItemListener() {
 			
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				for (int i = 0; i < COLOUR_NUM; ++i) {
-					for (int j = 0; j < LEVELS_NUM; ++j) {
-						LCHColour.setLumaCheck(i, j, lumaCheckboxes[i][j].getState());
-						LCHColour.setChromaCheck(i, j, chromaCheckboxes[i][j].getState());
-					}
+			public void itemStateChanged(ItemEvent e) {
+				if (globalInfo != null && leftAlfieCheckbox.getState()) {
+
+					globalInfo.setAttackingRight(true);
+					log("ATTACKING RIGHT");
 				}
 			}
-		});
-		
+	    });
+	    
+	    rightAlfieCheckbox = new Checkbox("Alfie shooting left", shootingDirectionGroup, false);
+	    rightAlfieCheckbox.setBounds(380, 340, 160, 25);
+	    rightAlfieCheckbox.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (globalInfo != null && rightAlfieCheckbox.getState()) {
+
+					globalInfo.setAttackingRight(false);
+					log("ATTACKING LEFT");
+				}
+			}
+	    });		
+	    
 		startPlanningButton = new Button();
 		startPlanningButton.setLabel("Start Planning");
-		startPlanningButton.setBounds(380, 292, 100, 25);
+		startPlanningButton.setBounds(380, 395, 100, 25);
+		startPlanningButton.setBackground(Color.green);
 		startPlanningButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -385,12 +360,15 @@ public class CommanderControlStation implements KeyListener {
 				if (lord != null) {
 					lord.start();
 				}
+				if(!isProcessing){
+					log("IMAGE IS NOT BEING PROCESSED");
+				}
 			}
 		});
 		
 		stopPlanningButton = new Button();
 		stopPlanningButton.setLabel("Stop!");
-		stopPlanningButton.setBounds(600, 292, 100, 25);
+		stopPlanningButton.setBounds(750, 395, 100, 25);
 		stopPlanningButton.setBackground(Color.red);
 		stopPlanningButton.addActionListener(new ActionListener() {
 			
@@ -398,6 +376,7 @@ public class CommanderControlStation implements KeyListener {
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
 					lord.stop();
+					alfieServer.sendStop();
 				}
 			}
 			
@@ -406,8 +385,8 @@ public class CommanderControlStation implements KeyListener {
 		
 		
 		penaltyButton = new Button();
-		penaltyButton.setLabel("Take Penalty!*");
-		penaltyButton.setBounds(490, 292, 100, 25);
+		penaltyButton.setLabel("Take Penalty!");
+		penaltyButton.setBounds(750, 345, 100, 25);
 		penaltyButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -416,17 +395,16 @@ public class CommanderControlStation implements KeyListener {
 					lord.stop();
 					Penalty pen=new Penalty(alfieServer,lord);
 					pen.go();
-					System.out.println("PENALTY!");
 				}else{
-					System.out.println("OVERLORD IS NULL WHEN PENALTY CALLED");
+					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
 			}
 			
 			
 		});
 		goalieButton = new Button();
-		goalieButton.setLabel("Goalkeeper!*");
-		goalieButton.setBounds(490, 250, 100, 25);
+		goalieButton.setLabel("Goalkeeper!");
+		goalieButton.setBounds(750, 310, 100, 25);
 		goalieButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -435,40 +413,14 @@ public class CommanderControlStation implements KeyListener {
 					lord.stop();
 					Penalty pen=new Penalty(alfieServer,lord);
 					pen.defend();
-					System.out.println("PENALTY!");
 				}else{
-					System.out.println("OVERLORD IS NULL WHEN PENALTY CALLED");
+					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
 			}
 			
 			
 		});
 		
-		robotPositionButtonLeft = new Button();
-		robotPositionButtonLeft.setLabel("Yellow robot defends left");
-		robotPositionButtonLeft.setBounds(726, 350, 200, 25);
-		robotPositionButtonLeft.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				processor.setYellowRobotRight(false);
-			}
-			
-			
-		});
-		
-		robotPositionButtonRight = new Button();
-		robotPositionButtonRight.setLabel("Yellow robot defends right");
-		robotPositionButtonRight.setBounds(726, 320, 200, 25);
-		robotPositionButtonRight.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				processor.setYellowRobotRight(true);
-			}
-			
-			
-		});
 		
 		// Image filtering controls
 		
@@ -483,7 +435,8 @@ public class CommanderControlStation implements KeyListener {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				blueToRedHue = blueToRedHueSlider.getValue();
-				LCHColour.setBlueToRedHue(blueToRedHue + 360);
+				globalInfo.getPitch().getCamera().getColourSettings()
+				.setBlueToRedHue(blueToRedHue + 360);
 				System.out.println(blueToRedHue + 360);
 			}
 		});
@@ -503,7 +456,7 @@ public class CommanderControlStation implements KeyListener {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				redToYellowHue = redToYellowHueSlider.getValue();
-				LCHColour.setRedToYellowHue(redToYellowHue);
+				globalInfo.getColourSettings().setRedToYellowHue(redToYellowHue);
 			}
 		});
 		redToYellowHueSlider.setMajorTickSpacing(20);
@@ -523,7 +476,7 @@ public class CommanderControlStation implements KeyListener {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				yellowToGreenHue = yellowToGreenHueSlider.getValue();
-				LCHColour.setYellowToGreenHue(yellowToGreenHue);
+				globalInfo.getColourSettings().setYellowToGreenHue(yellowToGreenHue);
 			}
 		});
 		yellowToGreenHueSlider.setMajorTickSpacing(20);
@@ -543,7 +496,7 @@ public class CommanderControlStation implements KeyListener {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				greenToBlueHue = greenToBlueHueSlider.getValue();
-				LCHColour.setGreenToBlueHue(greenToBlueHue);
+				globalInfo.getColourSettings().setGreenToBlueHue(greenToBlueHue);
 			}
 		});
 		greenToBlueHueSlider.setMajorTickSpacing(20);
@@ -592,7 +545,7 @@ public class CommanderControlStation implements KeyListener {
 	    
 		grabImageButton = new Button();
 		grabImageButton.setLabel("Grab background");
-		grabImageButton.setBounds(726, 292, 200, 25);
+		grabImageButton.setBounds(520, 208, 150, 25);
 		grabImageButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -606,70 +559,34 @@ public class CommanderControlStation implements KeyListener {
 		
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
-		txtLog.setBounds(212, 12, 472, 305);
-
-		txtLog.addKeyListener(this);
-		Info = new JLabel();
-		Info2 = new JLabel();
-		Info.setBounds(212, 329, 500, 25);
-		Info2.setBounds(212, 345, 500, 25);
-		Info.setText("UP: forward; DOWN: backward; LEFT: trun left; RIGHT: trun right");
-
-		Info2.setText("1: +speed; 2: -speed; 3: +angle; 4: -angle");
-
-		Alfie_Speed = new JEditorPane();
-		Alfie_Speed.setBounds(380, 373, 40, 25);
-		Alfie_Speed.setText("0");
-
-		Alfie_Angle = new JEditorPane();
-		Alfie_Angle.setBounds(260, 373, 40, 25);
-		Alfie_Angle.setText("0");
-
-		Speed = new JLabel();
-		Speed.setText("Speed");
-		Speed.setBounds(320, 373, 60, 25);
-
-		Angle = new JLabel();
-		Angle.setText("Angle");
-		Angle.setBounds(210, 373, 40, 25);
+		txtLog.setBounds(20, 40, 300, 375);
 		
+
+		
+		
+		frmAlfieCommandCentre.getContentPane().add(rightAlfieCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(leftAlfieCheckbox);
 		
 		frmAlfieCommandCentre.getContentPane().add(yellowAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(blueAlfieCheckbox);
 		
 		frmAlfieCommandCentre.getContentPane().add(connectButton);
-		frmAlfieCommandCentre.getContentPane().add(grabImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
-		frmAlfieCommandCentre.getContentPane().add(previewImageCheckbox);
-		frmAlfieCommandCentre.getContentPane().add(bakeInfoCheckbox);
-		frmAlfieCommandCentre.getContentPane().add(planCheckbox);
-		frmAlfieCommandCentre.getContentPane().add(executePlanCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
-		
-		frmAlfieCommandCentre.getContentPane().add(lumaLabel);
-		frmAlfieCommandCentre.getContentPane().add(chromaLabel);
-		frmAlfieCommandCentre.getContentPane().add(notes);
 
-		frmAlfieCommandCentre.getContentPane().add(updateButton);
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);
 		frmAlfieCommandCentre.getContentPane().add(penaltyButton);
 		frmAlfieCommandCentre.getContentPane().add(goalieButton);
 		frmAlfieCommandCentre.getContentPane().add(stopPlanningButton);
-		frmAlfieCommandCentre.getContentPane().add(robotPositionButtonLeft);
-		frmAlfieCommandCentre.getContentPane().add(robotPositionButtonRight);
 		
-//		frmAlfieCommandCentre.getContentPane().add(txtLog);
-//		frmAlfieCommandCentre.getContentPane().add(Info);
-//		frmAlfieCommandCentre.getContentPane().add(Info2);
-//		frmAlfieCommandCentre.getContentPane().add(Alfie_Angle);
-//		frmAlfieCommandCentre.getContentPane().add(Alfie_Speed);
-//		frmAlfieCommandCentre.getContentPane().add(Angle);
-//		frmAlfieCommandCentre.getContentPane().add(Speed);
+		frmAlfieCommandCentre.getContentPane().add(txtLog);
 		
 		frmAlfieCommandCentre.getContentPane().add(blueToRedHueLabel);
 		frmAlfieCommandCentre.getContentPane().add(redToYellowHueLabel);
 		frmAlfieCommandCentre.getContentPane().add(yellowToGreenHueLabel);
 		frmAlfieCommandCentre.getContentPane().add(greenToBlueHueLabel);
+		frmAlfieCommandCentre.getContentPane().add(visionLabel);
+		frmAlfieCommandCentre.getContentPane().add(planningLabel);
 		
 		frmAlfieCommandCentre.getContentPane().add(blueToRedHueSlider);
 		frmAlfieCommandCentre.getContentPane().add(redToYellowHueSlider);
@@ -679,7 +596,6 @@ public class CommanderControlStation implements KeyListener {
 		frmAlfieCommandCentre.getContentPane().add(matchVisionModeButton);
 		frmAlfieCommandCentre.getContentPane().add(chromaVisionModeButton);
 		frmAlfieCommandCentre.getContentPane().add(lumaVisionModeButton);
-		
 		frmAlfieCommandCentre.getContentPane().add(grabImageButton);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
@@ -712,93 +628,24 @@ public class CommanderControlStation implements KeyListener {
 		});
 
 	}
+
+	
+	/**
+	 * Gets the singleton instance of the class.
+	 * @return The singleton instance of the class.
+	 */
+	public static CommanderControlStation getInstance() {
+		return instance;
+	}
+	
 	
 	/**
 	 * Adds a string and a new line to the log text box.
 	 * @param logString The string to add.
 	 */
-	private void log(String logString) {
+	public void log(String logString) {
 		txtLog.setText(txtLog.getText() + logString + "\n");
 		txtLog.repaint();
 	}
 
-	@Override
-	public void keyPressed(KeyEvent key) {
-		
-		switch (key.getKeyCode()) {
-
-		// when pressed "up" key the robot move forward
-		case KeyEvent.VK_UP:
-
-			alfieServer.sendGoForward(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
-			key_pressed = KeyEvent.VK_UP;
-			break;
-
-		// when pressed "left" key the robot turn left
-		case KeyEvent.VK_LEFT:
-			
-			alfieServer.sendSpinLeft(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
-			key_pressed = KeyEvent.VK_LEFT;
-			break;
-
-		// when pressed "right" key the robot turn right
-		case KeyEvent.VK_RIGHT:
-
-			alfieServer.sendSpinRight(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
-			key_pressed = KeyEvent.VK_RIGHT;
-			break;
-
-		// when pressed "up" key the robot move backward
-		case KeyEvent.VK_DOWN:
-
-			alfieServer.sendGoBackwards(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
-			key_pressed = KeyEvent.VK_DOWN;
-			break;
-		}
-
-	}
-
-	@Override
-	public void keyReleased(KeyEvent arg0) {
-
-	}
-
-	@Override
-	public void keyTyped(KeyEvent key) {
-		System.out.println(key.getKeyChar());
-		if (key.getKeyChar() == 's') {
-			alfieServer.sendKick(1000);
-
-		}
-		if (key.getKeyChar() == 'd') {
-			alfieServer.sendStop();
-			System.out.println("ok");
-		}
-
-		if (key.getKeyChar() == '1') {
-			Alfie_Speed.setText(Integer.parseInt(Alfie_Speed.getText()) + 1
-					+ "");
-		}
-		if (key.getKeyChar() == '2') {
-			Alfie_Speed.setText(Integer.parseInt(Alfie_Speed.getText()) - 1
-					+ "");
-		}
-
-		if (key.getKeyChar() == '3') {
-			Alfie_Angle.setText(Integer.parseInt(Alfie_Angle.getText()) + 1
-					+ "");
-		}
-		if (key.getKeyChar() == '4') {
-			Alfie_Angle.setText(Integer.parseInt(Alfie_Angle.getText()) - 1
-					+ "");
-		}
-		if (key.getKeyChar() == ',') {
-			alfieServer.sendSpinLeft(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
-		}
-		if (key.getKeyChar() == '.') {
-			alfieServer.sendSpinRight(Integer.parseInt(Alfie_Speed.getText()), Integer.parseInt(Alfie_Angle.getText()));
-			
-		}
-
-	}
 }

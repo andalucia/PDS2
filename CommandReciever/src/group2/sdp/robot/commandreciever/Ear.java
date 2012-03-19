@@ -10,7 +10,7 @@ import lejos.nxt.LCD;
 import lejos.nxt.comm.BTConnection;
 import lejos.nxt.comm.Bluetooth;
 
-public class Client {
+public class Ear {
 	
 	/**
 	 * The bluetooth connection that Alfie uses for communication.
@@ -26,7 +26,7 @@ public class Client {
 	 */
 	private static DataOutputStream dos;
 	
-	public static void main(String [] args)  throws Exception 
+	public static void main(String [] args) 
 	{
 		String connected = "Connected";
         String waiting = "Waiting...";
@@ -63,16 +63,21 @@ public class Client {
 					reset = true;
 				}
 			}
-		
-			dis.close();
-			dos.close();
-			Thread.sleep(100); // wait for data to drain
-			LCD.clear();
-			LCD.drawString(closing,0,0);
-			LCD.refresh();
-			btc.close();
-			LCD.clear();
+
+	        try {
+				dis.close();
+				dos.close();
+				Thread.sleep(100); // wait for data to drain
+				LCD.clear();
+				LCD.drawString(closing,0,0);
+				LCD.refresh();
+				btc.close();
+				LCD.clear();
+	        } catch (Exception exc) {
+	        	// Ignore, the connection is already closed.
+	        }
 		}
+		
 	}
 	
 	/**
@@ -138,13 +143,25 @@ public class Client {
 		case CandyPacket.SPIN_LEFT_CANDY:
 			Brain.spin(candy.getPretzel(0), candy.getPretzel(1));
     		break;
-		case CandyPacket.MOVE_ARC_CANDY:
-			Brain.moveArc(candy.getPretzel(0), candy.getPretzel(1));
-    		break;
 		case CandyPacket.SPIN_RIGHT_CANDY:
 			// The pretzels are always positive, so we need to negate the angle
-			Brain.spin(candy.getPretzel(0), -candy.getPretzel(1));
+			Brain.spin(-candy.getPretzel(0), -candy.getPretzel(1));
 			break;
+		case CandyPacket.FORWARD_RIGHT_ARC_CANDY:
+			// According to leJOS API the angle sent should be positive 
+			// but in tests this proved incorrect. Same problem occured for 
+			// BACKWARDS_RIGHT 
+			Brain.moveArc((float)candy.getPretzel(0) / 10000, candy.getPretzel(1));
+    		break;
+		case CandyPacket.FORWARD_LEFT_ARC_CANDY:
+			Brain.moveArc((float)-candy.getPretzel(0) / 10000, -candy.getPretzel(1));
+    		break;
+		case CandyPacket.BACKWARDS_RIGHT_ARC_CANDY:
+			Brain.moveArc((float)candy.getPretzel(0) / 10000, -candy.getPretzel(1));
+    		break;
+		case CandyPacket.BACKWARDS_LEFT_ARC_CANDY:
+			Brain.moveArc((float)-candy.getPretzel(0) / 10000, candy.getPretzel(1));
+    		break;
 		case CandyPacket.KICK_CANDY:     
 			Brain.kick(candy.getPretzel(0));
 			break;

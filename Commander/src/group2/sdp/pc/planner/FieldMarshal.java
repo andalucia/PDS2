@@ -1,30 +1,47 @@
 package group2.sdp.pc.planner;
 
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicPitchInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.common.util.Geometry;
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
-import group2.sdp.pc.planner.operation.OperationCharge;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
 
-import lejos.geom.Point;
-
 /**
- * A field marshal decides what operations to start, knowing what strategy 
- * should be currently executed.
+ * <p> <b>Field Marshal</b>:	A {@link StrategyConsumer} and a {@link DynamicInfoConsumer}</p>
+<p><b>Description</b>:	The highest military rank in the army. Decides what Operations 
+				should be executed. Passes them to a {@link OperationConsumer}, supplied
+				on construction of the FieldMarshal. Also passes down the 
+				{@link DynamicInfo} it was given to a DynamicInfoConsumer, supplied
+				on construction of the Field Marshal. </p>
+<p><b>Main client</b>:	{@link PathFinder}</p>
+<p><b>Produces</b>:	{@link Operation}</p>
+<p><b>Responsibilities</b>:</br>
+		Producing an Operation and monitoring if it is successful or if
+		a problem occurs.</p>
+<p><b>Policy</b>:</br>      
+	Planning:</br>   Analysing the DynamicInfo (*how*), the FieldMarshal comes up with an
+	Operation. After that, it checks the success of the operation or
+	if a problem occurred on each DynamicInfo it receives. If there is either,
+	the FieldMarshal comes up with a new Operation. Otherwise, just 
+	passes the DynamicInfo to its DynamicInfoConsumer.</p>
  */
-public class FieldMarshal implements DynamicInfoConsumer {
+public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 	/**
 	 * The current strategy to employ.
 	 */
 	protected Strategy currentStrategy;
+	
+	protected GlobalInfo globalInfo;
+	
 	/**
 	 * The path finder that will be executing the operations.
 	 */
@@ -37,11 +54,17 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * True if the FieldMarshal need to re-plan the current operation. 
 	 */
 	protected boolean replan;
+	
+	protected DynamicInfoChecker dynamicInfoChecker;
+	
+	protected OperationConsumer operationConsumer;
+	protected DynamicInfoConsumer dynamicInfoConsumer;
 
-	public FieldMarshal(PathFinder pathFinder) {
-		this.pathFinder = pathFinder;
+	public FieldMarshal(GlobalInfo globalInfo, OperationConsumer operationConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
+		this.globalInfo = globalInfo;
+		this.operationConsumer = operationConsumer;
+		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
-
 
 	/**
 	 * Most important method of the class. According to the current strategy
@@ -50,15 +73,8 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * to execute.
 	 * @return The next operation to execute.
 	 */
-	private Operation planNextOperation(DynamicPitchInfo dpi) {
-		DynamicRobotInfo AlfieInfo = dpi.getAlfieInfo();
-		DynamicBallInfo ballInfo = dpi.getBallInfo();
-		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-
-		Point2D ball = ballInfo.getPosition();
-		Point2D alfie = AlfieInfo.getPosition();
-		double facing = AlfieInfo.getFacingDirection();
-
+	private Operation planNextOperation(DynamicInfo dpi) {
+		
 		if (currentStrategy == null) {
 			System.err.println("No current strategy. Stopping.");
 			System.exit(1);
@@ -66,36 +82,21 @@ public class FieldMarshal implements DynamicInfoConsumer {
 		}
 
 		switch (currentStrategy) {
+		case TEST_FIELD_MARSHAL:
+			Point2D ballPosition = dpi.getBallInfo().getPosition();
+			Point2D goalMiddle = globalInfo.getTargetGoalMiddle();
+			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+			
+			return new OperationReallocation(
+					ballPosition,
+					shootingDirection
+			);
+			
 		case DEFENSIVE:
-			if (currentOperation instanceof OperationReallocation && operationSuccessful(dpi)) {
-				return null;
-			} else if (inDefensivePosition(AlfieInfo,ball)) {
-				OperationReallocation cmd = new OperationReallocation(ball, alfie, facing, opponentInfo.getPosition());
-				return cmd;
-			} else {
-				//get to defensive position
-				double middleOfGoalY = (AlfieInfo.getTopGoalPost().getY() + AlfieInfo.getBottomGoalPost().getY())/2;
-				Point2D middleOfGoal = new Point((int)(AlfieInfo.getTopGoalPost().getX()),(int) (middleOfGoalY));
-				OperationReallocation cmd = new OperationReallocation(middleOfGoal, alfie, facing, opponentInfo.getPosition());
-				return cmd;
-			}
+			break;
 
 		case OFFENSIVE:
-			if(Overlord.hasBall(AlfieInfo, ball)){
-				System.out.println("HAS BALL");
-				if(shotOnGoal(AlfieInfo, opponentInfo, ball)){
-					System.out.println("SHOT ON GOAL");
-					return new OperationStrike();
-				} else {
-					int goalMiddlex = (int)(AlfieInfo.getTopGoalPost().getX()+AlfieInfo.getBottomGoalPost().getX()/2);
-					int goalMiddley = (int) (AlfieInfo.getTopGoalPost().getY()+AlfieInfo.getBottomGoalPost().getY()/2);
-					Point2D goalMiddle = new Point(goalMiddlex,goalMiddley);
-					System.out.println("CHAAAAARGE");
-					return new OperationCharge(ball, alfie, facing,goalMiddle);
-				}
-
-			}
-			return new OperationReallocation(ball, alfie, facing,opponentInfo.getPosition());
+			break;
 
 		case STOP:
 			return new OperationOverload();
@@ -104,6 +105,7 @@ public class FieldMarshal implements DynamicInfoConsumer {
 			System.exit(1);
 			return null;
 		}
+		return null;
 	}
 
 
@@ -112,10 +114,6 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * @param strategy The new strategy to employ.
 	 */
 	public void setStrategy(Strategy strategy) {
-		if (strategy == null) {
-			System.out.println("Setting strategy to null");
-			currentStrategy = null;
-		}
 		currentStrategy = strategy;
 		replan = true;
 	}
@@ -124,9 +122,9 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * Checks if the current operation succeeded, given the current pitch info.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
-	 * WARNING: Override in children classes and call this method first thing.
+	 * TODO implement
 	 */
-	protected boolean operationSuccessful(DynamicPitchInfo dpi) {
+	protected boolean operationSuccessful(DynamicInfo dpi) {
 		if (currentStrategy == null)
 			return true;
 		return false;
@@ -136,13 +134,11 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * Checks if there is a problem with executing the current operation.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
-	 * WARNING: Override in children classes and call this method first thing.
+	 * TODO implement
 	 */
-	protected boolean problemExists(DynamicPitchInfo dpi) {
+	protected boolean problemExists(DynamicInfo dpi) {
 		if (currentStrategy == null) {
-			System.out.println("Returning true");
 			return true;
-
 		}
 		return false;
 	}
@@ -154,141 +150,41 @@ public class FieldMarshal implements DynamicInfoConsumer {
 	 * necessary or not.
 	 */
 	@Override
-	public void consumeInfo(DynamicPitchInfo dpi) {
+	public void consumeInfo(DynamicInfo dpi) {
+		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {
-			//System.out.println("REPLANNING");
-			currentOperation = planNextOperation(dpi);;
-			pathFinder.setOperation(currentOperation);
+			currentOperation = planNextOperation(dpi);
+			operationConsumer.consumeOperation(currentOperation);
 			replan = false;
 		}
-		pathFinder.consumeInfo(dpi);
+		dynamicInfoConsumer.consumeInfo(dpi);
 	}
-
+	
 	/**
-	 * this function will tell us if we are facing the oppositions goal
-	 * it compares the angle we are facing with the angle to the extremes
-	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
-	 * @param robotInfo robot's info
-	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
-	 * @param ball nuff said
-	 * @return boolean
+	 * The butt rule is that the ray opposite the end ray, starting from the 
+	 * same point, should not cross the danger zone of the ball.
+	 * @param ballInfo The ball info to use.
+	 * @param robotInfo Physical dimensions of this robot are used. 
+	 * @param endPosition The position where a particular path might lead to.
+	 * @param endAngle The direction of the robot after following a particular path.
+	 * @return If the butt rule is valid or not, i.e. if the ray opposite the end ray, 
+	 * starting from the same point, does not cross the danger zone of the ball.
 	 */
-	public static boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+	public static boolean checkButtRule(StaticBallInfo ballInfo, 
+			StaticRobotInfo robotInfo, Point2D endPosition, double endAngle) {
+		double zoneRadius = ballInfo.getDangerZoneRadius(robotInfo);
+		endAngle = Math.toRadians(endAngle);
+		Point2D v = new Point2D.Double(Math.cos(endAngle),Math.sin(endAngle));
+		
+		int n = Geometry.getNumberOfRayCircleIntersections(
+				endPosition, 
+				v, 
+				ballInfo.getPosition(), 
+				zoneRadius
+		);
 
-		Point2D topGoal = opponentInfo.getTopGoalPost();
-		Point2D bottomGoal = opponentInfo.getBottomGoalPost();
-		Point2D alfiePos = robotInfo.getPosition();
-		Point2D enemyPos = opponentInfo.getPosition();
-		double facing = robotInfo.getFacingDirection();
-
-		Point2D ourGoal = robotInfo.getTopGoalPost();
-		double ourGoalLine = ourGoal.getX();
-		double theirGoalLine = topGoal.getX();
-
-		double topAngle = getAngleFromOrigin(alfiePos,topGoal);
-		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
-		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 10cm distance
-		if((alfiePos.distance(enemyPos)<30)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
-			System.out.println("ENEMY CLOSE NO SHOT");
-			return false;
-		}
-
-		if(theirGoalLine > ourGoalLine) {
-			if(facing>bottomAngle || facing<topAngle) {
-				return true;
-			}else{
-				return false;
-			}
-		} else {
-			if (facing<bottomAngle && facing>topAngle) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
-
-
-	/**
-	 * returns the angle from a point to another point with repect the plane of are zero angle. 
-	 * @param origin 
-	 * @param targetPosition position of the target we are working out the angle to the ball
-	 * @return double
-	 */
-	protected static double getAngleFromOrigin(Point2D origin, Point2D targetPosition) {
-		double dx = (targetPosition.getX() - origin.getX());
-		double dy = (targetPosition.getY() - origin.getY());
-
-		double angle = Math.toDegrees(Math.atan2(dy, dx));
-		if(angle<0){
-			angle = 360 +angle;
-		}
-		return angle;
-	}
-
-	/**
-	 * Checks if the robot is in a defensive position. If true it means the robot is closer 
-	 * to the robot's goal than the ball and is not facing the robot's goal. Or it is facing 
-	 * the robot's goal and is around halfway between the ball and the goal (see threshold)
-	 * @param robotInfo
-	 * @param ballInfo
-	 * @return
-	 */
-	public static boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-		double goalX = robotInfo.getTopGoalPost().getX();
-		double ballX = ball.getX();
-		double robotX = robotInfo.getPosition().getX();
-		double betweenBallAndGoalX = (goalX + ballX)/2;
-
-		int threshold = 30;
-
-		if (!Overlord.correctSide(robotInfo, ball)) {
-			return false;
-		} else {
-			double angleToGoal = PathFinder.getAngleToTarget(robotInfo.getTopGoalPost(), robotInfo.getPosition(), robotInfo.getFacingDirection());
-			if (Math.abs(angleToGoal) > 90) {
-				return true;
-			} else {
-				if (Math.abs(robotX - betweenBallAndGoalX) < threshold) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-		}
-	}
-
-
-	/**
-	 * Method for comparison of angles. If angle within certain threshold of each other then
-	 * return true else false
-	 * @param angle1 first angle for comparison
-	 * @param angle2 second angle for comparison
-	 * @param threshold max difference for angles to be similar
-	 * @return are angles within threshold of each other
-	 */
-	protected static boolean isSimilarAngle(double angle1, double angle2, double threshold){
-		double bigAngle;
-		double smallAngle;
-		if (angle1==angle2){
-			return true;
-		}
-		if (angle1>=angle2){
-			bigAngle=angle1;
-			smallAngle=angle2;
-		}else{
-			bigAngle=angle2;
-			smallAngle=angle1;
-		}
-		if(bigAngle-smallAngle<=threshold){
-			return true;
-		}
-		//check to solve 360-0 problem
-		if(bigAngle>=(360-threshold) && smallAngle<=0+(threshold-(360-bigAngle))){
-			return true;
-		}
-		return false;
+		return n <= 1;
 	}
 }
