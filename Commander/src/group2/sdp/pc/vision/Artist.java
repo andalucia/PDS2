@@ -46,6 +46,7 @@ public class Artist extends WindowAdapter implements ImageConsumer {
 	 */
 	private void initGUI(){
 		frame = new JFrame();
+		frame.setLocation(640, 0);
 		label = new JLabel();
 		frame.getContentPane().add(label);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
