@@ -78,7 +78,7 @@ public class Geometry {
 		);
 		
 		int n = 0;
-		// because of the particular parametrisation of the line segment
+		// because of the particular parameterisation of the line segment
 		// t should be between 0 and 1; theta should be bounded by the 
 		// arc angles
 		if (0.0 <= t.first && t.first <= 1.0 && 
@@ -116,13 +116,13 @@ public class Geometry {
 	}
 	
 	/**
-	 * Returns the amount of degree you need to turn in anti-clock-wise 
-	 * direction to get from angle alpha to angle beta. The result is from
+	 * Returns the amount you need to turn anti-clock-wise direction in degrees  
+	 * to get from angle alpha to angle beta. The result is from
 	 * [0 to 360) and the units are degrees.  
 	 * @param alpha The starting angle.
 	 * @param beta The end angle.
-	 * @return The amount of degree you need to turn in anti-clock-wise 
-	 * direction to get from angle alpha to angle beta.
+	 * @return The amount you need to turn anti-clock-wise in degrees  
+	 * to get from angle alpha to angle beta.
 	 */
 	public static double getAntiClockWiseAngleDistance(double alpha, 
 			double beta) {
@@ -148,12 +148,12 @@ public class Geometry {
 	}
 
 	/**
-	 * Gets the end point of an arc starting at the given point and in the 
-	 * given direction, has the given radius and its central angle is the
-	 * given one. The sign of the angle indicates whether it is a clock-wise
+	 * Given the start position, start direction, radius and angle of the
+	 * arc, return the end position. The sign of the angle indicates whether
+	 * it is a clock-wise
 	 * (negative angle) or anti-clock-wise (positive angle) arc.
 	 * @param arcStart The starting point of the arc.
-	 * @param arcStartDirection The slope of the tangent to the arc in the 
+	 * @param arcStartDirection The slope of the tangent line to the arc in the 
 	 * starting point.
 	 * @param radius The radius of the circle containing the arc.
 	 * @param angle The central angle of the arc.

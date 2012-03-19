@@ -134,7 +134,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 				try {
 					drawStuff(internalImage);
 				} catch (InterruptedException e) {
-					// THIS SHOULD NOT HAPPEN!>?!!?>£RLEKWADKSDKASJK
+					// THIS SHOULDN'T BE HAPPENING!?!<FEBD&T £$ER
 					e.printStackTrace();
 				}
 			}

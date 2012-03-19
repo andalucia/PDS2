@@ -1,6 +1,7 @@
 package group2.sdp.pc.test;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 
 
 import org.junit.Test;
@@ -161,5 +162,93 @@ public class GeometryTest {
 				90,
 				new Point2D.Double(-1.0, -1.0)
 		);
+	}
+	public void testDirectionCase(Point2D start, Point2D end, double expected) {
+		double p = Geometry.getVectorDirection(start, end);
+
+		double goodEnough = 1e-2;
+		Assert.assertTrue(Math.abs(expected - p) < goodEnough);
+	}
+	
+	@Test
+	public void testDirection() {
+		testDirectionCase(new Point2D.Double(1,1), new Point2D.Double(2,2), 45);
+		testDirectionCase(new Point2D.Double(0,0), new Point2D.Double(-3,-3), -135);
+		testDirectionCase(new Point2D.Double(0,0), new Point2D.Double(3,-3), -45);
+		testDirectionCase(new Point2D.Double(0,0), new Point2D.Double(-3,3), 135);
+		testDirectionCase(new Point2D.Double(2,2), new Point2D.Double(3,-1.5), -74.05);
+		testDirectionCase(new Point2D.Double(0,0), new Point2D.Double(0,3), 90.0);
+		testDirectionCase(new Point2D.Double(2,2), new Point2D.Double(-3,-1.5), -145);
+	}
+	
+	public void testAntiClockwiseAngleCase(double start, double end, double expected){
+		double p = Geometry.getAntiClockWiseAngleDistance(start, end);
+		double goodEnough = 1e-2;
+		Assert.assertTrue(Math.abs(expected - p) < goodEnough);
+	}
+	
+	@Test
+	public void testAntiClockwiseAngle(){
+		testAntiClockwiseAngleCase(0, 90, 90);
+		testAntiClockwiseAngleCase(90, 0, 270);
+		testAntiClockwiseAngleCase(90, 90, 0);
+		testAntiClockwiseAngleCase(90, 89, 359);
+		testAntiClockwiseAngleCase(44, 184, 140);
+		testAntiClockwiseAngleCase(45, -45, 270);
+		testAntiClockwiseAngleCase(-45, 45, 90);
+		testAntiClockwiseAngleCase(-45, -45, 0);
+	}
+	
+	public void testAngleWithinBoundsCase(double theta,
+			double first, double second, boolean expected){
+		boolean check = Geometry.angleWithinBounds(theta, first, second);
+		Assert.assertEquals(expected, check);
+	}
+	
+	@Test
+	public void testAngleWithinBounds(){
+		testAngleWithinBoundsCase(90, 0, 180, true);
+		testAngleWithinBoundsCase(0, 90, 180, false);
+		testAngleWithinBoundsCase(-15, 340, 0, true);
+		testAngleWithinBoundsCase(-15, -90, -5, true);
+		testAngleWithinBoundsCase(-15, -90, 355, true);
+		testAngleWithinBoundsCase(-15, -90, -25, false);
+	}
+	
+	public void testGetNumberOfRayCircleIntersectionsCase
+				(Point2D vectorStart,
+						Point2D directionVector, Point2D circleCentre,
+						double circleRadius, int expected){
+		int p = Geometry.getNumberOfRayCircleIntersections(vectorStart, directionVector, circleCentre, circleRadius);
+		Assert.assertEquals(expected, p);
+	}
+	
+	@Test
+	public void testGetNumberOfRayCircleIntersections(){
+		testGetNumberOfRayCircleIntersectionsCase(new Point2D.Double(0,0),
+				new Point2D.Double(0,1),
+				new Point2D.Double(0,0),
+				1,
+				2);
+		testGetNumberOfRayCircleIntersectionsCase(new Point2D.Double(0,1),
+				new Point2D.Double(1,0),
+				new Point2D.Double(0,0),
+				1,
+				1);
+		testGetNumberOfRayCircleIntersectionsCase(new Point2D.Double(2,2),
+				new Point2D.Double(1,0),
+				new Point2D.Double(0,0),
+				1,
+				0);
+		testGetNumberOfRayCircleIntersectionsCase(new Point2D.Double(-1,-1),
+				new Point2D.Double(1,1),
+				new Point2D.Double(0,0),
+				1,
+				2);
+		testGetNumberOfRayCircleIntersectionsCase(new Point2D.Double(-1,1),
+				new Point2D.Double(1,1),
+				new Point2D.Double(0,0),
+				1,
+				0);
 	}
 }
