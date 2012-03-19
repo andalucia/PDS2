@@ -302,7 +302,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 		this.ballCentroid = calcCentroid(ballPointsClean);
 		this.blueCentroid = calcCentroid(bluePointsClean);
-		System.out.println("blue centroid = " + blueCentroid);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
 
 		this.directionBlueRobot = regressionAndDirection(image, bluePointsClean, false) % 360;
@@ -1070,7 +1069,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 		if (robotPosition == null) {
 			return null;
 		}
-		System.out.println(yellow + " " + robotPosition);
 		Point2D convertedPosition = convertPixelsToCm(robotPosition);
 		return 
 		correctRobotPosition(
