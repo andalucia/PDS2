@@ -1,5 +1,8 @@
 package group2.sdp.pc.globalinfo;
 
+import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
+
 /**
  * Description: Information that is match-specific (changes between matches; 
  *               does not change in a single match).
@@ -113,5 +116,20 @@ public class GlobalInfo {
 	 */
 	public void setPitch(Pitch pitch) {
 		this.pitch = pitch;
+	}
+	
+	/**
+	 * Computes the middle of the goal Alfie shoots for.
+	 * @return The middle of the goal Alfie shoots for.
+	 */
+	public Point2D getTargetGoalMiddle() {
+		double x;
+		if (attackingRight) {
+			x = pitch.getMinimumEnclosingRectangle().getMaxX();
+		} else {
+			x = pitch.getMinimumEnclosingRectangle().getMinX();
+		}
+		double y = pitch.getGoalCentreY();
+		return new Point2D.Double(x, y);
 	}
 }

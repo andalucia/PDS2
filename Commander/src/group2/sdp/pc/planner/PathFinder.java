@@ -1,9 +1,11 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
+import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
@@ -14,7 +16,7 @@ import group2.sdp.pc.planner.pathstep.PathStepGoForwards;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
-import group2.sdp.pc.planner.pathstep.PathStepStop;
+import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.util.LinkedList;
@@ -26,10 +28,10 @@ import java.util.LinkedList;
  * proceeds to execute them in order and checking whether they are success or have failed in every
  * consumeInfo() cycle
  */
-public class PathFinder implements DynamicInfoConsumer {
+public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
-	private static final int power = 54;
-	private static final int distance = 0;
+	private static final boolean verbose = true;
+	
 	/**
 	 * This is a queue which stores a list of paths 
 	 */
@@ -37,8 +39,11 @@ public class PathFinder implements DynamicInfoConsumer {
 	private PathStep currentStep = null;
 	private Operation currentOperation;
 	
+	@SuppressWarnings("unused")
 	private GlobalInfo globalInfo;
 	private MouthInterface mouth;
+	
+	private boolean replan;
 	
 	/**
 	 * Create the path finder object and setup the GlobalInfo and Mouth
@@ -53,45 +58,46 @@ public class PathFinder implements DynamicInfoConsumer {
 	
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
-
-		// Check whether there is an operation to execute, if there isn't re-plan!
-		if(currentStep != null) {
-			
-			// Check whether the operation is successful
-			if(currentStep.isSuccessful(dpi) && !currentStep.problemExists(dpi)) {
-				
-				// Get the next PathStep from the queue
-				currentStep = pathStepList.pollFirst();
-				
-				// If it is successful, try and execute the next PathStep in the queue
-				if(currentStep != null) {
-					execute();						
-				} else {
-					// The queue is empty so re-plan
-					plan();
-				}
-			}
-				
-			// Check whether something in the queue has failed and re-plan if it has
-			if(currentStep.problemExists(dpi)) {
-				plan();
-			}
-			
+		if (replan || currentStep == null) {
+			plan(dpi);
+			executeNextStep(dpi);
+			replan = false;
 		} else {
-			// We don't have an  operation to execute so get one!
-			plan();
+			if (currentStep.isSuccessful(dpi)) {
+				if (verbose) {
+					System.out.println("Successful");
+				}
+				executeNextStep(dpi);
+			} else if (currentStep.problemExists(dpi)) {
+				if (verbose) {
+					System.out.println("Fail");
+				}
+				plan(dpi);
+			}
 		}
+	}
+	
+	public void executeNextStep(DynamicInfo dpi) {	
+		// Get the next PathStep from the queue
+		currentStep = pathStepList.pollFirst();
 		
+		// If it is successful, try and execute the next PathStep in the queue
+		if(currentStep != null) {
+			execute();
+		} else {
+			// The queue is empty so re-plan
+			plan(dpi);
+		}		
 	}
 	
 	/**
-	 * This method is called by the Fieldmarshal every time the operation changes. If the operation
+	 * This method is called by the FieldMarshal every time the operation changes. If the operation
 	 * changes something drastic and eventful has happened on the pitch and we should re-plan
 	 * @param newOperation The operation we should now execute
 	 */
 	public void setOperation(Operation newOperation) {
 		this.currentOperation = newOperation;
-		plan();
+		replan = true;
 	}
 	
 	/**
@@ -100,9 +106,12 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * Every time this method is called the pathStepList should be cleared and re-planning should take
 	 * place from scratch
+	 * @param dpi 
 	 */
 
-	private void plan() {
+	private void plan(DynamicInfo dpi) {
+		
+		System.out.println("Looking for a path...");
 		
 		// Clear the PathStep queue
 		pathStepList.clear();
@@ -111,7 +120,7 @@ public class PathFinder implements DynamicInfoConsumer {
 		switch(currentOperation.getType()) {
 			
 		case REALLOCATION:
-			planReallocation();
+			planReallocation(dpi);
 			break;
 		
 		case STRIKE:
@@ -133,12 +142,27 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * 
 	 * This method returns void but it should populate the pathStepList with pathSteps
 	 */
-	private void planReallocation() {
-		/**
-		 * TODO: Make magic happen
-		 * Position to be reached is currentOperation.getTarget();
-		 */
+	private void planReallocation(DynamicInfo dpi) {
+		OperationReallocation op = (OperationReallocation) currentOperation;
 		
+		PathStepArcForwardsRight firstArc = 
+			new PathStepArcForwardsRight(
+					dpi.getAlfieInfo().getPosition(), 
+					dpi.getAlfieInfo().getFacingDirection(), 
+					30, 
+					180, 
+					10
+			);
+//		PathStepArcForwardsLeft secondArc = 
+//			new PathStepArcForwardsLeft(
+//					firstArc.getTargetDestination(), 
+//					firstArc.getTargetOrientation(),
+//					30, 
+//					180, 
+//					10
+//			);
+		pathStepList.add(firstArc);
+//		pathStepList.add(secondArc);
 	}	
 	
 	/**
@@ -147,7 +171,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * This method returns void but it should populate the pathStepList with pathSteps
 	 */
 	private void planStrike() {
-		pathStepList.add(new PathStepKick(power));
+		/**
+		 * TODO: Make magic happen
+		 */	
 	}
 
 	/**
@@ -156,7 +182,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * This method returns void but it should populate the pathStepList with pathSteps
 	 */
 	private void planCharge() {
-		//pathStepList.add(new PathStepGoForwards(distance, distanceThreshold, speed));
+		/**
+		 * TODO: Make magic happen
+		 */	
 	}
 	
 	/**
@@ -165,7 +193,9 @@ public class PathFinder implements DynamicInfoConsumer {
 	 * This method returns void but it should populate the pathStepList with pathSteps
 	 */	
 	private void planOverload() {
-		pathStepList.add(new PathStepStop());
+		/**
+		 * TODO: Make magic happen
+		 */
 	}
 
 	/**
@@ -188,12 +218,12 @@ public class PathFinder implements DynamicInfoConsumer {
 			
 		case SPIN_LEFT:
 			PathStepSpinLeft spinLeft = (PathStepSpinLeft) currentStep;
-			mouth.sendSpinLeft(spinLeft.getSpeed(), spinLeft.getAngleToTurn());
+			mouth.sendSpinLeft(spinLeft.getSpeed(), spinLeft.getAngle());
 			break;
 			
 		case SPIN_RIGHT:
 			PathStepSpinRight spinRight = (PathStepSpinRight) currentStep;
-			mouth.sendSpinRight(spinRight.getSpeed(), spinRight.getAngleToTurn());
+			mouth.sendSpinRight(spinRight.getSpeed(), spinRight.getAngle());
 			break;
 			
 		case ARC_FORWARDS_LEFT:
@@ -225,5 +255,11 @@ public class PathFinder implements DynamicInfoConsumer {
 			mouth.sendStop();
 			break;
 		}
+	}
+
+	
+	@Override
+	public void consumeOperation(Operation operation) {
+		setOperation(operation);
 	}
 }

@@ -43,9 +43,9 @@ public interface MouthInterface {
 	 */
 	public void sendSpinRight(int speed, int angle);
 	
-	public void sendForwardArcLeft(float radius, int angle);
-	public void sendForwardArcRight(float radius, int angle);
-	public void sendBackwardsArcLeft(float radius, int angle);
-	public void sendBackwardsArcRight(float radius, int angle);
+	public void sendForwardArcLeft(double radius, double angle);
+	public void sendForwardArcRight(double radius, double angle);
+	public void sendBackwardsArcLeft(double radius, double angle);
+	public void sendBackwardsArcRight(double radius, double angle);
 
 }

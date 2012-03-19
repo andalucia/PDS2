@@ -1,5 +1,6 @@
 package group2.sdp.pc.globalinfo;
 
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
@@ -179,5 +180,13 @@ public class Pitch {
 	 */
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+	}
+
+	/**
+	 * Get the middle Y coordinate of the goal posts.
+	 * @return The middle Y coordinate of the goal posts.
+	 */
+	public double getGoalCentreY() {
+		return (getBottomGoalPostYCoordinate() + getTopGoalPostYCoordinate()) / 2;
 	}	
 }

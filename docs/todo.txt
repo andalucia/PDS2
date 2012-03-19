@@ -12,51 +12,21 @@ Working things:
  6. Static Info,
  7. Static Info History,
  8. Dynamic Ball Info,
- 9. Dynamic Info, and
-10. Eye.
-
-Awaiting approval:
-  1. Static Robot Info: copy the information from the design.txt to the 
-     javadoc of the class; add ball possession information (boolean),
- 2. Dynamic Robot Info: copy the information from the design.txt to the 
-     javadoc of the class; add turning speed (double; degrees per second) 
-     and turning direction (boolean; clock-wise / anti-clock-wise),
-4. Visual Cortex: copy the information from the design.txt to the javadoc 
-     of the class; audit code and see what should be modified so it adheres 
-     to the design,
-5. Strategy: add comments from the design.txt to the code,
-6. Operation: add comments from the design.txt to the code,
-7. Path Step: create according to the design - use Operation as a template,
-8. Overlord: copy the information from the design.txt to the javadoc of the
-     class; audit code and see what should be modified so it adheres to the 
-     design,
- 9. Field Marshal: copy the information from the design.txt to the javadoc 
-     of the class; audit code and see what should be modified so it adheres 
-     to the design,
-10. Path Finder: copy the information from the design.txt to the javadoc of 
-     the class; audit code and see what should be modified so it adheres to 
-     the design,
-14. Artist: make the design more detailed; audit code and see what should be
-     modified so it adheres to the design,
-16. Conversation: make the design more detailed; audit code and see what 
-     should be modified so it adheres to the design.
-
-
-
+ 9. Dynamic Info,
+10. Eye,
+11. Static Robot Info,
+12. Dynamic Robot Info,
+13. Visual Cortex Skeleton,
+14. Dynamic Robot Info,
+15. Visual Cortex,
+16. Overlord,
+17. FieldMarshal, and
+18. Artist.
 
 TODO:
-
  3. Bakery: copy the information from the design.txt to the javadoc of the 
      class; audit code and see what should be modified so it adheres to the
      design
-11. Candy Packet: make the design more detailed; audit code and see what 
-     should be modified so it adheres to the design,
-12. Mouth: make the design more detailed; audit code and see what should be
-     modified so it adheres to the design,
-13. Ear: make the design more detailed; audit code and see what should be
-     modified so it adheres to the design,
-15. Commander Control Station: make the design more detailed; audit code and
-     see what should be modified so it adheres to the design, and
 
 
 

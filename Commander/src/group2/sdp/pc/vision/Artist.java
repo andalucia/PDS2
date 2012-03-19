@@ -12,9 +12,6 @@ import javax.swing.JLabel;
 /**
  * <p><b>Description:</b>	Sets up a window in which to display images passed to it
  * through consume</p>
- * @author Alfie
- * 
- *
  */
 public class Artist extends WindowAdapter implements ImageConsumer {
 	private static int width = 640, height = 480;

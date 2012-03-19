@@ -20,5 +20,6 @@ public enum Strategy {
 	DEFENSIVE,
 	PENALTY_DEFEND,
 	PENALTY_TAKE,
-	STOP
+	STOP, 
+	TEST_FIELD_MARSHAL
 }

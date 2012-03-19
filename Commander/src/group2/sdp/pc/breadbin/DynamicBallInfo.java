@@ -82,5 +82,11 @@ public class DynamicBallInfo extends StaticBallInfo {
 	 */
 	public void setRollingDirection(double rollingDirection) {
 		this.rollingDirection = rollingDirection;
-	}	
+	}
+
+
+	@Override
+	public String toString() {
+		return super.toString() + " v:" + rollingSpeed + " dir:" + rollingDirection;
+	}
 }

@@ -1,43 +1,65 @@
 package group2.sdp.pc.planner.operation;
 
-
 import java.awt.geom.Point2D;
 
-// FIXME: restructure
+/**
+ * Move to a position and face a direction
+ */
 public class OperationReallocation implements Operation {
 
-	Point2D target;
-	Point2D origin;
-	double facing;
-	Point2D opponent;
-	
-	
-	public OperationReallocation(Point2D target, Point2D Alfie, double angle, Point2D opponent){
-		this.target = target;
-		this.origin = Alfie;
-		this.facing = angle;
-		this.opponent=opponent;
-	}
+	/**
+	 * The position to reach.
+	 */
+	private Point2D position;
+	/**
+	 * The direction to face at the end.
+	 */
+	private double orientation;
 
+	/**
+	 * Fully initialising constructor.
+	 * @param position The position to reach.
+	 * @param orientation The direction to face at the end.
+	 */
+	public OperationReallocation(Point2D position, double orientation) {
+		this.setPosition(position);
+		this.setOrientation(orientation);
+	}
+	
 	@Override
 	public Type getType() {
 		return Operation.Type.REALLOCATION;
 	}
-	
-	public Point2D getOrigin(){
-		return this.origin;
-	}
-	
-	public Point2D getTarget(){
-		return this.target;
-	}
-	
-	public double getFacingDirection(){
-		return this.facing;
-	}
-	
-	public Point2D getOpponent(){
-		return opponent;
+
+	/**
+	 * Set the position to reach.
+	 * @param position The position to reach.
+	 */
+	public void setPosition(Point2D position) {
+		this.position = position;
 	}
 
+	/**
+	 * Get the position to reach.
+	 * @return The position to reach.
+	 */
+	public Point2D getPosition() {
+		return position;
+	}
+
+	/**
+	 * Set the direction to face at the end of the reallocation.
+	 * @param orientation The direction to face at the end of the reallocation.
+	 */
+	public void setOrientation(double orientation) {
+		this.orientation = orientation;
+	}
+
+	/**
+	 * Get the direction to face at the end of the reallocation.
+	 * @return the orientation The direction to face at the end of the reallocation.
+	 */
+	public double getOrientation() {
+		return orientation;
+	}
 }
