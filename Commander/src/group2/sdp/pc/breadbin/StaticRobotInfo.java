@@ -1,7 +1,6 @@
 package group2.sdp.pc.breadbin;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 /**
  * Description: Information about a robot that is frame-specific and can be
@@ -212,6 +211,12 @@ public class StaticRobotInfo {
 				LENGTH / 2 + centrePoint.getY()
 		);
 		return Math.sqrt(dx * dx + dy * dy);
+	}
+
+	@Override
+	public String toString() {
+		return "pos: " + position + " dir:" + facingDirection + " alfie?: " + alfie + 
+				" has ball?: " + hasBall + " T: " + timeStamp;
 	}
 }
 

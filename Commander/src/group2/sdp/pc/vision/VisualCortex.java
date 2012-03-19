@@ -1068,6 +1068,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		if (robotPosition == null) {
 			return null;
 		}
+		System.out.println(yellow + " " + robotPosition);
 		Point2D convertedPosition = convertPixelsToCm(robotPosition);
 		return 
 		correctRobotPosition(

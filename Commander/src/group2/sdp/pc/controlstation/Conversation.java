@@ -17,20 +17,18 @@ public class Conversation {
 		
 //		s.sendForwardArcLeft(20, 90);
 //		Thread.sleep(5000);
-//		
-		s.sendForwardArcLeft(10, 360);
-		Thread.sleep(2666);
+//
 		
-		s.sendForwardArcLeft(1000, 10);
-		Thread.sleep(1000);
-//		
-//		for (int i = 0; i < 2; ++i) {
-////			s.sendGoForward(100, 0);
-////			Thread.sleep(500);
-//			s.sendForwardArcLeft(40, 360);
-//			Thread.sleep(7250);
-//		}
+		s.sendForwardArcRight(40, 70);
+		Thread.sleep(2000);
+		s.sendForwardArcLeft(40, 70);
+		Thread.sleep(2000);
 		
+		s.sendBackwardsArcRight(40, 70);
+		Thread.sleep(2000);
+		s.sendBackwardsArcLeft(40, 70);
+		Thread.sleep(2000);
+
 		s.sendStop();
 		Thread.sleep(1000);
 		s.sendReset();

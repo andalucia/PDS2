@@ -1,5 +1,6 @@
 package group2.sdp.common.util;
 
+
 /**
  * A class containing useful methods.
  * TODO: rename to LanguageTools.
@@ -51,4 +52,23 @@ public class Tools {
 		else 
 			return 2;
 	}
+	
+	/**
+	 * Returns the solutions of the quadratic equation:
+	 * 
+	 * a * x^2 + b * x + c = 0
+	 * 
+	 * if there is no solution, null is returned, so beware.
+	 * 
+	 * @return the solutions of the quadratic equation.
+	 */
+	public static Pair<Double, Double> getQuadraticSolutions(double a, double b, double c) {
+		double discriminant = b * b - 4 * a * c;
+		if (discriminant < 0.0)
+			return null;
+		Double x1 = (-b - Math.sqrt(discriminant)) / (2 * a);
+		Double x2 = (-b + Math.sqrt(discriminant)) / (2 * a);
+		return new Pair<Double, Double>(x1, x2);
+	}
+
 }

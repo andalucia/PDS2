@@ -109,5 +109,8 @@ public class StaticInfo {
 
 	}
 	
-	
+	@Override
+	public String toString() {
+		return "A:[" + alfieInfo + "] O:[" + opponentInfo + "] B:[" + ballInfo + "]";
+	}
 }

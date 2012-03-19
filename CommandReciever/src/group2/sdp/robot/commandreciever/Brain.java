@@ -265,8 +265,17 @@ public class Brain {
 		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
 		
 		stopOnTouch = true;
-		straightLinePilot.setRotateSpeed(angle);
-	    straightLinePilot.rotate(angle,true);
+		straightLinePilot.setRotateSpeed(Math.abs(speed));		
+		if (angle == 0) {
+			if (speed > 0) {
+				straightLinePilot.rotateLeft();
+			} else {
+				straightLinePilot.rotateRight();
+			}
+			
+		} else {
+			straightLinePilot.rotate(angle,true);
+		}
 		
 		if (VERBOSE) {
 			LCD.clear();
@@ -274,6 +283,7 @@ public class Brain {
 			LCD.refresh();
 		}
 	}
+	
 	/**
 	 * Makes Alfie move in an arc 
 	 * @param radius

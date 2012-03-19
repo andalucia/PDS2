@@ -38,10 +38,7 @@ public class ButtRuleTest {
 					endDirection
 			); 
 		System.out.println("result = " + result);
-		if (expected)
-			Assert.assertTrue(result);
-		else 
-			Assert.assertFalse(result);
+		Assert.assertEquals(expected, result);
 	}
 		
 	@Test 
@@ -55,6 +52,5 @@ public class ButtRuleTest {
 		testButtRuleCase(17, 17, -1, -1, 270, true);
 		testButtRuleCase(-25, 40.494, 0, 0, 315, false);
 		testButtRuleCase(0, 40.494, 0, 0, 270, false);
-		
 	}
 }

@@ -86,5 +86,11 @@ public class StaticBallInfo {
 	 */
 	public double getDangerZoneRadius(StaticRobotInfo robotInfo) {
 		return robotInfo.getSafeDistance() + RADIUS;
+	}
+
+
+	@Override
+	public String toString() {
+		return "pos: " + position + " T: " + timeStamp;
 	}	
 }

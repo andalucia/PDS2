@@ -174,4 +174,11 @@ public class DynamicRobotInfo extends StaticRobotInfo {
 	public void setRotatingCounterClockWise(boolean rotatingCounterClockWise) {
 		this.rotatingCounterClockWise = rotatingCounterClockWise;
 	}
+
+	@Override
+	public String toString() {
+		return super.toString() + " v: " + travelSpeed + " trav_dir:" + 
+				travelDirection + " vt: " + rotatingSpeed + " ccw?: " +
+				rotatingCounterClockWise;
+	}
 }

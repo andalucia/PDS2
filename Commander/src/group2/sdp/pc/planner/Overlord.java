@@ -1,13 +1,10 @@
 package group2.sdp.pc.planner;
 
-import java.awt.geom.Point2D;
-
-import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.strategy.Strategy;
+import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 /**
@@ -120,18 +117,22 @@ public class Overlord implements DynamicInfoConsumer {
 			running = false;
 			return Strategy.STOP;
 		}
-		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
-		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		
-		Point2D ballPosition = ballInfo.getPosition();  
+		// TODO: remove after testing
+		return Strategy.TEST_FIELD_MARSHAL;
 		
-		if(dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
-				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)){
-			return Strategy.DEFENSIVE;
-		} else {
-			return Strategy.OFFENSIVE;
-		}
+//		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
+//		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
+//		DynamicBallInfo ballInfo = dpi.getBallInfo();
+//		
+//		Point2D ballPosition = ballInfo.getPosition();  
+//		
+//		if(dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
+//				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)){
+//			return Strategy.DEFENSIVE;
+//		} else {
+//			return Strategy.OFFENSIVE;
+//		}
 	}
 	
 	/**

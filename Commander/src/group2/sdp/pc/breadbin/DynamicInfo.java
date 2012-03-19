@@ -75,6 +75,4 @@ public class DynamicInfo extends StaticInfo {
 	public void setOpponentInfo(DynamicRobotInfo opponentInfo) {
 		this.opponentInfo = opponentInfo;
 	}
-	
-	
 }
