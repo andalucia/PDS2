@@ -302,6 +302,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 
 		this.ballCentroid = calcCentroid(ballPointsClean);
 		this.blueCentroid = calcCentroid(bluePointsClean);
+		System.out.println("blue centroid = " + blueCentroid);
 		this.yellowCentroid = calcCentroid(yellowPointsClean);
 
 		this.directionBlueRobot = regressionAndDirection(image, bluePointsClean, false) % 360;
@@ -1001,12 +1002,13 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * Used to draw the facing direction of robots.
 	 * 
 	 * @param raster
-	 * @param point
+	 * @param point The centroid to draw from.
 	 * @param angle
 	 */
-	private void drawRobotFacingDirection(WritableRaster raster, Point centroid,
+	private void drawRobotFacingDirection(WritableRaster raster, Point realCentroid,
 			double angle) {
-
+		// we clone the centroid so the increments/decrements don't change the actual value
+		Point centroid = (Point) realCentroid.clone();
 		angle = 360 - angle;
 		double tanAngle = Math.tan(Math.toRadians(angle));
 		int[] colour = {255, 255, 255};
