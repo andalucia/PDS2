@@ -376,6 +376,7 @@ public class GeometryTest {
 //		testDoubleArcCurveCase(dpi, op, expected);
 	}
 	
+	
 	@Test
 	public void testIsArcLeft() {
 		Assert.assertFalse(
