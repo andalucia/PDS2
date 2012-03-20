@@ -250,15 +250,14 @@ public class CommanderControlStation {
 				if (processImageCheckbox.getState()) {
 					isProcessing = true;
 				}
-				settingsWindow = new SettingsWindow(globalInfo, processor);
 				startPipeline();
+				settingsWindow = new SettingsWindow(globalInfo, processor);
 				
 			    yellowAlfieCheckbox.setEnabled(false);
 			    blueAlfieCheckbox.setEnabled(false);
 				connectButton.setEnabled(false);
 				processImageCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
-				
 			}
 		});
 		
