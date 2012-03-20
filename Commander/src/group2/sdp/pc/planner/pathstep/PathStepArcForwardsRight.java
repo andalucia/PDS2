@@ -82,9 +82,6 @@ public class PathStepArcForwardsRight implements PathStep {
 	@Override
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
 		double d = pitchStatus.getAlfieInfo().getPosition().distance(targetDestination);
-		if (verbose) {
-			System.out.println(targetDestination + " " + pitchStatus.getAlfieInfo().getPosition() + " " + d);
-		}
 		return d < threshold;
 	}
 

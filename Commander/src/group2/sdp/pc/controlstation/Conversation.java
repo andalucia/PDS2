@@ -12,22 +12,23 @@ public class Conversation {
 	public static void main (String [] args) throws Exception {
 		Mouth s = new Mouth();
 		
-//		s.sendGoForward(100, 0);
-//		Thread.sleep(500);
+		s.sendGoForward(100, 0);
+		Thread.sleep(5000);
 		
-//		s.sendForwardArcLeft(20, 90);
-//		Thread.sleep(5000);
+//		s.sendForwardArcLeft(20, 50);
+//		Thread.sleep(2000);
+//		s.sendForwardArcRight(20, 50);
+//		Thread.sleep(2000);
+//		s.sendBackwardsArcLeft(20, 50);
+//		Thread.sleep(2000);
+//		s.sendBackwardsArcRight(20, 50);
+//		Thread.sleep(2000);
 //
+//		for (int i = 0; i < 1000; ++i) {
+//			s.sendKick(10000);
+//			Thread.sleep(500);	
+//		}
 		
-		s.sendForwardArcRight(40, 70);
-		Thread.sleep(2000);
-		s.sendForwardArcLeft(40, 70);
-		Thread.sleep(2000);
-		
-		s.sendBackwardsArcRight(40, 70);
-		Thread.sleep(2000);
-		s.sendBackwardsArcLeft(40, 70);
-		Thread.sleep(2000);
 
 		s.sendStop();
 		Thread.sleep(1000);

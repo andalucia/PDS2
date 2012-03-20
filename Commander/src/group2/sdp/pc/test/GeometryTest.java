@@ -1,14 +1,17 @@
 package group2.sdp.pc.test;
 
+import group2.sdp.common.util.Geometry;
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.planner.PathFinder;
+import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.pathstep.PathStep;
+
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
-
-
-import org.junit.Test;
+import java.util.LinkedList;
 
 import junit.framework.Assert;
 
-import group2.sdp.common.util.Geometry;
+import org.junit.Test;
 
 public class GeometryTest {
 	
@@ -250,5 +253,14 @@ public class GeometryTest {
 				new Point2D.Double(0,0),
 				1,
 				0);
+	}
+	
+	public void testDoubleArcCurveCase(DynamicInfo dpi, OperationReallocation op, 
+			LinkedList<PathStep> expected) {
+		LinkedList<PathStep> actual = PathFinder.getDoubleArcPath(dpi, op);
+		Assert.assertTrue(actual.size() == expected.size());
+		for (int i = 0; i < actual.size(); ++i) {
+			Assert.assertEquals(expected.get(i), actual.get(i));
+		}
 	}
 }

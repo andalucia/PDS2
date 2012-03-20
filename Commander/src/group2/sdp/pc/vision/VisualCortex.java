@@ -131,12 +131,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			newPixels = getDifferentPixels(image);
 			internalImage = drawPixels(image, newPixels);
 			if(pleaseDraw) {
-				try {
-					drawStuff(internalImage);
-				} catch (InterruptedException e) {
-					// THIS SHOULDN'T BE HAPPENING!?!<FEBD&T £$ER
-					e.printStackTrace();
-				}
+				drawStuff(internalImage);
 			}
 			super.process(image);
 		}
@@ -930,7 +925,6 @@ public class VisualCortex extends VisualCortexSkeleton {
 		if (withinBounds(p1)) {
 			try {
 				raster.setPixel(p1.x, p1.y, colour);
-
 			}
 			catch (Exception exc) {
 				System.out.println("asd");
@@ -946,7 +940,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * 
 	 * @param internalImage
 	 */
-	private void drawStuff(BufferedImage internalImage) throws InterruptedException {
+	private void drawStuff(BufferedImage internalImage) {
 		WritableRaster raster = internalImage.getRaster();
 		int[] blue = new int[] { 0, 0, 255 };
 		int[] yellow = new int[] { 255, 255, 0 };

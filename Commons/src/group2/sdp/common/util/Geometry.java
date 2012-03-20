@@ -7,6 +7,7 @@ public class Geometry {
 	/**
 	 * Set to true to output debug data.
 	 */
+	@SuppressWarnings("unused")
 	private static boolean verbose = true;
 	
 	/**
@@ -37,6 +38,83 @@ public class Geometry {
 	}
 	
 	/**
+	 * Infers the parameters for the intersection points, that positions it on the line.
+	 * @param segmentStart
+	 * @param segmentEnd
+	 * @param circleCentre
+	 * @param circleRadius
+	 * @return
+	 */
+	private static Pair<Double, Double> getLineCircleIntersectionsParameters(
+			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
+			double circleRadius) {
+		double a = segmentStart.getX() - circleCentre.getX();
+		double b = segmentEnd.getX() - segmentStart.getX();
+		double c = segmentStart.getY() - circleCentre.getY();
+		double d = segmentEnd.getY() - segmentStart.getY();
+		double r = circleRadius;
+		
+		double A = b * b + d * d;
+		double B = 2 * (a * b + c * d);
+		double C = a * a + c * c - r * r;
+		
+		// a point on the given segment is
+		// segmentStart + t * (segmentEnd - segmentStart)
+		Pair<Double, Double> t = Tools.getQuadraticSolutions(A, B, C);
+		return t;
+	}
+	
+	/**
+	 * Gets the points of intersection between the given line segment and arc.
+	 */
+	public static Pair<Point2D, Point2D> getLineCircleIntersections(
+			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
+			double circleRadius) {
+		
+		Pair<Double, Double> t = 
+			getLineCircleIntersectionsParameters(
+					segmentStart, 
+					segmentEnd, 
+					circleCentre, 
+					circleRadius
+			);
+		Pair<Point2D, Point2D> result = 
+			new Pair<Point2D, Point2D>(
+					transpose(
+							segmentStart,
+							t.first,
+							getVectorDifference(segmentStart, segmentEnd)
+					),
+					transpose(
+							segmentStart,
+							t.second,
+							getVectorDifference(segmentStart, segmentEnd)
+					)
+			);
+		return result;
+	}
+	
+	/**
+	 * Transposes v in the given direction with the given scale.
+	 * @param v The vector to transpose.
+	 * @param scale The scale to apply.
+	 * @param direction The direction of the transposition.
+	 * @return The transposed vector.
+	 */
+	public static Point2D transpose(Point2D v, double scale, Point2D direction) {
+		double x = v.getX() + scale * direction.getX();
+		double y = v.getY() + scale * direction.getY();
+		return new Point2D.Double(x, y);
+	}
+	
+	/**
+	 * Gets the offset from start to end.
+	 */
+	public static Point2D getVectorDifference(Point2D start, Point2D end) {
+		return new Point2D.Double(end.getX() - start.getX(), end.getY() - start.getY());
+	}
+	
+	/**
 	 * Gets the number of intersections between a line segment and a circular 
 	 * arc.
 	 * @param segmentStart The starting point of the line segment.
@@ -58,18 +136,14 @@ public class Geometry {
 		double b = segmentEnd.getX() - segmentStart.getX();
 		double c = segmentStart.getY() - circleCentre.getY();
 		double d = segmentEnd.getY() - segmentStart.getY();
-		double r = circleRadius;
 		
-		double A = b * b + d * d;
-		double B = 2 * (a * b + c * d);
-		double C = a * a + c * c - r * r;
-		
-		// a point on the given segment is
-		// segmentStart + t * (segmentEnd - segmentStart)
-		Pair<Double, Double> t = Tools.getQuadraticSolutions(A, B, C);
-		if (t == null) {
-			return 0;
-		}
+		Pair<Double, Double> t = 
+			getLineCircleIntersectionsParameters(
+					segmentStart, 
+					segmentEnd, 
+					circleCentre, 
+					circleRadius
+			);
 		
 		// theta is the angle on the arc at which the segment crosses it
 		Pair<Double, Double> theta = new Pair<Double, Double> (
@@ -171,5 +245,48 @@ public class Geometry {
 		double y = arcStart.getY() + c * Math.sin(Math.toRadians(beta));
 		
 		return new Point2D.Double(x, y);
+	}
+	
+	public static double getArcAngle(Point2D arcStart, Point2D arcEnd, double radius) {
+		double c = arcStart.distance(arcEnd);
+		
+		double angle = (2 * radius * radius - c * c) / (2 * radius * radius);
+		
+		return Math.toDegrees(angle);
+	}
+
+	/**
+	 * Gets the point of intersection between two lines. Returns null if they are parallel.
+	 */
+	public static Point2D getLinesIntersection(Point2D a, Point2D b, Point2D c, Point2D d) {
+		double x1 = a.getX();
+		double y1 = a.getY();
+		
+		double x2 = b.getX();
+		double y2 = b.getY();
+		
+		double x3 = c.getX();
+		double y3 = c.getY();
+		
+		double x4 = d.getX();
+		double y4 = d.getY();
+		
+		double dx1 = x2 - x1;
+		double dy1 = y2 - y1;
+		
+		double dx2 = x4 - x3;
+		double dy2 = y4 - y3;
+		
+		double numerator = dx2 * (y1 - y3) - dy2 * (x1 - x3); 
+		double denominator = dx1 * dy2 - dy1 * dx2;
+		
+		if (new Double(denominator).equals(0.0)) {
+			// The lines are parallel. 
+			return null;
+		}
+		
+		double t = numerator / denominator;
+		
+		return new Point2D.Double(x1 + t * dx1, y1 + t * dy1);
 	}
 }

@@ -28,7 +28,7 @@ import java.awt.geom.Point2D;
  */
 public class PathStepArcForwardsLeft implements PathStep {
 
-	private static final boolean verbose = true;
+	private static final boolean verbose = false;
 	
 	/**
 	 * The radius of the circle containing the arc.
@@ -82,9 +82,6 @@ public class PathStepArcForwardsLeft implements PathStep {
 	@Override
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
 		double d = pitchStatus.getAlfieInfo().getPosition().distance(targetDestination);
-		if (verbose) {
-			System.out.println(d);
-		}
 		return d < threshold;
 	}
 

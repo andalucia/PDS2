@@ -46,7 +46,6 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 
 	@Override
 	public void consumeInfo(StaticInfo spi) {
-//		System.out.println(spi);
 		if (counter < 10) {
 			counter++;
 		} else {
