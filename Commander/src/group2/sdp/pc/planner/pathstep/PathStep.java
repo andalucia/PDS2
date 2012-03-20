@@ -36,6 +36,6 @@ public interface PathStep {
 	 * @param pitchStatus The current pitch status.
 	 * @return True if the path step failed, false otherwise. 
 	 */
-	public boolean problemExists(DynamicInfo pitchStatus);
+	public boolean hasFailed(DynamicInfo pitchStatus);
 	
 }

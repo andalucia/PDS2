@@ -33,7 +33,7 @@ public class PathStepStop implements PathStep {
 	 * Fail: If Alfie is being pushed by the other robot.
 	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
+	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}

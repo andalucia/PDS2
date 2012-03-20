@@ -1,5 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
+import java.awt.geom.Point2D;
+
 import group2.sdp.pc.breadbin.DynamicInfo;
 
 /**
@@ -10,63 +12,25 @@ import group2.sdp.pc.breadbin.DynamicInfo;
  * Radius and angle of the arc and threshold distance. (Target position should be
  * computed on construction of the Arc Forward Left object.)
  */
-public class PathStepArcBackwardsRight implements PathStep {
+public class PathStepArcBackwardsRight extends PathStepArc {
 
-	private int radius;
-	private int angle;
-	private int threshold;
-	
-	public PathStepArcBackwardsRight(int radius, int angle, int threshold){
-		this.angle = angle;
-		this.radius = radius;
-		this.threshold = threshold;
+	public PathStepArcBackwardsRight(Point2D start, double startDirection,
+			double radius, double angle, double threshold) {
+		super(start, startDirection, radius, angle, threshold);
 	}
-	
+
 	@Override
 	public Type getType() {
-		return Type.ARC_BACKWARDS_RIGHT;
+		return PathStep.Type.ARC_BACKWARDS_RIGHT;
 	}
 
-	public int getAngle(){
-		return this.angle;
-	}
-	
-	public int getThreshold(){
-		return this.threshold;
-	}
-	
-	public int getRadius(){
-		return this.radius;
-	}
-	
-	
-	/**
-	 * Succeed:
-	 * If Alfie is within the specified threshold distance from the target position.
-	 * TODO implement
-	 */
 	@Override
-	public boolean isSuccessful(DynamicInfo pitchStatus) {
-
-		return false;
+	protected void setRadius(double radius) {
+		this.radius = -radius;
 	}
 
-	
-	/**
-	 * Fail: 
-	 * 		 Easy:
-	 * 			  If Alfie is moving away from the target position.
-	 * 		 
-	 * 		 Hard:
-	 * 			  If the target position is farther from Alfie's circular trajectory than a specified
-	 * 			  threshold. This is hard, as the vision system might not be accurate enough to allow a
-	 * 		 	  precise computation of the circular trajectory of Alfie. However, if implemented, this
-	 * 		 	  would provide Alfie with a lot quicker reactions to problems with this Path Step.
-	 * TODO implement
-	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
-
-		return false;
+	protected void setAngle(double angle) {
+		this.angle = -angle; // TODO: TEST
 	}
 }

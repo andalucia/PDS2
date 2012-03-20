@@ -65,7 +65,7 @@ public class PathStepGoForwards implements PathStep {
 	 * point.
 	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
+	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		//Coming soon Logic!
 		return false;

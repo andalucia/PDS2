@@ -40,7 +40,7 @@ public class PathStepKick implements PathStep {
 	 * Fail: If Alfie did not kick the ball.
 	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
+	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
 	}

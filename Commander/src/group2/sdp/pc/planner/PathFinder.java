@@ -8,6 +8,7 @@ import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
+import group2.sdp.pc.planner.pathstep.PathStepArc;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
@@ -21,6 +22,7 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.LinkedList;
 
 /**
@@ -32,7 +34,9 @@ import java.util.LinkedList;
  */
 public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
-	private static final boolean verbose = true;
+	private static final boolean verbose = false;
+
+	private static final double DISTANCE_THRESHOLD = 10.0;
 	
 	/**
 	 * This is a queue which stores a list of paths 
@@ -67,12 +71,12 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		} else {
 			if (currentStep.isSuccessful(dpi)) {
 				if (verbose) {
-					System.out.println("Successful");
+					//System.out.println("Successful");
 				}
 				executeNextStep(dpi);
-			} else if (currentStep.problemExists(dpi)) {
+			} else if (currentStep.hasFailed(dpi)) {
 				if (verbose) {
-					System.out.println("Fail");
+					//System.out.println("Fail");
 				}
 				plan(dpi);
 			}
@@ -113,7 +117,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 	private void plan(DynamicInfo dpi) {
 		
-		System.out.println("Looking for a path...");
+		//System.out.println("Looking for a path...");
 		
 		// Clear the PathStep queue
 		pathStepList.clear();
@@ -147,17 +151,24 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	private void planReallocation(DynamicInfo dpi) {
 		OperationReallocation op = (OperationReallocation) currentOperation;
 		
-		LinkedList<PathStep> pathStepList = getDoubleArcPath(dpi, op);
+		LinkedList<PathStep> pathStepListSecondCW = getDoubleArcPath(dpi, op, false);
+		LinkedList<PathStep> pathStepListSecondCCW = getDoubleArcPath(dpi, op, true);
 		
-		this.pathStepList = pathStepList;
+		//TODO	decide on which curve to add
+		this.pathStepList = pathStepListSecondCCW;
 	}
 
 	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
-			OperationReallocation op) {
+			OperationReallocation op, boolean secondArcCCW) {
 		LinkedList<PathStep> pathStepList = new LinkedList<PathStep>();
+		double orientedRadius;
+		if (secondArcCCW)
+			orientedRadius = 10;
+		else 
+			orientedRadius = -10;
 		
 		double d2 = op.getOrientation();
-		double d2t = (d2 + 90.0) % 360.0;
+		double d2t = Geometry.perpendicularisePaul(d2);
 		
 		double x1 = dpi.getAlfieInfo().getPosition().getX();
 		double y1 = dpi.getAlfieInfo().getPosition().getY();
@@ -165,92 +176,93 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		double x2 = op.getPosition().getX();
 		double y2 = op.getPosition().getY();
 		
-		double r = 10.0; // ?!?!?
-		
-		double x0 = x2 + /* - */ r * Math.cos(Math.toRadians(d2t));
-		double y0 = y2 + /* - */ r * Math.sin(Math.toRadians(d2t));
-		System.out.println("p2 = " + x2 + ", " + y2);
-		System.out.println("p0 = " + x0 + ", " + y0);
+		double x0 = x2 + orientedRadius * Math.cos(Math.toRadians(d2t));
+		double y0 = y2 + orientedRadius * Math.sin(Math.toRadians(d2t));
+	
+		Point2D p1 = new Point2D.Double(x1, y1);
+		Point2D p0 = new Point2D.Double(x0, y0);
+	
+		////System.out.println("p2 = " + x2 + ", " + y2);
+		//System.out.println("p0 = " + p0.getX() + ", " + p0.getY());
 		
 		double d1 = dpi.getAlfieInfo().getFacingDirection();
-		double d1t = (d1 + 90.0) % 360.0;
-		double x3 = x0 - /* - */ r * Math.cos(Math.toRadians(d1t)); //TODO +-
-		double y3 = y0 - /* - */ r * Math.sin(Math.toRadians(d1t)); //TODO +-
-		// Centre of the second arc.
-		Point2D p0 = new Point2D.Double(x0, y0);
-		Point2D p1 = new Point2D.Double(x1, y1);
+		double d1t = Geometry.perpendicularisePaul(d1);
+		double x3 = p0.getX() - orientedRadius * Math.cos(Math.toRadians(d1t));  
+		double y3 = p0.getY() - orientedRadius * Math.sin(Math.toRadians(d1t));  
+	
 		Point2D p3 = new Point2D.Double(x3, y3);
-		System.out.println("p3 = " + p3);
 		Pair<Point2D, Point2D> intersections = Geometry.getLineCircleIntersections(
 				p1,
 				p3, 
 				p0,
-				r
+				orientedRadius
 		);
-		
+
 		double dist1 = intersections.getFirst().distance(p3);
 		double dist2 = intersections.getSecond().distance(p3);
 		
 		// Point of transition between the arcs:
-		Point2D p5 = dist1 > dist2 ? intersections.getFirst() : intersections.getSecond();
+		Point2D transitionPoint = dist1 > dist2 ? intersections.getFirst() : intersections.getSecond();
 		
-		//TODO decide what to multiply: is 10 ok?
-		Point2D temp = 
-			new Point2D.Double(
-					p1.getX() + 10*Math.cos(Math.toRadians(d1t)),
-					p1.getY() + 10*Math.sin(Math.toRadians(d1t))
-			);
+		Point2D temp = Geometry.generateRandomPoint(p1, d1t);
+			
 		
-		// Centre of the first arc:
-		Point2D p7 = Geometry.getLinesIntersection(p0, p5, p1, temp);
-		
-		// useful print statement :)
-//		System.out.println("Getting intersection for " + 
-//				p0 + ", " + 
-//				p5 + ", " + 
-//				p1 + ", " + 
-//				temp);
+		// Centre of the first arc:#
+		Point2D firstCircleCentre = Geometry.getLinesIntersection(p0, transitionPoint, p1, temp);
 		
 		// The radius of the first arc:
-		double radius1 = p1.distance(p7);
+		//PathStep firstArc;
+		double firstRadius = p1.distance(firstCircleCentre);
+		double firstAngle = 
+			Geometry.getArcOrientedAngle(
+					dpi.getAlfieInfo().getPosition(),
+					dpi.getAlfieInfo().getFacingDirection(),
+					transitionPoint,
+					firstCircleCentre,
+					firstRadius
+			);
 		
-		double angle = Geometry.getArcAngle(
+		PathStepArc firstArc = PathStepArc.getShorterPathStepArc(
 				dpi.getAlfieInfo().getPosition(), 
-				p5, 
-				radius1);
+				dpi.getAlfieInfo().getFacingDirection(),
+				firstCircleCentre, 
+				firstAngle,
+				DISTANCE_THRESHOLD
+		);
 		
-		PathStepArcForwardsRight firstArc = 
-			new PathStepArcForwardsRight(
-					dpi.getAlfieInfo().getPosition(), 
-					dpi.getAlfieInfo().getFacingDirection(), 
-					radius1, 
-					angle,
-					10
-			);
-		
-		angle = Geometry.getArcAngle(
-				p5,
-				op.getPosition(), 
-				r);
-			firstArc = 
-				new PathStepArcForwardsRight(
-						dpi.getAlfieInfo().getPosition(), 
-						dpi.getAlfieInfo().getFacingDirection(), 
-						radius1, 
-						angle,
-						10
-				);
-		PathStepArcForwardsLeft secondArc = 
-			new PathStepArcForwardsLeft(
-					firstArc.getTargetDestination(), 
+		double secondRadius = Math.abs(orientedRadius);
+		double secondAngle = 
+			Geometry.getArcOrientedAngle(
+					transitionPoint,
 					firstArc.getTargetOrientation(),
-					r, 
-					angle, 
-					10
+					op.getPosition(),
+					p0,
+					secondRadius
 			);
+		
+		PathStepArc secondArc = PathStepArc.getForwardPathStepArc(
+				firstArc.getTargetDestination(), 
+				firstArc.getTargetOrientation(),
+				p0, 
+				secondAngle, 
+				DISTANCE_THRESHOLD
+		);
 		
 		pathStepList.add(firstArc);
 		pathStepList.add(secondArc);
+
+		if (verbose) {
+			System.out.println("p0 = " + p0);
+			System.out.println("p3 = " + p3);
+			System.out.println("radius1 = " + firstRadius);
+			System.out.println("target_ori = " + firstArc.getTargetOrientation());
+			System.out.println();
+			System.out.println("p5 = " + transitionPoint);
+			System.out.println("p7 = " + firstCircleCentre);
+			System.out.println("radius2 = " + secondRadius);
+			System.out.println("target_ori = " + secondArc.getTargetOrientation());
+		}
+		
 		return pathStepList;
 	}
 	

@@ -57,7 +57,7 @@ public class PathStepSpinLeft implements PathStep {
 	 * If Alfie is turning away from the destination angle.
 	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
+	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		//Coming soon Logic!
 		return false;
