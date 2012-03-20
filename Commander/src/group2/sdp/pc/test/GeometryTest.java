@@ -1,6 +1,7 @@
 package group2.sdp.pc.test;
 
 import group2.sdp.common.util.Geometry;
+import group2.sdp.common.util.Pair;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
@@ -83,7 +84,7 @@ public class GeometryTest {
 				new Point2D.Double(1.0, -1.0), 
 				new Point2D.Double(0.0, 0.0), 
 				1.0,
-				180.0,
+				180.0, 
 				270.0, 
 				0
 		);
@@ -493,4 +494,163 @@ public class GeometryTest {
 		testIsCircleCentreOnTheRightCase(new Point2D.Double(5,5), 30, new Point2D.Double(10,5), true);
 		testIsCircleCentreOnTheRightCase(new Point2D.Double(0,0), 30, new Point2D.Double(5,10), false);
 	}
+=======
+	public void testGetLinesIntersectionCase(Point2D a, Point2D b, Point2D c, Point2D d, Point2D expected) {
+
+		Point2D actual = Geometry.getLinesIntersection(a, b, c, d);
+		Assert.assertEquals(actual, expected);
+	}
+	
+	@Test
+	public void testGetLinesIntersection() {
+		testGetLinesIntersectionCase(
+				new Point(0,0), 
+				new Point(1,1),  
+				new Point(1,1), 
+				new Point(1,2),
+				new Point(1,1)
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(0,0), 
+				new Point(2,2), 
+				new Point(0,1), 
+				new Point(1,2),
+				null
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(0,0), 
+				new Point(2,4), 
+				new Point(2,2), 
+				new Point(1,2),
+				new Point(1,2)
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(1,0), 
+				new Point(-2,-6), 
+				new Point(2,2), 
+				new Point(3,2),
+				new Point(2,2)
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(1,0), 
+				new Point(-3,0), 
+				new Point(2,6), 
+				new Point(-5,6),
+				null
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(-2,0), 
+				new Point(-2,-6), 
+				new Point(-2,-2), 
+				new Point(3,-4),
+				new Point(-2,-2)
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(-2,0), 
+				new Point(-2,-6), 
+				new Point(-2,-2), 
+				new Point(3,-4),
+				new Point(-2,-2)
+				);
+		
+		testGetLinesIntersectionCase(
+				new Point(4,0), 
+				new Point(-2,-6), 
+				new Point(2,-2), 
+				new Point(4,-4),
+				new Point(2,-2)
+				);
+	}
+	
+	public void testGetLineCircleIntersectionsCase(
+			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
+			double circleRadius, Pair<Point2D, Point2D> expected
+			) {
+		Pair<Point2D, Point2D> n = Geometry.getLineCircleIntersections(
+				segmentStart, 
+				segmentEnd, 
+				circleCentre, 
+				circleRadius
+		);
+		
+		Assert.assertEquals(expected, n);
+		
+	}
+	
+	@Test
+	public void testGetLineCircleIntersections(){
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(1.0, 3.0), 
+				new Point2D.Double(1.0, -5.0), 
+				new Point2D.Double(1.0, 0.0), 
+				1.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 1.0),new Point2D.Double(1.0, -1.0))
+				);
+		
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(0.0, 2.0), 
+				new Point2D.Double(0.0, -8.0), 
+				new Point2D.Double(1.0, 0.0), 
+				1.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(0.0, 0.0),new Point2D.Double(0.0, 0.0))
+				);
+		
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(0.0, 2.0), 
+				new Point2D.Double(8.0, 2.0), 
+				new Point2D.Double(1.0, 1.0), 
+				1.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 2.0),new Point2D.Double(1.0, 2.0))
+				);
+		
+		try{
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(0.0, 2.0), 
+				new Point2D.Double(12.0, 14.0), 
+				new Point2D.Double(1.0, 1.0), 
+				1.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 2.0),new Point2D.Double(1.0, 2.0))
+				);
+				Assert.fail("there are no solutions to quadratic equation, so null is returned");
+		}catch(NullPointerException ex){
+			
+		}
+		
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(1.0, 2.0), 
+				new Point2D.Double(5.0, 2.0), 
+				new Point2D.Double(2.0, 2.0), 
+				1.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 2.0),new Point2D.Double(3.0, 2.0))
+				);
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(-1.0, 7.0), 
+				new Point2D.Double(-1.0, -10.0), 
+				new Point2D.Double(-1.0, -1.0), 
+				2.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(-1.0, 1.0),new Point2D.Double(-1.0, -3.0))
+				);
+		
+		try{
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(2.0, 3.0), 
+				new Point2D.Double(-4.0, 6.0), 
+				new Point2D.Double(1.0, 1.0), 
+				1.0,
+				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 2.0),new Point2D.Double(1.0, 2.0))
+				);
+				Assert.fail("there are no solutions to quadratic equation, so null is returned");
+		}catch(NullPointerException ex){
+			
+		}
+	}
+		
+	
+>>>>>>> 93b15104997054436519f6acd9f5036a462fb325
 }
