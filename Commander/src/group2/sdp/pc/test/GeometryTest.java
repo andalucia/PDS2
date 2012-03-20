@@ -423,9 +423,9 @@ public class GeometryTest {
 		);
 	}
 	
-	public void testGetArcAngleCase(Point2D arcStart, Point2D arcEnd, double radius, double expected) {
+	public void testGetArcAngleCase(Point2D arcStart, double direction, Point2D arcEnd, Point2D centre, double radius, double expected) {
 		double threshold = 0.0001;
-		double actual = Geometry.getArcAngle(arcStart, arcEnd, radius);
+		double actual = Geometry.getArcOrientedAngle(arcStart, direction, arcEnd, centre, radius);
 		Assert.assertTrue(Math.abs(expected - actual) < threshold);
 	}
 	
@@ -433,50 +433,50 @@ public class GeometryTest {
 	public void testGetArcAngle() {
 		testGetArcAngleCase(
 				new Point(0,0), 
-				new Point(1,1), 
-				1, 
+				0, new Point(1,1), 
+				null, 1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				new Point(2,2), 
-				2, 
+				0, new Point(2,2), 
+				null, 2, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				new Point(-1,1), 
-				1, 
+				0, new Point(-1,1), 
+				null, 1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				new Point(-1,-1), 
-				1, 
+				0, new Point(-1,-1), 
+				null, 1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				new Point(1,-1), 
-				1, 
+				0, new Point(1,-1), 
+				null, 1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				new Point(0,-60), 
-				30, 
+				0, new Point(0,-60), 
+				null, 30, 
 				180
 				);
 		
 		testGetArcAngleCase(
 			new Point(0,0), 
-			new Point(50,50), 
-			50, 
+			0, new Point(50,50), 
+			null, 50, 
 			90
 		);
 	}
@@ -494,7 +494,7 @@ public class GeometryTest {
 		testIsCircleCentreOnTheRightCase(new Point2D.Double(5,5), 30, new Point2D.Double(10,5), true);
 		testIsCircleCentreOnTheRightCase(new Point2D.Double(0,0), 30, new Point2D.Double(5,10), false);
 	}
-=======
+
 	public void testGetLinesIntersectionCase(Point2D a, Point2D b, Point2D c, Point2D d, Point2D expected) {
 
 		Point2D actual = Geometry.getLinesIntersection(a, b, c, d);
@@ -579,12 +579,11 @@ public class GeometryTest {
 				circleRadius
 		);
 		
-		Assert.assertEquals(expected, n);
-		
+		Assert.assertEquals(expected, n);		
 	}
 	
 	@Test
-	public void testGetLineCircleIntersections(){
+	public void testGetLineCircleIntersections() {
 		testGetLineCircleIntersectionsCase(
 				new Point2D.Double(1.0, 3.0), 
 				new Point2D.Double(1.0, -5.0), 
@@ -650,7 +649,4 @@ public class GeometryTest {
 			
 		}
 	}
-		
-	
->>>>>>> 93b15104997054436519f6acd9f5036a462fb325
 }
