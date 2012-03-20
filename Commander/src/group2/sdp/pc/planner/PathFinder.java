@@ -34,7 +34,7 @@ import java.util.LinkedList;
  */
 public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
-	private static final boolean verbose = false;
+	private static final boolean verbose = true;
 
 	private static final double DISTANCE_THRESHOLD = 10.0;
 	

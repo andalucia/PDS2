@@ -111,11 +111,11 @@ public class Geometry {
 	/**
 	 * Gets the offset from start to end.
 	 */
-	public static Point2D getVectorDifference(Point2D start, Point2D end) {
+	public static Point2D getVectorDifference(Point2D subtractor, Point2D subtractee) {
 		return 
 			new Point2D.Double(
-					end.getX() - start.getX(), 
-					end.getY() - start.getY()
+					subtractor.getX() - subtractee.getX(), 
+					subtractor.getY() - subtractee.getY()
 			);
 	}
 	
@@ -355,7 +355,7 @@ public class Geometry {
 	}
 	
 	/**
-	 * Tells if going from p1 to p2 to p3, you need to turn positively (left) on p2.
+	 * Tells if going from p1 to p2 to p3, you need to turn negative (right) on p2.
 	 * @param p1
 	 * @param p2
 	 * @param p3
@@ -366,10 +366,10 @@ public class Geometry {
 			crossProduct(
 					getVectorDifference(p1, p2),
 					getVectorDifference(p3, p2)
-			) > 0.0;	
+			) > 0.0;
 	}
 	
-	private static double crossProduct(Point2D v1, Point2D v2) {
+	public static double crossProduct(Point2D v1, Point2D v2) {
 		return v1.getX() * v2.getY() - v2.getX() * v1.getY(); 
 	}
 
