@@ -284,7 +284,7 @@ public class Geometry {
 		double dy1 = y2 - y1;
 		
 		double dx2 = x4 - x3;
-		double dy2 = y4 - y3;
+		double dy2 = y4 - y3; 
 		
 		double numerator = dx2 * (y1 - y3) - dy2 * (x1 - x3); 
 		double denominator = dx1 * dy2 - dy1 * dx2;
