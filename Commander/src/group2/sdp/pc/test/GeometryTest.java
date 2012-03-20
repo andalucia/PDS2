@@ -310,7 +310,6 @@ public class GeometryTest {
 		
 		LinkedList<PathStep> expected;
 		// test1
-		dbi = new DynamicBallInfo(new Point(40,20), 0, 0, 0);
 		dri = new DynamicRobotInfo(new Point(0,0), 90, true, false, 0, 90, 0, false, 0);
 		
 		arc1 = new PathStepArcForwardsRight(
@@ -321,8 +320,8 @@ public class GeometryTest {
 				10);
 		arc2 = new PathStepArcForwardsRight(new Point(30, 30), 0, 10, 90, 10);
 		
-		dpi = new DynamicInfo(dbi, dri, null);
-		op = new OperationReallocation(dbi.getPosition(), 270.0);
+		dpi = new DynamicInfo(null, dri, null);
+		op = new OperationReallocation(new Point(40,20), 270.0);
 		
 		expected = new LinkedList<PathStep>();
 		expected.add(arc1);
@@ -649,5 +648,53 @@ public class GeometryTest {
 		}catch(NullPointerException ex){
 			
 		}
+	}
+	
+	public void testArePositivelyOrientedCase(Point2D p1, Point2D p2, Point2D p3, boolean expected) {
+		boolean actual = Geometry.arePositivelyOriented(p1, p2, p3);
+		Assert.assertEquals(expected, actual);
+	}
+	
+	@Test
+	public void testArePositivelyOriented() {
+		testArePositivelyOrientedCase(new Point(0,0), new Point(-1,1), new Point(0,2), true);
+		testArePositivelyOrientedCase(new Point(0,0), new Point(1,1), new Point(0,2), false);
+		
+		testArePositivelyOrientedCase(new Point(0,0), new Point(-2,-2), new Point(-4,0), true);
+		testArePositivelyOrientedCase(new Point(0,0), new Point(-2,-2), new Point(0,-2), false);
+		testArePositivelyOrientedCase(new Point(0,0), new Point.Double(1.5,1.5), new Point(3,0), true);
+		testArePositivelyOrientedCase(new Point(0,0), new Point(-1,1), new Point(0,2), true);
+		testArePositivelyOrientedCase(new Point(1,1), new Point(0,0), new Point(0,1), true);
+	}
+	
+	public void testCrossProductCase (Point2D p1, Point2D p2, Point2D p3, double expected) {
+		double crossProduct = Geometry.crossProduct(
+				Geometry.getVectorDifference(p1, p2),
+				Geometry.getVectorDifference(p3, p2)
+		);
+		
+		Assert.assertEquals(expected, crossProduct);
+	}
+	
+	@Test
+	public void testCrossProduct() {
+		testCrossProductCase(new Point(1,1), new Point(0,0), new Point(-1,1), 2.0);
+	}
+	
+	@Test
+	public void testGetVectorDifference() {
+		Point p1 = new Point(0,0);
+		Point p2 = new Point(-1,1);
+		Point p3 = new Point(0,2);
+		
+		Point exp = new Point(1, -1);
+		testGetVectorDifferenceCase(p1, p2, exp);
+
+		exp = new Point(1, 1);
+		testGetVectorDifferenceCase(p3, p2, exp);
+	}
+
+	public void testGetVectorDifferenceCase(Point p1, Point p2, Point exp) {
+		Assert.assertEquals(exp, Geometry.getVectorDifference(p1, p2));
 	}
 }
