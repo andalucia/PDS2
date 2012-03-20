@@ -1,7 +1,6 @@
 package group2.sdp.pc.planner.pathstep;
 
-import group2.sdp.common.util.Geometry;
-import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
 import java.awt.geom.Point2D;
 
@@ -58,5 +57,10 @@ public class PathStepArcForwardsLeft extends PathStepArc {
 	@Override
 	public String toString() {
 		return "PathStepArcForwardsLeft: " + super.toString();
+	}
+
+	@Override
+	public void execute(MouthInterface mouth) {
+		mouth.sendForwardArcLeft(getRadius(), getAngle());
 	}
 }

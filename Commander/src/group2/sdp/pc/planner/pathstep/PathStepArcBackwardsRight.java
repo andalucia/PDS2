@@ -1,8 +1,8 @@
 package group2.sdp.pc.planner.pathstep;
 
-import java.awt.geom.Point2D;
+import group2.sdp.pc.mouth.MouthInterface;
 
-import group2.sdp.pc.breadbin.DynamicInfo;
+import java.awt.geom.Point2D;
 
 /**
  * Act: Tell Alfie to start moving backwards in an clock-wise arc, specifying the radius and
@@ -32,5 +32,10 @@ public class PathStepArcBackwardsRight extends PathStepArc {
 	@Override
 	protected void setAngle(double angle) {
 		this.angle = -angle; // TODO: TEST
+	}
+
+	@Override
+	public void execute(MouthInterface mouth) {
+		mouth.sendBackwardsArcRight(getRadius(), getAngle());
 	}
 }

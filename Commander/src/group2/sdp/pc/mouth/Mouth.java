@@ -115,8 +115,8 @@ public class Mouth implements MouthInterface {
 	
 	/**
 	 * Tells Alfie to move in an arc going backwards and turning right.
-	 * @param radius in cm
-	 * @param angle in degrees
+	 * @param radius in cm, keep it positive.
+	 * @param angle in degrees, keep it positive.
 	 */
 	public void sendBackwardsArcRight(double radius, double angle) {
 		sendCandyPacket(

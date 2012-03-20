@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
 
 /**
@@ -64,6 +65,11 @@ public class PathStepSpinRight implements PathStep {
 		// TODO Auto-generated method stub
 		//Coming soon Logic!
 		return false;
+	}
+
+	@Override
+	public void execute(MouthInterface mouth) {
+		mouth.sendSpinRight(getSpeed(), getAngle());
 	}
 
 	

@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
 /**
  * Act: Tell Alfie to kick.
@@ -43,6 +44,11 @@ public class PathStepKick implements PathStep {
 	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void execute(MouthInterface mouth) {
+		mouth.sendKick(getPower());
 	}
 
 }
