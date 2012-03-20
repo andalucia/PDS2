@@ -72,7 +72,7 @@ public class PathStepArcForwardsRight implements PathStep {
 					radius, 
 					-angle
 			);
-		targetOrientation = startOrientation + angle;
+		targetOrientation = (startOrientation - angle) % 360; //TODO is minus correct?
 	}
 
 	/**
@@ -151,4 +151,62 @@ public class PathStepArcForwardsRight implements PathStep {
 	public double getTargetOrientation() {
 		return targetOrientation;
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(angle);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(radius);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((targetDestination == null) ? 0 : targetDestination
+						.hashCode());
+		temp = Double.doubleToLongBits(targetOrientation);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(threshold);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PathStepArcForwardsRight other = (PathStepArcForwardsRight) obj;
+		if (Double.doubleToLongBits(angle) != Double
+				.doubleToLongBits(other.angle))
+			return false;
+		if (Double.doubleToLongBits(radius) != Double
+				.doubleToLongBits(other.radius))
+			return false;
+		if (targetDestination == null) {
+			if (other.targetDestination != null)
+				return false;
+		} else if (!targetDestination.equals(other.targetDestination))
+			return false;
+		if (Double.doubleToLongBits(targetOrientation) != Double
+				.doubleToLongBits(other.targetOrientation))
+			return false;
+		if (Double.doubleToLongBits(threshold) != Double
+				.doubleToLongBits(other.threshold))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "PathStepArcForwardsRight [radius=" + radius + ", angle="
+				+ angle + ", threshold=" + threshold + ", targetDestination="
+				+ targetDestination + ", targetOrientation="
+				+ targetOrientation + "]";
+	}
+	
 }

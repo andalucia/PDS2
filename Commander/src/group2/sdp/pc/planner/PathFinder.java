@@ -19,6 +19,7 @@ import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
@@ -168,18 +169,18 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		double x0 = x2 + /* - */ r * Math.cos(Math.toRadians(d2t));
 		double y0 = y2 + /* - */ r * Math.sin(Math.toRadians(d2t));
+		System.out.println("p2 = " + x2 + ", " + y2);
+		System.out.println("p0 = " + x0 + ", " + y0);
 		
 		double d1 = dpi.getAlfieInfo().getFacingDirection();
 		double d1t = (d1 + 90.0) % 360.0;
-		
-		double x3 = x0 + /* - */ r * Math.cos(Math.toRadians(d1t));
-		double y3 = y0 + /* - */ r * Math.sin(Math.toRadians(d1t));
-		
+		double x3 = x0 - /* - */ r * Math.cos(Math.toRadians(d1t)); //TODO +-
+		double y3 = y0 - /* - */ r * Math.sin(Math.toRadians(d1t)); //TODO +-
 		// Centre of the second arc.
 		Point2D p0 = new Point2D.Double(x0, y0);
 		Point2D p1 = new Point2D.Double(x1, y1);
 		Point2D p3 = new Point2D.Double(x3, y3);
-		
+		System.out.println("p3 = " + p3);
 		Pair<Point2D, Point2D> intersections = Geometry.getLineCircleIntersections(
 				p1,
 				p3, 
@@ -192,14 +193,23 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		// Point of transition between the arcs:
 		Point2D p5 = dist1 > dist2 ? intersections.getFirst() : intersections.getSecond();
+		
+		//TODO decide what to multiply: is 10 ok?
 		Point2D temp = 
 			new Point2D.Double(
-					p1.getX() + Math.cos(Math.toRadians(d1t)),
-					p1.getY() + Math.sin(Math.toRadians(d1t))
+					p1.getX() + 10*Math.cos(Math.toRadians(d1t)),
+					p1.getY() + 10*Math.sin(Math.toRadians(d1t))
 			);
 		
 		// Centre of the first arc:
 		Point2D p7 = Geometry.getLinesIntersection(p0, p5, p1, temp);
+		
+		// useful print statement :)
+//		System.out.println("Getting intersection for " + 
+//				p0 + ", " + 
+//				p5 + ", " + 
+//				p1 + ", " + 
+//				temp);
 		
 		// The radius of the first arc:
 		double radius1 = p1.distance(p7);
@@ -222,7 +232,14 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				p5,
 				op.getPosition(), 
 				r);
-		
+			firstArc = 
+				new PathStepArcForwardsRight(
+						dpi.getAlfieInfo().getPosition(), 
+						dpi.getAlfieInfo().getFacingDirection(), 
+						radius1, 
+						angle,
+						10
+				);
 		PathStepArcForwardsLeft secondArc = 
 			new PathStepArcForwardsLeft(
 					firstArc.getTargetDestination(), 

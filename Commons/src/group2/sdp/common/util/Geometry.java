@@ -247,12 +247,21 @@ public class Geometry {
 		return new Point2D.Double(x, y);
 	}
 	
+	/**
+	 * Gets the angle you need to turn along an arc in order to reach arcEnd
+	 * @param arcStart
+	 * @param arcEnd
+	 * @param radius
+	 * @return
+	 */
 	public static double getArcAngle(Point2D arcStart, Point2D arcEnd, double radius) {
 		double c = arcStart.distance(arcEnd);
 		
 		double angle = (2 * radius * radius - c * c) / (2 * radius * radius);
 		
-		return Math.toDegrees(angle);
+		return Math.toDegrees(Math.acos(angle));
+		
+		
 	}
 
 	/**

@@ -1,11 +1,16 @@
 package group2.sdp.pc.test;
 
 import group2.sdp.common.util.Geometry;
+import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 
@@ -259,8 +264,161 @@ public class GeometryTest {
 			LinkedList<PathStep> expected) {
 		LinkedList<PathStep> actual = PathFinder.getDoubleArcPath(dpi, op);
 		Assert.assertTrue(actual.size() == expected.size());
+		double threshold = 0.0001;
 		for (int i = 0; i < actual.size(); ++i) {
-			Assert.assertEquals(expected.get(i), actual.get(i));
+			//TODO tired to but not sure how to solve this.. use getType()?
+			if (actual.get(i) instanceof PathStepArcForwardsRight) {
+				PathStepArcForwardsRight arc1 = (PathStepArcForwardsRight) expected.get(i);
+				PathStepArcForwardsRight arc2 = (PathStepArcForwardsRight) actual.get(i);
+				System.out.println(arc2);
+				Assert.assertTrue(Math.abs(arc1.getRadius() - arc2.getRadius()) < threshold);
+				Assert.assertTrue(Math.abs(arc1.getAngle() - arc2.getAngle()) < threshold);
+				Assert.assertTrue(Math.abs(arc1.getTargetOrientation() - arc2.getTargetOrientation()) < threshold);
+				Assert.assertTrue(Math.abs(arc1.getTargetDestination().distance(arc2.getTargetDestination())) < threshold);
+			} else {
+				PathStepArcForwardsLeft arc1 = (PathStepArcForwardsLeft) expected.get(i);
+				PathStepArcForwardsLeft arc2 = (PathStepArcForwardsLeft) actual.get(i);
+				Assert.assertTrue(Math.abs(arc1.getRadius() - arc2.getRadius()) < threshold);
+				Assert.assertTrue(Math.abs(arc1.getAngle() - arc2.getAngle()) < threshold);
+				Assert.assertTrue(Math.abs(arc1.getTargetOrientation() - arc2.getTargetOrientation()) < threshold);
+				Assert.assertTrue(Math.abs(arc1.getTargetDestination().distance(arc2.getTargetDestination())) < threshold);
+				}
 		}
+	}
+	
+	@Test
+	public void testDoubleArcCurve() {
+		
+		DynamicBallInfo dbi;
+		DynamicRobotInfo dri;
+		DynamicInfo dpi;
+		
+		PathStepArcForwardsRight arc1;
+		PathStepArcForwardsLeft arc2, arc3;
+		
+		OperationReallocation op;
+		
+		LinkedList<PathStep> expected;
+		// test1
+		dbi = new DynamicBallInfo(new Point(20,20), 0, 0, 0);
+		dri = new DynamicRobotInfo(new Point(0,0), 90, true, false, 0, 90, 0, false, 0);
+		
+		arc1 = new PathStepArcForwardsRight(dri.getPosition(), dri.getFacingDirection(), 10, 90, 10);
+		arc2 = new PathStepArcForwardsLeft(arc1.getTargetDestination(), arc1.getTargetOrientation(), 10, 90, 10);
+		
+		dpi = new DynamicInfo(dbi, dri, null);
+		op = new OperationReallocation(dbi.getPosition(), 90);
+		
+		expected = new LinkedList<PathStep>();
+		expected.add(arc1);
+		expected.add(arc2);
+		testDoubleArcCurveCase(dpi, op, expected);
+		
+		//test 2
+		
+		dbi = new DynamicBallInfo(new Point(60,-60), 0, 0, 0);
+		dri = new DynamicRobotInfo(new Point(0,0), 0, true, false, 0, 0, 0, false, 0);
+		
+		arc1 = new PathStepArcForwardsRight(dri.getPosition(), dri.getFacingDirection(), 50, 90, 10);
+		arc2 = new PathStepArcForwardsLeft(arc1.getTargetDestination(), arc1.getTargetOrientation(), 10, 90, 10);
+		
+		dpi = new DynamicInfo(dbi, dri, null);
+		op = new OperationReallocation(dbi.getPosition(), dri.getFacingDirection());
+		
+		expected = new LinkedList<PathStep>();
+		expected.add(arc1);
+		expected.add(arc2);
+		testDoubleArcCurveCase(dpi, op, expected);
+		
+		//test 3
+		
+		dbi = new DynamicBallInfo(new Point(-60,60), 0, 0, 0);
+		dri = new DynamicRobotInfo(new Point(0,0), 180, true, false, 0, 180, 0, false, 0);
+		
+		arc1 = new PathStepArcForwardsRight(dri.getPosition(), dri.getFacingDirection(), 50, 90, 10);
+		arc2 = new PathStepArcForwardsLeft(arc1.getTargetDestination(), arc1.getTargetOrientation(), 10, 90, 10);
+		
+		dpi = new DynamicInfo(dbi, dri, null);
+		op = new OperationReallocation(dbi.getPosition(), dri.getFacingDirection());
+		
+		expected = new LinkedList<PathStep>();
+		expected.add(arc1);
+		expected.add(arc2);
+		testDoubleArcCurveCase(dpi, op, expected);
+		
+		//test 4
+//		
+//		dbi = new DynamicBallInfo(new Point(-20,-40), 0, 0, 0);
+//		dri = new DynamicRobotInfo(new Point(0,0), 180, true, false, 0, 180, 0, false, 0);
+//		
+//		arc3 = new PathStepArcForwardsLeft(dri.getPosition(), dri.getFacingDirection(), 50, 90, 10);
+//		arc2 = new PathStepArcForwardsLeft(arc1.getTargetDestination(), arc1.getTargetOrientation(), 10, 90, 10);
+//		
+//		dpi = new DynamicInfo(dbi, dri, null);
+//		op = new OperationReallocation(dbi.getPosition(), dri.getFacingDirection());
+//		
+//		expected = new LinkedList<PathStep>();
+//		expected.add(arc3);
+//		expected.add(arc2);
+//		testDoubleArcCurveCase(dpi, op, expected);
+	}
+	
+	
+	public void testGetArcAngleCase(Point2D arcStart, Point2D arcEnd, double radius, double expected) {
+		double threshold = 0.0001;
+		double actual = Geometry.getArcAngle(arcStart, arcEnd, radius);
+		Assert.assertTrue(Math.abs(expected - actual) < threshold);
+	}
+	
+	@Test
+	public void testGetArcAngle() {
+		testGetArcAngleCase(
+				new Point(0,0), 
+				new Point(1,1), 
+				1, 
+				90
+				);
+		
+		testGetArcAngleCase(
+				new Point(0,0), 
+				new Point(2,2), 
+				2, 
+				90
+				);
+		
+		testGetArcAngleCase(
+				new Point(0,0), 
+				new Point(-1,1), 
+				1, 
+				90
+				);
+		
+		testGetArcAngleCase(
+				new Point(0,0), 
+				new Point(-1,-1), 
+				1, 
+				90
+				);
+		
+		testGetArcAngleCase(
+				new Point(0,0), 
+				new Point(1,-1), 
+				1, 
+				90
+				);
+		
+		testGetArcAngleCase(
+				new Point(0,0), 
+				new Point(0,-60), 
+				30, 
+				180
+				);
+		
+		testGetArcAngleCase(
+			new Point(0,0), 
+			new Point(50,50), 
+			50, 
+			90
+		);
 	}
 }
