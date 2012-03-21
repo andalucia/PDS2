@@ -251,15 +251,13 @@ public class CommanderControlStation {
 					isProcessing = true;
 				}
 				startPipeline();
+				settingsWindow = new SettingsWindow(globalInfo, processor);
 				
 			    yellowAlfieCheckbox.setEnabled(false);
 			    blueAlfieCheckbox.setEnabled(false);
 				connectButton.setEnabled(false);
 				processImageCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
-				
-				settingsWindow = new SettingsWindow(globalInfo, processor);
-				
 			}
 		});
 		

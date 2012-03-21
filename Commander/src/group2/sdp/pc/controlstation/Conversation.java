@@ -1,6 +1,15 @@
 package group2.sdp.pc.controlstation;
 
+import group2.sdp.pc.breadbin.DynamicBallInfo;
+import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.mouth.Mouth;
+import group2.sdp.pc.planner.PathFinder;
+import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.pathstep.PathStep;
+
+import java.awt.geom.Point2D;
+import java.util.LinkedList;
 
 /**
  * Used for quick test of Mouth-to-Ear communication.
@@ -15,21 +24,37 @@ public class Conversation {
 		s.sendGoForward(100, 0);
 		Thread.sleep(5000);
 		
-//		s.sendForwardArcLeft(20, 50);
-//		Thread.sleep(2000);
-//		s.sendForwardArcRight(20, 50);
-//		Thread.sleep(2000);
-//		s.sendBackwardsArcLeft(20, 50);
-//		Thread.sleep(2000);
-//		s.sendBackwardsArcRight(20, 50);
-//		Thread.sleep(2000);
-//
-//		for (int i = 0; i < 1000; ++i) {
-//			s.sendKick(10000);
-//			Thread.sleep(500);	
-//		}
+		Point2D start = new Point2D.Double(0.0, 0.0);
+		double startdir = 90;
 		
-
+		Point2D end = new Point2D.Double(40.0, 40.0);
+		double enddir = 90;
+		
+		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(
+				start, 
+				startdir, 
+				true, 
+				false, 
+				0.0, 
+				startdir, 
+				0, 
+				false, 
+				0
+		);
+		
+		DynamicBallInfo ballInfo = null;
+		DynamicRobotInfo opponentInfo = null;
+		
+		DynamicInfo pitch = new DynamicInfo(ballInfo, alfieInfo, opponentInfo);
+		
+		OperationReallocation op = new OperationReallocation(end, enddir);
+		
+		LinkedList<PathStep> doubleArcPath = PathFinder.getDoubleArcPath(pitch, op, true);
+		doubleArcPath.get(0).execute(s);
+		Thread.sleep(5000);
+		doubleArcPath.get(1).execute(s);
+		Thread.sleep(5000);
+		
 		s.sendStop();
 		Thread.sleep(1000);
 		s.sendReset();

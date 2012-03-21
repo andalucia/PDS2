@@ -1,7 +1,9 @@
 package group2.sdp.pc.breadbin;
 
 /**
- * Description: Basically, contains one Dynamic Ball Info object and two Static 
+ * Description: 
+ * <br/>
+ * Basically, contains one Dynamic Ball Info object and two Static 
  *               Ball Info objects. Actually, extends the Static Info type, thus 
  *               containing 1 SBI and 2 SRIs. Thanks to DBI and DRI extending SBI
  *               and SRI, there is no need of adding new fields in the class. On 
@@ -14,7 +16,12 @@ package group2.sdp.pc.breadbin;
  *               SI objects would not have the ability to be reused as DI objects.
  *               However, we are not taking benefit from this flexibility at the 
  *               time of writing this document.
- * Contents:    One DBI and two DRI's - one for Alfie and two for its opponent. 
+ * <br/>
+ * <br/>         
+ * Contents:
+ * <br/>    
+ * 
+ * One DBI and two DRI's - one for Alfie and two for its opponent. 
  */
 public class DynamicInfo extends StaticInfo {
 

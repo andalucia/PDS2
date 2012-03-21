@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
 /**
  * Act: Tell Alfie to kick.
@@ -9,10 +10,9 @@ import group2.sdp.pc.breadbin.DynamicInfo;
  */
 public class PathStepStop implements PathStep {
 
-	public PathStepStop(){
+	public PathStepStop() {
 		
 	}
-
 	
 	@Override
 	public Type getType() {
@@ -33,8 +33,14 @@ public class PathStepStop implements PathStep {
 	 * Fail: If Alfie is being pushed by the other robot.
 	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
+	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+
+	@Override
+	public void execute(MouthInterface mouth) {
+		mouth.sendStop();
 	}
 }

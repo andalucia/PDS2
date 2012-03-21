@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
 /**
  * Description: - A step of a [path that aims to achieve an operation]. Describes the type of Candy
@@ -25,6 +26,11 @@ public interface PathStep {
 	public Type getType();
 	
 	/**
+	 * Executes the command described by the path step.
+	 */
+	public void execute(MouthInterface mouth);
+	
+	/**
 	 * Checks if the path step is successful or not, given the current pitch status.
 	 * @param pitchStatus The current pitch status.
 	 * @return True if the path step is successful, false otherwise. 
@@ -36,6 +42,6 @@ public interface PathStep {
 	 * @param pitchStatus The current pitch status.
 	 * @return True if the path step failed, false otherwise. 
 	 */
-	public boolean problemExists(DynamicInfo pitchStatus);
+	public boolean hasFailed(DynamicInfo pitchStatus);
 	
 }

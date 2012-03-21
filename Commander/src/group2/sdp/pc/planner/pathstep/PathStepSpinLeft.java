@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
 /**
  * Act: Tell Alfie to start spinning anti-clock-wise, possibly specifying the angle to be
@@ -57,10 +58,15 @@ public class PathStepSpinLeft implements PathStep {
 	 * If Alfie is turning away from the destination angle.
 	 */
 	@Override
-	public boolean problemExists(DynamicInfo pitchStatus) {
+	public boolean hasFailed(DynamicInfo pitchStatus) {
 		// TODO Auto-generated method stub
 		//Coming soon Logic!
 		return false;
+	}
+
+	@Override
+	public void execute(MouthInterface mouth) {
+		mouth.sendSpinLeft(getSpeed(), getAngle());
 	}
 
 	
