@@ -60,7 +60,11 @@ public class PathStepArcForwardsLeft extends PathStepArc {
 	}
 
 	@Override
-	public void execute(MouthInterface mouth) {
-		mouth.sendForwardArcLeft(getRadius(), getAngle());
+	public boolean whisper(MouthInterface mouth) {
+		if (super.whisper(mouth)) {
+			mouth.sendForwardArcLeft(Math.abs(getRadius()), Math.abs(getAngle()));
+			return true;
+		}
+		return false;
 	}
 }

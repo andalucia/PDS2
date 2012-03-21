@@ -63,7 +63,7 @@ public class Brain {
 	private static String KCK1 = "Kicking with ";
 	private static String KCK2 = "power:";
 	private static String SPN = "Spinning around...";
-	private static String ARC = "Moving in an arc...";
+	private static String ARC = "Arcing";
 	
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
@@ -285,7 +285,12 @@ public class Brain {
 	}
 	
 	/**
-	 * Makes Alfie move in an arc 
+	 * Makes Alfie move in an arc <br\>
+	 * |radius | angle |  arc  | <br\> 
+	 * |   +   |   +   |  FL   | <br\>
+	 * |   +   |   -   |  BL   | <br\>
+	 * |   -   |   +   |  BR   | <br\>
+	 * |   -   |   -   |  FR   | <br\>
 	 * @param radius
 	 * @param angle
 	 */
@@ -302,6 +307,8 @@ public class Brain {
 		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(ARC,0,0);
+			LCD.drawString("Rad: " + radius, 1, 3);
+			LCD.drawString("Ang: " + angle, 1, 2);
 			LCD.refresh();
 		}
 	}

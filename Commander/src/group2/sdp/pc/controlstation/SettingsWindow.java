@@ -199,7 +199,7 @@ public class SettingsWindow extends JFrame {
 	public SettingsWindow(GlobalInfo globalInfo, VisualCortex processor) {
 		this.globalInfo = globalInfo;
 		this.processor = processor;
-		setBounds(0, 480, 1024, 480);
+		setBounds(0, 532, 1280, 427);
 		initializeFrame();
 		setVisible(true);
 	}
@@ -526,7 +526,7 @@ public class SettingsWindow extends JFrame {
 		redLumaStartLabel.setBounds(column2X-50,row3Y, 50, 25);
 		
 		
-		redLumaEndSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE, 0/**TODO put getGlobal in here**/);
+		redLumaEndSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE, globalInfo.getPitch().getCamera().getColourSettings().getRedLumaEnd());
 		redLumaEndSlider.setBounds(column2X, row3Y+20, 200, 25);
 		redLumaEndSlider.addChangeListener(new ChangeListener() {
 			
@@ -564,7 +564,7 @@ public class SettingsWindow extends JFrame {
 		redChromaStartLabel.setText(Integer.toString(redChromaStartSlider.getValue()));
 		redChromaStartLabel.setBounds(column3X-50,row3Y, 50, 25);
 		
-		redChromaEndSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE, 0/**TODO put getGlobal in here**/);
+		redChromaEndSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE,globalInfo.getPitch().getCamera().getColourSettings().getRedChromaEnd());
 		redChromaEndSlider.setBounds(column3X, row3Y+20, 200, 25);
 		redChromaEndSlider.addChangeListener(new ChangeListener() {
 			

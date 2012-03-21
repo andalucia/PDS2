@@ -11,7 +11,7 @@ import group2.sdp.pc.mouth.MouthInterface;
  * Parameters:
  * An angle for the turn, threshold delta angle for success.
  */
-public class PathStepSpinRight implements PathStep {
+public class PathStepSpinRight extends PathStep {
 
 	
 	private int angle;
@@ -68,10 +68,12 @@ public class PathStepSpinRight implements PathStep {
 	}
 
 	@Override
-	public void execute(MouthInterface mouth) {
-		mouth.sendSpinRight(getSpeed(), getAngle());
+	public boolean whisper(MouthInterface mouth) {
+		if (super.whisper(mouth)) {
+			mouth.sendSpinRight(getSpeed(), getAngle());
+			return true;
+		}
+		return false;
 	}
-
-	
 }
 

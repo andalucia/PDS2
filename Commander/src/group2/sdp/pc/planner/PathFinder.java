@@ -23,7 +23,7 @@ import java.util.LinkedList;
  */
 public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
-	private static final int HARDCODED_SECOND_RADIUS_REMOVEME = 10;
+	private static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
 	private static final boolean verbose = true;
 
@@ -62,12 +62,12 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		} else {
 			if (currentStep.isSuccessful(dpi)) {
 				if (verbose) {
-					//System.out.println("Successful");
+					System.out.println("Step succeeded :D");
 				}
 				executeNextStep(dpi);
 			} else if (currentStep.hasFailed(dpi)) {
 				if (verbose) {
-					//System.out.println("Fail");
+					System.out.println("Step failed D:");
 				}
 				plan(dpi);
 			}
@@ -108,7 +108,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 	private void plan(DynamicInfo dpi) {
 		
-		//System.out.println("Looking for a path...");
+		if (verbose) {
+			System.out.println("Looking for a path...");
+		}
 		
 		// Clear the PathStep queue
 		pathStepList.clear();
@@ -172,9 +174,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		Point2D secondCircleCentre = new Point2D.Double(x0, y0);
 	
-		////System.out.println("p2 = " + x2 + ", " + y2);
-		//System.out.println("p0 = " + p0.getX() + ", " + p0.getY());
-		
 		double startDirection = dpi.getAlfieInfo().getFacingDirection();
 		double startDirectionPauled = Geometry.perpendicularisePaul(startDirection);
 		double x3 = secondCircleCentre.getX() - orientedRadius * Math.cos(Math.toRadians(startDirectionPauled));  
@@ -193,7 +192,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		// Point of transition between the arcs:
 		Point2D transitionPoint = dist1 > dist2 ? intersections.getFirst() : intersections.getSecond();
-		System.out.println(intersections);
 		
 		Point2D temp = Geometry.generateRandomPoint(startPosition, startDirectionPauled);
 			
@@ -299,7 +297,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 * passed in
 	 */
 	private void execute() {
-		currentStep.execute(mouth);
+		currentStep.whisper(mouth);
 	}
 
 	

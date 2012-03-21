@@ -4,8 +4,9 @@ import java.awt.geom.Point2D;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.mouth.MouthInterface;
 
-public abstract class PathStepArc implements PathStep {
+public abstract class PathStepArc extends PathStep {
 
 	/**
 	 * The radius of the circle containing the arc.
@@ -162,18 +163,10 @@ public abstract class PathStepArc implements PathStep {
 	private static PathStepArc common(Point2D arcStart, double startDirection,
 			Point2D circleCentre, double angle, double threshold,
 			double angle2, double startDirection2) {
-		System.out.println();
 		double radius = circleCentre.distance(arcStart);
 		Point2D arcEnd = Geometry.getArcEnd(arcStart, startDirection, radius, angle);
 		
-		System.out.println("!!");
-		System.out.println(arcStart);
-		System.out.println(startDirection);
-		System.out.println(circleCentre);
-		System.out.println("!!");
-		
 		boolean lefty = Geometry.isArcLeft(arcStart, startDirection, circleCentre);
-		System.out.println(lefty);
 		boolean behind = Geometry.isPointBehind(arcStart, startDirection, arcEnd);
 		
 		if (!behind)
@@ -186,5 +179,16 @@ public abstract class PathStepArc implements PathStep {
 				return new PathStepArcBackwardsLeft(arcStart, startDirection2, radius, angle2, threshold);
 			else
 				return new PathStepArcBackwardsRight(arcStart, startDirection2, radius, angle2, threshold);
+	}
+
+	@Override
+	public Type getType() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public boolean whisper(MouthInterface mouth) {
+		return super.whisper(mouth);
 	}
 }

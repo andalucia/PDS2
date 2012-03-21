@@ -354,7 +354,6 @@ public class Geometry {
 	public static boolean isPointBehind(Point2D referencePoint, double direction, Point2D testPoint) {
 		double dt = perpendicularisePaul(direction);
 		Point2D temp = generateRandomPoint(referencePoint, dt);
-		System.out.println(temp);
 		
 		if (isArcLeft(referencePoint, dt, testPoint))
 			return true;

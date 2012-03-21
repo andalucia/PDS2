@@ -52,7 +52,7 @@ public class Artist extends WindowAdapter implements ImageConsumer {
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.addWindowListener(this);
 		frame.setVisible(true);
-		frame.setSize(width, height);       
+		frame.setSize(width + 8, height + 27);       
 	}
 
 }

@@ -8,7 +8,7 @@ import group2.sdp.pc.mouth.MouthInterface;
  * 
  * Parameters: power.
  */
-public class PathStepKick implements PathStep {
+public class PathStepKick extends PathStep {
 
 	private int power;
 	
@@ -47,8 +47,12 @@ public class PathStepKick implements PathStep {
 	}
 
 	@Override
-	public void execute(MouthInterface mouth) {
-		mouth.sendKick(getPower());
+	public boolean whisper(MouthInterface mouth) {
+		if (super.whisper(mouth)) {
+			mouth.sendKick(getPower());
+			return true;
+		}
+		return false;
 	}
 
 }

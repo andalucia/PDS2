@@ -1,6 +1,7 @@
 package group2.sdp.pc.planner;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.strategy.Strategy;
@@ -81,7 +82,10 @@ public class Overlord implements DynamicInfoConsumer {
 	 * and poking the FieldMarshal with new DynamicPitchInfos.
 	 */
 	public void stop() {
-		stopping = true;
+		if (running)
+			stopping = true;
+		else
+			ControlStation.log("Overlord is busy conquering elsewhere.");
 		// Running is set to false once a stop command is sent to Alfie
 	}
 

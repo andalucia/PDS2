@@ -21,9 +21,6 @@ public class Conversation {
 	public static void main (String [] args) throws Exception {
 		Mouth s = new Mouth();
 		
-		s.sendGoForward(100, 0);
-		Thread.sleep(5000);
-		
 		Point2D start = new Point2D.Double(0.0, 0.0);
 		double startdir = 90;
 		
@@ -50,10 +47,13 @@ public class Conversation {
 		OperationReallocation op = new OperationReallocation(end, enddir);
 		
 		LinkedList<PathStep> doubleArcPath = PathFinder.getDoubleArcPath(pitch, op, true);
-		doubleArcPath.get(0).execute(s);
+		
+		System.out.println(doubleArcPath);
+		
+		doubleArcPath.get(0).whisper(s);
 		Thread.sleep(5000);
-		doubleArcPath.get(1).execute(s);
-		Thread.sleep(5000);
+		doubleArcPath.get(1).whisper(s);
+		Thread.sleep(10000);
 		
 		s.sendStop();
 		Thread.sleep(1000);

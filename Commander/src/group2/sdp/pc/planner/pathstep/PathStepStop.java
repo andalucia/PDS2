@@ -8,7 +8,7 @@ import group2.sdp.pc.mouth.MouthInterface;
  * 
  * Parameters: None.
  */
-public class PathStepStop implements PathStep {
+public class PathStepStop extends PathStep {
 
 	public PathStepStop() {
 		
@@ -40,7 +40,11 @@ public class PathStepStop implements PathStep {
 
 
 	@Override
-	public void execute(MouthInterface mouth) {
-		mouth.sendStop();
+	public boolean whisper(MouthInterface mouth) {
+		if (super.whisper(mouth)) {
+			mouth.sendStop();
+			return true;
+		}
+		return false;
 	}
 }
