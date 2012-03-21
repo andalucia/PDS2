@@ -417,7 +417,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 				dc = Color.GREEN;
 				break;
 			case GREEN_PITCH:
-				dc = Color.LIGHT_GRAY;
+				dc = new Color(0, 128, 0);
 				break;
 			case BLUE:
 				dc = Color.BLUE;
@@ -429,7 +429,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 				dc = Color.DARK_GRAY;
 				break;
 			default:
-				dc = Color.CYAN;
+				dc = Color.GRAY;
 				break;
 			}
 			int v;

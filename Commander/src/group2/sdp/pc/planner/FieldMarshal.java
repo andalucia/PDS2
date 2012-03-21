@@ -93,10 +93,10 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			);
 			
 		case DEFENSIVE:
-			break;
+			return planNextDefensive(dpi);
 
 		case OFFENSIVE:
-			break;
+			return planNextOffensive(dpi);
 
 		case STOP:
 			return new OperationOverload();
@@ -105,9 +105,16 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			System.exit(1);
 			return null;
 		}
+	}
+
+	private Operation planNextDefensive(DynamicInfo dpi) {
 		return null;
 	}
 
+	private Operation planNextOffensive(DynamicInfo dpi) {
+
+		return null;
+	}
 
 	/**
 	 * Sets a new strategy as the current one. Sets the re-plan flag afterwards.

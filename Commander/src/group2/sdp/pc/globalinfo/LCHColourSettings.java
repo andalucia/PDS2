@@ -333,12 +333,8 @@ public class LCHColourSettings {
 		// Less certain
 		if (ys == 2) {
 			return ColourClass.YELLOW;
-		} if (gpls == 2) {
-			return ColourClass.GREEN_PLATE;
-		} if (gpis == 2) {
-			return ColourClass.GREEN_PITCH;
 		}
-		return ColourClass.GREEN_PITCH;
+		return ColourClass.UNKNOWN;
 	}
 	
 	/**
