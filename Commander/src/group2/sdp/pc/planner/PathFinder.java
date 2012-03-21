@@ -63,6 +63,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				plan(dpi);
 				executeNextStep(dpi);
 				replan = false;
+				planedBefore = true;
 			}
 		} else {
 			if (currentStep.isSuccessful(dpi)) {
