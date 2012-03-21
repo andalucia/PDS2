@@ -1,7 +1,6 @@
 package group2.sdp.common.util;
 
 import java.awt.geom.Point2D;
-import java.util.Vector;
 
 public class Geometry {
 
@@ -39,14 +38,15 @@ public class Geometry {
 	}
 	
 	/**
-	 * Infers the parameters for the intersection points, that positions it on the line.
+	 * Infers the parameters (for point parametrisation) for the intersection points
+	 * (with the circle), that positions it (the point) on the line.
 	 * @param segmentStart
 	 * @param segmentEnd
 	 * @param circleCentre
 	 * @param circleRadius
 	 * @return
 	 */
-	private static Pair<Double, Double> getLineCircleIntersectionsParameters(
+	public static Pair<Double, Double> getLineCircleIntersectionsParameters(
 			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
 			double circleRadius) {
 		double a = segmentStart.getX() - circleCentre.getX();
@@ -61,7 +61,7 @@ public class Geometry {
 		
 		// a point on the given segment is
 		// segmentStart + t * (segmentEnd - segmentStart)
-		Pair<Double, Double> t = Tools.getQuadraticSolutions(A, B, C);
+		Pair <Double, Double> t = Tools.getQuadraticSolutions(A, B, C);
 		return t;
 	}
 	
@@ -84,12 +84,12 @@ public class Geometry {
 					translate(
 							segmentStart,
 							t.first,
-							getVectorDifference(segmentStart, segmentEnd)
+							getVectorDifference(segmentEnd, segmentStart)
 					),
 					translate(
 							segmentStart,
 							t.second,
-							getVectorDifference(segmentStart, segmentEnd)
+							getVectorDifference(segmentEnd, segmentStart)
 					)
 			);
 		return result;
@@ -283,9 +283,7 @@ public class Geometry {
 			double radius
 	) {
 		double c = arcStart.distance(arcEnd);
-		
 		double cosOfAngle = (2 * radius * radius - c * c) / (2 * radius * radius);
-		
 		double angle = Math.toDegrees(Math.acos(cosOfAngle));
 		
 		return 
@@ -329,16 +327,26 @@ public class Geometry {
 		return new Point2D.Double(x1 + t * dx1, y1 + t * dy1);
 	}
 	
+	
 	public static boolean isArcLeft(Point2D start, double direction, Point2D centre) {
-		Point2D temp = generateRandomPoint(start, direction);
+		Point2D temp = generateRandomPoint(centre, direction);
 		
-		return arePositivelyOriented(centre, start, temp);
+		return 
+		crossProduct(
+				getVectorDifference(start, centre),
+				getVectorDifference(temp, centre)
+		) > 0.0;
 	}
 	
 	public static double reverse(double direction) {
 		return (direction + 180.0) % 360.0;
 	}
 	
+	/**
+	 * No French people allowed.
+	 * @param direction
+	 * @return
+	 */
 	public static double perpendicularisePaul(double direction) {
 		return (direction + 90.0) % 360.0;
 	}
@@ -348,26 +356,23 @@ public class Geometry {
 		Point2D temp = generateRandomPoint(referencePoint, dt);
 		System.out.println(temp);
 		
-		if (arePositivelyOriented(temp, referencePoint, testPoint))
-			return false;
-		else
+		if (isArcLeft(referencePoint, dt, testPoint))
 			return true;
+		else
+			return false;
 	}
 	
-	/**
-	 * Tells if going from p1 to p2 to p3, you need to turn negative (right) on p2.
-	 * @param p1
-	 * @param p2
-	 * @param p3
-	 * @return
-	 */
-	public static boolean arePositivelyOriented(Point2D p1, Point2D p2, Point2D p3) {
-		return 
-			crossProduct(
-					getVectorDifference(p1, p2),
-					getVectorDifference(p3, p2)
-			) > 0.0;
-	}
+//	/**
+//	 * Tells if going from point1 to point2 on the circle they lie on (with given centre)
+//	 * moves you in a positive, counter-clock-wise direction or not.
+//	 * @param arcPoint1
+//	 * @param arcPoint2
+//	 * @param centre
+//	 * @return
+//	 */
+//	public static boolean arePositivelyOriented(Point2D arcPoint1, Point2D arcPoint2, Point2D centre) {
+//
+//	}
 	
 	public static double crossProduct(Point2D v1, Point2D v2) {
 		return v1.getX() * v2.getY() - v2.getX() * v1.getY(); 

@@ -9,6 +9,7 @@ import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 
 import java.awt.Point;
@@ -262,71 +263,87 @@ public class GeometryTest {
 	}
 	
 	
-	public void testDoubleArcCurveCase(DynamicInfo dpi, OperationReallocation op, 
-			LinkedList<PathStep> expected) {
+	public void testDoubleArcCurveCase(Point2D start, double startdir, Point2D end, 
+			double enddir, LinkedList<PathStep> expected) {
 		
-		LinkedList<PathStep> actual = PathFinder.getDoubleArcPath(dpi, op, false /* variant */);
+		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(
+				start, 
+				startdir, 
+				true, 
+				false, 
+				0.0, 
+				startdir, 
+				0, 
+				false, 
+				0
+		);
+		
+		DynamicBallInfo ballInfo = null;
+		DynamicRobotInfo opponentInfo = null;
+		
+		DynamicInfo pitch = new DynamicInfo(ballInfo, alfieInfo, opponentInfo);
+		
+		OperationReallocation op = new OperationReallocation(end, enddir);
+		LinkedList<PathStep> actual = PathFinder.getDoubleArcPath(pitch, op, true /* variant */);
+		
 		Assert.assertTrue(actual.size() == expected.size());
 		double threshold = 0.0001;
 				
 				/* variant: type */
-				PathStepArcForwardsRight arcExpectedFirst = (PathStepArcForwardsRight) expected.get(0);
-				PathStepArcForwardsRight arcActualFirst = (PathStepArcForwardsRight) actual.get(0);
+				PathStepArc arcExpectedFirst = (PathStepArc) expected.get(0);
+				PathStepArc arcActualFirst = (PathStepArc) actual.get(0);
 				//System.out.println(arc2);
 				
 				System.out.println("Expected: " + arcExpectedFirst);
 				System.out.println("Actual: " + arcActualFirst);
 				
+				Assert.assertEquals(arcExpectedFirst.getType(), arcActualFirst.getType());
 				Assert.assertTrue(Math.abs(arcExpectedFirst.getRadius() - arcActualFirst.getRadius()) < threshold);
 				Assert.assertTrue(Math.abs(arcExpectedFirst.getAngle() - arcActualFirst.getAngle()) < threshold);
 				Assert.assertTrue(Math.abs(arcExpectedFirst.getTargetOrientation() - arcActualFirst.getTargetOrientation()) < threshold);
 				Assert.assertTrue(Math.abs(arcExpectedFirst.getTargetDestination().distance(arcActualFirst.getTargetDestination())) < threshold);
 
 				/* variant: type */
-				PathStepArcForwardsRight arcExpectedSecond = (PathStepArcForwardsRight) expected.get(1);
-				PathStepArcForwardsRight arcActualSecond = (PathStepArcForwardsRight) actual.get(1);
+				PathStepArc arcExpectedSecond = (PathStepArc) expected.get(1);
+				PathStepArc arcActualSecond = (PathStepArc) actual.get(1);
 
 				System.out.println("Expected: " + arcExpectedSecond);
 				System.out.println("Actual: " + arcActualSecond);
 				
+				Assert.assertEquals(arcExpectedSecond.getType(), arcActualSecond.getType());
 				Assert.assertTrue(Math.abs(arcExpectedSecond.getRadius() - arcActualSecond.getRadius()) < threshold);
 				Assert.assertTrue(Math.abs(arcExpectedSecond.getAngle() - arcActualSecond.getAngle()) < threshold);
 				Assert.assertTrue(Math.abs(arcExpectedSecond.getTargetOrientation() - arcActualSecond.getTargetOrientation()) < threshold);
 				Assert.assertTrue(Math.abs(arcExpectedSecond.getTargetDestination().distance(arcActualSecond.getTargetDestination())) < threshold);
-		
 	}
 	
 	@Test
 	public void testDoubleArcCurve() {
+		Point2D start = new Point2D.Double(0.0, 0.0);
+		double startDir = 90.0;
+		double startRadius = 30.0;
+		double startAngle = 90.0;
 		
-		DynamicBallInfo dbi;
-		DynamicRobotInfo dri;
-		DynamicInfo dpi;
+//		Point2D middlePoint = Geometry.getArcEnd(start, startDir, startRadius, startAngle);
 		
-		PathStepArc arc1;
-		PathStepArc arc2;
+		Point2D end = new Point2D.Double(40.0, 40.0);
+		double endDir = 90.0;
+		double radius2 = 10.0;
+		double angle2 = 90.0;
 		
-		OperationReallocation op;
+		PathStepArc arc1 = 
+			new PathStepArcForwardsRight(start, startDir, startRadius, startAngle, 10);
+		PathStepArc arc2 = 
+			new PathStepArcForwardsLeft(
+					arc1.getTargetDestination(), 
+					arc1.getTargetOrientation(), 
+					radius2, angle2, 10);
 		
-		LinkedList<PathStep> expected;
-		// test1
-		dri = new DynamicRobotInfo(new Point(0,0), 90, true, false, 0, 90, 0, false, 0);
-		
-		arc1 = new PathStepArcForwardsRight(
-				dri.getPosition(), 
-				dri.getFacingDirection(), 
-				30.0, 
-				90, 
-				10);
-		arc2 = new PathStepArcForwardsRight(new Point(30, 30), 0, 10, 90, 10);
-		
-		dpi = new DynamicInfo(null, dri, null);
-		op = new OperationReallocation(new Point(40,20), 270.0);
-		
-		expected = new LinkedList<PathStep>();
+		LinkedList<PathStep> expected = new LinkedList<PathStep>();
 		expected.add(arc1);
 		expected.add(arc2);
-		testDoubleArcCurveCase(dpi, op, expected);
+		
+		testDoubleArcCurveCase(start, startDir, end, endDir, expected);
 		
 		//test 2
 		
@@ -379,10 +396,10 @@ public class GeometryTest {
 	
 	@Test
 	public void testIsArcLeft() {
-		Assert.assertFalse(
+		Assert.assertTrue(
 				Geometry.isArcLeft(
-						new Point2D.Double(0.0, 0.0), 
-						0.0, 
+						new Point2D.Double(0.0, 0.0),
+						0.0,
 						new Point2D.Double(1.0, 1.0)
 				)
 		);
@@ -426,6 +443,8 @@ public class GeometryTest {
 	public void testGetArcAngleCase(Point2D arcStart, double direction, Point2D arcEnd, Point2D centre, double radius, double expected) {
 		double threshold = 0.0001;
 		double actual = Geometry.getArcOrientedAngle(arcStart, direction, arcEnd, centre, radius);
+		System.out.println("expected: " + expected);
+		System.out.println("actual: " + actual);
 		Assert.assertTrue(Math.abs(expected - actual) < threshold);
 	}
 	
@@ -433,43 +452,55 @@ public class GeometryTest {
 	public void testGetArcAngle() {
 		testGetArcAngleCase(
 				new Point(0,0), 
-				0, new Point(1,1), 
-				null, 1, 
+				90, 
+				new Point(1,1), 
+				new Point(1,0), 
+				1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				0, new Point(2,2), 
-				null, 2, 
+				90, 
+				new Point(2,2), 
+				new Point(2,0),
+				2, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				0, new Point(-1,1), 
-				null, 1, 
+				90, 
+				new Point(-1,1), 
+				new Point(-1,0), 
+				1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				0, new Point(-1,-1), 
-				null, 1, 
+				-90, 
+				new Point(-1,-1), 
+				new Point(-1, 0),
+				1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				0, new Point(1,-1), 
-				null, 1, 
+				0, 
+				new Point(1,-1), 
+				null, 
+				1, 
 				90
 				);
 		
 		testGetArcAngleCase(
 				new Point(0,0), 
-				0, new Point(0,-60), 
-				null, 30, 
+				90, 
+				new Point(0,-60), 
+				new Point(0,-30), 
+				30, 
 				180
 				);
 		
@@ -561,18 +592,45 @@ public class GeometryTest {
 		
 		testGetLinesIntersectionCase(
 				new Point(4,0), 
-				new Point(-2,-6), 
+				new Point(-2,-6),
 				new Point(2,-2), 
 				new Point(4,-4),
 				new Point(2,-2)
 				);
+	}
+
+	public void testGetLineCircleIntersectionsParametersCase(Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
+			double circleRadius, Pair<Double, Double> expected) {
+		Assert.assertEquals(
+				expected, 
+				Geometry.getLineCircleIntersectionsParameters(
+						segmentStart, 
+						segmentEnd, 
+						circleCentre, 
+						circleRadius
+				)
+		);
+	}
+	
+	@Test
+	public void testGetLineCircleIntersectionsParameters() {
+		testGetLineCircleIntersectionsParametersCase(
+				new Point2D.Double(0.0, 0.0),
+				new Point2D.Double(40.0, 40.0),
+				new Point2D.Double(30.0, 40.0),
+				10.0,
+				new Pair <Double, Double> (
+						0.75,
+						1.0
+				)
+		);
 	}
 	
 	public void testGetLineCircleIntersectionsCase(
 			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
 			double circleRadius, Pair<Point2D, Point2D> expected
 			) {
-		Pair<Point2D, Point2D> n = Geometry.getLineCircleIntersections(
+		Pair <Point2D, Point2D> n = Geometry.getLineCircleIntersections(
 				segmentStart, 
 				segmentEnd, 
 				circleCentre, 
@@ -584,6 +642,18 @@ public class GeometryTest {
 	
 	@Test
 	public void testGetLineCircleIntersections() {
+		
+		testGetLineCircleIntersectionsCase(
+				new Point2D.Double(0.0, 0.0), 
+				new Point2D.Double(40.0, 40.0), 
+				new Point2D.Double(30.0, 40.0), 
+				10.0,
+				new Pair<Point2D, Point2D> (
+						new Point2D.Double(30.0, 30.0),
+						new Point2D.Double(40.0, 40.0)
+				)
+		);
+		
 		testGetLineCircleIntersectionsCase(
 				new Point2D.Double(1.0, 3.0), 
 				new Point2D.Double(1.0, -5.0), 
@@ -616,7 +686,7 @@ public class GeometryTest {
 				1.0,
 				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 2.0),new Point2D.Double(1.0, 2.0))
 				);
-				Assert.fail("there are no solutions to quadratic equation, so null is returned");
+				Assert.fail("There are no solutions to quadratic equation, so null is returned.");
 		}catch(NullPointerException ex){
 			
 		}
@@ -636,7 +706,7 @@ public class GeometryTest {
 				new Pair<Point2D, Point2D>(new Point2D.Double(-1.0, 1.0),new Point2D.Double(-1.0, -3.0))
 				);
 		
-		try{
+		try {
 		testGetLineCircleIntersectionsCase(
 				new Point2D.Double(2.0, 3.0), 
 				new Point2D.Double(-4.0, 6.0), 
@@ -644,27 +714,10 @@ public class GeometryTest {
 				1.0,
 				new Pair<Point2D, Point2D>(new Point2D.Double(1.0, 2.0),new Point2D.Double(1.0, 2.0))
 				);
-				Assert.fail("there are no solutions to quadratic equation, so null is returned");
-		}catch(NullPointerException ex){
+				Assert.fail("There are no solutions to quadratic equation, so null is returned.");
+		} catch (NullPointerException ex) {
 			
 		}
-	}
-	
-	public void testArePositivelyOrientedCase(Point2D p1, Point2D p2, Point2D p3, boolean expected) {
-		boolean actual = Geometry.arePositivelyOriented(p1, p2, p3);
-		Assert.assertEquals(expected, actual);
-	}
-	
-	@Test
-	public void testArePositivelyOriented() {
-		testArePositivelyOrientedCase(new Point(0,0), new Point(-1,1), new Point(0,2), true);
-		testArePositivelyOrientedCase(new Point(0,0), new Point(1,1), new Point(0,2), false);
-		
-		testArePositivelyOrientedCase(new Point(0,0), new Point(-2,-2), new Point(-4,0), true);
-		testArePositivelyOrientedCase(new Point(0,0), new Point(-2,-2), new Point(0,-2), false);
-		testArePositivelyOrientedCase(new Point(0,0), new Point.Double(1.5,1.5), new Point(3,0), true);
-		testArePositivelyOrientedCase(new Point(0,0), new Point(-1,1), new Point(0,2), true);
-		testArePositivelyOrientedCase(new Point(1,1), new Point(0,0), new Point(0,1), true);
 	}
 	
 	public void testCrossProductCase (Point2D p1, Point2D p2, Point2D p3, double expected) {

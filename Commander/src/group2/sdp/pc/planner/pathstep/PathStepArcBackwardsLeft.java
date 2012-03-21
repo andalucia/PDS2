@@ -38,4 +38,9 @@ public class PathStepArcBackwardsLeft extends PathStepArc {
 	public void execute(MouthInterface mouth) {
 		mouth.sendBackwardsArcLeft(getRadius(), getAngle());
 	}
+	
+	@Override
+	public String toString() {
+		return "PathStepArcBackwardsLeft: " + super.toString();
+	}
 }

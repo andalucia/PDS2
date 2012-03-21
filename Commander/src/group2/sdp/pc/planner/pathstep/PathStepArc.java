@@ -37,19 +37,29 @@ public abstract class PathStepArc implements PathStep {
 
 		this.threshold = threshold;
 		
-		setTargetDestination(start, startDirection);
-		setTargetOrientation(startDirection);
+		inferTargetDestination(start, startDirection);
+		inferTargetOrientation(startDirection);
 	}
 	
-	private void setTargetOrientation(double startDirection) {
-		this.targetOrientation = (startDirection + angle) % 360.0; 
-		// -360 < targetOrientation < 360
-		
-		this.targetOrientation = (this.targetOrientation + 360.0) % 360.0; 
-		// 0 < targetOrientation < 360
+	/**
+	 * Computes the target orientation, given the start direction.
+	 * @param startDirection
+	 */
+	private void inferTargetOrientation(double startDirection) {
+		this.targetOrientation = startDirection + angle;
+		if (this.targetOrientation != 0.0) {
+			this.targetOrientation %= 360.0; 
+			// -360 < targetOrientation < 360
+			
+			this.targetOrientation += 360.0;
+			if (this.targetOrientation != 0.0) {
+				this.targetOrientation %= 360.0;
+				// 0 < targetOrientation < 360
+			}
+		}
 	}
 
-	private void setTargetDestination(Point2D start, double startDirection) {
+	private void inferTargetDestination(Point2D start, double startDirection) {
 		this.targetDestination = 
 			Geometry.getArcEnd(start, startDirection, radius, angle);
 	}
@@ -117,11 +127,11 @@ public abstract class PathStepArc implements PathStep {
 	public static PathStepArc getShorterPathStepArc(
 			Point2D arcStart, double startDirection, Point2D circleCentre,
 			double angle, double threshold
-	) {	
+	) {
 		double angle2 = angle;
 		double startDirection2;
 		if (angle > 180.0) {
-			angle2 -= 180;
+			angle2 -= 180.0;
 			startDirection2 = Geometry.reverse(startDirection);
 		} else {
 			startDirection2 = startDirection;
@@ -152,16 +162,24 @@ public abstract class PathStepArc implements PathStep {
 	private static PathStepArc common(Point2D arcStart, double startDirection,
 			Point2D circleCentre, double angle, double threshold,
 			double angle2, double startDirection2) {
+		System.out.println();
 		double radius = circleCentre.distance(arcStart);
 		Point2D arcEnd = Geometry.getArcEnd(arcStart, startDirection, radius, angle);
 		
+		System.out.println("!!");
+		System.out.println(arcStart);
+		System.out.println(startDirection);
+		System.out.println(circleCentre);
+		System.out.println("!!");
+		
 		boolean lefty = Geometry.isArcLeft(arcStart, startDirection, circleCentre);
+		System.out.println(lefty);
 		boolean behind = Geometry.isPointBehind(arcStart, startDirection, arcEnd);
 		
 		if (!behind)
 			if (lefty)
 				return new PathStepArcForwardsLeft(arcStart, startDirection2, radius, angle2, threshold);
-			else 
+			else
 				return new PathStepArcForwardsRight(arcStart, startDirection2, radius, angle2, threshold);
 		else
 			if (lefty)

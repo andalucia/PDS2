@@ -56,7 +56,7 @@ public class PathStepArcForwardsRight extends PathStepArc {
 
 	@Override
 	public String toString() {
-		return "PathStepArcForwardsLeft: " + super.toString();
+		return "PathStepArcForwardsRight: " + super.toString();
 	}
 
 	@Override
