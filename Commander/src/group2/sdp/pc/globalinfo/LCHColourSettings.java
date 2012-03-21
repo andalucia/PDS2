@@ -222,6 +222,8 @@ public class LCHColourSettings {
 		this.grayChromaStart = grayChromaStart;
 		this.grayChromaEnd = grayChromaEnd;
 	}
+	
+	
 
 	
 	/**

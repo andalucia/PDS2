@@ -258,7 +258,8 @@ public class CommanderControlStation {
 				processImageCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
 				
-				settingsWindow = new SettingsWindow(globalInfo, processor);  
+				settingsWindow = new SettingsWindow(globalInfo, processor);
+				
 			}
 		});
 		
