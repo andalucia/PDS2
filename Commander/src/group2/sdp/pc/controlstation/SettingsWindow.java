@@ -5,6 +5,7 @@ import group2.sdp.pc.vision.VisualCortex;
 import group2.sdp.pc.vision.VisualCortex.OutputMode;
 
 import java.awt.Button;
+import java.awt.Color;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -192,6 +193,7 @@ public class SettingsWindow extends JFrame {
 	private Button chromaVisionModeButton;
 	private Button lumaVisionModeButton;
 	private Button grabImageButton;
+	private Button hueVisionModeButton;
 	
 	private GlobalInfo globalInfo;
 	private VisualCortex processor;
@@ -233,26 +235,32 @@ public class SettingsWindow extends JFrame {
 		yellowTLabel = new JLabel();
 		yellowTLabel.setText("Yellow T ");
 		yellowTLabel.setBounds(25, row1Y, 80, 25);
+		yellowTLabel.setForeground(Color.ORANGE);
 		
 		blueTLabel = new JLabel();
 		blueTLabel.setText("Blue T ");
 		blueTLabel.setBounds(25, row2Y, 80, 25);
+		blueTLabel.setForeground(Color.BLUE);
 		
 		ballLabel = new JLabel();
 		ballLabel.setText("Ball ");
 		ballLabel.setBounds(25, row3Y, 80, 25);
+		ballLabel.setForeground(Color.RED);
 		
 		plateGreenLabel = new JLabel();
 		plateGreenLabel.setText("Plate Green");
 		plateGreenLabel.setBounds(25, row4Y, 100, 25);
+		plateGreenLabel.setForeground(Color.GREEN);
 		
 		pitchGreenLabel = new JLabel();
 		pitchGreenLabel.setText("Pitch Green");
 		pitchGreenLabel.setBounds(25, row5Y, 100, 25);
+		pitchGreenLabel.setForeground(Color.GREEN);
 		
 		greyLabel = new JLabel();
 		greyLabel.setText("Grey");
 		greyLabel.setBounds(25, row6Y, 100, 25);
+		greyLabel.setForeground(Color.GRAY);
 		
 		//ADDING SLIDERS
 		//YELLOW T SLIDERS
@@ -1008,9 +1016,11 @@ public class SettingsWindow extends JFrame {
 		greenToBlueHueSlider.setPaintTicks(true);
 		*/
 		
+		
+		
 		matchVisionModeButton = new Button();
 		matchVisionModeButton.setLabel("Match");
-		matchVisionModeButton.setBounds(280, 15, 65, 25);
+		matchVisionModeButton.setBounds(1090, 160, 150, 25);
 		matchVisionModeButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -1035,6 +1045,7 @@ public class SettingsWindow extends JFrame {
 		lumaVisionModeButton = new Button();
 		lumaVisionModeButton.setLabel("Luma");
 		lumaVisionModeButton.setBounds(580, 15, 65, 25);
+		
 		lumaVisionModeButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -1047,6 +1058,7 @@ public class SettingsWindow extends JFrame {
 		grabImageButton = new Button();
 		grabImageButton.setLabel("Grab background");
 		grabImageButton.setBounds(1090, 200, 150, 25);
+		grabImageButton.setBackground(Color.green);
 		grabImageButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -1054,7 +1066,10 @@ public class SettingsWindow extends JFrame {
 				processor.grabNewBackgroundImage();
 			}
 		});
-
+		
+		hueVisionModeButton = new Button();
+		hueVisionModeButton.setLabel("Hue");
+		hueVisionModeButton.setBounds(280, 15, 65, 25);
 		
 //		getContentPane().add(blueToRedHueLabel);
 //		getContentPane().add(redToYellowHueLabel);
@@ -1080,7 +1095,7 @@ public class SettingsWindow extends JFrame {
 		getContentPane().add(matchVisionModeButton);
 		getContentPane().add(chromaVisionModeButton);
 		getContentPane().add(lumaVisionModeButton);
-
+		getContentPane().add(hueVisionModeButton);
 		
 		//adding the sliders
 		
