@@ -23,12 +23,12 @@ public class SettingsWindow extends JFrame {
 	 * coordinates for sliders
 	 */
 	
-	private int row1Y = 70;
-	private int row2Y = 130;
-	private int row3Y = 190;
-	private int row4Y = 250;
-	private int row5Y = 310;
-	private int row6Y = 370;
+	private int row1Y = 50;
+	private int row2Y = 105;
+	private int row3Y = 160;
+	private int row4Y = 215;
+	private int row5Y = 280;
+	private int row6Y = 335;
 	
 	private int column1X = 200;
 	private int column2X = 500;
@@ -232,27 +232,27 @@ public class SettingsWindow extends JFrame {
 		
 		yellowTLabel = new JLabel();
 		yellowTLabel.setText("Yellow T ");
-		yellowTLabel.setBounds(25, 80, 80, 25);
+		yellowTLabel.setBounds(25, row1Y, 80, 25);
 		
 		blueTLabel = new JLabel();
 		blueTLabel.setText("Blue T ");
-		blueTLabel.setBounds(25, 140, 80, 25);
+		blueTLabel.setBounds(25, row2Y, 80, 25);
 		
 		ballLabel = new JLabel();
 		ballLabel.setText("Ball ");
-		ballLabel.setBounds(25, 200, 80, 25);
+		ballLabel.setBounds(25, row3Y, 80, 25);
 		
 		plateGreenLabel = new JLabel();
 		plateGreenLabel.setText("Plate Green");
-		plateGreenLabel.setBounds(25, 260, 100, 25);
+		plateGreenLabel.setBounds(25, row4Y, 100, 25);
 		
 		pitchGreenLabel = new JLabel();
 		pitchGreenLabel.setText("Pitch Green");
-		pitchGreenLabel.setBounds(25, 320, 100, 25);
+		pitchGreenLabel.setBounds(25, row5Y, 100, 25);
 		
 		greyLabel = new JLabel();
 		greyLabel.setText("Grey");
-		greyLabel.setBounds(25, 380, 100, 25);
+		greyLabel.setBounds(25, row6Y, 100, 25);
 		
 		//ADDING SLIDERS
 		//YELLOW T SLIDERS
@@ -313,7 +313,7 @@ public class SettingsWindow extends JFrame {
 		yellowLumaStartLabel.setBounds(column2X-50,row1Y, 50, 25);
 		
 		
-		yellowLumaEndSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE, globalInfo.getPitch().getCamera().getColourSettings().getYellowHueEnd());
+		yellowLumaEndSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE, globalInfo.getPitch().getCamera().getColourSettings().getYellowLumaEnd());
 		yellowLumaEndSlider.setBounds(column2X, row1Y+20 , 200, 25);
 		yellowLumaEndSlider.addChangeListener(new ChangeListener() {
 			
@@ -546,7 +546,7 @@ public class SettingsWindow extends JFrame {
 		
 		
 		
-		redChromaStartSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE, 0/**TODO put getGlobal in here**/);
+		redChromaStartSlider = new JSlider(JSlider.HORIZONTAL, MIN_OTHER_VALUE, MAX_OTHER_VALUE,globalInfo.getPitch().getCamera().getColourSettings().getRedChromaStart());
 		redChromaStartSlider.setBounds(column3X, row3Y, 200, 25);
 		redChromaStartSlider.addChangeListener(new ChangeListener() {
 			
@@ -1010,7 +1010,7 @@ public class SettingsWindow extends JFrame {
 		
 		matchVisionModeButton = new Button();
 		matchVisionModeButton.setLabel("Match");
-		matchVisionModeButton.setBounds(280, 30, 65, 25);
+		matchVisionModeButton.setBounds(280, 15, 65, 25);
 		matchVisionModeButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -1022,7 +1022,7 @@ public class SettingsWindow extends JFrame {
 	    
 		chromaVisionModeButton = new Button();
 		chromaVisionModeButton.setLabel("Chroma");
-		chromaVisionModeButton.setBounds(880, 30, 65, 25);
+		chromaVisionModeButton.setBounds(880, 15, 65, 25);
 		chromaVisionModeButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -1034,7 +1034,7 @@ public class SettingsWindow extends JFrame {
 		
 		lumaVisionModeButton = new Button();
 		lumaVisionModeButton.setLabel("Luma");
-		lumaVisionModeButton.setBounds(580, 30, 65, 25);
+		lumaVisionModeButton.setBounds(580, 15, 65, 25);
 		lumaVisionModeButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -1046,7 +1046,7 @@ public class SettingsWindow extends JFrame {
 	    
 		grabImageButton = new Button();
 		grabImageButton.setLabel("Grab background");
-		grabImageButton.setBounds(840, 420, 150, 25);
+		grabImageButton.setBounds(1090, 200, 150, 25);
 		grabImageButton.addActionListener(new ActionListener() {
 			
 			@Override
