@@ -17,6 +17,10 @@ public class Camera {
 	 */
 	final static Camera ONE = 
 		new Camera(
+//				new Rectangle(17, 123, 597-17, 424-123),
+//				LCHColourSettings.ONE,
+//				248,
+//				60
 				new Rectangle(8, 87, 624 - 10, 441 - 87),
 				LCHColourSettings.ONE, 
 				248.0,

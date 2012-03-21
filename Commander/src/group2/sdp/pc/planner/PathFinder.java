@@ -10,6 +10,7 @@ import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
+import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
@@ -54,16 +55,16 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		this.mouth = mouth;
 	}
 	
-	private boolean planedBefore;
+	private boolean plannedBefore;
 	
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
 		if (replan || currentStep == null) {
-			if (!planedBefore) {
+			if (!plannedBefore) {
 				plan(dpi);
 				executeNextStep(dpi);
 				replan = false;
-				planedBefore = true;
+				plannedBefore = true;
 			}
 		} else {
 			if (currentStep.isSuccessful(dpi)) {
@@ -175,11 +176,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		System.out.println("CCW arc length: " + lengthCCW);
 		System.out.println("CW arc length: " + lengthCW);
 		
-		//TODO	decide on which curve to add
 		this.pathStepList =
 			lengthCCW < lengthCW
 			? pathStepListSecondCCW
 			: pathStepListSecondCW;
+		this.pathStepList.add(new PathStepKick(1000));
+		this.pathStepList.add(new PathStepKick(1000));
+		this.pathStepList.add(new PathStepKick(1000));
 	}
 
 	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
@@ -341,11 +344,11 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 	@Override
 	public void start() {
-		planedBefore = false;
+		plannedBefore = false;
 	}
 
 	@Override
 	public void stop() {
-		planedBefore = false;
+		plannedBefore = false;
 	}
 }
