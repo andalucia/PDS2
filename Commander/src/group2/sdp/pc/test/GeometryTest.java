@@ -284,7 +284,7 @@ public class GeometryTest {
 		DynamicInfo pitch = new DynamicInfo(ballInfo, alfieInfo, opponentInfo);
 		
 		OperationReallocation op = new OperationReallocation(end, enddir);
-		LinkedList<PathStep> actual = PathFinder.getDoubleArcPath(pitch, op, true /* variant */);
+		LinkedList<PathStep> actual = PathFinder.getDoubleArcPath(pitch, op, false /* variant */);
 		
 		Assert.assertTrue(actual.size() == expected.size());
 		double threshold = 0.0001;
@@ -319,25 +319,25 @@ public class GeometryTest {
 	
 	@Test
 	public void testDoubleArcCurve() {
-		Point2D start = new Point2D.Double(0.0, 0.0);
-		double startDir = 90.0;
-		double startRadius = 30.0;
-		double startAngle = 90.0;
+		Point2D start = new Point2D.Double(-57.74393, -38.52368);
+		double startDir = 3.3743178428786678;
+		double startRadius = 84.61948097092228;
+		double startArcAngle = 56.78676462704812;
 		
 //		Point2D middlePoint = Geometry.getArcEnd(start, startDir, startRadius, startAngle);
 		
-		Point2D end = new Point2D.Double(40.0, 40.0);
-		double endDir = 90.0;
-		double radius2 = 10.0;
-		double angle2 = 90.0;
+		Point2D end = new Point2D.Double(30.996742, 13.672317);
+		double endDir = -8.544205595857441;
+		double radius2 = 0.0;
+		double angle2 = 0.0;
 		
 		PathStepArc arc1 = 
-			new PathStepArcForwardsRight(start, startDir, startRadius, startAngle, 10);
+			new PathStepArcForwardsLeft(start, startDir, startRadius, startArcAngle, 20);
 		PathStepArc arc2 = 
-			new PathStepArcForwardsLeft(
+			new PathStepArcForwardsRight(
 					arc1.getTargetDestination(), 
 					arc1.getTargetOrientation(), 
-					radius2, angle2, 10);
+					radius2, angle2, 20);
 		
 		LinkedList<PathStep> expected = new LinkedList<PathStep>();
 		expected.add(arc1);
@@ -495,6 +495,7 @@ public class GeometryTest {
 				90
 				);
 		
+		// FIXME:
 		testGetArcAngleCase(
 				new Point(0,0), 
 				90, 
@@ -510,20 +511,6 @@ public class GeometryTest {
 			null, 50, 
 			90
 		);
-	}
-	
-	public void testIsCircleCentreOnTheRightCase(Point2D startPosition,
-			double startDirection, Point2D circleCentre, boolean expected){
-		boolean p = Geometry.isCircleCentreOnTheRight(startPosition, startDirection, circleCentre);
-		Assert.assertEquals(expected, p);
-	}
-	
-	@Test
-	public void testIsCircleCentreOnTheRight(){
-		testIsCircleCentreOnTheRightCase(new Point2D.Double(0,0), 90, new Point2D.Double(1,1), true);
-		testIsCircleCentreOnTheRightCase(new Point2D.Double(0,0), 90, new Point2D.Double(-1,-1), false);
-		testIsCircleCentreOnTheRightCase(new Point2D.Double(5,5), 30, new Point2D.Double(10,5), true);
-		testIsCircleCentreOnTheRightCase(new Point2D.Double(0,0), 30, new Point2D.Double(5,10), false);
 	}
 
 	public void testGetLinesIntersectionCase(Point2D a, Point2D b, Point2D c, Point2D d, Point2D expected) {

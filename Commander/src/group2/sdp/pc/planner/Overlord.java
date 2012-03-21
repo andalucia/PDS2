@@ -75,6 +75,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	public void start() {
 		running = true;
+		strategyConsumer.start();
 	}
 	
 	/**
@@ -82,10 +83,12 @@ public class Overlord implements DynamicInfoConsumer {
 	 * and poking the FieldMarshal with new DynamicPitchInfos.
 	 */
 	public void stop() {
-		if (running)
+		if (running) {
 			stopping = true;
-		else
+			strategyConsumer.stop();
+		} else {
 			ControlStation.log("Overlord is busy conquering elsewhere.");
+		}
 		// Running is set to false once a stop command is sent to Alfie
 	}
 
@@ -123,7 +126,7 @@ public class Overlord implements DynamicInfoConsumer {
 		}
 		
 		// TODO: remove after testing
-		return Strategy.TEST_FIELD_MARSHAL;
+		return Strategy.DEFENSIVE;
 		
 //		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 //		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();

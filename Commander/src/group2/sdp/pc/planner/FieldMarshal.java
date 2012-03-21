@@ -35,6 +35,8 @@ import java.awt.geom.Point2D;
  */
 public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
+	private static final double SAFE_FACTOR = 20.0;
+
 	/**
 	 * The current strategy to employ.
 	 */
@@ -82,7 +84,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		}
 
 		switch (currentStrategy) {
-		case TEST_FIELD_MARSHAL:
+		case TEST_PATH_FINDER:
 			Point2D ballPosition = dpi.getBallInfo().getPosition();
 			Point2D goalMiddle = globalInfo.getTargetGoalMiddle();
 			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
@@ -108,7 +110,29 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	}
 
 	private Operation planNextDefensive(DynamicInfo dpi) {
-		return null;
+		Point2D ballPosition = dpi.getBallInfo().getPosition();
+		double opponentDirection = dpi.getOpponentInfo().getFacingDirection();
+		Point2D g1 = globalInfo.getDefendingTopGoalPost();
+		Point2D g2 = globalInfo.getDefendingBottomGoalPost();
+		
+		Point2D temp = Geometry.generateRandomPoint(ballPosition, opponentDirection);
+		
+		System.out.println("temp: " + temp);
+		System.out.println("opponentDirection: " + opponentDirection);
+		
+		System.out.println("G1: " + g1);
+		System.out.println("G2: " + g2);
+		Point2D d = Geometry.getLinesIntersection(ballPosition, temp, g1, g2);
+		System.out.println("D point: " + d);
+		double reverseDirection = Geometry.reverse(opponentDirection);
+		
+		double factor = SAFE_FACTOR + 
+			PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME + StaticRobotInfo.getWidth();
+		
+		Point2D directionVector = Geometry.getDirectionVector(reverseDirection);
+		Point2D s = Geometry.translate(d, factor, directionVector);
+		System.out.println("S point: " + s);
+		return new OperationReallocation(s, reverseDirection);
 	}
 
 	private Operation planNextOffensive(DynamicInfo dpi) {
@@ -193,5 +217,15 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		);
 
 		return n <= 1;
+	}
+
+	@Override
+	public void start() {
+		operationConsumer.start();
+	}
+
+	@Override
+	public void stop() {
+		operationConsumer.stop();
 	}
 }

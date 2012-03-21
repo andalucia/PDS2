@@ -14,5 +14,9 @@ public interface StrategyConsumer {
 	 * @param strategy The strategy to set to
 	 */
 	public void setStrategy(Strategy strategy);
+
+	public void start();
+	
+	public void stop();
 	
 }

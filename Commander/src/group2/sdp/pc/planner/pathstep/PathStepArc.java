@@ -1,13 +1,14 @@
 package group2.sdp.pc.planner.pathstep;
 
-import java.awt.geom.Point2D;
-
 import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 
+import java.awt.geom.Point2D;
+
 public abstract class PathStepArc extends PathStep {
 
+//	private static final double SPEED_STOP_THRESHOLD = 10.0;
 	/**
 	 * The radius of the circle containing the arc.
 	 */
@@ -113,7 +114,8 @@ public abstract class PathStepArc extends PathStep {
 	 */
 	@Override
 	public boolean hasFailed(DynamicInfo pitchStatus) {
-		// TODO Auto-generated method stub
+//		System.out.println(pitchStatus.getAlfieInfo().getTravelSpeed());
+//		return pitchStatus.getAlfieInfo().getTravelSpeed() < SPEED_STOP_THRESHOLD;
 		return false;
 	}
 	
@@ -138,31 +140,6 @@ public abstract class PathStepArc extends PathStep {
 			startDirection2 = startDirection;
 		}
 		
-		return common(arcStart, startDirection, circleCentre, angle, threshold,
-				angle2, startDirection2);
-	}
-
-	public static PathStepArc getForwardPathStepArc(Point2D arcStart,
-			double startDirection, Point2D circleCentre,
-			double angle, double threshold
-	) {
-		return common(arcStart, startDirection, circleCentre, angle, threshold, angle, startDirection);
-	}
-
-	/**
-	 * A secrety function. Common between getForwardPathStepArc and getShorterPathStepArc.
-	 * @param arcStart
-	 * @param startDirection
-	 * @param circleCentre
-	 * @param angle Used for getting the end of the arc.
-	 * @param threshold
-	 * @param angle2 Used for actual arc construction.
-	 * @param startDirection2 
-	 * @return
-	 */
-	private static PathStepArc common(Point2D arcStart, double startDirection,
-			Point2D circleCentre, double angle, double threshold,
-			double angle2, double startDirection2) {
 		double radius = circleCentre.distance(arcStart);
 		Point2D arcEnd = Geometry.getArcEnd(arcStart, startDirection, radius, angle);
 		
@@ -181,11 +158,22 @@ public abstract class PathStepArc extends PathStep {
 				return new PathStepArcBackwardsRight(arcStart, startDirection2, radius, angle2, threshold);
 	}
 
-	@Override
-	public Type getType() {
-		// TODO Auto-generated method stub
-		return null;
+	public static PathStepArc getForwardPathStepArc(Point2D arcStart,
+			double startDirection, Point2D circleCentre,
+			double angle, double threshold
+	) {
+		double radius = circleCentre.distance(arcStart);
+		
+		boolean lefty = Geometry.isArcLeft(arcStart, startDirection, circleCentre);
+		
+		if (lefty)
+			return new PathStepArcForwardsLeft(arcStart, startDirection, radius, angle, threshold);
+		else
+			return new PathStepArcForwardsRight(arcStart, startDirection, radius, angle, threshold);
 	}
+
+	@Override
+	public abstract Type getType();
 	
 	@Override
 	public boolean whisper(MouthInterface mouth) {

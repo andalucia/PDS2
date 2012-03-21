@@ -323,7 +323,7 @@ public class ControlStation {
 					lord.stop();
 					Penalty pen=new Penalty(alfieMouth,lord);
 					pen.defend();
-				}else{
+				} else {
 					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
 			}
@@ -406,6 +406,12 @@ public class ControlStation {
 				exiting = true;
 				if (cleanup_thread != null)
 					cleanup_thread.start();
+				try {
+					Thread.sleep(30);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				System.exit(0);
 			}
 
 			public void windowDeactivated(WindowEvent arg0) {

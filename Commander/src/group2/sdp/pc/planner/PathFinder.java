@@ -3,6 +3,7 @@ package group2.sdp.pc.planner;
 import group2.sdp.common.util.Geometry;
 import group2.sdp.common.util.Pair;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
@@ -23,11 +24,11 @@ import java.util.LinkedList;
  */
 public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
-	private static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
+	public static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
 	private static final boolean verbose = true;
 
-	private static final double DISTANCE_THRESHOLD = 10.0;
+	private static final double DISTANCE_THRESHOLD = 20.0;
 	
 	/**
 	 * This is a queue which stores a list of paths 
@@ -53,12 +54,16 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		this.mouth = mouth;
 	}
 	
+	private boolean planedBefore;
+	
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
 		if (replan || currentStep == null) {
-			plan(dpi);
-			executeNextStep(dpi);
-			replan = false;
+			if (!planedBefore) {
+				plan(dpi);
+				executeNextStep(dpi);
+				replan = false;
+			}
 		} else {
 			if (currentStep.isSuccessful(dpi)) {
 				if (verbose) {
@@ -76,14 +81,20 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public void executeNextStep(DynamicInfo dpi) {	
 		// Get the next PathStep from the queue
+		System.out.println(">>>>>>>>>");
+		System.out.println(pathStepList);
+		
 		currentStep = pathStepList.pollFirst();
 		
+		System.out.println(currentStep);
+		System.out.println(pathStepList);
+		System.out.println("<<<<<<<<");
 		// If it is successful, try and execute the next PathStep in the queue
 		if(currentStep != null) {
 			execute();
 		} else {
 			// The queue is empty so re-plan
-			plan(dpi);
+			// plan(dpi);
 		}		
 	}
 	
@@ -108,9 +119,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 	private void plan(DynamicInfo dpi) {
 		
-		if (verbose) {
-			System.out.println("Looking for a path...");
-		}
+		ControlStation.log("Looking for a path...");
 		
 		// Clear the PathStep queue
 		pathStepList.clear();
@@ -147,8 +156,29 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		LinkedList<PathStep> pathStepListSecondCW = getDoubleArcPath(dpi, op, false);
 		LinkedList<PathStep> pathStepListSecondCCW = getDoubleArcPath(dpi, op, true);
 		
+		double lengthCCW = 0.0;
+		for (PathStep ps : pathStepListSecondCCW) {
+			double r = ((PathStepArc) ps).getRadius();
+			double ang = ((PathStepArc) ps).getAngle();
+			
+			lengthCCW += Math.abs(r * Math.toRadians(ang));
+		}
+		
+		double lengthCW = 0.0;
+		for (PathStep ps : pathStepListSecondCW) {
+			double r = ((PathStepArc) ps).getRadius();
+			double ang = ((PathStepArc) ps).getAngle();
+			
+			lengthCW += Math.abs(r * Math.toRadians(ang));
+		}
+		System.out.println("CCW arc length: " + lengthCCW);
+		System.out.println("CW arc length: " + lengthCW);
+		
 		//TODO	decide on which curve to add
-		this.pathStepList = pathStepListSecondCCW;
+		this.pathStepList =
+			lengthCCW < lengthCW
+			? pathStepListSecondCCW
+			: pathStepListSecondCW;
 	}
 
 	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
@@ -242,18 +272,20 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		if (verbose) {
 			System.out.println();
 			System.out.println("ARC THINGY:");
-			System.out.println("startPosition = " + startPosition);
-			System.out.println("startDirection = " + startDirection);
+			System.out.println("startPosition      = " + startPosition);
+			System.out.println("startDirection     = " + startDirection);
+			System.out.println("targetPosition     = " + op.getPosition());
+			System.out.println("startDirection     = " + startDirection);
 			System.out.println("secondCircleCentre = " + secondCircleCentre);
-			System.out.println("p3 = " + p3);
-			System.out.println("secondRadius = " + secondRadius);
-			System.out.println("transitionOri = " + firstArc.getTargetOrientation());
+			System.out.println("p3                 = " + p3);
+			System.out.println("secondRadius       = " + secondRadius);
+			System.out.println("transitionOri      = " + firstArc.getTargetOrientation());
 			System.out.println();
-			System.out.println("transitionPoint = " + transitionPoint);
-			System.out.println("firstCircleCentre = " + firstCircleCentre);
-			System.out.println("firstRadius = " + firstRadius);
-			System.out.println("firstArcAngle = " + firstArcAngle);
-			System.out.println("target_ori = " + secondArc.getTargetOrientation());
+			System.out.println("transitionPoint    = " + transitionPoint);
+			System.out.println("firstCircleCentre  = " + firstCircleCentre);
+			System.out.println("firstRadius        = " + firstRadius);
+			System.out.println("firstArcAngle      = " + firstArcAngle);
+			System.out.println("target_ori         = " + secondArc.getTargetOrientation());
 		}
 		
 		return pathStepList;
@@ -304,5 +336,15 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	@Override
 	public void consumeOperation(Operation operation) {
 		setOperation(operation);
+	}
+
+	@Override
+	public void start() {
+		planedBefore = false;
+	}
+
+	@Override
+	public void stop() {
+		planedBefore = false;
 	}
 }

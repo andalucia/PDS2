@@ -132,4 +132,32 @@ public class GlobalInfo {
 		double y = pitch.getGoalCentreY();
 		return new Point2D.Double(x, y);
 	}
+
+	/**
+	 * Gets the top goal post of the goal that Alfie tries not to score in.
+	 */
+	public Point2D getDefendingTopGoalPost() {
+		double x;
+		if (attackingRight) {
+			x = pitch.getMinimumEnclosingRectangle().getMinX();
+		} else {
+			x = pitch.getMinimumEnclosingRectangle().getMaxX();
+		}
+		double y = pitch.getTopGoalPostYCoordinate();
+		return new Point2D.Double(x, y);
+	}
+	
+	/**
+	 * Gets the bottom goal post of the goal that Alfie tries not to score in.
+	 */
+	public Point2D getDefendingBottomGoalPost() {
+		double x;
+		if (attackingRight) {
+			x = pitch.getMinimumEnclosingRectangle().getMinX();
+		} else {
+			x = pitch.getMinimumEnclosingRectangle().getMaxX();
+		}
+		double y = pitch.getBottomGoalPostYCoordinate();
+		return new Point2D.Double(x, y);
+	}
 }

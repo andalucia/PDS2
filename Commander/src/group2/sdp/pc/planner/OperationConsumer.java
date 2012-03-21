@@ -14,5 +14,8 @@ public interface OperationConsumer {
 	 * @param operation The operation to be consumed
 	 */
 	public void consumeOperation(Operation operation);
+
+	public void start();
 	
+	public void stop();
 }

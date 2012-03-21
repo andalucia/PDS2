@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 
 public class Geometry {
 
+	private static final double BIG_RANDOM_NUMBER = 10.0;
 	/**
 	 * Set to true to output debug data.
 	 */
@@ -120,20 +121,6 @@ public class Geometry {
 	}
 	
 	/**
-	 * 
-	 * @param angle ... in degrees ...
-	 * @return
-	 */
-	public static Point2D getDirectionVector(double angle) {
-		double radians = Math.toRadians(angle);
-		return 
-			new Point2D.Double(
-					Math.cos(radians),
-					Math.sin(radians) 
-			);
-	}
-	
-	/**
 	 * Gets the number of intersections between a line segment and a circular 
 	 * arc.
 	 * @param segmentStart The starting point of the line segment.
@@ -238,6 +225,20 @@ public class Geometry {
 		double dx = second.getX() - first.getX();
 		double dy = second.getY() - first.getY();
 		return Math.toDegrees(Math.atan2(dy, dx));
+	}
+	
+	/**
+	 * Gets the unit vector representing the given direction.
+	 * @param angle ... in degrees ...
+	 * @return
+	 */
+	public static Point2D getDirectionVector(double angle) {
+		double radians = Math.toRadians(angle);
+		return 
+			new Point2D.Double(
+					Math.cos(radians),
+					Math.sin(radians) 
+			);
 	}
 
 	/**
@@ -388,7 +389,7 @@ public class Geometry {
 	}
 
 	public static Point2D generateRandomPoint(Point2D p1, double direction) {
-		double scale = 10.0; // TODO: better scale
+		double scale = BIG_RANDOM_NUMBER;
 		return translate(p1, scale, getDirectionVector(direction));
 	}
 }
