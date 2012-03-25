@@ -3,7 +3,6 @@ package group2.sdp.pc.planner;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
-import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
@@ -61,10 +60,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	private boolean stopping;
 	
-	private GlobalInfo globalInfo;
-	
-	public Overlord(GlobalInfo globalInfo, StrategyConsumer strategyConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
-		this.globalInfo = globalInfo;
+	public Overlord(StrategyConsumer strategyConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
 		this.strategyConsumer = strategyConsumer;
 		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
@@ -99,7 +95,7 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
-		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
+		dynamicInfoChecker = new DynamicInfoChecker(dpi);
 		if (running) {
 			Strategy strategy = computeStrategy(dpi);
 			if (strategy != currentStrategy) {

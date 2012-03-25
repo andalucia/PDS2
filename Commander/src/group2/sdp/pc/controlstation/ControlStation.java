@@ -38,6 +38,7 @@ public class ControlStation {
 	private boolean isProcessing;
 	// GUI elements
 	private JFrame frmAlfieCommandCentre;
+	@SuppressWarnings("unused")
 	private SettingsWindow settingsWindow;
 	
 	private CheckboxGroup pitchGroup;
@@ -59,14 +60,11 @@ public class ControlStation {
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
 	private Button penaltyButton;
-//	private Button robotPositionButtonLeft;
-//	private Button robotPositionButtonRight;
 	private Button goalieButton;
 
 	
 	private static JTextPane txtLog;
 
-	private GlobalInfo globalInfo;
 	/**
 	 * The server that sends commands to Alfie.
 	 */
@@ -175,27 +173,27 @@ public class ControlStation {
 	 */
 	private void startPipeline() {
 		
-		globalInfo = new GlobalInfo(
-				leftAlfieCheckbox.getState(), 
-				yellowAlfieCheckbox.getState(), 
+		GlobalInfo.setAttackingRight(rightAlfieCheckbox.getState());
+		GlobalInfo.setYellowAlfie(yellowAlfieCheckbox.getState());
+		GlobalInfo.setPitch(
 				pitchOneCheckbox.getState() 
-					? Pitch.ONE 
-					: Pitch.TWO
+				? Pitch.ONE 
+				: Pitch.TWO
 		);
 		
-		PathFinder finder = new PathFinder(globalInfo,alfieMouth);
+		PathFinder finder = new PathFinder(alfieMouth);
 		
 		//FIXME change null to finder when it implements correctly
-		FieldMarshal marshal = new FieldMarshal(globalInfo, finder, finder);
+		FieldMarshal marshal = new FieldMarshal(finder, finder);
 		
-		lord = new Overlord(globalInfo, marshal, marshal);
+		lord = new Overlord(marshal, marshal);
 		
 		Bakery bakery = new Bakery(lord);
 		
 		Artist previewer = new Artist();
 		
 		if (processImageCheckbox.getState()) {
-			processor = new VisualCortex(globalInfo, bakery, previewer);
+			processor = new VisualCortex(bakery, previewer);
 			new Eye(processor);
 		} else {
 			new Eye(previewer);
@@ -207,8 +205,6 @@ public class ControlStation {
 	 * Initialise the contents of the frame.
 	 */
 	private void initializeFrame() {
-		globalInfo = new GlobalInfo(true, true, Pitch.ONE);
-		
 		frmAlfieCommandCentre = new JFrame();
 		frmAlfieCommandCentre.setTitle("Alfie Command Centre");
 		frmAlfieCommandCentre.setBounds(100, 100, 632, 507);
@@ -264,7 +260,7 @@ public class ControlStation {
 					isProcessing = true;
 				}
 				startPipeline();
-				settingsWindow = new SettingsWindow(globalInfo, processor);
+				settingsWindow = new SettingsWindow(processor);
 				
 				frmAlfieCommandCentre.setLocation(0, 0);
 				
@@ -282,30 +278,30 @@ public class ControlStation {
 		
 		shootingDirectionGroup = new CheckboxGroup();
 		
-	    leftAlfieCheckbox = new Checkbox("Alfie shooting right", shootingDirectionGroup, true);
+	    leftAlfieCheckbox = new Checkbox("Alfie shooting left", shootingDirectionGroup, true);
 	    leftAlfieCheckbox.setBounds(332, 310, 160, 25);
 	    leftAlfieCheckbox.addItemListener(new ItemListener() {
 			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (globalInfo != null && leftAlfieCheckbox.getState()) {
+				if (leftAlfieCheckbox.getState()) {
 
-					globalInfo.setAttackingRight(true);
-					log("ATTACKING RIGHT");
+					GlobalInfo.setAttackingRight(false);
+					log("Attacking left now");
 				}
 			}
 	    });
 	    
-	    rightAlfieCheckbox = new Checkbox("Alfie shooting left", shootingDirectionGroup, false);
+	    rightAlfieCheckbox = new Checkbox("Alfie shooting right", shootingDirectionGroup, false);
 	    rightAlfieCheckbox.setBounds(332, 340, 160, 25);
 	    rightAlfieCheckbox.addItemListener(new ItemListener() {
 			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (globalInfo != null && rightAlfieCheckbox.getState()) {
+				if (rightAlfieCheckbox.getState()) {
 
-					globalInfo.setAttackingRight(false);
-					log("ATTACKING LEFT");
+					GlobalInfo.setAttackingRight(true);
+					log("Attacking right now");
 				}
 			}
 	    });		

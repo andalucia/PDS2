@@ -93,8 +93,8 @@ public class VisualCortex extends VisualCortexSkeleton {
 	/**
 	 * See parent's comment.
 	 */
-	public VisualCortex(GlobalInfo globalInfo, StaticInfoConsumer consumer) {
-		super(globalInfo, consumer);
+	public VisualCortex(StaticInfoConsumer consumer) {
+		super(consumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point>();
 	}
@@ -102,9 +102,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 	/**
 	 * See parent's comment.
 	 */
-	public VisualCortex(GlobalInfo globalInfo, Bakery bakery,
+	public VisualCortex(Bakery bakery,
 			ImageConsumer imageConsumer) {
-		super(globalInfo, bakery, imageConsumer);
+		super(bakery, imageConsumer);
 		extractBackground = true;
 		newPixels = new ArrayList<Point>();
 	}
@@ -191,7 +191,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * @see isDifferent
 	 */
 	private ArrayList<Point> getDifferentPixels(BufferedImage image) {
-		Rectangle pitchCrop = globalInfo.getPitch().getCamera().getPitchCrop();
+		Rectangle pitchCrop = GlobalInfo.getCamera().getPitchCrop();
 		int minX = Math.max(pitchCrop.x, image.getMinX());
 		int minY = Math.max(pitchCrop.y, image.getMinY());
 		int w = Math.min(pitchCrop.width, image.getWidth());
@@ -226,7 +226,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * @return True if the specified pixel is different, false otherwise.
 	 */
 	private boolean isDifferent(BufferedImage image, int x, int y) {
-		int threshold = globalInfo.getCamera().getPixelDifferenceThreshold();
+		int threshold = GlobalInfo.getCamera().getPixelDifferenceThreshold();
 
 		Color imagePixel = new Color(image.getRGB(x, y));
 		Color backPixel = new Color(backgroundImage.getRGB(x, y));
@@ -262,7 +262,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
 			LCHColour lch = new LCHColour(c);
-			ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
+			ColourClass cc = GlobalInfo.getColourSettings().getColourClass(lch);
 
 			switch (cc) {
 			case RED:
@@ -406,7 +406,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		for (Point p : newPixels) {
 			Color c = new Color(image.getRGB(p.x, p.y));
 			LCHColour lch = new LCHColour(c);
-			ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
+			ColourClass cc = GlobalInfo.getColourSettings().getColourClass(lch);
 
 			Color dc = null;
 			switch (cc) {
@@ -724,7 +724,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 		}
 		Color c = new Color(image.getRGB(pixel.x, pixel.y));
 		LCHColour lch = new LCHColour(c);
-		ColourClass cc = globalInfo.getColourSettings().getColourClass(lch);
+		ColourClass cc = GlobalInfo.getColourSettings().getColourClass(lch);
 		switch (cc) {
 		case BLUE:
 			if (!isYellow) {
@@ -797,9 +797,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	private Point2D convertPixelsToCm(Point2D point) {
 		Point2D p = new Point2D.Float();
-		Rectangle2D pitchPhysicalRectangle = globalInfo.getPitch()
+		Rectangle2D pitchPhysicalRectangle = GlobalInfo.getPitch()
 		.getMinimumEnclosingRectangle();
-		Rectangle pitchImageRectangle = globalInfo.getCamera().getPitchCrop();
+		Rectangle pitchImageRectangle = GlobalInfo.getCamera().getPitchCrop();
 
 		double x = linearRemap(point.getX(), pitchImageRectangle.getMinX(),
 				pitchImageRectangle.getWidth(),
@@ -841,10 +841,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 			Point2D convertedPosition, double height) {
 
 		Rectangle pitchImageRectangle = 
-			globalInfo.getCamera().getPitchCrop();
+			GlobalInfo.getCamera().getPitchCrop();
 
 		// Correction
-		double H = globalInfo.getCamera().getDistanceFromPitch();
+		double H = GlobalInfo.getCamera().getDistanceFromPitch();
 		double h = height;
 		double d = 
 			robotPosition.distance(

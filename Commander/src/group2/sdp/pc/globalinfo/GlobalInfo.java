@@ -1,7 +1,6 @@
 package group2.sdp.pc.globalinfo;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 /**
  * Description: Information that is match-specific (changes between matches; 
@@ -15,41 +14,24 @@ public class GlobalInfo {
 	/**
 	 * Indicates whether Alfie is attacking right or left.
 	 */
-	private boolean attackingRight;
+	private static boolean attackingRight;
 	
 	/**
 	 * Indicates whether Alfie is yellow or blue.
 	 */
-	private boolean yellowAlfie;
+	private static boolean yellowAlfie;
 	
 	/**
 	 * The non-changing information about the pitch on which the game is being 
 	 * played.
 	 */
-	private Pitch pitch;
-
-
-	/**
-	 * Fully initialising constructor.
-	 * @param attackingRight Indicates whether Alfie is attacking right or 
-	 * left.
-	 * @param yellowAlfie Indicates whether Alfie is yellow or blue.
-	 * @param pitch The non-changing information about the pitch on which the 
-	 * game is being played.
-	 */
-	public GlobalInfo(boolean attackingRight, boolean yellowAlfie, 
-			Pitch pitch) {
-		super();
-		this.attackingRight = attackingRight;
-		this.yellowAlfie = yellowAlfie;
-		this.pitch = pitch;
-	}
+	private static Pitch pitch;
 
 	/**
 	 * Get the camera of the pitch of the global info. 
 	 * @return The camera of the pitch of the global info.
 	 */
-	public Camera getCamera() {
+	public static Camera getCamera() {
 		return getPitch().getCamera();
 	}
 	
@@ -58,7 +40,7 @@ public class GlobalInfo {
 	 * @return The colour settings of the camera of the pitch of the global 
 	 * info.
 	 */
-	public LCHColourSettings getColourSettings() {
+	public static LCHColourSettings getColourSettings() {
 		return getCamera().getColourSettings();
 	}
 	
@@ -67,7 +49,7 @@ public class GlobalInfo {
 	 * @return If true, then Alfie is attacking right, otherwise it is 
 	 * attacking left.
 	 */
-	public boolean isAttackingRight() {
+	public static boolean isAttackingRight() {
 		return attackingRight;
 	}
 
@@ -77,15 +59,15 @@ public class GlobalInfo {
 	 * @param attackingRight If true, then Alfie is attacking right, otherwise
 	 * it is attacking left.
 	 */
-	public void setAttackingRight(boolean attackingRight) {
-		this.attackingRight = attackingRight;
+	public static void setAttackingRight(boolean attackingRight) {
+		GlobalInfo.attackingRight = attackingRight;
 	}
 
 	/**
 	 * Is Alfie yellow or blue?
 	 * @return If true, then Alfie is yellow, otherwise it is blue.
 	 */
-	public boolean isYellowAlfie() {
+	public static boolean isYellowAlfie() {
 		return yellowAlfie;
 	}
 
@@ -94,8 +76,8 @@ public class GlobalInfo {
 	 * Is Alfie yellow or blue?
 	 * @param yellowAlfie If true, then Alfie is yellow, otherwise it is blue.
 	 */
-	public void setYellowAlfie(boolean yellowAlfie) {
-		this.yellowAlfie = yellowAlfie;
+	public static void setYellowAlfie(boolean yellowAlfie) {
+		GlobalInfo.yellowAlfie = yellowAlfie;
 	}
 
 	/**
@@ -104,7 +86,7 @@ public class GlobalInfo {
 	 * @return The non-changing information about the pitch on which the game 
 	 * is being played.
 	 */
-	public Pitch getPitch() {
+	public static Pitch getPitch() {
 		return pitch;
 	}
 
@@ -114,15 +96,15 @@ public class GlobalInfo {
 	 * @param pitch The non-changing information about the pitch on which the 
 	 * game is being played.
 	 */
-	public void setPitch(Pitch pitch) {
-		this.pitch = pitch;
+	public static void setPitch(Pitch pitch) {
+		GlobalInfo.pitch = pitch;
 	}
 	
 	/**
 	 * Computes the middle of the goal Alfie shoots for.
 	 * @return The middle of the goal Alfie shoots for.
 	 */
-	public Point2D getTargetGoalMiddle() {
+	public static Point2D getTargetGoalMiddle() {
 		double x;
 		if (attackingRight) {
 			x = pitch.getMinimumEnclosingRectangle().getMaxX();
@@ -136,7 +118,7 @@ public class GlobalInfo {
 	/**
 	 * Gets the top goal post of the goal that Alfie tries not to score in.
 	 */
-	public Point2D getDefendingTopGoalPost() {
+	public static Point2D getDefendingTopGoalPost() {
 		double x;
 		if (attackingRight) {
 			x = pitch.getMinimumEnclosingRectangle().getMinX();
@@ -150,7 +132,7 @@ public class GlobalInfo {
 	/**
 	 * Gets the bottom goal post of the goal that Alfie tries not to score in.
 	 */
-	public Point2D getDefendingBottomGoalPost() {
+	public static Point2D getDefendingBottomGoalPost() {
 		double x;
 		if (attackingRight) {
 			x = pitch.getMinimumEnclosingRectangle().getMinX();

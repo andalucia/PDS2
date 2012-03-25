@@ -42,8 +42,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	protected Strategy currentStrategy;
 	
-	protected GlobalInfo globalInfo;
-	
 	/**
 	 * The path finder that will be executing the operations.
 	 */
@@ -62,8 +60,10 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	protected OperationConsumer operationConsumer;
 	protected DynamicInfoConsumer dynamicInfoConsumer;
 
-	public FieldMarshal(GlobalInfo globalInfo, OperationConsumer operationConsumer, DynamicInfoConsumer dynamicInfoConsumer) {
-		this.globalInfo = globalInfo;
+	public FieldMarshal(
+			OperationConsumer operationConsumer, 
+			DynamicInfoConsumer dynamicInfoConsumer
+	) {
 		this.operationConsumer = operationConsumer;
 		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
@@ -86,7 +86,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		switch (currentStrategy) {
 		case TEST_PATH_FINDER:
 			Point2D ballPosition = dpi.getBallInfo().getPosition();
-			Point2D goalMiddle = globalInfo.getTargetGoalMiddle();
+			Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
 			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
 			
 			return new OperationReallocation(
@@ -112,8 +112,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	private Operation planNextDefensive(DynamicInfo dpi) {
 		Point2D ballPosition = dpi.getBallInfo().getPosition();
 		double opponentDirection = dpi.getOpponentInfo().getFacingDirection();
-		Point2D g1 = globalInfo.getDefendingTopGoalPost();
-		Point2D g2 = globalInfo.getDefendingBottomGoalPost();
+		Point2D g1 = GlobalInfo.getDefendingTopGoalPost();
+		Point2D g2 = GlobalInfo.getDefendingBottomGoalPost();
 		
 		Point2D temp = Geometry.generateRandomPoint(ballPosition, opponentDirection);
 		
@@ -182,7 +182,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
-		dynamicInfoChecker = new DynamicInfoChecker(globalInfo,dpi);
+		dynamicInfoChecker = new DynamicInfoChecker(dpi);
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {

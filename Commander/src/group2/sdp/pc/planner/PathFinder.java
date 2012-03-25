@@ -4,7 +4,6 @@ import group2.sdp.common.util.Geometry;
 import group2.sdp.common.util.Pair;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.controlstation.ControlStation;
-import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
@@ -38,8 +37,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	private PathStep currentStep = null;
 	private Operation currentOperation;
 	
-	@SuppressWarnings("unused")
-	private GlobalInfo globalInfo;
 	private MouthInterface mouth;
 	
 	private boolean replan;
@@ -50,8 +47,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 * @param Persistant global pitch info
 	 * @param the mouth used for communicating with Alfie or the simulator
 	 */
-	public PathFinder(GlobalInfo globalInfo, MouthInterface mouth) {
-		this.globalInfo = globalInfo;
+	public PathFinder(MouthInterface mouth) {
 		this.mouth = mouth;
 	}
 	

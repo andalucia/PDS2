@@ -22,20 +22,16 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 	
 	private ImageConsumer imageConsumer;
 	protected BufferedImage internalImage;
-
-	protected GlobalInfo globalInfo;
 	
 	/**
 	 * A constructor that takes the object that is going to consume the output.
 	 * @param consumer The object that is going to consume the output.
 	 */
-	public VisualCortexSkeleton (GlobalInfo globalInfo, StaticInfoConsumer consumer) {
-		this.globalInfo = globalInfo;
+	public VisualCortexSkeleton (StaticInfoConsumer consumer) {
 		this.staticInfoConsumer = consumer;
 	}
 	
-	public VisualCortexSkeleton (GlobalInfo globalInfo, StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
-		this.globalInfo = globalInfo;
+	public VisualCortexSkeleton (StaticInfoConsumer consumer, ImageConsumer imageConsumer) {
 		this.staticInfoConsumer = consumer;
 		this.imageConsumer = imageConsumer;
 	}
@@ -105,7 +101,7 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 	 * @return The position of Alfie in cm w.r.t. the centre of the pitch.
 	 */
 	private Point2D extractAlfiePosition(BufferedImage image) {
-		return extractRobotPosition(image, globalInfo.isYellowAlfie());
+		return extractRobotPosition(image, GlobalInfo.isYellowAlfie());
 	}
 	
 	/**
@@ -118,7 +114,7 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 	 * @return The the direction in which Alfie is facing.
 	 */
 	private double extractAlfieFacingDirection(BufferedImage image) {
-		return extractRobotFacingDirection(image, globalInfo.isYellowAlfie());
+		return extractRobotFacingDirection(image, GlobalInfo.isYellowAlfie());
 	}
 
 	/**
@@ -127,7 +123,7 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 	 * @return The position of Alfie's opponent in cm w.r.t. the centre of the pitch.
 	 */
 	private Point2D extractOpponentPosition(BufferedImage image) {
-		return extractRobotPosition(image, !globalInfo.isYellowAlfie());
+		return extractRobotPosition(image, !GlobalInfo.isYellowAlfie());
 	}
 	
 	/**
@@ -140,7 +136,7 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 	 * @return The the direction in which Alfie's opponent is facing.
 	 */
 	private double extractOpponentFacingDirection(BufferedImage image) {
-		return extractRobotFacingDirection(image, !globalInfo.isYellowAlfie());
+		return extractRobotFacingDirection(image, !GlobalInfo.isYellowAlfie());
 	}
 	
 	

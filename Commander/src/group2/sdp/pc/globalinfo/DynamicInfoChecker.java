@@ -14,10 +14,7 @@ import java.awt.geom.Rectangle2D;
  */
 public class DynamicInfoChecker {
 
-	private GlobalInfo globalInfo;
-
-	public DynamicInfoChecker(GlobalInfo globalInfo, DynamicInfo dynamicInfo) {
-		this.globalInfo = globalInfo;
+	public DynamicInfoChecker(DynamicInfo dynamicInfo) {
 //		this.dynamicInfo = dynamicInfo;
 	}
 
@@ -115,11 +112,11 @@ public class DynamicInfoChecker {
 	 */
 	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
 		float x = (float) (
-				globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-						: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+				GlobalInfo.isAttackingRight() 
+				? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
-		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		float y = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 		Point2D TopGoal = new Point2D.Float(x, y);
 		double goalLine = TopGoal.getX();
 
@@ -146,12 +143,12 @@ public class DynamicInfoChecker {
 	 * @return
 	 */
 	public boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-//		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
+//		float y1 = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 
 		double goalX = 		
-			globalInfo.isAttackingRight() 
-			? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-					: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+			GlobalInfo.isAttackingRight() 
+			? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+					: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 					;
 			double ballX = ball.getX();
 			double robotX = robotInfo.getPosition().getX();
@@ -163,11 +160,11 @@ public class DynamicInfoChecker {
 				return false;
 			} else {
 				float x = (float) (
-						globalInfo.isAttackingRight() 
-						? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-								: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+						GlobalInfo.isAttackingRight() 
+						? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+								: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 				);
-				float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+				float y = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 				Point2D topGoalPost = new Point2D.Float(x, y);
 				int angleToGoal = getAngleToBall(topGoalPost, robotInfo.getPosition(), robotInfo.getFacingDirection());
 				if (Math.abs(angleToGoal) > 90) {
@@ -268,37 +265,37 @@ public class DynamicInfoChecker {
 		// distance to be away from the ball by x and y coordinates.
 		double sideDistance = Math.sqrt(2*distance*distance);
 		// if the ball is within the y coordinates of the goal then get immediately behind it
-		if (globalInfo.getPitch().getTopGoalPostYCoordinate() - 5 > ballPosition.getY() &&
-				globalInfo.getPitch().getBottomGoalPostYCoordinate() + 5 < ballPosition.getY()) {
+		if (GlobalInfo.getPitch().getTopGoalPostYCoordinate() - 5 > ballPosition.getY() &&
+				GlobalInfo.getPitch().getBottomGoalPostYCoordinate() + 5 < ballPosition.getY()) {
 			
-			kickingPositionX = (float) (globalInfo.isAttackingRight()
+			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					?  ballPosition.getX() - distance
 							: ballPosition.getX() + distance);
 					kickingPositionY = (float) (ballPosition.getY());
 		// have already checked if ball is near middle of pitch so this check is sufficient
 		} else if (ballPosition.getY() > 0) {
-			kickingPositionX = (float) (globalInfo.isAttackingRight()
+			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					? ballPosition.getX() - sideDistance
 							: ballPosition.getX() + sideDistance);
 			kickingPositionY = (float) (ballPosition.getY() + sideDistance);
 		} else {
-			kickingPositionX = (float) (globalInfo.isAttackingRight()
+			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					? ballPosition.getX() - sideDistance
 							: ballPosition.getX() + sideDistance);
 			kickingPositionY = (float) (ballPosition.getY() - sideDistance);
 		}
 		
 		// check if position is within bounds
-		if ((kickingPositionY > globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
-		(kickingPositionY < globalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
+		if ((kickingPositionY > GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
+		(kickingPositionY < GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
 			//out of bounds :(
-			kickingPositionX = (float) (globalInfo.isAttackingRight()
+			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					?  ballPosition.getX() - distance
 							: ballPosition.getX() + distance);
 					kickingPositionY = (float) (ballPosition.getY());
 		}
-		if ((kickingPositionY > globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
-				(kickingPositionY < globalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
+		if ((kickingPositionY > GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
+				(kickingPositionY < GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
 			kickingPositionX = (float) ballPosition.getX();
 			kickingPositionY = (float) ballPosition.getY();
 		}
@@ -427,12 +424,12 @@ public class DynamicInfoChecker {
 	 */
 	public boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
 		float x = (float) (
-				!globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+				!GlobalInfo.isAttackingRight() 
+				? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
-		float y1 = globalInfo.getPitch().getTopGoalPostYCoordinate();
-		float y2 = globalInfo.getPitch().getBottomGoalPostYCoordinate();
+		float y1 = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
+		float y2 = GlobalInfo.getPitch().getBottomGoalPostYCoordinate();
 		
 		
 		Point2D topGoal = new Point2D.Float(x, y1);
@@ -442,11 +439,11 @@ public class DynamicInfoChecker {
 		double facing = robotInfo.getFacingDirection();
 
 		x = (float) (
-				globalInfo.isAttackingRight() 
-				? globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+				GlobalInfo.isAttackingRight() 
+				? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+				: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
-		float y = globalInfo.getPitch().getTopGoalPostYCoordinate();
+		float y = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 
 		Point2D ourGoal = new Point2D.Float(x, y);
 		double ourGoalLine = ourGoal.getX();
@@ -499,14 +496,14 @@ public class DynamicInfoChecker {
 	public int getDefensiveGoalOfRobot(boolean isAlfie){
 		
 		if (isAlfie){
-			return globalInfo.isAttackingRight() 
-			? (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-			: (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
+			return GlobalInfo.isAttackingRight() 
+			? (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+			: (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
 		}
 		else{
-			return !globalInfo.isAttackingRight() 
-			? (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-					: (int)globalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
+			return !GlobalInfo.isAttackingRight() 
+			? (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+					: (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
 		}
 	}
 }
