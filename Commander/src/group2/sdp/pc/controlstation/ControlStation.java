@@ -40,10 +40,15 @@ public class ControlStation {
 	private JFrame frmAlfieCommandCentre;
 	private SettingsWindow settingsWindow;
 	
+	private CheckboxGroup pitchGroup;
+	private Checkbox pitchOneCheckbox;
+	private Checkbox pitchTwoCheckbox;
+	
 	private CheckboxGroup yellowBlueAlfieGroup;
-	private CheckboxGroup shootingDirectionGroup;
 	private Checkbox yellowAlfieCheckbox;
 	private Checkbox blueAlfieCheckbox;
+	
+	private CheckboxGroup shootingDirectionGroup;
 	private Checkbox rightAlfieCheckbox;
 	private Checkbox leftAlfieCheckbox;
 	
@@ -62,7 +67,6 @@ public class ControlStation {
 	private static JTextPane txtLog;
 
 	private GlobalInfo globalInfo;
-	private boolean attackingRight = true;
 	/**
 	 * The server that sends commands to Alfie.
 	 */
@@ -171,13 +175,13 @@ public class ControlStation {
 	 */
 	private void startPipeline() {
 		
-		if(leftAlfieCheckbox.getState()){
-			attackingRight = true;
-		}else{
-			attackingRight = false;
-		}
-		
-		globalInfo = new GlobalInfo(attackingRight, yellowAlfieCheckbox.getState(), Pitch.ONE);
+		globalInfo = new GlobalInfo(
+				leftAlfieCheckbox.getState(), 
+				yellowAlfieCheckbox.getState(), 
+				pitchOneCheckbox.getState() 
+					? Pitch.ONE 
+					: Pitch.TWO
+		);
 		
 		PathFinder finder = new PathFinder(globalInfo,alfieMouth);
 		
@@ -225,13 +229,22 @@ public class ControlStation {
 		});
 		
 		
+		pitchGroup = new CheckboxGroup();
+		
+	    pitchOneCheckbox = new Checkbox("Pitch One", pitchGroup, true);
+	    pitchOneCheckbox.setBounds(332, 75, 160, 25);
+	    
+	    pitchTwoCheckbox = new Checkbox("Pitch Two", pitchGroup, false);
+	    pitchTwoCheckbox.setBounds(332, 105, 160, 25);
+	    
+		
 		yellowBlueAlfieGroup = new CheckboxGroup();
 		
 	    yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
-	    yellowAlfieCheckbox.setBounds(332, 75, 160, 25);
+	    yellowAlfieCheckbox.setBounds(514, 75, 160, 25);
 	    
 	    blueAlfieCheckbox = new Checkbox("Blue Alfie", yellowBlueAlfieGroup, false);
-	    blueAlfieCheckbox.setBounds(332, 105, 160, 25);
+	    blueAlfieCheckbox.setBounds(514, 105, 160, 25);
 		
 		
 		processImageCheckbox = new Checkbox();
@@ -255,8 +268,12 @@ public class ControlStation {
 				
 				frmAlfieCommandCentre.setLocation(0, 0);
 				
-			    yellowAlfieCheckbox.setEnabled(false);
+				pitchOneCheckbox.setEnabled(false);
+			    pitchTwoCheckbox.setEnabled(false);
+				
+				yellowAlfieCheckbox.setEnabled(false);
 			    blueAlfieCheckbox.setEnabled(false);
+			    
 				connectButton.setEnabled(false);
 				processImageCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
@@ -377,6 +394,9 @@ public class ControlStation {
 		
 		frmAlfieCommandCentre.getContentPane().add(rightAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(leftAlfieCheckbox);
+		
+		frmAlfieCommandCentre.getContentPane().add(pitchOneCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(pitchTwoCheckbox);
 		
 		frmAlfieCommandCentre.getContentPane().add(yellowAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(blueAlfieCheckbox);
