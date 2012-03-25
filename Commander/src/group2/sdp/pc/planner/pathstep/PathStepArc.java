@@ -2,6 +2,7 @@ package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.mouth.MouthInterface;
 
 import java.awt.geom.Point2D;
@@ -114,8 +115,11 @@ public abstract class PathStepArc extends PathStep {
 	 */
 	@Override
 	public boolean hasFailed(DynamicInfo pitchStatus) {
-//		System.out.println(pitchStatus.getAlfieInfo().getTravelSpeed());
-//		return pitchStatus.getAlfieInfo().getTravelSpeed() < SPEED_STOP_THRESHOLD;
+		int STOP_THRESHOLD = 10;
+		System.out.println("Travel speed: " + pitchStatus.getAlfieInfo().getTravelSpeed());
+		if (pitchStatus.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
+			return true;
+		}
 		return false;
 	}
 	

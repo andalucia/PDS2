@@ -1,11 +1,16 @@
 package group2.sdp.pc.planner;
 
+import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.planner.skeleton.StrategyConsumer;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
+
+import java.awt.geom.Point2D;
 
 /**
  *<p><b>Description</b>: "If they have no bread, let them eat cake!" The popularity of 
@@ -88,6 +93,10 @@ public class Overlord implements DynamicInfoConsumer {
 		// Running is set to false once a stop command is sent to Alfie
 	}
 
+	
+	private long lastStrategyIssueTime = 0;
+	private final long REPLAN_PERIOD = 3000;
+	
 	/**
 	 * When running, computes the strategy that should be employed depending 
 	 * on the current pitch status and passes the information to the 
@@ -97,10 +106,14 @@ public class Overlord implements DynamicInfoConsumer {
 	public void consumeInfo(DynamicInfo dpi) {
 		dynamicInfoChecker = new DynamicInfoChecker(dpi);
 		if (running) {
-			Strategy strategy = computeStrategy(dpi);
-			if (strategy != currentStrategy) {
-				strategyConsumer.setStrategy(strategy);
-				currentStrategy = strategy;
+			long now = System.currentTimeMillis();
+			if (now - lastStrategyIssueTime > REPLAN_PERIOD) {
+				lastStrategyIssueTime = now;
+				Strategy strategy = computeStrategy(dpi);
+				if (strategy != currentStrategy) {
+					strategyConsumer.setStrategy(strategy);
+					currentStrategy = strategy;
+				}
 			}
 			dynamicInfoConsumer.consumeInfo(dpi);
 		}
@@ -121,21 +134,20 @@ public class Overlord implements DynamicInfoConsumer {
 			return Strategy.STOP;
 		}
 		
-		// TODO: remove after testing
-		return Strategy.TEST_PATH_FINDER;
+		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
+		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
+		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		
-//		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
-//		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-//		DynamicBallInfo ballInfo = dpi.getBallInfo();
-//		
-//		Point2D ballPosition = ballInfo.getPosition();  
-//		
-//		if(dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
-//				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)){
-//			return Strategy.DEFENSIVE;
-//		} else {
-//			return Strategy.OFFENSIVE;
-//		}
+		Point2D ballPosition = ballInfo.getPosition();  
+		
+		if (dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
+				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)) {
+			ControlStation.log("Defending.");
+			return Strategy.DEFENSIVE;
+		} else {
+			ControlStation.log("Attacking.");
+			return Strategy.OFFENSIVE;
+		}
 	}
 	
 	/**

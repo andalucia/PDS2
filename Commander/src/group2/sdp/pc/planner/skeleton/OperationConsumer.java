@@ -1,4 +1,4 @@
-package group2.sdp.pc.planner;
+package group2.sdp.pc.planner.skeleton;
 
 import group2.sdp.pc.planner.operation.Operation;
 

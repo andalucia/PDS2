@@ -51,8 +51,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	public enum OutputMode {
 		MATCH,
+		LUMA,
 		CHROMA,
-		LUMA
+		HUE
 	}
 
 	private OutputMode currentMode = OutputMode.MATCH;
@@ -88,7 +89,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 	// used to check if what we think is a robot/ball is 
 	// actually a robot/ball or is noise
 	private final int meanRobotSize = 400;
-	private final int meanBallSize = 120;
+	private final int meanBallSize = 30;
 
 	/**
 	 * See parent's comment.
@@ -318,8 +319,9 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 * @return true if the size of the ArrayList is in bounds
 	 */
 	private boolean sizeCheck(ArrayList<Point> points, int expectedSize) {
-		int upperBound = 4;
-		double lowerBound = 0.4;
+		double upperBound = 4.5;
+		double lowerBound = 0.35;
+		
 		int size = points.size(); 
 		if (size > expectedSize * upperBound
 				|| size < expectedSize * lowerBound) {
@@ -437,12 +439,16 @@ public class VisualCortex extends VisualCortexSkeleton {
 			case MATCH:
 				result.setRGB(p.x, p.y, dc.getRGB());
 				break;
-			case CHROMA:
-				v = lch.getChroma();
+			case HUE:
+				v = lch.getHue() * 255 / 360;
 				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
 				break;
 			case LUMA:
 				v = lch.getLuma();
+				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
+				break;
+			case CHROMA:
+				v = lch.getChroma();
 				result.setRGB(p.x, p.y, new Color(v, v, v).getRGB());
 				break;
 			}

@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.CharBuffer;
 
 /**
  * Saves and loads the LCH Colour Settings.
@@ -65,7 +64,6 @@ public class Salvator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	

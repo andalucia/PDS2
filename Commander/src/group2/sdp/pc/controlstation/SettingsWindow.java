@@ -957,6 +957,14 @@ public class SettingsWindow extends JFrame {
 		hueVisionModeButton = new Button();
 		hueVisionModeButton.setLabel("Hue");
 		hueVisionModeButton.setBounds(280, 15, 65, 25);
+		hueVisionModeButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				processor.setCurrentMode(OutputMode.HUE);
+			}
+		});
+		
 		
 		chromaVisionModeButton = new Button();
 		chromaVisionModeButton.setLabel("Chroma");

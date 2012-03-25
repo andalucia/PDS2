@@ -32,7 +32,7 @@ public class Camera {
 	 */
 	final static Camera TWO = 
 		new Camera(
-				new Rectangle(53, 100, 592 - 53, 383 - 100),
+				new Rectangle(41, 75, 594 - 53, 425 - 100),
 				LCHColourSettings.TWO, 
 				248.0,
 				90

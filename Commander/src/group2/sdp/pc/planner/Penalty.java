@@ -4,6 +4,7 @@ import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
+@Deprecated
 public class Penalty implements DynamicInfoConsumer {
 
 

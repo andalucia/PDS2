@@ -9,6 +9,8 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.skeleton.OperationConsumer;
+import group2.sdp.pc.planner.skeleton.StrategyConsumer;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -84,15 +86,15 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		}
 
 		switch (currentStrategy) {
-		case TEST_PATH_FINDER:
-			Point2D ballPosition = dpi.getBallInfo().getPosition();
-			Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
-			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
-			
-			return new OperationReallocation(
-					ballPosition,
-					shootingDirection
-			);
+//		case TEST_PATH_FINDER:
+//			Point2D ballPosition = dpi.getBallInfo().getPosition();
+//			Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+//			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+//			
+//			return new OperationReallocation(
+//					ballPosition,
+//					shootingDirection
+//			);
 			
 		case DEFENSIVE:
 			return planNextDefensive(dpi);
@@ -136,8 +138,14 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	}
 
 	private Operation planNextOffensive(DynamicInfo dpi) {
-
-		return null;
+		Point2D ballPosition = dpi.getBallInfo().getPosition();
+		Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+		double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+		
+		return new OperationReallocation(
+				ballPosition,
+				shootingDirection
+		);
 	}
 
 	/**
@@ -153,11 +161,19 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 * Checks if the current operation succeeded, given the current pitch info.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
-	 * TODO implement
 	 */
 	protected boolean operationSuccessful(DynamicInfo dpi) {
+		int REALLOCATION_DISTANCE_THRESHOLD = 20;
+		
 		if (currentStrategy == null)
 			return true;
+		
+		if (currentOperation instanceof OperationReallocation) {
+			Point2D pos = dpi.getAlfieInfo().getPosition();
+			Point2D aim = ((OperationReallocation) currentOperation).getPosition();
+			return (pos.distance(aim) < REALLOCATION_DISTANCE_THRESHOLD);
+		}
+		
 		return false;
 	}
 
@@ -171,6 +187,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		if (currentStrategy == null) {
 			return true;
 		}
+		
 		return false;
 	}
 

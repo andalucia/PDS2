@@ -10,6 +10,7 @@ import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
+import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
 import java.awt.geom.Point2D;
@@ -51,24 +52,23 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		this.mouth = mouth;
 	}
 	
-	private boolean plannedBefore;
+	private final int WARMUP_TIMEOUT = 1000;
 	
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
 		if (replan || currentStep == null) {
-			if (!plannedBefore) {
-				plan(dpi);
-				executeNextStep(dpi);
-				replan = false;
-				plannedBefore = true;
-			}
+			plan(dpi);
+			executeNextStep(dpi);
+			replan = false;
 		} else {
+			long now = System.currentTimeMillis();
 			if (currentStep.isSuccessful(dpi)) {
 				if (verbose) {
 					System.out.println("Step succeeded :D");
 				}
 				executeNextStep(dpi);
-			} else if (currentStep.hasFailed(dpi)) {
+			} else if (now - lastPlanIssuedTime > WARMUP_TIMEOUT &&
+					currentStep.hasFailed(dpi)) {
 				if (verbose) {
 					System.out.println("Step failed D:");
 				}
@@ -106,6 +106,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		replan = true;
 	}
 	
+	private long lastPlanIssuedTime = 0; 
+	
 	/**
 	 * This method works out all the logic of the pathFinder and adds each step the queue which will
 	 * them be executed in turn.
@@ -114,10 +116,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 * place from scratch
 	 * @param dpi 
 	 */
-
 	private void plan(DynamicInfo dpi) {
 		
-		ControlStation.log("Looking for a path...");
+		System.out.println("Looking for a path...");
 		
 		// Clear the PathStep queue
 		pathStepList.clear();
@@ -139,8 +140,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		case OVERLOAD:
 			planOverload();
-			break;				
+			break;
 		}
+		lastPlanIssuedTime = System.currentTimeMillis();
 	}
 	
 	/**
@@ -340,11 +342,11 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 	@Override
 	public void start() {
-		plannedBefore = false;
+//		plannedBefore = false;
 	}
 
 	@Override
 	public void stop() {
-		plannedBefore = false;
+//		plannedBefore = false;
 	}
 }

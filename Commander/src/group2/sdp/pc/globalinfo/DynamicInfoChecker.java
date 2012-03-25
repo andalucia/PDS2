@@ -73,7 +73,6 @@ public class DynamicInfoChecker {
 	 * @return boolean
 	 */
 	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
-		
 
 		int threshold = 35;
 
@@ -81,21 +80,21 @@ public class DynamicInfoChecker {
 		double facing = robot.getFacingDirection();
 
 		//threshold is the give we set in checking if the robot has the ball
-		if(robotPos.distance(ball)<=threshold){
+		if (robotPos.distance(ball) <= threshold) {
 			//this is the angle from the origin
 
 			int threshold2 = 10;
 
 			double angle = Math.abs(getAngleToBall(ball, robotPos, facing));
 
-			if(angle<=threshold2){
+			if (angle <= threshold2) {
 				//System.out.println("HASBALL is TRUE");
 				return true;
-			}else{
+			} else {
 				//System.out.println("HASBALL is FALSE");
 				return false;
 			}
-		}else{
+		} else {
 			//System.out.println("HASBALL is FALSE");
 			return false;
 		}
