@@ -93,7 +93,7 @@ public class Mouth implements MouthInterface {
 				new CandyPacket(
 						CandyPacket.FORWARD_RIGHT_ARC_CANDY, 
 						(int)(10000 * radius), 
-						(int) angle // TODO: change to 10000 * and synch in the ear
+						(int)(10000 * angle)
 				)
 		);
 	}
@@ -108,7 +108,7 @@ public class Mouth implements MouthInterface {
 				new CandyPacket(
 						CandyPacket.FORWARD_LEFT_ARC_CANDY, 
 						(int)(10000 * radius), 
-						(int) angle // TODO: change to 10000 * and synch in the ear
+						(int)(10000 * angle)
 				)
 		);
 	}
@@ -123,7 +123,7 @@ public class Mouth implements MouthInterface {
 				new CandyPacket(
 						CandyPacket.BACKWARDS_RIGHT_ARC_CANDY, 
 						(int)(10000 * radius), 
-						(int) angle // TODO: change to 10000 * and synch in the ear
+						(int)(10000 * angle)
 				)
 		);
 	}
@@ -140,7 +140,7 @@ public class Mouth implements MouthInterface {
 				new CandyPacket(
 						CandyPacket.BACKWARDS_LEFT_ARC_CANDY, 
 						(int)(10000 * radius), 
-						(int) angle // TODO: change to 10000 * and synch in the ear
+						(int)(10000 * angle)
 				)
 		);
 	}

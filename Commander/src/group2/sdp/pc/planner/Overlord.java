@@ -126,7 +126,7 @@ public class Overlord implements DynamicInfoConsumer {
 		}
 		
 		// TODO: remove after testing
-		return Strategy.DEFENSIVE;
+		return Strategy.TEST_PATH_FINDER;
 		
 //		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 //		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();

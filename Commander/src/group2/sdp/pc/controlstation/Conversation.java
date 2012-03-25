@@ -21,6 +21,18 @@ public class Conversation {
 	public static void main (String [] args) throws Exception {
 		Mouth s = new Mouth();
 		
+		// testDoubleArc(s);
+		
+		s.sendForwardArcRight(1276, 4.7065);
+		Thread.sleep(5000);
+		s.sendStop();
+		Thread.sleep(1000);
+		s.sendReset();
+		Thread.sleep(1000);
+		s.cleanup();
+	}
+
+	public static void testDoubleArc(Mouth s) throws InterruptedException {
 		Point2D start = new Point2D.Double(0.0, 0.0);
 		double startdir = 90;
 		
@@ -54,12 +66,6 @@ public class Conversation {
 		Thread.sleep(5000);
 		doubleArcPath.get(1).whisper(s);
 		Thread.sleep(10000);
-		
-		s.sendStop();
-		Thread.sleep(1000);
-		s.sendReset();
-		Thread.sleep(1000);
-		s.cleanup();
 	}
 	
 	/**

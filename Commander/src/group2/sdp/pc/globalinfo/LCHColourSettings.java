@@ -224,37 +224,6 @@ public class LCHColourSettings {
 	}
 	
 	
-
-	
-	/**
-	 * Sets the hue border between blue and red. Should be between 0 and 360.
-	 * @param value The new value of the border. Default is 300.
-	 */
-	public void setBlueToRedHue(int value) {
-		redHueStart = blueHueEnd = value;
-	}
-	/**
-	 * Sets the hue border between red and yellow. Should be between 0 and 360.
-	 * @param value The new value of the border. Default is 30.
-	 */
-	public void setRedToYellowHue(int value) {
-		yellowHueStart = redHueEnd = value;
-	}
-	/**
-	 * Sets the hue border between yellow and green. Should be between 0 and 360.
-	 * @param value The new value of the border. Default is 80.
-	 */
-	public void setYellowToGreenHue(int value) {
-		plateHueStart = pitchHueStart = yellowHueEnd = value;
-	}
-	/**
-	 * Sets the hue border between green and blue. Should be between 0 and 360.
-	 * @param value The new value of the border. Default is 150.
-	 */
-	public void setGreenToBlueHue(int value) {
-		blueHueStart = plateHueStart = pitchHueStart = value;
-	}
-	
 	/**
 	 * Gets the hue border between blue and red. Should be between 0 and 360.
 	 * @return The value of the border.
@@ -599,188 +568,116 @@ public class LCHColourSettings {
 	}
 
 
-	
-	
 	public void setPlateHueStart(int plateHueStart) {
 		this.plateHueStart = plateHueStart;
 	}
-
-
 	public void setPlateHueEnd(int plateHueEnd) {
 		this.plateHueEnd = plateHueEnd;
 	}
-
-
 	public void setPlateLumaStart(int plateLumaStart) {
 		this.plateLumaStart = plateLumaStart;
 	}
-
-
 	public void setPlateLumaEnd(int plateLumaEnd) {
 		this.plateLumaEnd = plateLumaEnd;
 	}
-
-
 	public void setPlateChromaStart(int plateChromaStart) {
 		this.plateChromaStart = plateChromaStart;
 	}
-
-
 	public void setPlateChromaEnd(int plateChromaEnd) {
 		this.plateChromaEnd = plateChromaEnd;
 	}
 
-
-	
 	public void setPitchHueStart(int pitchHueStart) {
 		this.pitchHueStart = pitchHueStart;
 	}
-
-
 	public void setPitchHueEnd(int pitchHueEnd) {
 		this.pitchHueEnd = pitchHueEnd;
 	}
-
-
 	public void setPitchLumaStart(int pitchLumaStart) {
 		this.pitchLumaStart = pitchLumaStart;
 	}
-
-
 	public void setPitchLumaEnd(int pitchLumaEnd) {
 		this.pitchLumaEnd = pitchLumaEnd;
 	}
-
-
 	public void setPitchChromaStart(int pitchChromaStart) {
 		this.pitchChromaStart = pitchChromaStart;
 	}
-
-
 	public void setPitchChromaEnd(int pitchChromaEnd) {
 		this.pitchChromaEnd = pitchChromaEnd;
 	}
-
-
 	
 	public void setBlueHueStart(int blueHueStart) {
 		this.blueHueStart = blueHueStart;
 	}
-
-
 	public void setBlueHueEnd(int blueHueEnd) {
 		this.blueHueEnd = blueHueEnd;
 	}
-
-
 	public void setBlueLumaStart(int blueLumaStart) {
 		this.blueLumaStart = blueLumaStart;
 	}
-
-
 	public void setBlueLumaEnd(int blueLumaEnd) {
 		this.blueLumaEnd = blueLumaEnd;
 	}
-
-
 	public void setBlueChromaStart(int blueChromaStart) {
 		this.blueChromaStart = blueChromaStart;
 	}
-
-
 	public void setBlueChromaEnd(int blueChromaEnd) {
 		this.blueChromaEnd = blueChromaEnd;
 	}
-
-
 	
 	public void setRedHueStart(int redHueStart) {
 		this.redHueStart = redHueStart;
 	}
-
-
 	public void setRedHueEnd(int redHueEnd) {
 		this.redHueEnd = redHueEnd;
 	}
-
-
 	public void setRedLumaStart(int redLumaStart) {
 		this.redLumaStart = redLumaStart;
 	}
-
-
 	public void setRedLumaEnd(int redLumaEnd) {
 		this.redLumaEnd = redLumaEnd;
 	}
-
-
 	public void setRedChromaStart(int redChromaStart) {
 		this.redChromaStart = redChromaStart;
 	}
-
-
 	public void setRedChromaEnd(int redChromaEnd) {
 		this.redChromaEnd = redChromaEnd;
 	}
-
-
 	
 	public void setYellowHueStart(int yellowHueStart) {
 		this.yellowHueStart = yellowHueStart;
 	}
-
-
 	public void setYellowHueEnd(int yellowHueEnd) {
 		this.yellowHueEnd = yellowHueEnd;
 	}
-
-
 	public void setYellowLumaStart(int yellowLumaStart) {
 		this.yellowLumaStart = yellowLumaStart;
 	}
-
-
 	public void setYellowLumaEnd(int yellowLumaEnd) {
 		this.yellowLumaEnd = yellowLumaEnd;
 	}
-
-
 	public void setYellowChromaStart(int yellowChromaStart) {
 		this.yellowChromaStart = yellowChromaStart;
 	}
-
-
 	public void setYellowChromaEnd(int yellowChromaEnd) {
 		this.yellowChromaEnd = yellowChromaEnd;
 	}
-
-
 	
 	public void setGrayHueStart(int grayHueStart) {
 		this.grayHueStart = grayHueStart;
 	}
-
-
 	public void setGrayHueEnd(int grayHueEnd) {
 		this.grayHueEnd = grayHueEnd;
 	}
-
-
 	public void setGrayLumaStart(int grayLumaStart) {
 		this.grayLumaStart = grayLumaStart;
 	}
-
-
 	public void setGrayLumaEnd(int grayLumaEnd) {
 		this.grayLumaEnd = grayLumaEnd;
 	}
-
-
 	public void setGrayChromaStart(int grayChromaStart) {
 		this.grayChromaStart = grayChromaStart;
 	}
-
-
 	public void setGrayChromaEnd(int grayChromaEnd) {
 		this.grayChromaEnd = grayChromaEnd;
 	}

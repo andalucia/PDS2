@@ -47,11 +47,6 @@ public class Brain {
 	// The maximum speed that could ever be received.
 	private static final int MAX_ANGLE = 360;
 	
-	// The minimum radius that could ever be received.
-	private static final float MIN_RADIUS = -360.0f;
-	// The maximum radius that could ever be received.
-	private static final float MAX_RADIUS = 360.0f;
-	
 	
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
 	// defined as a different field.
@@ -294,10 +289,9 @@ public class Brain {
 	 * @param radius
 	 * @param angle
 	 */
-	public static void moveArc(float radius, int angle) {
+	public static void moveArc(float radius, float angle) {
 		assert(initialized);
 		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
-		radius = Tools.sanitizeInput(radius, MIN_RADIUS, MAX_RADIUS);
 		stopOnTouch = true;
 		
 		if (angle != 0 && radius != 0) {
