@@ -25,7 +25,7 @@ public class GlobalInfo {
 	 * The non-changing information about the pitch on which the game is being 
 	 * played.
 	 */
-	private static Pitch pitch;
+	private static Pitch pitch = new Pitch();
 
 	/**
 	 * Get the camera of the pitch of the global info. 

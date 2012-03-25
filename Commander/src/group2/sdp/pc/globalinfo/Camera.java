@@ -58,6 +58,15 @@ public class Camera {
 	 * considered significant.
 	 */
 	private int pixelDifferenceThreshold;
+
+	
+	/**
+	 * Default constructor.
+	 */
+	public Camera() {
+		this.pitchCrop = new Rectangle();
+		this.colourSettings = new LCHColourSettings();
+	}
 	
 	/**
 	 * Fully initialising constructor.
@@ -73,7 +82,7 @@ public class Camera {
 		this.setPixelDifferenceThreshold(pixelDifferenceThreshold);
 	}
 
-	
+
 	/**
 	 * Get the minimum visual crop that encloses the pitch below the camera.
 	 * @return The minimum visual crop that encloses the pitch below the 

@@ -3,6 +3,11 @@ package group2.sdp.pc.controlstation;
 import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.globalinfo.Camera;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.LCHColourSettings;
+import group2.sdp.pc.globalinfo.Pitch;
+import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.OperationReallocation;
@@ -19,17 +24,17 @@ import java.util.LinkedList;
 public class Conversation {
 	
 	public static void main (String [] args) throws Exception {
-		Mouth s = new Mouth();
-		
-		// testDoubleArc(s);
-		
-		s.sendForwardArcRight(1276, 4.7065);
-		Thread.sleep(5000);
-		s.sendStop();
-		Thread.sleep(1000);
-		s.sendReset();
-		Thread.sleep(1000);
-		s.cleanup();
+//		Mouth s = new Mouth();
+//		
+//		// testDoubleArc(s);
+//		
+//		s.sendForwardArcRight(1276, 4.7065);
+//		Thread.sleep(5000);
+//		s.sendStop();
+//		Thread.sleep(1000);
+//		s.sendReset();
+//		Thread.sleep(1000);
+//		s.cleanup();
 	}
 
 	public static void testDoubleArc(Mouth s) throws InterruptedException {

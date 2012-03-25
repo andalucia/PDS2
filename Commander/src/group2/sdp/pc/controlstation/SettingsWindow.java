@@ -1,6 +1,7 @@
 package group2.sdp.pc.controlstation;
 
 import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.vision.VisualCortex;
 import group2.sdp.pc.vision.VisualCortex.OutputMode;
 
@@ -136,12 +137,16 @@ public class SettingsWindow extends JFrame {
 	private JLabel grayChromaEndLabel;
 
 	// adding labels
-
-	private Button matchVisionModeButton;
+	
+	private Button hueVisionModeButton;
 	private Button chromaVisionModeButton;
 	private Button lumaVisionModeButton;
+	
+	private Button saveButton;
+	private Button loadButton;
+	
+	private Button matchVisionModeButton;
 	private Button grabImageButton;
-	private Button hueVisionModeButton;
 
 	private VisualCortex processor;
 
@@ -246,6 +251,7 @@ public class SettingsWindow extends JFrame {
 		yellowLumaStartSlider = new JSlider(JSlider.HORIZONTAL,
 				MIN_OTHER_VALUE, MAX_OTHER_VALUE, GlobalInfo
 						.getColourSettings().getYellowLumaStart());
+		
 		yellowLumaStartSlider.setBounds(column2X, row1Y, 200, 25);
 		yellowLumaStartSlider.addChangeListener(new ChangeListener() {
 
@@ -947,99 +953,11 @@ public class SettingsWindow extends JFrame {
 		grayChromaEndLabel.setBounds(column3X - 50, row6Y + 20, 50, 25);
 
 		// END OF SLIDERS
-		/*
-		 * plateHueStartSlider = new JSlider(JSlider.HORIZONTAL, MIN_HUE_VALUE,
-		 * MAX_HUE_VALUE,
-		 * globalInfo.getCamera().getColourSettings().getPlateHueStart());
-		 * blueToRedHueSlider.setBounds(42, 12, 200, 25);
-		 * blueToRedHueSlider.addChangeListener(new ChangeListener() {
-		 * 
-		 * @Override public void stateChanged(ChangeEvent arg0) { blueToRedHue =
-		 * blueToRedHueSlider.getValue(); GlobalInfo.getColourSettings()
-		 * .setBlueToRedHue(blueToRedHue + 360); System.out.println(blueToRedHue
-		 * + 360); } });
-		 */
 
-		// yellowTSliderHue = new JSlider(JSlider.HORIZONTAL, minColourValue,
-		// maxColourValue, );
-
-		/*
-		 * blueToRedHueLabel = new JLabel(); blueToRedHueLabel.setText("B/R");
-		 * blueToRedHueLabel.setBounds(12, 12, 30, 25);
-		 * 
-		 * blueToRedHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_BR_HUE,
-		 * MAX_BR_HUE, blueToRedHue); blueToRedHueSlider.setBounds(42, 12, 200,
-		 * 25); blueToRedHueSlider.addChangeListener(new ChangeListener() {
-		 * 
-		 * @Override public void stateChanged(ChangeEvent arg0) { blueToRedHue =
-		 * blueToRedHueSlider.getValue(); GlobalInfo.getColourSettings()
-		 * .setBlueToRedHue(blueToRedHue + 360); System.out.println(blueToRedHue
-		 * + 360); } }); blueToRedHueSlider.setMajorTickSpacing(20);
-		 * blueToRedHueSlider.setMinorTickSpacing(5);
-		 * blueToRedHueSlider.setPaintTicks(true);
-		 * 
-		 * redToYellowHueLabel = new JLabel();
-		 * redToYellowHueLabel.setText("R/Y"); redToYellowHueLabel.setBounds(12,
-		 * 61, 30, 25);
-		 * 
-		 * redToYellowHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_RY_HUE,
-		 * MAX_RY_HUE, redToYellowHue); redToYellowHueSlider.setBounds(42, 61,
-		 * 200, 25); redToYellowHueSlider.addChangeListener(new ChangeListener()
-		 * {
-		 * 
-		 * @Override public void stateChanged(ChangeEvent arg0) { redToYellowHue
-		 * = redToYellowHueSlider.getValue();
-		 * globalInfo.getColourSettings().setRedToYellowHue(redToYellowHue); }
-		 * }); redToYellowHueSlider.setMajorTickSpacing(20);
-		 * redToYellowHueSlider.setMinorTickSpacing(5);
-		 * redToYellowHueSlider.setPaintTicks(true);
-		 * 
-		 * 
-		 * yellowToGreenHueLabel = new JLabel();
-		 * yellowToGreenHueLabel.setText("Y/G");
-		 * yellowToGreenHueLabel.setBounds(12, 110, 30, 25);
-		 * 
-		 * yellowToGreenHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_YG_HUE,
-		 * MAX_YG_HUE, yellowToGreenHue); yellowToGreenHueSlider.setBounds(42,
-		 * 110, 200, 25); yellowToGreenHueSlider.addChangeListener(new
-		 * ChangeListener() {
-		 * 
-		 * @Override public void stateChanged(ChangeEvent arg0) {
-		 * yellowToGreenHue = yellowToGreenHueSlider.getValue();
-		 * globalInfo.getColourSettings().setYellowToGreenHue(yellowToGreenHue);
-		 * } }); yellowToGreenHueSlider.setMajorTickSpacing(20);
-		 * yellowToGreenHueSlider.setMinorTickSpacing(5);
-		 * yellowToGreenHueSlider.setPaintTicks(true);
-		 * 
-		 * 
-		 * greenToBlueHueLabel = new JLabel();
-		 * greenToBlueHueLabel.setText("G/B"); greenToBlueHueLabel.setBounds(12,
-		 * 159, 30, 25);
-		 * 
-		 * greenToBlueHueSlider = new JSlider(JSlider.HORIZONTAL, MIN_GB_HUE,
-		 * MAX_GB_HUE, greenToBlueHue); greenToBlueHueSlider.setBounds(42, 159,
-		 * 200, 25); greenToBlueHueSlider.addChangeListener(new ChangeListener()
-		 * {
-		 * 
-		 * @Override public void stateChanged(ChangeEvent arg0) { greenToBlueHue
-		 * = greenToBlueHueSlider.getValue();
-		 * globalInfo.getColourSettings().setGreenToBlueHue(greenToBlueHue); }
-		 * }); greenToBlueHueSlider.setMajorTickSpacing(20);
-		 * greenToBlueHueSlider.setMinorTickSpacing(5);
-		 * greenToBlueHueSlider.setPaintTicks(true);
-		 */
-
-		matchVisionModeButton = new Button();
-		matchVisionModeButton.setLabel("Match");
-		matchVisionModeButton.setBounds(1090, 160, 150, 25);
-		matchVisionModeButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				processor.setCurrentMode(OutputMode.MATCH);
-			}
-		});
-
+		hueVisionModeButton = new Button();
+		hueVisionModeButton.setLabel("Hue");
+		hueVisionModeButton.setBounds(280, 15, 65, 25);
+		
 		chromaVisionModeButton = new Button();
 		chromaVisionModeButton.setLabel("Chroma");
 		chromaVisionModeButton.setBounds(880, 15, 65, 25);
@@ -1054,7 +972,6 @@ public class SettingsWindow extends JFrame {
 		lumaVisionModeButton = new Button();
 		lumaVisionModeButton.setLabel("Luma");
 		lumaVisionModeButton.setBounds(580, 15, 65, 25);
-
 		lumaVisionModeButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -1063,9 +980,45 @@ public class SettingsWindow extends JFrame {
 			}
 		});
 
+		saveButton = new Button();
+		saveButton.setLabel("Save Settings");
+		saveButton.setBounds(1090, 227, 150, 25);
+		saveButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Salvator.saveLCHSettings();
+			}
+		});
+		
+		loadButton = new Button();
+		loadButton.setLabel("Load Settings");
+		loadButton.setBounds(1090, 264, 150, 25);
+		loadButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Salvator.loadLCHSettings();
+				updateSliders();
+			}
+		});
+		
+		
+		matchVisionModeButton = new Button();
+		matchVisionModeButton.setLabel("Match");
+		matchVisionModeButton.setBounds(1090, 313, 150, 25);
+		matchVisionModeButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				processor.setCurrentMode(OutputMode.MATCH);
+			}
+		});
+		
+		
 		grabImageButton = new Button();
 		grabImageButton.setLabel("Grab background");
-		grabImageButton.setBounds(1090, 200, 150, 25);
+		grabImageButton.setBounds(1090, 350, 150, 25);
 		grabImageButton.setBackground(Color.green);
 		grabImageButton.addActionListener(new ActionListener() {
 
@@ -1075,19 +1028,6 @@ public class SettingsWindow extends JFrame {
 			}
 		});
 
-		hueVisionModeButton = new Button();
-		hueVisionModeButton.setLabel("Hue");
-		hueVisionModeButton.setBounds(280, 15, 65, 25);
-
-		// getContentPane().add(blueToRedHueLabel);
-		// getContentPane().add(redToYellowHueLabel);
-		// getContentPane().add(yellowToGreenHueLabel);
-		// getContentPane().add(greenToBlueHueLabel);
-		//
-		// getContentPane().add(hueLabel);
-		// getContentPane().add(chromeLabel);
-		// getContentPane().add(lumaLabel);
-
 		getContentPane().add(yellowTLabel);
 		getContentPane().add(blueTLabel);
 		getContentPane().add(ballLabel);
@@ -1095,15 +1035,9 @@ public class SettingsWindow extends JFrame {
 		getContentPane().add(greyLabel);
 		getContentPane().add(pitchGreenLabel);
 
-		// getContentPane().add(blueToRedHueSlider);
-		// getContentPane().add(redToYellowHueSlider);
-		// getContentPane().add(yellowToGreenHueSlider);
-		// getContentPane().add(greenToBlueHueSlider);
-
-		getContentPane().add(matchVisionModeButton);
+		getContentPane().add(hueVisionModeButton);
 		getContentPane().add(chromaVisionModeButton);
 		getContentPane().add(lumaVisionModeButton);
-		getContentPane().add(hueVisionModeButton);
 
 		// adding the sliders
 
@@ -1191,9 +1125,57 @@ public class SettingsWindow extends JFrame {
 		getContentPane().add(grayChromaStartLabel);
 		getContentPane().add(grayChromaEndLabel);
 
+		getContentPane().add(saveButton);
+		getContentPane().add(loadButton);
+		
+		getContentPane().add(matchVisionModeButton);
 		getContentPane().add(grabImageButton);
 		// Funny...
 		getContentPane().add(new Panel());
 	}
 
+	
+	private void updateSliders() {
+		plateHueStartSlider.setValue(GlobalInfo.getColourSettings().getPlateHueStart());
+		plateHueEndSlider.setValue(GlobalInfo.getColourSettings().getPlateHueEnd());
+		plateLumaEndSlider.setValue(GlobalInfo.getColourSettings().getPlateLumaEnd());
+		plateLumaStartSlider.setValue(GlobalInfo.getColourSettings().getPlateLumaStart());
+		plateChromaStartSlider.setValue(GlobalInfo.getColourSettings().getPlateChromaStart());
+		plateChromaEndSlider.setValue(GlobalInfo.getColourSettings().getPlateChromaEnd());
+
+		pitchHueStartSlider.setValue(GlobalInfo.getColourSettings().getPitchHueStart());
+		pitchHueEndSlider.setValue(GlobalInfo.getColourSettings().getPitchHueEnd());
+		pitchLumaStartSlider.setValue(GlobalInfo.getColourSettings().getPitchLumaStart());
+		pitchLumaEndSlider.setValue(GlobalInfo.getColourSettings().getPitchLumaEnd());
+		pitchChromaStartSlider.setValue(GlobalInfo.getColourSettings().getPitchChromaStart());
+		pitchChromaEndSlider.setValue(GlobalInfo.getColourSettings().getPitchChromaEnd());
+
+		blueHueStartSlider.setValue(GlobalInfo.getColourSettings().getBlueHueStart());
+		blueHueEndSlider.setValue(GlobalInfo.getColourSettings().getBlueHueEnd());
+		blueLumaStartSlider.setValue(GlobalInfo.getColourSettings().getBlueLumaStart());
+		blueLumaEndSlider.setValue(GlobalInfo.getColourSettings().getBlueLumaEnd());
+		blueChromaStartSlider.setValue(GlobalInfo.getColourSettings().getBlueChromaStart());
+		blueChromaEndSlider.setValue(GlobalInfo.getColourSettings().getBlueChromaEnd());
+
+		redHueStartSlider.setValue(GlobalInfo.getColourSettings().getRedHueStart());
+		redHueEndSlider.setValue(GlobalInfo.getColourSettings().getRedHueEnd());
+		redLumaStartSlider.setValue(GlobalInfo.getColourSettings().getRedLumaStart());
+		redLumaEndSlider.setValue(GlobalInfo.getColourSettings().getRedLumaEnd());
+		redChromaStartSlider.setValue(GlobalInfo.getColourSettings().getRedChromaStart());
+		redChromaEndSlider.setValue(GlobalInfo.getColourSettings().getRedChromaEnd());
+
+		yellowHueStartSlider.setValue(GlobalInfo.getColourSettings().getYellowHueStart());
+		yellowHueEndSlider.setValue(GlobalInfo.getColourSettings().getYellowHueEnd());
+		yellowLumaStartSlider.setValue(GlobalInfo.getColourSettings().getYellowLumaStart());
+		yellowLumaEndSlider.setValue(GlobalInfo.getColourSettings().getYellowLumaEnd());
+		yellowChromaStartSlider.setValue(GlobalInfo.getColourSettings().getYellowChromaStart());
+		yellowChromaEndSlider.setValue(GlobalInfo.getColourSettings().getYellowChromaEnd());
+
+		grayHueStartSlider.setValue(GlobalInfo.getColourSettings().getGrayHueStart());
+		grayHueEndSlider.setValue(GlobalInfo.getColourSettings().getGrayHueEnd());
+		grayLumaStartSlider.setValue(GlobalInfo.getColourSettings().getGrayLumaStart());
+		grayLumaEndSlider.setValue(GlobalInfo.getColourSettings().getGrayLumaEnd());
+		grayChromaStartSlider.setValue(GlobalInfo.getColourSettings().getGrayChromaStart());
+		grayChromaEndSlider.setValue(GlobalInfo.getColourSettings().getGrayChromaEnd());
+	}
 }

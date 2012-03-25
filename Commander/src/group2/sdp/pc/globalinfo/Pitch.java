@@ -59,6 +59,13 @@ public class Pitch {
 	 */
 	private Camera camera;
 
+	/**
+	 * Default constructor.
+	 */
+	public Pitch() {
+		this.minimumEnclosingRectangle = new Rectangle2D.Double();
+		this.camera = new Camera();
+	}
 	
 	/**
 	 * Fully initialising constructor. 

@@ -2,6 +2,7 @@ package group2.sdp.pc.controlstation;
 
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.Pitch;
+import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
@@ -117,7 +118,6 @@ public class ControlStation {
 	}
 
 	
-	
 	/**
 	 * Create the application.
 	 * @throws Exception Thrown when another instance of the class already 
@@ -172,7 +172,6 @@ public class ControlStation {
 	 * Starts the processing pipeline.
 	 */
 	private void startPipeline() {
-		
 		GlobalInfo.setAttackingRight(rightAlfieCheckbox.getState());
 		GlobalInfo.setYellowAlfie(yellowAlfieCheckbox.getState());
 		GlobalInfo.setPitch(
@@ -180,6 +179,8 @@ public class ControlStation {
 				? Pitch.ONE 
 				: Pitch.TWO
 		);
+		Salvator.loadLCHSettings();
+		
 		
 		PathFinder finder = new PathFinder(alfieMouth);
 		

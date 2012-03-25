@@ -168,6 +168,13 @@ public class LCHColourSettings {
 	private int grayChromaEnd;
 	
 	
+	/**
+	 * Default constructor.
+	 */
+	public LCHColourSettings() {
+
+	}
+	
 	/** 
 	 * Fully initialising constructor.
 	 */
@@ -224,6 +231,8 @@ public class LCHColourSettings {
 	}
 	
 	
+
+
 	/**
 	 * Gets the hue border between blue and red. Should be between 0 and 360.
 	 * @return The value of the border.
