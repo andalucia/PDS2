@@ -85,7 +85,7 @@ public class Brain {
 	// The speed to set the kicker motor, determines the power of the kick.
 	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
-	private static final int KICKER_ANGLE = 30;
+	private static final int KICKER_ANGLE = 900;
 	// The delay before resetting the kicker.
 	private static final int KICKER_DELAY = 300;
 	
@@ -338,9 +338,6 @@ public class Brain {
 				try {
 					kicking = true;
 					KICKER.rotate(KICKER_ANGLE);
-					Thread.sleep(KICKER_DELAY);
-								
-					KICKER.rotate(-KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 				} catch (InterruptedException exc) {
 					System.out.println(exc.toString());
