@@ -3,13 +3,18 @@ package group2.sdp.pc.globalinfo;
 import java.awt.geom.Point2D;
 
 /**
- * Description: Information that is match-specific (changes between matches; 
- *               does not change in a single match).
- * Contains:    Direction of attack (left / right), Alfie being yellow or blue, 
+ * <p><b><br>Description:</br></b> Information that is match-specific (changes between matches; 
+ *               does not change in a single match).</p>
+ * <p><b><br>Contains:</br></b>    Direction of attack (left / right), Alfie being yellow or blue, 
  *               the pitch that is being played on (characteristics, rather than 
- *               a boolean).
+ *               a boolean).</p>
  */
 public class GlobalInfo {
+	
+	/**
+	 * If we are on pitch one or not.
+	 */
+	private static boolean pitchOne;
 	
 	/**
 	 * Indicates whether Alfie is attacking right or left.
@@ -54,7 +59,6 @@ public class GlobalInfo {
 	}
 
 	/**
-	 * /**
 	 * Is Alfie attacking right or left? 
 	 * @param attackingRight If true, then Alfie is attacking right, otherwise
 	 * it is attacking left.
@@ -141,5 +145,13 @@ public class GlobalInfo {
 		}
 		double y = pitch.getBottomGoalPostYCoordinate();
 		return new Point2D.Double(x, y);
+	}
+	
+	public static boolean isPitchOne() {
+		return pitchOne;
+	}
+
+	public static void setPitchOne(boolean b) {
+		pitchOne = b;		
 	}
 }

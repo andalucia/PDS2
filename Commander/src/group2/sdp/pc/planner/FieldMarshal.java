@@ -57,8 +57,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	protected boolean replan;
 	
-	protected DynamicInfoChecker dynamicInfoChecker;
-	
 	protected OperationConsumer operationConsumer;
 	protected DynamicInfoConsumer dynamicInfoConsumer;
 
@@ -199,7 +197,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
-		dynamicInfoChecker = new DynamicInfoChecker(dpi);
 		boolean success = operationSuccessful(dpi);
 		boolean problem = problemExists(dpi);
 		if (replan || success || problem) {

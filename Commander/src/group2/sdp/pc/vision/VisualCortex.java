@@ -89,8 +89,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 	// used to check if what we think is a robot/ball is 
 	// actually a robot/ball or is noise
 	private final int meanRobotSize = 400;
-	private final int meanBallSize = 30;
+	private final int meanBallSize2 = 30;
+	private final int meanBallSize1 = 120;
 
+	
 	/**
 	 * See parent's comment.
 	 */
@@ -256,6 +258,10 @@ public class VisualCortex extends VisualCortexSkeleton {
 	 */
 	public void detectRobotsAndBall(BufferedImage image,
 			ArrayList<Point> newPixels) {
+		int meanBallSize = GlobalInfo.isPitchOne()
+			? meanBallSize1
+			: meanBallSize2
+			;
 		ArrayList<Point> yellowPoints = new ArrayList<Point>();
 		ArrayList<Point> bluePoints = new ArrayList<Point>();
 		ArrayList<Point> ballPoints = new ArrayList<Point>();
@@ -293,6 +299,7 @@ public class VisualCortex extends VisualCortexSkeleton {
 			yellowPointsClean = getGreatestArea(yellowPoints);
 		}
 		if (sizeCheck(ballPoints, meanBallSize)) {
+
 			ballPointsClean = getGreatestArea(ballPoints);
 		}
 

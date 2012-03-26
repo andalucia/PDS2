@@ -42,9 +42,6 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	protected boolean running = false;
 	
-	
-	protected DynamicInfoChecker dynamicInfoChecker;
-
 	/**
 	 * The object to which we pass the Strategy
 	 */
@@ -104,7 +101,6 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
-		dynamicInfoChecker = new DynamicInfoChecker(dpi);
 		if (running) {
 			long now = System.currentTimeMillis();
 			if (now - lastStrategyIssueTime > REPLAN_PERIOD) {
@@ -140,8 +136,8 @@ public class Overlord implements DynamicInfoConsumer {
 		
 		Point2D ballPosition = ballInfo.getPosition();  
 		
-		if (dynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
-				|| !dynamicInfoChecker.correctSide(alfieInfo,ballPosition)) {
+		if (DynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
+				|| !DynamicInfoChecker.defensiveSide(alfieInfo,ballPosition)) {
 			ControlStation.log("Defending.");
 			return Strategy.DEFENSIVE;
 		} else {

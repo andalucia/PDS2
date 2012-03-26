@@ -392,4 +392,8 @@ public class Geometry {
 		double scale = BIG_RANDOM_NUMBER;
 		return translate(p1, scale, getDirectionVector(direction));
 	}
+	
+	public static Point2D generatePointOnLine(Point2D p1, double direction, double scale) {
+		return translate(p1, scale, getDirectionVector(direction));
+	}
 }

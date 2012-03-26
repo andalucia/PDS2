@@ -1,7 +1,10 @@
 package group2.sdp.pc.globalinfo;
 
+import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
+import group2.sdp.pc.breadbin.StaticBallInfo;
+import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.awt.Point;
 import java.awt.geom.Line2D;
@@ -15,7 +18,7 @@ import java.awt.geom.Rectangle2D;
 public class DynamicInfoChecker {
 
 	public DynamicInfoChecker(DynamicInfo dynamicInfo) {
-//		this.dynamicInfo = dynamicInfo;
+		//		this.dynamicInfo = dynamicInfo;
 	}
 
 	/**
@@ -24,7 +27,7 @@ public class DynamicInfoChecker {
 	 * @param isAlfie If the robot we are getting the angle for is Alfie or not
 	 * @return The angle to turn at.
 	 */
-	public int getAngleToBall(Point2D targetPosition, Point2D robotPosition, double facingDirection) {
+	public static int getAngleToBall(Point2D targetPosition, Point2D robotPosition, double facingDirection) {
 
 		double dx = (targetPosition.getX() - robotPosition.getX());
 		double dy = (targetPosition.getY() - robotPosition.getY());
@@ -44,7 +47,7 @@ public class DynamicInfoChecker {
 		}
 		return (int) result;
 	}
-	
+
 	/**
 	 * returns the angle from a point to another point with repect the plane of are zero angle. 
 	 * @param origin 
@@ -63,75 +66,91 @@ public class DynamicInfoChecker {
 	}
 
 	/**
-	 * FIXME: Not finished, just moved into this class
-	 * checks to see it the robot is with a certain distance of the ball,
-	 * if it is then this robot check to see is the robot is facing the ball.
-	 * this is done by checking the angle to the ball with the angle facing.
-	 * if the angle to the ball is within the threshold its facing it
-	 * @param robot is the Dynamic pitch info of robot were checking
-	 * @param ball position of the ball
-	 * @return boolean
+	 * Projects a point from the centroid of the robot in the facing
+	 * direction of the robot. Checks the distance between that point
+	 * and the ball. The distance could be more than half the width of
+	 * the robot and the centroid is slightly to the back given the 
+	 * current construction. Thus, the thresholds.
+	 * @param robot is the DynamicRobotInfo of robot we are checking
+	 * @param ballPosition position of the ball
+	 * @return true if the robot is in possession of the ball
 	 */
-	public boolean hasBall(DynamicRobotInfo robot, Point2D ball){
+	public static boolean hasBall(DynamicRobotInfo robot, Point2D ballPosition){
+		double lengthThreshold = 2.0;
+		double halfLength = (StaticRobotInfo.getLength()) / 2 + lengthThreshold;
+		double widthThreshold = 5.0;
+		double halfWidth = (StaticRobotInfo.getWidth()) / 2 - widthThreshold;
+		Point2D frontOfRobot = Geometry.generatePointOnLine(robot.getPosition(),
+				robot.getFacingDirection(), halfLength);
+		return frontOfRobot.distance(ballPosition) < halfWidth
+				? true
+				: false;
 
-		int threshold = 35;
-
-		Point2D robotPos = robot.getPosition(); 
-		double facing = robot.getFacingDirection();
-
-		//threshold is the give we set in checking if the robot has the ball
-		if (robotPos.distance(ball) <= threshold) {
-			//this is the angle from the origin
-
-			int threshold2 = 10;
-
-			double angle = Math.abs(getAngleToBall(ball, robotPos, facing));
-
-			if (angle <= threshold2) {
-				//System.out.println("HASBALL is TRUE");
-				return true;
-			} else {
-				//System.out.println("HASBALL is FALSE");
-				return false;
-			}
-		} else {
-			//System.out.println("HASBALL is FALSE");
-			return false;
-		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//		int threshold = 35;
+	//
+	//		Point2D robotPosition = robot.getPosition(); 
+	//		double facing = robot.getFacingDirection();
+	//
+	//		//threshold is the give we set in checking if the robot has the ball
+	//		if (robotPosition.distance(ball) <= threshold) {
+	//			//this is the angle from the origin
+	//
+	//			int threshold2 = 10;
+	//
+	//			double angle = Math.abs(getAngleToBall(ball, robotPosition, facing));
+	//
+	//			if (angle <= threshold2) {
+	//				//System.out.println("HASBALL is TRUE");
+	//				return true;
+	//			} else {
+	//				//System.out.println("HASBALL is FALSE");
+	//				return false;
+	//			}
+	//		} else {
+	//			//System.out.println("HASBALL is FALSE");
+	//			return false;
+	//		}
+	//	}
 
 	/**
-	 * FIXME: restructure
-	 * checks to see if the robot is on the right side of the ball, does this by
-	 * comparing the distance along x axis of the robot to its goal line and distance of ball to goal line.
-	 * if the robot is closer its on the right/correct side so return true 
+	 * Checks if the robot is between the ball and the goal it
+	 * is defending.
 	 * @param robotInfo
-	 * @param ballPos
-	 * @return
+	 * @param ballPosition
+	 * @return true if the robot is on the correct side of the ball
 	 */
-	public boolean correctSide(DynamicRobotInfo robotInfo, Point2D ballPos){
-		float x = (float) (
-				GlobalInfo.isAttackingRight() 
-				? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-		);
-		float y = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
-		Point2D TopGoal = new Point2D.Float(x, y);
-		double goalLine = TopGoal.getX();
-
-		Point2D robotPos = robotInfo.getPosition();
-		double robot = robotPos.getX();
-		double ball = ballPos.getX();
-
-		double robotDis = Math.abs(goalLine - robot);
-		double ballDis = Math.abs(goalLine - ball);
-
-		if(robotDis < ballDis) {
-			return true;
-		} else{ 
-			return false;
+	public static boolean defensiveSide(DynamicRobotInfo robotInfo, Point2D ballPosition){
+		double defensiveGoalXCoord;
+		if (robotInfo.isAlfie()){
+			defensiveGoalXCoord = GlobalInfo.isAttackingRight() 
+						? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
+						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
+			} else {
+				defensiveGoalXCoord = GlobalInfo.isAttackingRight() 
+						? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX();
 		}
-	}
+		double robotXCoord = robotInfo.getPosition().getX();
+		double ballXCoord = ballPosition.getX();
+		return Math.abs(defensiveGoalXCoord - robotXCoord)
+							< Math.abs(defensiveGoalXCoord - ballXCoord)
+					? true
+					: false;
+		}
 
 	/**
 	 * Checks if the robot is in a defensive position. If true it means the robot is closer 
@@ -141,8 +160,8 @@ public class DynamicInfoChecker {
 	 * @param ballInfo
 	 * @return
 	 */
-	public boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-//		float y1 = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
+	public static boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
+		//		float y1 = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 
 		double goalX = 		
 			GlobalInfo.isAttackingRight() 
@@ -155,7 +174,7 @@ public class DynamicInfoChecker {
 
 			int threshold = 30;
 
-			if (!correctSide(robotInfo, ball)) {
+			if (!defensiveSide(robotInfo, ball)) {
 				return false;
 			} else {
 				float x = (float) (
@@ -184,7 +203,7 @@ public class DynamicInfoChecker {
 	 * @param opponent
 	 * @return is the opponent blocking our path
 	 */
-	public boolean opponentBlockingPath(DynamicRobotInfo alfie, Point2D obstaclePosition){
+	public static boolean opponentBlockingPath(DynamicRobotInfo alfie, Point2D obstaclePosition){
 		if(alfie.getFacingDirection()==-1){
 			System.out.println("angle negative return false");
 			return false;
@@ -202,7 +221,7 @@ public class DynamicInfoChecker {
 		slope=Math.tan(Math.toRadians(angle));
 		//now work out constant for y=mx+c using c=y-mx
 		constant=y-(slope*x);
-		
+
 		//increase x or y by 100 to cre			System.out.println("DEFENSIVE");ate arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
 		Point2D.Double endP;
 		//case increase y
@@ -225,7 +244,7 @@ public class DynamicInfoChecker {
 			double xEnd = (yEnd-constant) / slope;
 			endP = new Point2D.Double(xEnd, yEnd);
 		}else{
-		
+
 			System.out.print("angle weird return false");
 			return false;
 		}
@@ -236,14 +255,14 @@ public class DynamicInfoChecker {
 		double topLeftY=obstaclePosition.getY()-12;
 		Rectangle2D.Double enemyBox = new Rectangle2D.Double(topLeftX, topLeftY, 24, 24);
 		//now check if the line intersects the box 
-		
-		
+
+
 		if (enemyBox.contains(alfiePos)) {
 			return isSimilarAngle(getAngleFromOrigin(alfiePos, obstaclePosition), alfie.getFacingDirection(), 30);
 		} else {
 			return enemyBox.intersectsLine(ourLine);
 		}
-		
+
 	}
 
 	/**
@@ -256,9 +275,9 @@ public class DynamicInfoChecker {
 	 * @param ballPosition
 	 * @return
 	 */
-	public Point2D getKickingPosition(Point2D ballPosition) {
+	public static Point2D getKickingPosition(Point2D ballPosition) {
 		float kickingPositionX,kickingPositionY;
-		
+
 		// distance to be away from the ball
 		int distance = 25;
 		// distance to be away from the ball by x and y coordinates.
@@ -266,12 +285,12 @@ public class DynamicInfoChecker {
 		// if the ball is within the y coordinates of the goal then get immediately behind it
 		if (GlobalInfo.getPitch().getTopGoalPostYCoordinate() - 5 > ballPosition.getY() &&
 				GlobalInfo.getPitch().getBottomGoalPostYCoordinate() + 5 < ballPosition.getY()) {
-			
+
 			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					?  ballPosition.getX() - distance
 							: ballPosition.getX() + distance);
-					kickingPositionY = (float) (ballPosition.getY());
-		// have already checked if ball is near middle of pitch so this check is sufficient
+			kickingPositionY = (float) (ballPosition.getY());
+			// have already checked if ball is near middle of pitch so this check is sufficient
 		} else if (ballPosition.getY() > 0) {
 			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					? ballPosition.getX() - sideDistance
@@ -283,15 +302,15 @@ public class DynamicInfoChecker {
 							: ballPosition.getX() + sideDistance);
 			kickingPositionY = (float) (ballPosition.getY() - sideDistance);
 		}
-		
+
 		// check if position is within bounds
 		if ((kickingPositionY > GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
-		(kickingPositionY < GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
+				(kickingPositionY < GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
 			//out of bounds :(
 			kickingPositionX = (float) (GlobalInfo.isAttackingRight()
 					?  ballPosition.getX() - distance
 							: ballPosition.getX() + distance);
-					kickingPositionY = (float) (ballPosition.getY());
+			kickingPositionY = (float) (ballPosition.getY());
 		}
 		if ((kickingPositionY > GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 13) || 
 				(kickingPositionY < GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 13)){
@@ -302,11 +321,11 @@ public class DynamicInfoChecker {
 
 		Point2D kickingPosition = new Point.Float(kickingPositionX,kickingPositionY);
 
-		
+
 		return kickingPosition;
-		
+
 	}
-	
+
 	/**
 	 * See http://en.wikipedia.org/wiki/Line-line_intersection for calculation
 	 * @param robotPosition
@@ -316,10 +335,10 @@ public class DynamicInfoChecker {
 	 * @return
 	 */
 	public static Point2D.Double findTangentIntersect(Point2D robotPosition, Point2D ballPosition, Point2D opponentPosition, double radius) {
-		
+
 		Point2D.Double alfieDangerZoneIntersection = findCircleTangentIntersect(robotPosition, opponentPosition, radius);
 		Point2D.Double ballDangerZoneIntersection = findCircleTangentIntersect(ballPosition, opponentPosition, radius);
-		
+
 		// purely for shortness and to fit with wikipedia maths
 		double x1 = alfieDangerZoneIntersection.getX();
 		double y1 = alfieDangerZoneIntersection.getY();
@@ -329,13 +348,13 @@ public class DynamicInfoChecker {
 		double y3 = ballPosition.getY();
 		double x4 = ballDangerZoneIntersection.getX();
 		double y4 = ballDangerZoneIntersection.getY();
-		
+
 		double intersectionX = ((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)) / 
-					(((x1 - x2)*(y3 - y4)) - ((y1 - y2)*(x3 - x4)));
-		
+		(((x1 - x2)*(y3 - y4)) - ((y1 - y2)*(x3 - x4)));
+
 		double intersectionY = ((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4)) / 
 		(((x1 - x2)*(y3 - y4)) - ((y1 - y2)*(x3 - x4)));
-		
+
 		return new Point2D.Double(intersectionX, intersectionY);
 	}
 	/**
@@ -346,25 +365,25 @@ public class DynamicInfoChecker {
 	 * @return
 	 */
 	public static Point2D.Double findCircleTangentIntersect(Point2D p0, Point2D p1, double r1) {
-		
+
 		double d = p1.distance(p0);
 		double r0 = Math.sqrt(r1*r1 + d*d);
 		double a = ((r0*r0 - r1*r1) + d*d)/(2*d);
 		double h = Math.sqrt(r0*r0 - a*a);
-		
+
 		//TODO check signs
 		double halfWayPointX = p0.getX() + (a*(p1.getX() - p0.getX())/d);
 		double halfWayPointY = p0.getY() + (a*(p1.getY() - p0.getY())/d);
 
 		double x1 = halfWayPointX + h*(p1.getY() - p0.getY())/d;
 		double y1 = halfWayPointY - h*(p1.getX() - p0.getX())/d;
-		
+
 		double x2 = halfWayPointX - h*(p1.getY() - p0.getY())/d;
 		double y2 = halfWayPointY + h*(p1.getX() - p0.getX())/d;
-		
+
 		Point2D.Double point1 = new Point.Double(x1,y1);
 		Point2D.Double point2 = new Point.Double(x2,y2);
-		
+
 		if (p1.getY() > 0) {
 			if (y1 > y2) {
 				return point2;
@@ -378,9 +397,9 @@ public class DynamicInfoChecker {
 				return point2;
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * Method for comparison of angles. If angle within certain threshold of each other then
 	 * return true else false
@@ -411,7 +430,7 @@ public class DynamicInfoChecker {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * this function will tell us if we are facing the oppositions goal
 	 * it compares the angle we are facing with the angle to the extremes
@@ -421,16 +440,16 @@ public class DynamicInfoChecker {
 	 * @param ball nuff said
 	 * @return boolean
 	 */
-	public boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
+	public static boolean shotOnGoal(DynamicRobotInfo robotInfo, DynamicRobotInfo opponentInfo, Point2D ball){
 		float x = (float) (
 				!GlobalInfo.isAttackingRight() 
 				? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
 		float y1 = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 		float y2 = GlobalInfo.getPitch().getBottomGoalPostYCoordinate();
-		
-		
+
+
 		Point2D topGoal = new Point2D.Float(x, y1);
 		Point2D bottomGoal = new Point2D.Float(x, y2);
 		Point2D alfiePos = robotInfo.getPosition();
@@ -440,7 +459,7 @@ public class DynamicInfoChecker {
 		x = (float) (
 				GlobalInfo.isAttackingRight() 
 				? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-				: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
+						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
 		);
 		float y = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
 
@@ -470,7 +489,7 @@ public class DynamicInfoChecker {
 			}
 		}
 	}
-	
+
 	/**
 	 * This method was created for clarity. It just combines two other methods. 
 	 * This should only be used for the opponent robot (unless you decide otherwise)
@@ -479,25 +498,25 @@ public class DynamicInfoChecker {
 	 * @return True if the (opponent) robot has the ball and is on the correct side of the ball 
 	 * i.e. they are in an attacking position
 	 */
-	public boolean isInAttackingPosition(DynamicRobotInfo robotInfo, Point2D ballPosition) {
+	public static boolean isInAttackingPosition(DynamicRobotInfo robotInfo, Point2D ballPosition) {
 		boolean condition1 = hasBall(robotInfo, ballPosition);
-		boolean condition2 = correctSide(robotInfo, ballPosition);
-		
+		boolean condition2 = defensiveSide(robotInfo, ballPosition);
+
 		return condition1 && condition2;
 	}
-	
+
 	/**
 	 * Get the x coordinate of the defensive goal of the robot
 	 * @param isAlfie whether or not we want to get the defensive 
 	 * 			goal of Alfie
 	 * @return x coordinate of the goal we are defending
 	 */
-	public int getDefensiveGoalOfRobot(boolean isAlfie){
-		
+	public static int getDefensiveGoalOfRobot(boolean isAlfie){
+
 		if (isAlfie){
 			return GlobalInfo.isAttackingRight() 
 			? (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-			: (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
+					: (int)GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
 		}
 		else{
 			return !GlobalInfo.isAttackingRight() 

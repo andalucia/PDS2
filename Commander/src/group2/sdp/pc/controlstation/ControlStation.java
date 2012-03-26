@@ -179,6 +179,11 @@ public class ControlStation {
 				? Pitch.ONE 
 				: Pitch.TWO
 		);
+		GlobalInfo.setPitchOne(
+				pitchOneCheckbox.getState()
+				? true
+				: false
+				);
 		Salvator.loadLCHSettings();
 		
 		

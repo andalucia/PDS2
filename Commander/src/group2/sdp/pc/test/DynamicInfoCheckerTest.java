@@ -1,7 +1,10 @@
 package group2.sdp.pc.test;
 
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.DynamicInfoChecker;
+import group2.sdp.pc.globalinfo.GlobalInfo;
+import group2.sdp.pc.globalinfo.Pitch;
 
 import java.awt.geom.Point2D;
 
@@ -56,15 +59,45 @@ public class DynamicInfoCheckerTest {
 		Assert.assertEquals(163,info.getAngleToBall(positionTarget3, positionRobot3, facingDirection3));
 		
 	}
+
+	public void testHasBallCase(Point2D robotPosition,
+			Point2D ballPosition, double direction, boolean expected){
+		DynamicRobotInfo dri = new DynamicRobotInfo(robotPosition, direction, true, false, 0, direction, 0, false, 0);
+		boolean actual = DynamicInfoChecker.hasBall(dri, ballPosition);
+		Assert.assertEquals(actual, expected);
+	}
 	
 	@Test
-	public void getAngleFromOriginTest(){
-//		Point2D.Double origin1= new Point2D.Double(33.0,23.0);
-//		Point2D.Double targetPosition1= new Point2D.Double(22.0,12.0);
-//
-//		
-//		Point2D.Double origin2= new Point2D.Double(120.0,130.0);
-//		Point2D.Double targetPosition2= new Point2D.Double(89.0,20.0);
+	public void testHasBall(){
+		testHasBallCase(new Point2D.Double(20,20), new Point2D.Double(35,20), 0, true);
+		testHasBallCase(new Point2D.Double(20,20), new Point2D.Double(40,20), 0, false);
+		testHasBallCase(new Point2D.Double(20,20), new Point2D.Double(20,30), 0, false);
+		testHasBallCase(new Point2D.Double(20,20), new Point2D.Double(27,27), 45, true);
+		testHasBallCase(new Point2D.Double(20,20), new Point2D.Double(13,13), 135, false);
+		}
+	
+	public void testCorrectSideCase(Point2D robotPosition,
+			boolean isAlfie, boolean isAttackingRight,
+			Point2D ballPosition, boolean expected){
+
+		GlobalInfo.setPitch(Pitch.ONE);
+		GlobalInfo.setPitchOne(true);
 		
-	}	
+		GlobalInfo.setAttackingRight(isAttackingRight);
+		DynamicRobotInfo dri = new DynamicRobotInfo(robotPosition, 0, isAlfie, false, 0, 0, 0, false, 0);
+		
+		boolean actual = DynamicInfoChecker.defensiveSide(dri, ballPosition);
+		Assert.assertEquals(actual,expected);
+	}
+	
+	@Test
+	public void testCorrectSide(){
+		testCorrectSideCase(new Point2D.Double(50,20), true, false, new Point2D.Double(20,20), true);
+		testCorrectSideCase(new Point2D.Double(50,20), false, true,	new Point2D.Double(20,20), true);
+		testCorrectSideCase(new Point2D.Double(20,20), true, false, new Point2D.Double(50,20), false);
+		testCorrectSideCase(new Point2D.Double(30,20), false, false, new Point2D.Double(20,20), false);
+		testCorrectSideCase(new Point2D.Double(10,20), false, true, new Point2D.Double(20,20), false);
+		testCorrectSideCase(new Point2D.Double(100,0), true, true, new Point2D.Double(5,0), false);
+	}
+	
 }

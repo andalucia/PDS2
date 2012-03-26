@@ -178,9 +178,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			lengthCCW < lengthCW
 			? pathStepListSecondCCW
 			: pathStepListSecondCW;
-		this.pathStepList.add(new PathStepKick(1000));
-		this.pathStepList.add(new PathStepKick(1000));
-		this.pathStepList.add(new PathStepKick(1000));
 	}
 
 	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
