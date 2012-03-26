@@ -85,7 +85,6 @@ public class DynamicInfoChecker {
 		return frontOfRobot.distance(ballPosition) < halfWidth
 				? true
 				: false;
-
 	}
 
 	/**
