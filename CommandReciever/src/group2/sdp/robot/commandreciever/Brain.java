@@ -85,9 +85,15 @@ public class Brain {
 	// The speed to set the kicker motor, determines the power of the kick.
 	// private static final int KICKER_SPEED = 10000;
 	// The angle of the kicker at the end of the kick.
-	private static final int KICKER_ANGLE = 900;
+	private static final int KICKER_ANGLE = 35;
 	// The delay before resetting the kicker.
 	private static final int KICKER_DELAY = 300;
+	
+	// The angle of the kicker at the end of the kick.
+	private static final int PLUNGE_ANGLE = 900;
+	// The delay before resetting the kicker.
+	private static final int PLUNGE_DELAY = 1000;
+	
 	
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
@@ -326,10 +332,9 @@ public class Brain {
 	 * Kick the ball!
 	 * 
 	 * Starts a new thread and makes the robot kick if it isn't already kicking
-	 * @param power How hard should the motor rotate in degrees/s.
 	 * 
 	 */
-	public static void kick(int power) {
+	public static void kick() {
 		assert(initialized);
 		// Start a new thread to control the kicker
 		Thread Kick_thread = new Thread() {
@@ -338,6 +343,8 @@ public class Brain {
 				try {
 					kicking = true;
 					KICKER.rotate(KICKER_ANGLE);
+					Thread.sleep(KICKER_DELAY);
+					KICKER.rotate(-KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 				} catch (InterruptedException exc) {
 					System.out.println(exc.toString());
@@ -351,9 +358,6 @@ public class Brain {
 		// Alfie only has 1 leg, so he can only make 1 kick at a time
 		if (!kicking) {
 			kicking = true;
-			power = Tools.sanitizeInput(power, MIN_KICK_POWER, MAX_KICK_POWER);
-			if (power == 0)
-				power = MAX_KICK_POWER;
 			KICKER.setSpeed(KICKER.getMaxSpeed());
 			Kick_thread.start();
 
@@ -361,7 +365,46 @@ public class Brain {
 				LCD.clear();
 				LCD.drawString(KCK1, 0, 0);
 				LCD.drawString(KCK2, 0, 1);
-				LCD.drawInt(power, 1, 2);
+				LCD.refresh();
+			}
+		}
+	}	
+	
+	/**
+	 * Plunge the ball! Works with the experimental kicker.
+	 * 
+	 * Starts a new thread and makes the robot kick if it isn't already kicking
+	 * 
+	 */
+	public static void ram() {
+		assert(initialized);
+		// Start a new thread to control the kicker
+		Thread Kick_thread = new Thread() {
+	
+			public void run() {
+				try {
+					kicking = true;
+					KICKER.rotate(PLUNGE_ANGLE);
+					Thread.sleep(PLUNGE_DELAY);
+				} catch (InterruptedException exc) {
+					System.out.println(exc.toString());
+				}
+				
+				kicking = false;
+			}
+			
+		};
+		
+		// Alfie only has 1 leg, so he can only make 1 kick at a time
+		if (!kicking) {
+			kicking = true;
+			KICKER.setSpeed(KICKER.getMaxSpeed());
+			Kick_thread.start();
+
+			if (VERBOSE) {
+				LCD.clear();
+				LCD.drawString(KCK1, 0, 0);
+				LCD.drawString(KCK2, 0, 1);
 				LCD.refresh();
 			}
 		}	

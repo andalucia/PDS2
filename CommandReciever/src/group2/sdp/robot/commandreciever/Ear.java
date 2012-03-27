@@ -163,7 +163,7 @@ public class Ear {
 			Brain.moveArc((float)-candy.getPretzel(0) / 10000, candy.getPretzel(1));
     		break;
 		case CandyPacket.KICK_CANDY:     
-			Brain.kick(candy.getPretzel(0));
+			Brain.kick();
 			break;
 		case CandyPacket.RESET_CANDY:
 			break;
