@@ -396,4 +396,21 @@ public class Geometry {
 	public static Point2D generatePointOnLine(Point2D p1, double direction, double scale) {
 		return translate(p1, scale, getDirectionVector(direction));
 	}
+	
+	public static boolean isPointOnArc(Point2D startPoint, Point2D endPoint,
+										Point2D pointToCheck, double angle){
+		if (angle < 180){
+			if (startPoint.distance(pointToCheck) < startPoint.distance(endPoint))
+				return true;
+			else
+				return false;
+		}
+		else {
+			if (endPoint.distance(pointToCheck) < endPoint.distance(startPoint))
+				return true;
+			else
+				return false;  
+		}
+		
+	}
 }

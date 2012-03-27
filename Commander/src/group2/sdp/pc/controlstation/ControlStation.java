@@ -174,11 +174,6 @@ public class ControlStation {
 	private void startPipeline() {
 		GlobalInfo.setAttackingRight(rightAlfieCheckbox.getState());
 		GlobalInfo.setYellowAlfie(yellowAlfieCheckbox.getState());
-		GlobalInfo.setPitch(
-				pitchOneCheckbox.getState() 
-				? Pitch.ONE 
-				: Pitch.TWO
-		);
 		GlobalInfo.setPitchOne(
 				pitchOneCheckbox.getState()
 				? true

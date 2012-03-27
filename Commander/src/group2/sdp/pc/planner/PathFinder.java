@@ -4,6 +4,7 @@ import group2.sdp.common.util.Geometry;
 import group2.sdp.common.util.Pair;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.controlstation.ControlStation;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
@@ -345,5 +346,21 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	@Override
 	public void stop() {
 //		plannedBefore = false;
+	}
+	
+	public static boolean isPathValid(PathStepArc arc, Point2D circleCentre){
+		double minX = GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX();
+		double maxX = GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
+		double minY = GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY();
+		double maxY = GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY();
+		
+		//Geometry.getNumberOfLineSegmentArcIntersections(segmentStart, segmentEnd, circleCentre, circleRadius, arcStartAngle, arcEndAngle)
+		Geometry.getLineCircleIntersections(arc.getStartingPoint(), arc.getTargetDestination(),
+							circleCentre, arc.getRadius());
+		
+		// TODO check number of intersections
+		
+		
+		return false;
 	}
 }

@@ -24,6 +24,8 @@ public abstract class PathStepArc extends PathStep {
 	private double targetOrientation;
 
 	private Point2D targetDestination;
+	
+	private Point2D start;
 
 	/**
 	 * Fully initialising constructor.
@@ -39,7 +41,7 @@ public abstract class PathStepArc extends PathStep {
 		setRadius(radius);
 
 		this.threshold = threshold;
-		
+		this.start = start;
 		inferTargetDestination(start, startDirection);
 		inferTargetOrientation(startDirection);
 	}
@@ -89,6 +91,10 @@ public abstract class PathStepArc extends PathStep {
 
 	public Point2D getTargetDestination() {
 		return targetDestination;
+	}
+	
+	public Point2D getStartingPoint(){
+		return start;
 	}
 	
 

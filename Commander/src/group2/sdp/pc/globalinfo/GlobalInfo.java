@@ -83,26 +83,6 @@ public class GlobalInfo {
 	public static void setYellowAlfie(boolean yellowAlfie) {
 		GlobalInfo.yellowAlfie = yellowAlfie;
 	}
-
-	/**
-	 * Get the non-changing information about the pitch on which the game is 
-	 * being played.
-	 * @return The non-changing information about the pitch on which the game 
-	 * is being played.
-	 */
-	public static Pitch getPitch() {
-		return pitch;
-	}
-
-	/**
-	 * Set the non-changing information about the pitch on which the game is 
-	 * being played.
-	 * @param pitch The non-changing information about the pitch on which the 
-	 * game is being played.
-	 */
-	public static void setPitch(Pitch pitch) {
-		GlobalInfo.pitch = pitch;
-	}
 	
 	/**
 	 * Computes the middle of the goal Alfie shoots for.
@@ -151,7 +131,37 @@ public class GlobalInfo {
 		return pitchOne;
 	}
 
-	public static void setPitchOne(boolean b) {
-		pitchOne = b;		
+	/**
+	 * Sets the pitch depending on the boolean: if pitchOne is true then 
+	 * we are on pitch one, otherwise we are on pitch two.
+	 * @param pitchOne
+	 */
+	public static void setPitchOne(boolean pitchOne) {
+		GlobalInfo.pitchOne = pitchOne;
+		if (pitchOne) {
+			setPitch(Pitch.ONE);
+		} else {
+			setPitch(Pitch.TWO);
+		}
+	}
+	
+	/**
+	 * Get the non-changing information about the pitch on which the game is 
+	 * being played.
+	 * @return The non-changing information about the pitch on which the game 
+	 * is being played.
+	 */
+	public static Pitch getPitch() {
+		return pitch;
+	}
+
+	/**
+	 * Set the non-changing information about the pitch on which the game is 
+	 * being played.
+	 * @param pitch The non-changing information about the pitch on which the 
+	 * game is being played.
+	 */
+	private static void setPitch(Pitch pitch) {
+		GlobalInfo.pitch = pitch;
 	}
 }
