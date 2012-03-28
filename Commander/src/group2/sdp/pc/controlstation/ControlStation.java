@@ -4,6 +4,7 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.Pitch;
 import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.mouth.Mouth;
+import group2.sdp.pc.mouth.MouthOfSimulator;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
@@ -11,7 +12,9 @@ import group2.sdp.pc.planner.Penalty;
 import group2.sdp.pc.vision.Artist;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.Eye;
+import group2.sdp.pc.vision.EyeOfSimulator;
 import group2.sdp.pc.vision.VisualCortex;
+import group2.simulator.starter.SimulatorI;
 
 import java.awt.Button;
 import java.awt.Checkbox;
@@ -55,7 +58,7 @@ public class ControlStation {
 	private Checkbox leftAlfieCheckbox;
 	
 	private Checkbox processImageCheckbox;
-
+	private Checkbox useSimulatorCheckbox;
 	private Button connectButton;
 	private Button runButton;
 	private Button startPlanningButton;
@@ -70,6 +73,7 @@ public class ControlStation {
 	 * The server that sends commands to Alfie.
 	 */
 	private Mouth alfieMouth;
+	private MouthOfSimulator simMouth;
 	private VisualCortex processor;
 	private Overlord lord;
 
@@ -182,18 +186,35 @@ public class ControlStation {
 		Salvator.loadLCHSettings();
 		
 		
-		PathFinder finder = new PathFinder(alfieMouth);
-		
-		//FIXME change null to finder when it implements correctly
+		PathFinder finder;
+		if (useSimulatorCheckbox.getState()) {
+			try {
+				simMouth = new MouthOfSimulator();
+				System.out.println("aaaa");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			finder = new PathFinder(simMouth);
+		} else {
+			finder = new PathFinder(alfieMouth);
+		}
+
+		// FIXME change null to finder when it implements correctly
 		FieldMarshal marshal = new FieldMarshal(finder, finder);
-		
+
 		lord = new Overlord(marshal, marshal);
-		
+
 		Bakery bakery = new Bakery(lord);
-		
+
 		Artist previewer = new Artist();
-		
-		if (processImageCheckbox.getState()) {
+
+		if (useSimulatorCheckbox.getState() && processImageCheckbox.getState()) {
+			new SimulatorI();
+			processor = new VisualCortex(bakery, previewer);
+			new EyeOfSimulator(processor);
+		} else if (processImageCheckbox.getState()
+				&& !useSimulatorCheckbox.getState()) {
 			processor = new VisualCortex(bakery, previewer);
 			new Eye(processor);
 		} else {
@@ -249,6 +270,12 @@ public class ControlStation {
 		processImageCheckbox.setBounds(332, 150, 160, 25);
 		processImageCheckbox.setState(true);
 		
+		useSimulatorCheckbox = new Checkbox();
+		useSimulatorCheckbox.setLabel("Use Simulator");
+		useSimulatorCheckbox.setBounds(380, 180, 160, 25);
+		useSimulatorCheckbox.setState(true);
+
+		
 		runButton = new Button();
 		runButton.setLabel("Initialise");
 		runButton.setBounds(332, 208, 100, 25);
@@ -273,6 +300,7 @@ public class ControlStation {
 			    
 				connectButton.setEnabled(false);
 				processImageCheckbox.setEnabled(false);
+				useSimulatorCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
 			}
 		});
@@ -401,6 +429,7 @@ public class ControlStation {
 		
 		frmAlfieCommandCentre.getContentPane().add(connectButton);
 		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
+		frmAlfieCommandCentre.getContentPane().add(useSimulatorCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
 
 		frmAlfieCommandCentre.getContentPane().add(startPlanningButton);

@@ -1,18 +1,7 @@
 package group2.simulator.starter;
 
 import group2.sdp.common.util.Tools;
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.globalinfo.DynamicInfoChecker;
-import group2.sdp.pc.globalinfo.GlobalInfo;
-import group2.sdp.pc.globalinfo.Pitch;
-import group2.sdp.pc.mouth.MouthInterface;
-import group2.sdp.pc.planner.Overlord;
-import group2.sdp.pc.planner.PathFinder;
-import group2.sdp.pc.planner.operation.Operation;
-import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.simulator.core.RobotState;
+
 import group2.simulator.physical.Ball;
 import group2.simulator.physical.BoardObject;
 import group2.simulator.physical.Robot;
@@ -22,18 +11,19 @@ import java.awt.Checkbox;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -45,17 +35,17 @@ import net.phys2d.raw.World;
 import net.phys2d.raw.shapes.Box;
 import net.phys2d.raw.strategies.QuadSpaceStrategy;
 
-public class SimulatorI implements MouthInterface {
+public class SimulatorI {
 
 	/** The frame displaying the simulation */
 
-	static JFrame frame;
-	public static int boardWidth = 630;
-	public static int boardHeight = 330;
-	public static int padding = 100;
+	public static JFrame frame;
+	public static int boardWidth = 470;
+	public static int boardHeight = 350;
+	public static int padding = 90;
 	public static int wallThickness = 20;
 	public static int goalWidth = 144;
-	public static int goalThickness = 50;
+	public static int goalThickness = 30;
 
 	private static Body leftGoalLine;
 	private static Body rightGoalLine;
@@ -67,22 +57,25 @@ public class SimulatorI implements MouthInterface {
 	private static Robot robot;
 	private static Robot oppRobot;
 	private static Ball ball;
-	public static Operation.Type currentCommand;
-
+	// public static Operation.Type currentCommand;
+	//
 	private boolean check = false;
 	private static Checkbox reset;
 	private static Button runButton;
-	private static volatile RobotState robotState;
 
-	private Overlord planner;
-	private PathFinder executor;
-	private DynamicInfoChecker dynamicInfoChecker;
-	private final Lock commandLock = new ReentrantLock();
+	private static Graphics2D ggg;
+
+	private BufferedImage Frame = new BufferedImage(640, 480,
+			BufferedImage.TYPE_3BYTE_BGR);
 
 	public static final Color pitchColor = new Color(0, 150, 0);
 
 	private static Boolean isGoal;
-	GlobalInfo globalInfo;
+
+	private static Robot selectRobot;
+	private static Ball selectBall;
+	private static Boolean robotDragged = false;
+	private static Boolean ballDragged = false;
 
 	/** The title of the simulation */
 	private String title;
@@ -92,7 +85,6 @@ public class SimulatorI implements MouthInterface {
 	/** The world containing the physics model */
 	private static World world = new World(new Vector2f(0.0f, 10.0f), 10,
 			new QuadSpaceStrategy(20, 5));
-
 	/** The rendering strategy */
 	private static BufferStrategy strategy;
 
@@ -100,15 +92,6 @@ public class SimulatorI implements MouthInterface {
 			- wallThickness / 2;
 	public static int goalPost2y = (boardHeight + goalWidth) / 2 + padding
 			+ wallThickness / 2;
-
-	public static void main(String args[]) {
-		prepareSimulator(); // this function will create and start the simulator
-							// and create a planner executor for the simulator
-		initializeArea(); // this function will initialize the GUI frame, set
-							// controls for the keyboard
-							// and will initialise the world where the robots
-							// and the ball will "perform"
-	}
 
 	/**
 	 * Fully initialises the simulator constructor, together with the timer that
@@ -119,89 +102,15 @@ public class SimulatorI implements MouthInterface {
 	 * @param oppRobot
 	 * @param ball
 	 */
-	public SimulatorI(World world, Robot robot, Robot oppRobot, Ball ball) {
-		SimulatorI.world = world;
-		SimulatorI.robot = robot;
-		SimulatorI.oppRobot = oppRobot;
-		SimulatorI.ball = ball;
+	public SimulatorI() {
 
-		SimulatorI.robotState = new RobotState();
+		prepareSimulator(); // this function will create and start the simulator
+							// and create a planner executor for the simulator
+		initializeArea(); // this function will initialize the GUI frame, set
+							// controls for the keyboard
+							// and will initialise the world where the robots
+							// and the ball will "perform"
 
-		globalInfo = new GlobalInfo(false, true, Pitch.TWO);
-
-		executor = new PathFinder(globalInfo, this);
-
-		Timer imageGrabberTimer = new Timer();
-		imageGrabberTimer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				DynamicInfo dpi = generateDynamicInfo();
-				dynamicInfoChecker = new DynamicInfoChecker(globalInfo, dpi);
-
-				executor.setOperation(new OperationReallocation(dpi
-						.getBallInfo().getPosition(), dpi.getAlfieInfo()
-						.getPosition(),
-						dpi.getAlfieInfo().getFacingDirection(), dpi
-								.getOpponentInfo().getPosition())
-
-				);
-				executor.consumeInfo(dpi);
-
-			}
-		}, 0, 100);
-
-		Timer timeSimulatorTimer = new Timer();
-		timeSimulatorTimer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-
-				switch (SimulatorI.robotState.getCurrentMovement()) {
-				case DO_NOTHING:
-					break;
-				case GOING_FORWARD:
-					SimulatorI.robot
-							.moveForwards(SimulatorI.world,
-									SimulatorI.ball.getBody() /*
-															 * / CM_PER_PIXEL /
-															 * TIMESTEP
-															 */);
-
-					break;
-				case GOING_BACKWARDS:
-					SimulatorI.robot
-							.moveBackward(SimulatorI.world,
-									SimulatorI.ball.getBody() /*
-															 * / CM_PER_PIXEL /
-															 * TIMESTEP
-															 */);
-					break;
-				case KICK:
-					SimulatorI.robot.kick(SimulatorI.ball);
-					break;
-				case SPIN_RIGHT:
-					SimulatorI.robot.turn((int) SimulatorI.robotState
-							.getAngleOfRotation());
-					break;
-				case SPIN_LEFT:
-					SimulatorI.robot.turn((int) SimulatorI.robotState
-							.getAngleOfRotation());
-					break;
-				}
-			}
-		}, 0, 100);
-
-	}
-
-	private DynamicInfo generateDynamicInfo() {
-		long start = System.currentTimeMillis();
-		DynamicBallInfo dball = new DynamicBallInfo(ball.getPosition(), 0, 0,
-				start);
-		DynamicRobotInfo dalfie = new DynamicRobotInfo(robot.getPosition(),
-				robot.getFacingDirection(), true, robot.setSpeed(7), 10, start);
-		DynamicRobotInfo dopp = new DynamicRobotInfo(oppRobot.getPosition(),
-				oppRobot.getFacingDirection(), false, 0, 0, start);
-		DynamicInfo dpi = new DynamicInfo(dball, dalfie, dopp);
-		return dpi;
 	}
 
 	/**
@@ -210,51 +119,72 @@ public class SimulatorI implements MouthInterface {
 	 */
 	public static void prepareSimulator() {
 
-		BufferedImage blueImage = loadImage("data/blueRobot.jpeg");
-		BufferedImage yellowImage = loadImage("data/yellowRobot.jpeg");
+		BufferedImage blueImage = loadImage("../Simulator/data/blueRobot3.jpeg");
+		BufferedImage yellowImage = loadImage("../Simulator/data/yellowRobot2.jpeg");
 
 		int newRobotStartX = robotStartX;
 		int newOppRobotStartX = oppRobotStartX;
 		int newBallStartX = ballStartX;
 
-		SimulatorI simulatoor = new SimulatorI(world, new Robot(newRobotStartX,
-				robotStartY + 23, 70, 50, Color.BLUE, blueImage, 0), new Robot(
-				newOppRobotStartX, robotStartY, 70, 50, Color.YELLOW,
-				yellowImage, 180), new Ball(newBallStartX, ballStartY, 10,
-				Color.RED, 15));
+		SimulatorI.oppRobot = new Robot(newRobotStartX, robotStartY, 50, 36,
+				Color.BLUE, blueImage, 0);
+		SimulatorI.robot = new Robot(newOppRobotStartX, robotStartY, 50, 36,
+				Color.YELLOW, yellowImage, 180);
+		SimulatorI.ball = new Ball(newBallStartX, ballStartY, 7, Color.RED, 15);
 		System.out.println("simulator created");
+
 	}
+
+	private Thread runSim = new Thread() {
+		public void run() {
+			// int x = 1;
+			while (running) {
+				// initialise the simulator
+				BufferedImage nextFrame = new BufferedImage(640, 480,
+						BufferedImage.TYPE_3BYTE_BGR);
+				Graphics2D g2 = (Graphics2D) nextFrame.createGraphics();
+
+				g2.setColor(pitchColor);
+
+				g2.fillRect(0, 0, (boardWidth + 2 * padding),
+						(boardHeight + 2 * padding));
+
+				BoardObject.draw(g2, world); // draw the object in the world
+
+				displayControlsAndScore(g2);
+
+				checkForGoal();
+
+				Frame = nextFrame;
+
+				ggg.drawImage(nextFrame, null, 0, 0);
+				for (int i = 0; i < 5; i++) {
+					world.step();
+				}
+				// System.out.println("a");
+				/*
+				 * try { // // retrieve image if(x == 1){ x++; File outputfile =
+				 * new File("background.png"); ImageIO.write(nextFrame, "png",
+				 * outputfile); } } catch (IOException e) {
+				 * 
+				 * }
+				 * 
+				 * try { Thread.sleep(1); } catch (InterruptedException e) {
+				 * System.out.println("interrupted"); }
+				 */
+
+			}
+		}
+	};
 
 	/**
 	 * Put the foundations for the simulator
 	 */
-	public static void initializeArea() {
+	public void initializeArea() {
 		initializeFrame(); // initialize the GUI
 		setControls();
 		initSimulation();
-
-		while (running) {
-			// initialise the simulator
-
-			Graphics2D g = (Graphics2D) strategy.getDrawGraphics();
-			g.setColor(pitchColor);
-
-			g.fillRect(0, 0, (boardWidth + 2 * padding),
-					(boardHeight + 2 * padding));
-			BoardObject.draw(g, world); // draw the object in the world
-			displayControlsAndScore(g);
-			strategy.show();
-			for (int i = 0; i < 5; i++) {
-				world.step();
-			}
-			checkForGoal();
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				System.out.println("interrupted");
-			}
-
-		}
+		runSim.start();
 	}
 
 	/**
@@ -266,8 +196,7 @@ public class SimulatorI implements MouthInterface {
 		frame.setLayout(null);
 		frame.setResizable(false);
 		frame.setIgnoreRepaint(true);
-		frame.setSize((boardWidth + 2 * padding),
-				(boardHeight + 2 * padding) + 100);
+		frame.setSize(640, 480);
 		frame.setTitle("Alfie Simulator");
 		frame.setVisible(true);
 		frame.setFocusable(true);
@@ -308,7 +237,7 @@ public class SimulatorI implements MouthInterface {
 			}
 		});
 
-		frame.createBufferStrategy(2);
+		ggg = (Graphics2D) frame.getGraphics();
 		strategy = frame.getBufferStrategy();
 
 	}
@@ -479,19 +408,18 @@ public class SimulatorI implements MouthInterface {
 					System.exit(0);
 					break;
 				case KeyEvent.VK_UP:
-					oppRobot.move(world, ball.getBody(), 2);
+					oppRobot.moveForward(world, ball.getBody());
 					break;
 				case KeyEvent.VK_DOWN:
-					oppRobot.move(world, ball.getBody(), -2);
+					oppRobot.moveBackward(world, ball.getBody());
 					break;
 				case KeyEvent.VK_RIGHT:
-					oppRobot.turn(10);
+					oppRobot.turn(-3);
 					break;
 				case KeyEvent.VK_LEFT:
-					oppRobot.turn(-10);
+					oppRobot.turn(3);
 					break;
 				case KeyEvent.VK_R:
-					// Resetting Simulation
 					resetSimulation();
 					break;
 				case KeyEvent.VK_ENTER:
@@ -511,6 +439,70 @@ public class SimulatorI implements MouthInterface {
 
 			}
 
+		});
+		frame.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (calcDistanceBetweenPoints(robot.getPosition(), e.getPoint()) < 10) {
+					selectRobot = robot;
+					robotDragged = true;
+				}
+				if (calcDistanceBetweenPoints(oppRobot.getPosition(),
+						e.getPoint()) < 10) {
+					selectRobot = oppRobot;
+					robotDragged = true;
+				}
+				if (calcDistanceBetweenPoints(ball.getPosition(), e.getPoint()) < 10) {
+					selectBall = ball;
+					ballDragged = true;
+				}
+
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (robotDragged)
+					robotDragged = false;
+				if (ballDragged)
+					ballDragged = false;
+			}
+		});
+		frame.addMouseMotionListener(new MouseMotionListener() {
+
+			@Override
+			public void mouseDragged(MouseEvent arg0) {
+				if (robotDragged)
+					selectRobot.setPosition(arg0.getPoint().x,
+							arg0.getPoint().y);
+
+				if (ballDragged)
+					selectBall.setPosition(arg0.getPoint().x, arg0.getPoint().y);
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
 		});
 	}
 
@@ -551,7 +543,8 @@ public class SimulatorI implements MouthInterface {
 
 		Font score = new Font("Book Antiqua", Font.BOLD, 40);
 		g.setFont(score);
-		g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 350, 65);
+		// g.drawString(robot.getScore() + " : " + oppRobot.getScore(), 280,
+		// 65);
 
 	}
 
@@ -562,83 +555,51 @@ public class SimulatorI implements MouthInterface {
 				ball.stayInGoal();
 				isGoal = true;
 			} else if ((ball.getX() > (padding + boardWidth))) {
-				robot.incrScore();
 				ball.stayInGoal();
 				isGoal = true;
 			}
 		}
 	}
 
-	@Override
-	public void sendStop() {
-		while (!commandLock.tryLock())
-			;
-		robotState.setCurrentMovement(RobotState.Movement.DO_NOTHING);
-		commandLock.unlock();
-
+	public static void goForward() {
+		robot.moveForward(world, ball.getBody());
 	}
 
-	@Override
-	public void sendGoForward(int speed, int distance) {
-		while (!commandLock.tryLock())
-			;
-
-		speed = convertSpeed(speed);
-		robotState.setCurrentMovement(RobotState.Movement.GOING_FORWARD);
-		robotState.setSpeedOfTravel(speed);
-		commandLock.unlock();
+	public static void goBackwards() {
+		robot.moveBackward(world, ball.getBody());
 	}
 
-	@Override
-	public void sendGoBackwards(int speed, int distance) {
-		while (!commandLock.tryLock())
-			;
-
-		speed = convertSpeed(speed);
-		robotState.setCurrentMovement(RobotState.Movement.GOING_BACKWARDS);
-		robotState.setSpeedOfTravel(speed);
-		commandLock.unlock();
-
-	}
-
-	@Override
-	public void sendKick(int power) {
-		while (!commandLock.tryLock())
-			;
-		robotState.setCurrentMovement(RobotState.Movement.KICK);
-		commandLock.unlock();
-
-	}
-
-	@Override
-	public void sendSpinLeft(int speed, int angle) {
-		while (!commandLock.tryLock())
-			;
-		robotState.setAngleOfRotation(angle);
-		robotState.setCurrentMovement(RobotState.Movement.SPIN_LEFT);
-		robot.turn(angle);
-		commandLock.unlock();
-	}
-
-	@Override
-	public void sendSpinRight(int speed, int angle) {
-		while (!commandLock.tryLock())
-			;
-
-		robotState.setAngleOfRotation(-angle);
-		robotState.setCurrentMovement(RobotState.Movement.SPIN_RIGHT);
+	public static void spinLeft(int angle) {
 		robot.turn(-angle);
-		commandLock.unlock();
 	}
 
-	@Override
-	public void sendForwardArcLeft(float radius, int angle) {
-		// TODO Auto-generated method stub
-
+	public static void spinRight(int angle) {
+		robot.turn(angle);
 	}
 
 	private int convertSpeed(int speed) {
 		return Tools.sanitizeInput(speed, 0, 54);
+	}
+
+	public BufferedImage getNextFrame() {
+		return Frame;
+	}
+
+	public static double calcDistanceBetweenPoints(Point2D p1, Point p2) {
+		return Math.sqrt((double) (Math.pow(p1.getX() - p2.x, 2) + (Math.pow(
+				p1.getY() - p2.y, 2))));
+	}
+
+	public static void placeRobot() {
+		world.add(robot.getBody());
+		world.add(oppRobot.getBody());
+		world.add(ball.getBody());
+	}
+
+	public static void clearPitch() {
+		world.remove(robot.getBody());
+		world.remove(oppRobot.getBody());
+		world.remove(ball.getBody());
 	}
 
 }

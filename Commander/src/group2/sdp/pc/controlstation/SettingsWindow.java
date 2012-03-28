@@ -4,6 +4,7 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.vision.VisualCortex;
 import group2.sdp.pc.vision.VisualCortex.OutputMode;
+import group2.simulator.starter.SimulatorI;
 
 import java.awt.Button;
 import java.awt.Color;
@@ -137,14 +138,17 @@ public class SettingsWindow extends JFrame {
 	private JLabel grayChromaEndLabel;
 
 	// adding labels
-	
+
 	private Button hueVisionModeButton;
 	private Button chromaVisionModeButton;
 	private Button lumaVisionModeButton;
-	
+
 	private Button saveButton;
 	private Button loadButton;
-	
+
+	private Button clearPitchSimulatorButton;
+	private Button placeRobotSimulatorButton;
+
 	private Button matchVisionModeButton;
 	private Button grabImageButton;
 
@@ -251,7 +255,7 @@ public class SettingsWindow extends JFrame {
 		yellowLumaStartSlider = new JSlider(JSlider.HORIZONTAL,
 				MIN_OTHER_VALUE, MAX_OTHER_VALUE, GlobalInfo
 						.getColourSettings().getYellowLumaStart());
-		
+
 		yellowLumaStartSlider.setBounds(column2X, row1Y, 200, 25);
 		yellowLumaStartSlider.addChangeListener(new ChangeListener() {
 
@@ -964,8 +968,7 @@ public class SettingsWindow extends JFrame {
 				processor.setCurrentMode(OutputMode.HUE);
 			}
 		});
-		
-		
+
 		chromaVisionModeButton = new Button();
 		chromaVisionModeButton.setLabel("Chroma");
 		chromaVisionModeButton.setBounds(880, 15, 65, 25);
@@ -998,7 +1001,29 @@ public class SettingsWindow extends JFrame {
 				Salvator.saveLCHSettings();
 			}
 		});
-		
+
+		clearPitchSimulatorButton = new Button();
+		clearPitchSimulatorButton.setLabel("Clear Simulstor Pitch");
+		clearPitchSimulatorButton.setBounds(1090, 187, 150, 25);
+		clearPitchSimulatorButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulatorI.clearPitch();
+			}
+		});
+
+		placeRobotSimulatorButton = new Button();
+		placeRobotSimulatorButton.setLabel("Place Simulator Robot");
+		placeRobotSimulatorButton.setBounds(1090, 147, 150, 25);
+		placeRobotSimulatorButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				SimulatorI.placeRobot();
+			}
+		});
+
 		loadButton = new Button();
 		loadButton.setLabel("Load Settings");
 		loadButton.setBounds(1090, 264, 150, 25);
@@ -1010,8 +1035,7 @@ public class SettingsWindow extends JFrame {
 				updateSliders();
 			}
 		});
-		
-		
+
 		matchVisionModeButton = new Button();
 		matchVisionModeButton.setLabel("Match");
 		matchVisionModeButton.setBounds(1090, 313, 150, 25);
@@ -1022,8 +1046,7 @@ public class SettingsWindow extends JFrame {
 				processor.setCurrentMode(OutputMode.MATCH);
 			}
 		});
-		
-		
+
 		grabImageButton = new Button();
 		grabImageButton.setLabel("Grab background");
 		grabImageButton.setBounds(1090, 350, 150, 25);
@@ -1133,57 +1156,93 @@ public class SettingsWindow extends JFrame {
 		getContentPane().add(grayChromaStartLabel);
 		getContentPane().add(grayChromaEndLabel);
 
+		getContentPane().add(clearPitchSimulatorButton);
+		getContentPane().add(placeRobotSimulatorButton);
 		getContentPane().add(saveButton);
 		getContentPane().add(loadButton);
-		
+
 		getContentPane().add(matchVisionModeButton);
 		getContentPane().add(grabImageButton);
 		// Funny...
 		getContentPane().add(new Panel());
 	}
 
-	
 	private void updateSliders() {
-		plateHueStartSlider.setValue(GlobalInfo.getColourSettings().getPlateHueStart());
-		plateHueEndSlider.setValue(GlobalInfo.getColourSettings().getPlateHueEnd());
-		plateLumaEndSlider.setValue(GlobalInfo.getColourSettings().getPlateLumaEnd());
-		plateLumaStartSlider.setValue(GlobalInfo.getColourSettings().getPlateLumaStart());
-		plateChromaStartSlider.setValue(GlobalInfo.getColourSettings().getPlateChromaStart());
-		plateChromaEndSlider.setValue(GlobalInfo.getColourSettings().getPlateChromaEnd());
+		plateHueStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getPlateHueStart());
+		plateHueEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getPlateHueEnd());
+		plateLumaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getPlateLumaEnd());
+		plateLumaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getPlateLumaStart());
+		plateChromaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getPlateChromaStart());
+		plateChromaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getPlateChromaEnd());
 
-		pitchHueStartSlider.setValue(GlobalInfo.getColourSettings().getPitchHueStart());
-		pitchHueEndSlider.setValue(GlobalInfo.getColourSettings().getPitchHueEnd());
-		pitchLumaStartSlider.setValue(GlobalInfo.getColourSettings().getPitchLumaStart());
-		pitchLumaEndSlider.setValue(GlobalInfo.getColourSettings().getPitchLumaEnd());
-		pitchChromaStartSlider.setValue(GlobalInfo.getColourSettings().getPitchChromaStart());
-		pitchChromaEndSlider.setValue(GlobalInfo.getColourSettings().getPitchChromaEnd());
+		pitchHueStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getPitchHueStart());
+		pitchHueEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getPitchHueEnd());
+		pitchLumaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getPitchLumaStart());
+		pitchLumaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getPitchLumaEnd());
+		pitchChromaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getPitchChromaStart());
+		pitchChromaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getPitchChromaEnd());
 
-		blueHueStartSlider.setValue(GlobalInfo.getColourSettings().getBlueHueStart());
-		blueHueEndSlider.setValue(GlobalInfo.getColourSettings().getBlueHueEnd());
-		blueLumaStartSlider.setValue(GlobalInfo.getColourSettings().getBlueLumaStart());
-		blueLumaEndSlider.setValue(GlobalInfo.getColourSettings().getBlueLumaEnd());
-		blueChromaStartSlider.setValue(GlobalInfo.getColourSettings().getBlueChromaStart());
-		blueChromaEndSlider.setValue(GlobalInfo.getColourSettings().getBlueChromaEnd());
+		blueHueStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getBlueHueStart());
+		blueHueEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getBlueHueEnd());
+		blueLumaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getBlueLumaStart());
+		blueLumaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getBlueLumaEnd());
+		blueChromaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getBlueChromaStart());
+		blueChromaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getBlueChromaEnd());
 
-		redHueStartSlider.setValue(GlobalInfo.getColourSettings().getRedHueStart());
+		redHueStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getRedHueStart());
 		redHueEndSlider.setValue(GlobalInfo.getColourSettings().getRedHueEnd());
-		redLumaStartSlider.setValue(GlobalInfo.getColourSettings().getRedLumaStart());
-		redLumaEndSlider.setValue(GlobalInfo.getColourSettings().getRedLumaEnd());
-		redChromaStartSlider.setValue(GlobalInfo.getColourSettings().getRedChromaStart());
-		redChromaEndSlider.setValue(GlobalInfo.getColourSettings().getRedChromaEnd());
+		redLumaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getRedLumaStart());
+		redLumaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getRedLumaEnd());
+		redChromaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getRedChromaStart());
+		redChromaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getRedChromaEnd());
 
-		yellowHueStartSlider.setValue(GlobalInfo.getColourSettings().getYellowHueStart());
-		yellowHueEndSlider.setValue(GlobalInfo.getColourSettings().getYellowHueEnd());
-		yellowLumaStartSlider.setValue(GlobalInfo.getColourSettings().getYellowLumaStart());
-		yellowLumaEndSlider.setValue(GlobalInfo.getColourSettings().getYellowLumaEnd());
-		yellowChromaStartSlider.setValue(GlobalInfo.getColourSettings().getYellowChromaStart());
-		yellowChromaEndSlider.setValue(GlobalInfo.getColourSettings().getYellowChromaEnd());
+		yellowHueStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getYellowHueStart());
+		yellowHueEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getYellowHueEnd());
+		yellowLumaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getYellowLumaStart());
+		yellowLumaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getYellowLumaEnd());
+		yellowChromaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getYellowChromaStart());
+		yellowChromaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getYellowChromaEnd());
 
-		grayHueStartSlider.setValue(GlobalInfo.getColourSettings().getGrayHueStart());
-		grayHueEndSlider.setValue(GlobalInfo.getColourSettings().getGrayHueEnd());
-		grayLumaStartSlider.setValue(GlobalInfo.getColourSettings().getGrayLumaStart());
-		grayLumaEndSlider.setValue(GlobalInfo.getColourSettings().getGrayLumaEnd());
-		grayChromaStartSlider.setValue(GlobalInfo.getColourSettings().getGrayChromaStart());
-		grayChromaEndSlider.setValue(GlobalInfo.getColourSettings().getGrayChromaEnd());
+		grayHueStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getGrayHueStart());
+		grayHueEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getGrayHueEnd());
+		grayLumaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getGrayLumaStart());
+		grayLumaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getGrayLumaEnd());
+		grayChromaStartSlider.setValue(GlobalInfo.getColourSettings()
+				.getGrayChromaStart());
+		grayChromaEndSlider.setValue(GlobalInfo.getColourSettings()
+				.getGrayChromaEnd());
 	}
 }
