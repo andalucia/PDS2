@@ -4,11 +4,11 @@ import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
-import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
+import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.planner.skeleton.StrategyConsumer;
 import group2.sdp.pc.planner.strategy.Strategy;
@@ -84,15 +84,20 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		}
 
 		switch (currentStrategy) {
-//		case TEST_PATH_FINDER:
-//			Point2D ballPosition = dpi.getBallInfo().getPosition();
-//			Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
-//			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
-//			
-//			return new OperationReallocation(
-//					ballPosition,
-//					shootingDirection
-//			);
+		case TEST_PATH_FINDER:
+			if (!dpi.getAlfieInfo().isHasBall()) {
+				System.out.println("Don't have ball.");
+				Point2D ballPosition = dpi.getBallInfo().getPosition();
+				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+				
+				return new OperationReallocation(
+						ballPosition,
+						shootingDirection
+				);
+			} else {
+				return new OperationStrike();
+			}
 			
 		case DEFENSIVE:
 			return planNextDefensive(dpi);
@@ -155,6 +160,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		replan = true;
 	}
 
+	private long successStartTime = 0;
+	
 	/**
 	 * Checks if the current operation succeeded, given the current pitch info.
 	 * @param dpi Current pitch info.
@@ -166,24 +173,68 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		if (currentStrategy == null)
 			return true;
 		
+		long SUCCESS_TIMEOUT = 1000;
+		
 		if (currentOperation instanceof OperationReallocation) {
 			Point2D pos = dpi.getAlfieInfo().getPosition();
 			Point2D aim = ((OperationReallocation) currentOperation).getPosition();
-			return (pos.distance(aim) < REALLOCATION_DISTANCE_THRESHOLD);
+			if (pos.distance(aim) < REALLOCATION_DISTANCE_THRESHOLD) {
+				long now = System.currentTimeMillis();
+				if (successStartTime > 0 && now - successStartTime > SUCCESS_TIMEOUT) {
+					successStartTime = 0;
+					System.out.println("Operation successful.");
+					return true;
+				}
+				if (successStartTime == 0)
+					successStartTime = now;
+			} else {
+				successStartTime = 0;
+			}
 		}
 		
 		return false;
 	}
 
+	private long failureStartTime = 0;
+	private boolean didNotFail = false;
+	
 	/**
 	 * Checks if there is a problem with executing the current operation.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
 	 * TODO implement
 	 */
-	protected boolean problemExists(DynamicInfo dpi) {
+	protected boolean operationFailed(DynamicInfo dpi) {
 		if (currentStrategy == null) {
 			return true;
+		}
+		
+		if (currentOperation instanceof OperationReallocation) {
+			OperationReallocation op = (OperationReallocation)currentOperation;
+			
+			int STOP_THRESHOLD = 10;
+			double ROLL_THRESHOLD = 5.0;
+			long FAILURE_TIMEOUT = 800;
+			
+			if (didNotFail && dpi.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
+				long now = System.currentTimeMillis();
+				if (failureStartTime > 0 && now - failureStartTime > FAILURE_TIMEOUT) {
+					failureStartTime = 0;
+					didNotFail = false;
+					return true;
+				}
+				if (failureStartTime == 0) {
+					failureStartTime = now;
+				}
+			} else {
+				didNotFail = true;
+				failureStartTime = 0;	
+			}
+			Point2D ballPosition = dpi.getBallInfo().getPosition(); 
+			if (ballPosition.distance(op.getPosition()) > ROLL_THRESHOLD) {
+				failureStartTime = 0;
+				return true;
+			}
 		}
 		
 		return false;
@@ -198,8 +249,11 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	@Override
 	public void consumeInfo(DynamicInfo dpi) {
 		boolean success = operationSuccessful(dpi);
-		boolean problem = problemExists(dpi);
-		if (replan || success || problem) {
+		boolean fail = operationFailed(dpi);
+		if (replan || success || fail) {
+			System.out.println("Replan: " + replan);
+			System.out.println("Success: " + success);
+			System.out.println("Fail: " + fail);
 			currentOperation = planNextOperation(dpi);
 			operationConsumer.consumeOperation(currentOperation);
 			replan = false;

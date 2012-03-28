@@ -1,5 +1,6 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 
@@ -12,12 +13,16 @@ import group2.sdp.pc.mouth.MouthInterface;
  */
 public class PathStepSpinLeft extends PathStep {
 
-	private int angle;
-	private int threshold;
-	private int speed;
+	private double angle;
+	private double threshold;
+	private double speed;
+	private double startingAngle;
+	private double targetAngle;
 	
-	public PathStepSpinLeft(int angle, int threshold, int speed){
-		this.angle= angle;
+	public PathStepSpinLeft(double startingAngle, double angle, double threshold, double speed) {
+		this.startingAngle = startingAngle;
+		this.angle = angle;
+		this.targetAngle = startingAngle + angle;
 		this.threshold = threshold;
 		this.speed = speed;
 	}
@@ -29,17 +34,19 @@ public class PathStepSpinLeft extends PathStep {
 
 	
 	
-	public int getAngle(){
+	public double getAngle(){
 		return this.angle;
 	}
 	
-	public int getThreshold(){
+	public double getThreshold(){
 		return this.threshold;
 	}
 	
-	public int getSpeed(){
+	public double getSpeed(){
 		return this.speed;
 	}
+	
+	private long successStartTime = 0;
 	
 	/**
 	 * Succeed:
@@ -47,8 +54,21 @@ public class PathStepSpinLeft extends PathStep {
 	 */
 	@Override
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
-		// TODO Auto-generated method stub 
-		// logic yet to be added
+		double angle = pitchStatus.getAlfieInfo().getFacingDirection();
+		
+		long SUCCESS_TIMEOUT = 250;
+		
+		if (Math.abs(Geometry.normalizeToPositive(targetAngle - angle)) < threshold) {
+			long now = System.currentTimeMillis();
+			if (successStartTime > 0 && now - successStartTime > SUCCESS_TIMEOUT) {
+				successStartTime = 0;
+				return true;	
+			}
+			if (successStartTime == 0) 
+				successStartTime = now;
+		} else {
+			successStartTime = 0;
+		}
 		return false;
 	}
 
@@ -67,7 +87,7 @@ public class PathStepSpinLeft extends PathStep {
 	@Override
 	public boolean whisper(MouthInterface mouth) {
 		if (super.whisper(mouth)) {
-			mouth.sendSpinLeft(getSpeed(), getAngle());
+			mouth.sendSpinLeft((int)getSpeed(), (int)getAngle());
 			return true;
 		}
 		return false;

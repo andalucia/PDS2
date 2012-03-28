@@ -315,6 +315,7 @@ public class ControlStation {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				if (lord != null) {
 					lord.start();
 				}

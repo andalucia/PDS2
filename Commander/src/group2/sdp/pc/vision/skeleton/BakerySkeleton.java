@@ -110,8 +110,9 @@ public abstract class BakerySkeleton implements StaticInfoConsumer {
 				alfieRotatingSpeed,
 				alfieRotatingCCW);
 		
-		alfieInfo.setFacingDirection(correctRobotFacingDirection(staticInfoHistory.getAlfieInfos()));
-	
+		alfieInfo.setFacingDirection(
+				correctRobotFacingDirection(staticInfoHistory.getAlfieInfos())
+		);
 		
 		// Dynamic opponent information
 		double opponentTravelSpeed = computeOpponentTravelSpeed();

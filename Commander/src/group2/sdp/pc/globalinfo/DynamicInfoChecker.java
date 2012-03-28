@@ -75,13 +75,14 @@ public class DynamicInfoChecker {
 	 * @param ballPosition position of the ball
 	 * @return true if the robot is in possession of the ball
 	 */
-	public static boolean hasBall(DynamicRobotInfo robot, Point2D ballPosition){
+	public static boolean hasBall(StaticRobotInfo robot, Point2D ballPosition){
 		double lengthThreshold = 2.0;
 		double halfLength = (StaticRobotInfo.getLength()) / 2 + lengthThreshold;
 		double widthThreshold = 5.0;
 		double halfWidth = (StaticRobotInfo.getWidth()) / 2 - widthThreshold;
 		Point2D frontOfRobot = Geometry.generatePointOnLine(robot.getPosition(),
 				robot.getFacingDirection(), halfLength);
+		
 		return frontOfRobot.distance(ballPosition) < halfWidth
 				? true
 				: false;

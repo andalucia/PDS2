@@ -12,6 +12,7 @@ import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
+import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
@@ -24,17 +25,18 @@ import java.util.LinkedList;
 public class Conversation {
 	
 	public static void main (String [] args) throws Exception {
-//		Mouth s = new Mouth();
-//		
-//		// testDoubleArc(s);
-//		
-//		s.sendForwardArcRight(1276, 4.7065);
-//		Thread.sleep(5000);
-//		s.sendStop();
-//		Thread.sleep(1000);
-//		s.sendReset();
-//		Thread.sleep(1000);
-//		s.cleanup();
+		Mouth s = new Mouth();
+		
+		// testDoubleArc(s);
+		
+		
+		new PathStepSpinLeft(0.0, 180.0, 10.0, 1000.0).whisper(s);
+		Thread.sleep(1000);
+		s.sendStop();
+		Thread.sleep(250);
+		s.sendReset();
+		Thread.sleep(1000);
+		s.cleanup();
 	}
 
 	public static void testDoubleArc(Mouth s) throws InterruptedException {
@@ -63,7 +65,7 @@ public class Conversation {
 		
 		OperationReallocation op = new OperationReallocation(end, enddir);
 		
-		LinkedList<PathStep> doubleArcPath = PathFinder.getDoubleArcPath(pitch, op, true);
+		LinkedList<PathStep> doubleArcPath = PathFinder.getDoubleArcPath(pitch, op, true, 0.0);
 		
 		System.out.println(doubleArcPath);
 		

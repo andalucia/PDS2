@@ -109,6 +109,10 @@ public class Geometry {
 		return new Point2D.Double(x, y);
 	}
 	
+	public static Point2D translate(Point2D v, double scale, double angle) {
+		return translate(v, scale, getDirectionVector(angle));
+	}
+	
 	/**
 	 * Gets the offset from start to end.
 	 */
@@ -218,7 +222,7 @@ public class Geometry {
 	 * second point.
 	 * @param first The start of the vector.
 	 * @param second The end of the vector.
-	 * @return The angle of the vector.
+	 * @return The angle of the vector in degrees,
 	 */
 	public static double getVectorDirection(Point2D first,
 			Point2D second) {
@@ -244,13 +248,14 @@ public class Geometry {
 	/**
 	 * Given the start position, start direction, radius and angle of the
 	 * arc, return the end position. The sign of the angle indicates whether
-	 * it is a clock-wise
-	 * (negative angle) or anti-clock-wise (positive angle) arc.
+	 * it is a clock-wise (negative angle) or anti-clock-wise (positive angle) 
+	 * arc; the sign of the radius indicates if the arc movement is forward or
+	 * backwards.
 	 * @param arcStart The starting point of the arc.
 	 * @param arcStartDirection The slope of the tangent line to the arc in the 
 	 * starting point.
-	 * @param radius The radius of the circle containing the arc.
-	 * @param angle The central angle of the arc.
+	 * @param radius The radius of the circle containing the arc. Can be negative. 
+	 * @param angle The central angle of the arc. Can be negative.
 	 * @return The end point of the arc.
 	 */
 	public static Point2D getArcEnd(Point2D arcStart, double arcStartDirection,
@@ -280,9 +285,9 @@ public class Geometry {
 			Point2D arcStart, 
 			double startDirection,
 			Point2D arcEnd,
-			Point2D circleCentre,
-			double radius
+			Point2D circleCentre
 	) {
+		double radius = circleCentre.distance(arcStart);
 		double c = arcStart.distance(arcEnd);
 		double cosOfAngle = (2 * radius * radius - c * c) / (2 * radius * radius);
 		double angle = Math.toDegrees(Math.acos(cosOfAngle));
@@ -290,7 +295,7 @@ public class Geometry {
 		return 
 			!isPointBehind(arcStart, startDirection, arcEnd)
 			? angle
-			: 180 + angle;
+			: 360 - angle;
 	}
 
 	/**
@@ -328,7 +333,9 @@ public class Geometry {
 		return new Point2D.Double(x1 + t * dx1, y1 + t * dy1);
 	}
 	
-	
+	/**
+	 * Is the centre on the left of the start point, with respect to the given direction.
+	 */
 	public static boolean isArcLeft(Point2D start, double direction, Point2D centre) {
 		Point2D temp = generateRandomPoint(centre, direction);
 		
@@ -354,25 +361,18 @@ public class Geometry {
 	
 	public static boolean isPointBehind(Point2D referencePoint, double direction, Point2D testPoint) {
 		double dt = perpendicularisePaul(direction);
-		Point2D temp = generateRandomPoint(referencePoint, dt);
-		
-		if (isArcLeft(referencePoint, dt, testPoint))
-			return true;
-		else
-			return false;
+		boolean result = isArcLeft(referencePoint, dt, testPoint);
+		System.out.println("[isPointBehind]: " + result);
+		return result;
 	}
 	
-//	/**
-//	 * Tells if going from point1 to point2 on the circle they lie on (with given centre)
-//	 * moves you in a positive, counter-clock-wise direction or not.
-//	 * @param arcPoint1
-//	 * @param arcPoint2
-//	 * @param centre
-//	 * @return
-//	 */
-//	public static boolean arePositivelyOriented(Point2D arcPoint1, Point2D arcPoint2, Point2D centre) {
-//
-//	}
+	/**
+	 * Normalises the given angle to be from 0 to 360 degrees. 
+	 */
+	public static double normalizeToPositive(double angle) {
+		angle = (angle + 360.0) % 360.0;
+		return angle;
+	}
 	
 	public static double crossProduct(Point2D v1, Point2D v2) {
 		return v1.getX() * v2.getY() - v2.getX() * v1.getY(); 
@@ -380,7 +380,13 @@ public class Geometry {
 
 	public static boolean isCircleCentreOnTheRight(Point2D startPosition,
 			double startDirection, Point2D circleCentre){
-		Point2D positiveLeft = getArcEnd(startPosition, startDirection, circleCentre.distance(startPosition), 90);
+		Point2D positiveLeft = 
+			getArcEnd(
+					startPosition, 
+					startDirection, 
+					circleCentre.distance(startPosition), 
+					90
+			);
 		double threshold = 0.0001;
 		if (circleCentre.distance(positiveLeft) - circleCentre.distance(startPosition) < threshold) {
 			return false;
@@ -412,5 +418,16 @@ public class Geometry {
 				return false;  
 		}
 		
+	}
+
+	/**
+	 * Gets the point that lies on the middle of the segment connecting the 
+	 * given points.
+	 */
+	public static Point2D getMidPoint(Point2D start, Point2D end) {
+		return new Point2D.Double(
+				(start.getX() + end.getX()) / 2,
+				(start.getY() + end.getY()) / 2
+		);
 	}
 }

@@ -2,7 +2,6 @@ package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.mouth.MouthInterface;
 
 import java.awt.geom.Point2D;
@@ -21,83 +20,70 @@ public abstract class PathStepArc extends PathStep {
 	
 	private double threshold;
 
-	private double targetOrientation;
-
-	private Point2D targetDestination;
+	protected Point2D start;
 	
-	private Point2D start;
+	protected double startDirection;
+	
+	protected double targetDirection;
+
+	protected Point2D targetDestination;
+
 
 	/**
 	 * Fully initialising constructor.
 	 * @param start The position from which the movement will start.
 	 * @param startDirection The orientation from which the movement will start.
-	 * @param radius The radius of the circle containing the arc.
+	 * @param radius The radius of the circle containing the arc. Keep it positive.
 	 * @param angle The central angle of the arc. Keep it positive.
 	 * @param threshold The threshold for deciding success.
 	 */
 	public PathStepArc(Point2D start, double startDirection, 
 			double radius, double angle, double threshold){
-		setAngle(angle);
-		setRadius(radius);
+		this.angle = angle;
+		this.radius = radius;
+		this.startDirection = startDirection;
 
 		this.threshold = threshold;
 		this.start = start;
-		inferTargetDestination(start, startDirection);
-		inferTargetOrientation(startDirection);
+		inferTargetDestination(start);
+		inferTargetOrientation();
 	}
 	
+
 	/**
 	 * Computes the target orientation, given the start direction.
 	 * @param startDirection
 	 */
-	private void inferTargetOrientation(double startDirection) {
-		this.targetOrientation = startDirection + angle;
-		if (this.targetOrientation != 0.0) {
-			this.targetOrientation %= 360.0; 
-			// -360 < targetOrientation < 360
-			
-			this.targetOrientation += 360.0;
-			if (this.targetOrientation != 0.0) {
-				this.targetOrientation %= 360.0;
-				// 0 < targetOrientation < 360
-			}
-		}
-	}
+	protected abstract void inferTargetOrientation();
 
-	private void inferTargetDestination(Point2D start, double startDirection) {
-		this.targetDestination = 
-			Geometry.getArcEnd(start, startDirection, radius, angle);
-	}
-
-	protected abstract void setRadius(double radius);
+	protected abstract void inferTargetDestination(Point2D start);
 	
-	protected abstract void setAngle(double angle);
-	
-	public double getRadius() {
-		return radius;
-	}
-
-	public double getAngle() {
-		return angle;
-	}
-
 	public double getThreshold() {
 		return threshold;
 	}
 
 	public double getTargetOrientation() {
-		return targetOrientation;
+		return targetDirection;
 	}
 
 	public Point2D getTargetDestination() {
 		return targetDestination;
 	}
 	
-	public Point2D getStartingPoint(){
+	public Point2D getStartPoint() {
 		return start;
 	}
 	
+	public double getStartDirection() {
+		return startDirection;
+	}
 
+	public abstract Point2D getCentrePoint();
+	
+	public double getLength() {
+		return radius * Math.toRadians(angle);
+	}
+	
 	/**
 	 * Succeed:
 	 * If Alfie is within the specified threshold distance from the target position.
@@ -108,6 +94,8 @@ public abstract class PathStepArc extends PathStep {
 		return d < threshold;
 	}
 
+	long failureStartTime = 0;
+	
 	/**
 	 * Fail: 
 	 * 		 Easy:
@@ -122,10 +110,21 @@ public abstract class PathStepArc extends PathStep {
 	@Override
 	public boolean hasFailed(DynamicInfo pitchStatus) {
 		int STOP_THRESHOLD = 10;
-		System.out.println("Travel speed: " + pitchStatus.getAlfieInfo().getTravelSpeed());
+		
+		long FAILURE_TIMEOUT = 800;
+		
 		if (pitchStatus.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
-			return true;
+			long now = System.currentTimeMillis();
+			if (failureStartTime  > 0 && now - failureStartTime > FAILURE_TIMEOUT) {
+				failureStartTime = 0;
+				return true;
+			}
+			if (failureStartTime == 0)
+				failureStartTime = now;
+		} else {
+			failureStartTime = 0;
 		}
+		
 		return false;
 	}
 	
@@ -134,38 +133,7 @@ public abstract class PathStepArc extends PathStep {
 		return "[radius=" + radius + ", angle=" + angle
 		+ ", threshold=" + threshold + ", targetDestination="
 		+ targetDestination + ", targetOrientation="
-		+ targetOrientation + "]";
-	}
-
-	public static PathStepArc getShorterPathStepArc(
-			Point2D arcStart, double startDirection, Point2D circleCentre,
-			double angle, double threshold
-	) {
-		double angle2 = angle;
-		double startDirection2;
-		if (angle > 180.0) {
-			angle2 -= 180.0;
-			startDirection2 = Geometry.reverse(startDirection);
-		} else {
-			startDirection2 = startDirection;
-		}
-		
-		double radius = circleCentre.distance(arcStart);
-		Point2D arcEnd = Geometry.getArcEnd(arcStart, startDirection, radius, angle);
-		
-		boolean lefty = Geometry.isArcLeft(arcStart, startDirection, circleCentre);
-		boolean behind = Geometry.isPointBehind(arcStart, startDirection, arcEnd);
-		
-		if (!behind)
-			if (lefty)
-				return new PathStepArcForwardsLeft(arcStart, startDirection2, radius, angle2, threshold);
-			else
-				return new PathStepArcForwardsRight(arcStart, startDirection2, radius, angle2, threshold);
-		else
-			if (lefty)
-				return new PathStepArcBackwardsLeft(arcStart, startDirection2, radius, angle2, threshold);
-			else
-				return new PathStepArcBackwardsRight(arcStart, startDirection2, radius, angle2, threshold);
+		+ targetDirection + "]";
 	}
 
 	public static PathStepArc getForwardPathStepArc(Point2D arcStart,
@@ -182,6 +150,21 @@ public abstract class PathStepArc extends PathStep {
 			return new PathStepArcForwardsRight(arcStart, startDirection, radius, angle, threshold);
 	}
 
+	public static PathStepArc getBackwardsPathStepArc(Point2D arcStart,
+			double startDirection, Point2D circleCentre,
+			double angle, double threshold) {
+		angle = angle - 180;
+		startDirection = Geometry.reverse(startDirection);
+		
+		double radius = circleCentre.distance(arcStart);
+		boolean lefty = !Geometry.isArcLeft(arcStart, startDirection, circleCentre);
+		
+		if (lefty)
+			return new PathStepArcBackwardsLeft(arcStart, startDirection, radius, angle, threshold);
+		else
+			return new PathStepArcBackwardsRight(arcStart, startDirection, radius, angle, threshold);
+	}
+	
 	@Override
 	public abstract Type getType();
 	

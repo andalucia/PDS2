@@ -1,5 +1,6 @@
 package group2.sdp.pc.planner.pathstep;
 
+import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.mouth.MouthInterface;
 
 import java.awt.geom.Point2D;
@@ -38,22 +39,34 @@ public class PathStepArcForwardsLeft extends PathStepArc {
 		return Type.ARC_FORWARDS_LEFT;
 	}
 
-	/**
-	 * Set the radius of the circle containing the arc.
-	 * @param radius The radius of the circle containing the arc.
-	 */
-	public void setRadius(double radius) {
-		this.radius = radius;
+	@Override
+	protected void inferTargetOrientation()  {
+		this.targetDirection = startDirection + angle;
+		targetDirection = Geometry.normalizeToPositive(targetDirection);
 	}
-
-	/**
-	 * Set the central angle of the arc.
-	 * @param angle The central angle of the arc.
-	 */
-	public void setAngle(double angle) {
-		this.angle = angle;
+	
+	@Override
+	protected void inferTargetDestination(Point2D start) {
+		this.targetDestination = 
+			Geometry.getArcEnd(
+					start, 
+					startDirection, 
+					radius, 
+					angle
+			);
 	}
-
+	
+	@Override
+	public Point2D getCentrePoint() {
+		Point2D end = Geometry.getArcEnd(
+				start, 
+				startDirection, 
+				radius, 
+				180
+		);
+		return Geometry.getMidPoint(start, end);
+	}
+	
 	@Override
 	public String toString() {
 		return "PathStepArcForwardsLeft: " + super.toString();
@@ -62,7 +75,7 @@ public class PathStepArcForwardsLeft extends PathStepArc {
 	@Override
 	public boolean whisper(MouthInterface mouth) {
 		if (super.whisper(mouth)) {
-			mouth.sendForwardArcLeft(Math.abs(getRadius()), Math.abs(getAngle()));
+			mouth.sendForwardArcLeft(Math.abs(radius), Math.abs(angle));
 			return true;
 		}
 		return false;

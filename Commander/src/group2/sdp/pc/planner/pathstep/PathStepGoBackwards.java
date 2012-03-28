@@ -55,8 +55,6 @@ public class PathStepGoBackwards extends PathStep {
 	 */
 	@Override
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
-		// TODO Auto-generated method stub 
-		// logic yet to be added
 		return false;
 	}
 
@@ -67,8 +65,6 @@ public class PathStepGoBackwards extends PathStep {
 	 */
 	@Override
 	public boolean hasFailed(DynamicInfo pitchStatus) {
-		// TODO Auto-generated method stub
-		//Coming soon Logic!
 		return false;
 	}
 

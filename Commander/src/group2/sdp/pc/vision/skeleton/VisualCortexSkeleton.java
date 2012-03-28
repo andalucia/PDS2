@@ -3,6 +3,7 @@ package group2.sdp.pc.vision.skeleton;
 import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 
 import java.awt.geom.Point2D;
@@ -66,7 +67,18 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 		if (alfiePosition == null) {
 			alfiePosition = new Point(0,0);
 		}
-		StaticRobotInfo alfieInfo = new StaticRobotInfo(alfiePosition, alfieFacingDirection, true, false, time);
+		StaticRobotInfo alfieInfo = 
+			new StaticRobotInfo(
+					alfiePosition, 
+					alfieFacingDirection, 
+					true, 
+					false, 
+					time
+			);
+		
+		alfieInfo.setHasBall(
+				DynamicInfoChecker.hasBall(alfieInfo, ballInfo.getPosition())
+		);
 		
 		Point2D opponentPosition = extractOpponentPosition(image);
 		if (opponentPosition == null) {

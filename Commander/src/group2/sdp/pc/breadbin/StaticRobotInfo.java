@@ -91,7 +91,11 @@ public class StaticRobotInfo {
 		this.position = info.position;
 		this.facingDirection = info.facingDirection;
 		this.alfie = info.alfie;
-		this.timeStamp= info.timeStamp;	
+		this.timeStamp= info.timeStamp;
+		if (!alfie)
+			this.centrePoint = new Point2D.Double(0.0, 0.0);
+		else 
+			this.centrePoint = ALFIE_CENTROID;
 	}
 
 
@@ -194,6 +198,16 @@ public class StaticRobotInfo {
 	 */
 	public long getTimeStamp() {
 		return timeStamp;
+	}
+	
+	/**
+	 * Get the coordinates of the centroid of the T, with respect to the 
+	 * centre of the robot.
+	 * @return The coordinates of the centroid of the T, with respect to the 
+	 * centre of the robot.
+	 */
+	public Point2D getCentrePoint() {
+		return centrePoint;
 	}
 	
 	/**
