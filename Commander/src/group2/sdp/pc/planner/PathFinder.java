@@ -141,101 +141,17 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		case OVERLOAD:
 			planOverload();
 			break;
+			
+		case PENALTY_DEFEND:
+			planPenaltyDefend();
+			break;
 		}
 		lastPlanIssuedTime = System.currentTimeMillis();
 	}
 	
+
 	private long lastTimeSpinning = 0;
 	
-	/**
-	 * Create the PathSteps for an OperationReallocation
-	 * 
-	 * This method returns void but it should populate the pathStepList with pathSteps
-	 */
-	private void planReallocation(DynamicInfo dpi) {
-		OperationReallocation op = (OperationReallocation) currentOperation;
-		
-		pathStepList = new LinkedList<PathStep>();
-		double angleCorrect = 0.0;
-		if (
-				Geometry.isPointBehind(
-						Geometry.translate(
-								dpi.getAlfieInfo().getPosition(),
-								dpi.getAlfieInfo().getLength() - dpi.getAlfieInfo().getCentrePoint().getY(),
-								dpi.getAlfieInfo().getFacingDirection()
-						), 
-						dpi.getAlfieInfo().getFacingDirection(), 
-						op.getPosition()
-				)
-		) {
-			long SPINNING_TIMEOUT = 1000; // Stan and Paul know why.
-			
-			long now = System.currentTimeMillis();
-			if (lastTimeSpinning == 0 || now - lastTimeSpinning > SPINNING_TIMEOUT) {
-				lastTimeSpinning = now;
-				Point2D p1 = dpi.getAlfieInfo().getPosition(); 
-				Point2D p2 = dpi.getBallInfo().getPosition();
-				double targetAngle = Geometry.getVectorDirection(p1, p2);
-				angleCorrect = targetAngle - dpi.getAlfieInfo().getFacingDirection();
-				angleCorrect = Geometry.normalizeToPositive(angleCorrect);
-				
-				System.out.println("Angle correct: " + angleCorrect);
-				
-				pathStepList.add(
-						new PathStepSpinLeft(
-								dpi.getAlfieInfo().getFacingDirection(),
-								angleCorrect,
-								10.0,
-								1000.0
-						)
-				);
-			}
-		}
-		
-		LinkedList<PathStep> pathStepListSecondCW = getDoubleArcPath(dpi, op, false, angleCorrect);
-		LinkedList<PathStep> pathStepListSecondCCW = getDoubleArcPath(dpi, op, true, angleCorrect);
-		
-//		if (!isGoodPath(pathStepListSecondCCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//				pathStepList.add(
-//						new PathStepArcBackwardsLeft(
-//								dpi.getAlfieInfo().getPosition(), 
-//								dpi.getAlfieInfo().getFacingDirection(), 
-//								10.0, 
-//								180, 
-//								5.0
-//						)
-//				);
-//			} else {
-//				pathStepList = pathStepListSecondCW;
-//			}
-//		} else {
-//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//				pathStepList = pathStepListSecondCCW;
-//			} else {
-				double lengthCCW = 0.0;
-				for (PathStep ps : pathStepListSecondCCW) {
-					lengthCCW += ((PathStepArc) ps).getLength();
-				}
-				
-				double lengthCW = 0.0;
-				for (PathStep ps : pathStepListSecondCW) {
-					lengthCW += ((PathStepArc) ps).getLength();
-				}
-				System.out.println("CCW arc length: " + lengthCCW);
-				System.out.println("CW arc length: " + lengthCW);
-				
-				pathStepList.addAll(
-					lengthCCW < lengthCW
-					? pathStepListSecondCCW
-					: pathStepListSecondCW
-				);
-//			}
-//		}
-		
-		
-		pathStepList.add(new PathStepKick(1000));
-	}
 
 	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
 			OperationReallocation op, boolean secondArcCCW, double angleCorrect) {
@@ -506,6 +422,97 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		return M;
 	}
 	
+
+	/**
+	 * Create the PathSteps for an OperationReallocation
+	 * 
+	 * This method returns void but it should populate the pathStepList with pathSteps
+	 */
+	private void planReallocation(DynamicInfo dpi) {
+		OperationReallocation op = (OperationReallocation) currentOperation;
+		
+		pathStepList = new LinkedList<PathStep>();
+		double angleCorrect = 0.0;
+		if (
+				Geometry.isPointBehind(
+						Geometry.translate(
+								dpi.getAlfieInfo().getPosition(),
+								dpi.getAlfieInfo().getLength() - dpi.getAlfieInfo().getCentrePoint().getY(),
+								dpi.getAlfieInfo().getFacingDirection()
+						), 
+						dpi.getAlfieInfo().getFacingDirection(), 
+						op.getPosition()
+				)
+		) {
+			long SPINNING_TIMEOUT = 1000; // Stan and Paul know why.
+			
+			long now = System.currentTimeMillis();
+			if (lastTimeSpinning == 0 || now - lastTimeSpinning > SPINNING_TIMEOUT) {
+				lastTimeSpinning = now;
+				Point2D p1 = dpi.getAlfieInfo().getPosition(); 
+				Point2D p2 = dpi.getBallInfo().getPosition();
+				double targetAngle = Geometry.getVectorDirection(p1, p2);
+				angleCorrect = targetAngle - dpi.getAlfieInfo().getFacingDirection();
+				angleCorrect = Geometry.normalizeToPositive(angleCorrect);
+				
+				System.out.println("Angle correct: " + angleCorrect);
+				
+				pathStepList.add(
+						new PathStepSpinLeft(
+								dpi.getAlfieInfo().getFacingDirection(),
+								angleCorrect,
+								10.0,
+								1000.0
+						)
+				);
+			}
+		}
+		
+		LinkedList<PathStep> pathStepListSecondCW = getDoubleArcPath(dpi, op, false, angleCorrect);
+		LinkedList<PathStep> pathStepListSecondCCW = getDoubleArcPath(dpi, op, true, angleCorrect);
+		
+//		if (!isGoodPath(pathStepListSecondCCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
+//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
+//				pathStepList.add(
+//						new PathStepArcBackwardsLeft(
+//								dpi.getAlfieInfo().getPosition(), 
+//								dpi.getAlfieInfo().getFacingDirection(), 
+//								10.0, 
+//								180, 
+//								5.0
+//						)
+//				);
+//			} else {
+//				pathStepList = pathStepListSecondCW;
+//			}
+//		} else {
+//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
+//				pathStepList = pathStepListSecondCCW;
+//			} else {
+				double lengthCCW = 0.0;
+				for (PathStep ps : pathStepListSecondCCW) {
+					lengthCCW += ((PathStepArc) ps).getLength();
+				}
+				
+				double lengthCW = 0.0;
+				for (PathStep ps : pathStepListSecondCW) {
+					lengthCW += ((PathStepArc) ps).getLength();
+				}
+				System.out.println("CCW arc length: " + lengthCCW);
+				System.out.println("CW arc length: " + lengthCW);
+				
+				pathStepList.addAll(
+					lengthCCW < lengthCW
+					? pathStepListSecondCCW
+					: pathStepListSecondCW
+				);
+//			}
+//		}
+		
+		
+		pathStepList.add(new PathStepKick(1000));
+	}
+	
 	/**
 	 * Create the PathSteps for an OperationStrike
 	 * 
@@ -537,6 +544,11 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		/**
 		 * TODO: Make magic happen
 		 */
+	}
+	
+	private void planPenaltyDefend() {
+		//TODO check angles
+		
 	}
 
 	/**

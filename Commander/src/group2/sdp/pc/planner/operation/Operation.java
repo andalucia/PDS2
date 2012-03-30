@@ -21,7 +21,8 @@ public interface Operation {
 		REALLOCATION, // 
 		STRIKE, // http://en.wikipedia.org/wiki/Operation_Strike_of_the_Sword
 		CHARGE, // http://en.wikipedia.org/wiki/Battle_of_Basra_%282008%29
-		OVERLOAD // http://en.wikipedia.org/wiki/Operation_Overload
+		OVERLOAD, // http://en.wikipedia.org/wiki/Operation_Overload
+		PENALTY_DEFEND
 		// ADD OTHERS
 	}
 	

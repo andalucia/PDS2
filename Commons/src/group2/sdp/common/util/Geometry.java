@@ -67,30 +67,30 @@ public class Geometry {
 	}
 	
 	/**
-	 * Gets the points of intersection between the given line segment and arc.
+	 * Gets the points of intersection between the given line and arc.
 	 */
 	public static Pair<Point2D, Point2D> getLineCircleIntersections(
-			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
+			Point2D linePoint1, Point2D linePoint2, Point2D circleCentre, 
 			double circleRadius) {
 		
 		Pair<Double, Double> t = 
 			getLineCircleIntersectionsParameters(
-					segmentStart, 
-					segmentEnd, 
+					linePoint1, 
+					linePoint2, 
 					circleCentre, 
 					circleRadius
 			);
 		Pair<Point2D, Point2D> result = 
 			new Pair<Point2D, Point2D>(
 					translate(
-							segmentStart,
+							linePoint1,
 							t.first,
-							getVectorDifference(segmentEnd, segmentStart)
+							getVectorDifference(linePoint2, linePoint1)
 					),
 					translate(
-							segmentStart,
+							linePoint1,
 							t.second,
-							getVectorDifference(segmentEnd, segmentStart)
+							getVectorDifference(linePoint2, linePoint1)
 					)
 			);
 		return result;
@@ -273,7 +273,8 @@ public class Geometry {
 	}
 	
 	/**
-	 * TODO
+	 * Gives the angle to travel on an arc from start to end position given 
+	 * the direction of the robot.
 	 * @param arcStart
 	 * @param startDirection
 	 * @param arcEnd

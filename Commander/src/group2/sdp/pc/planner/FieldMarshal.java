@@ -7,6 +7,7 @@ import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationOverload;
+import group2.sdp.pc.planner.operation.OperationPenaltyDefend;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
@@ -107,6 +108,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 		case STOP:
 			return new OperationOverload();
+		case PENALTY_DEFEND:
+			return new OperationPenaltyDefend(dpi.getAlfieInfo().getFacingDirection());
 		default:
 			System.err.println("No current strategy. Exiting.");
 			System.exit(1);

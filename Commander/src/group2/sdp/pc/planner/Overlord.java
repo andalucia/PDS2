@@ -56,6 +56,16 @@ public class Overlord implements DynamicInfoConsumer {
 	 * The current strategy that is being executed.
 	 */
 	protected Strategy currentStrategy;
+	
+	/**
+	 * Tells the Overlord if we are defending a penalty
+	 */
+	protected boolean defendPenalty = false;
+	
+	/**
+	 * Time at which we started defending a penalty
+	 */
+	protected long penaltyStart;
 
 	/**
 	 * Stopping the Overlord. Sending a STOP strategy.
@@ -88,6 +98,15 @@ public class Overlord implements DynamicInfoConsumer {
 			ControlStation.log("Overlord is busy conquering elsewhere.");
 		}
 		// Running is set to false once a stop command is sent to Alfie
+	}
+	
+	/**
+	 * Start defending a penalty
+	 */
+	public void defendPenalty() {
+		defendPenalty = true;
+		penaltyStart = System.currentTimeMillis();
+		start();
 	}
 
 	
@@ -127,9 +146,22 @@ public class Overlord implements DynamicInfoConsumer {
 		if (stopping) {
 			stopping = false;
 			running = false;
+			defendPenalty = false;
 			return Strategy.STOP;
 		}
-		
+		if (defendPenalty) {
+			// 30 seconds has passed
+			if (System.currentTimeMillis() - penaltyStart > 30000) {
+				defendPenalty = false;
+				computeStrategy(dpi);
+				//TODO check if 0 is a good threshold
+			} else if (dpi.getBallInfo().getRollingSpeed() > 0) {
+				defendPenalty = false;
+				computeStrategy(dpi);
+			} else {
+				return Strategy.PENALTY_DEFEND;
+			}
+		}
 		return Strategy.TEST_PATH_FINDER;
 		
 //		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
