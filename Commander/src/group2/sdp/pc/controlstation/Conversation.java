@@ -1,16 +1,7 @@
 package group2.sdp.pc.controlstation;
 
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.globalinfo.Camera;
-import group2.sdp.pc.globalinfo.GlobalInfo;
-import group2.sdp.pc.globalinfo.LCHColourSettings;
-import group2.sdp.pc.globalinfo.Pitch;
-import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.PathFinder;
-import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 
@@ -46,26 +37,15 @@ public class Conversation {
 		Point2D end = new Point2D.Double(40.0, 40.0);
 		double enddir = 90;
 		
-		DynamicRobotInfo alfieInfo = new DynamicRobotInfo(
-				start, 
-				startdir, 
-				true, 
-				false, 
-				0.0, 
-				startdir, 
-				0, 
-				false, 
-				0
-		);
-		
-		DynamicBallInfo ballInfo = null;
-		DynamicRobotInfo opponentInfo = null;
-		
-		DynamicInfo pitch = new DynamicInfo(ballInfo, alfieInfo, opponentInfo);
-		
-		OperationReallocation op = new OperationReallocation(end, enddir);
-		
-		LinkedList<PathStep> doubleArcPath = PathFinder.getDoubleArcPath(pitch, op, true, 0.0);
+		LinkedList<PathStep> doubleArcPath = 
+			new PathFinder(null).getDoubleArcPath(
+					start, 
+					startdir,
+					end,
+					enddir,
+					true, 
+					0.0
+			);
 		
 		System.out.println(doubleArcPath);
 		

@@ -10,7 +10,6 @@ import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
-import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
@@ -18,7 +17,6 @@ import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
-import java.awt.AlphaComposite;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -153,8 +151,10 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	private long lastTimeSpinning = 0;
 	
 
-	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
-			OperationReallocation op, boolean secondArcCCW, double angleCorrect) {
+	public LinkedList<PathStep> getDoubleArcPath(Point2D startPosition, 
+			double startDirection, Point2D endPosition, double endDirection,
+			boolean secondArcCCW, double angleCorrect) {
+		// TODO: remove angle correct
 		LinkedList<PathStep> pathStepList = new LinkedList<PathStep>();
 		double orientedRadius;
 		if (secondArcCCW)
@@ -163,21 +163,18 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			orientedRadius = -HARDCODED_SECOND_RADIUS_REMOVEME;
 		double secondRadius = Math.abs(orientedRadius);
 		
-		double d2 = op.getOrientation();
-		double d2t = Geometry.perpendicularisePaul(d2);
-		
-		Point2D startPosition = dpi.getAlfieInfo().getPosition();
+		double d2t = Geometry.perpendicularisePaul(endDirection);
 		
 		// Target position
-		double x2 = op.getPosition().getX();
-		double y2 = op.getPosition().getY();
+		double x2 = endPosition.getX();
+		double y2 = endPosition.getY();
 		
+		// TODO: use translate
 		double x0 = x2 + orientedRadius * Math.cos(Math.toRadians(d2t));
 		double y0 = y2 + orientedRadius * Math.sin(Math.toRadians(d2t));
 		
 		Point2D secondCircleCentre = new Point2D.Double(x0, y0);
 	
-		double startDirection = dpi.getAlfieInfo().getFacingDirection();
 		startDirection += angleCorrect;
 		startDirection = Geometry.normalizeToPositive(startDirection);
 		
@@ -241,7 +238,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			Geometry.getArcOrientedAngle(
 					transitionPoint,
 					firstArc.getTargetOrientation(),
-					op.getPosition(),
+					endPosition,
 					secondCircleCentre
 			);
 		
@@ -265,8 +262,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			System.out.println("transitionPoint    = " + transitionPoint);
 			System.out.println("transitionDirection= " + firstArc.getTargetOrientation());
 			System.out.println();
-			System.out.println("targetPosition     = " + op.getPosition());
-			System.out.println("targetDirection    = " + secondArc.getTargetOrientation());
+			System.out.println("endPosition     = " + endPosition);
+			System.out.println("endDirection    = " + secondArc.getTargetOrientation());
 			System.out.println();
 			System.out.println("p3                 = " + p3);
 			System.out.println();
@@ -437,7 +434,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				Geometry.isPointBehind(
 						Geometry.translate(
 								dpi.getAlfieInfo().getPosition(),
-								dpi.getAlfieInfo().getLength() - dpi.getAlfieInfo().getCentrePoint().getY(),
+								StaticRobotInfo.getLength() - dpi.getAlfieInfo().getCentrePoint().getY(),
 								dpi.getAlfieInfo().getFacingDirection()
 						), 
 						dpi.getAlfieInfo().getFacingDirection(), 
@@ -468,8 +465,24 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			}
 		}
 		
-		LinkedList<PathStep> pathStepListSecondCW = getDoubleArcPath(dpi, op, false, angleCorrect);
-		LinkedList<PathStep> pathStepListSecondCCW = getDoubleArcPath(dpi, op, true, angleCorrect);
+		LinkedList<PathStep> pathStepListSecondCW = 
+			getDoubleArcPath(
+					dpi.getAlfieInfo().getPosition(),
+					dpi.getAlfieInfo().getFacingDirection(),
+					op.getPosition(),
+					op.getOrientation(),
+					false,
+					angleCorrect
+			);
+		LinkedList<PathStep> pathStepListSecondCCW = 
+			getDoubleArcPath(
+					dpi.getAlfieInfo().getPosition(),
+					dpi.getAlfieInfo().getFacingDirection(),
+					op.getPosition(),
+					op.getOrientation(),
+					true,
+					angleCorrect
+			);
 		
 //		if (!isGoodPath(pathStepListSecondCCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
 //			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {

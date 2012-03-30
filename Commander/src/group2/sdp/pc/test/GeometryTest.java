@@ -2,19 +2,9 @@ package group2.sdp.pc.test;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.common.util.Pair;
-import group2.sdp.pc.breadbin.DynamicBallInfo;
-import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.planner.PathFinder;
-import group2.sdp.pc.planner.operation.OperationReallocation;
-import group2.sdp.pc.planner.pathstep.PathStep;
-import group2.sdp.pc.planner.pathstep.PathStepArc;
-import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
-import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.util.LinkedList;
 
 import junit.framework.Assert;
 
@@ -22,7 +12,7 @@ import org.junit.Test;
 
 public class GeometryTest {
 	
-	public void testSegmentArcIntersectionCase(
+	public void testSegmentArcIntersectionCase (
 			Point2D segmentStart, Point2D segmentEnd, Point2D circleCentre, 
 			double circleRadius, double arcStartAngle, double arcEndAngle,
 			int expected) {
@@ -40,6 +30,7 @@ public class GeometryTest {
 	
 	@Test
 	public void testSegmentArcIntersection() {
+		// docs/diagrams/ @ diagram 1
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(1.0, 1.0), 
 				new Point2D.Double(2.0, 2.0), 
@@ -50,6 +41,7 @@ public class GeometryTest {
 				1
 		);
 		
+		// docs/diagrams/ @ diagram 2
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(3.0, 0.0), 
 				new Point2D.Double(0.0, 3.0), 
@@ -70,6 +62,7 @@ public class GeometryTest {
 				0
 		);
 		
+		// docs/diagrams/ @ diagram 3
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(-1.0, 1.0), 
 				new Point2D.Double(1.0, -1.0), 
@@ -90,6 +83,7 @@ public class GeometryTest {
 				0
 		);
 		
+		// docs/diagrams/ @ diagram 4
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(1.0, 0.0), 
 				new Point2D.Double(1.0, 2.0), 
@@ -100,6 +94,7 @@ public class GeometryTest {
 				1
 		);
 		
+		// docs/diagrams/ @ diagram 5
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(2.5, 0.0), 
 				new Point2D.Double(0.0, 2.5), 
@@ -110,6 +105,7 @@ public class GeometryTest {
 				2
 		);
 		
+		// docs/diagrams/ @ diagram 6
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(0.5, 0.0), 
 				new Point2D.Double(-0.5, 2.0), 
@@ -120,6 +116,7 @@ public class GeometryTest {
 				2
 		);
 		
+		// docs/diagrams/ @ diagram 7
 		testSegmentArcIntersectionCase(
 				new Point2D.Double(1.0, 0.0), 
 				new Point2D.Double(3.0, 0.0), 
@@ -136,12 +133,14 @@ public class GeometryTest {
 		Point2D p = Geometry.getArcEnd(arcStart, arcStartDirection, radius, angle);
 		System.out.println("expected = " + expected);
 		System.out.println("actual = " + p);
-		double goodEnough = 1e-6;
+		double goodEnough = 1e-6; // Used 
+		
 		Assert.assertTrue(expected.distance(p) < goodEnough);
 	}
 	
 	@Test
 	public void testArcEnd() {
+		// docs/diagrams/ @ diagram 8
 		testArcEndCase(
 				new Point2D.Double(1.0, 2.0),
 				0.0,
@@ -150,6 +149,7 @@ public class GeometryTest {
 				new Point2D.Double(2.0, 3.0)
 		);
 		
+		// docs/diagrams/ @ diagram 9
 		testArcEndCase(
 				new Point2D.Double(0.0, 0.0),
 				0.0,
@@ -158,6 +158,7 @@ public class GeometryTest {
 				new Point2D.Double(1.0, -1.0)
 		);
 		
+		// docs/diagrams/ @ diagram 10
 		testArcEndCase(
 				new Point2D.Double(0.0, 0.0),
 				0.0,
@@ -166,6 +167,7 @@ public class GeometryTest {
 				new Point2D.Double(-1.0, 1.0)
 		);
 		
+		// docs/diagrams/ @ diagram 11
 		testArcEndCase(
 				new Point2D.Double(0.0, 0.0),
 				0.0,
@@ -174,15 +176,7 @@ public class GeometryTest {
 				new Point2D.Double(-1.0, -1.0)
 		);
 		
-		testArcEndCase(
-				new Point2D.Double(0.0, 0.0),
-				0.0,
-				-1.0,
-				90,
-				new Point2D.Double(-1.0, -1.0)
-		);
-		
-		// Backwards left
+		// docs/diagrams/ @ diagram 12
 		testArcEndCase(
 				new Point2D.Double(0.0, 0.0),
 				90.0,
@@ -191,6 +185,7 @@ public class GeometryTest {
 				new Point2D.Double(1.0, -1.0)
 		);
 	}
+	
 	public void testDirectionCase(Point2D start, Point2D end, double expected) {
 		double p = Geometry.getVectorDirection(start, end);
 
