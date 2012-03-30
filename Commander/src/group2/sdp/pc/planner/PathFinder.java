@@ -3,17 +3,22 @@ package group2.sdp.pc.planner;
 import group2.sdp.common.util.Geometry;
 import group2.sdp.common.util.Pair;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
+import group2.sdp.pc.planner.operation.OperationPenaltyDefend;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
+import group2.sdp.pc.planner.pathstep.PathStepStop;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
@@ -85,7 +90,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public void executeNextStep(DynamicInfo dpi) {	
 		// Get the next PathStep from the queue
-		currentStep = pathStepList.pollFirst();
+		do {
+			currentStep = pathStepList.pollFirst();
+		} while (currentStep.isSuccessful(dpi));
 		// If it is successful, try and execute the next PathStep in the queue
 		if(currentStep != null) {
 			execute();
@@ -141,7 +148,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			break;
 			
 		case PENALTY_DEFEND:
-			planPenaltyDefend();
+			planPenaltyDefend(dpi);
 			break;
 		}
 		lastPlanIssuedTime = System.currentTimeMillis();
@@ -419,6 +426,32 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		return M;
 	}
 	
+	/**
+	 * Returns the arc necessary to move from Alfie's current sector to 
+	 * the sector the opponent is facing.
+	 * @param alfieSector != opSector
+	 * @return
+	 */
+	public PathStepArc getPenaltyArc(int alfieSector, int opSector,
+			Point2D start, double startDirection) {
+		double radius = 60; //TODO
+		double angle = 10; //TODO
+		if (alfieSector < opSector) {
+			//backwards arc
+			if (GlobalInfo.isAttackingRight()) {
+				return new PathStepArcBackwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+			} else {
+				return new PathStepArcBackwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+			}
+		} else {
+			//forwards arc
+			if (GlobalInfo.isAttackingRight()) {
+				return new PathStepArcForwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+			} else {
+				return new PathStepArcForwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+			}
+		}
+	}
 
 	/**
 	 * Create the PathSteps for an OperationReallocation
@@ -559,9 +592,72 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		 */
 	}
 	
-	private void planPenaltyDefend() {
-		//TODO check angles
+	/**
+	 * Decide what to do when defending a penalty. This looks at the direction 
+	 * the opponent robot is facing and our current position and then tries 
+	 * to block the ball. Also uses the speed and direction the opponent is turning 
+	 * to try plan ahead.
+	 * @param dpi
+	 */
+	private void planPenaltyDefend(DynamicInfo dpi) {
+		OperationPenaltyDefend op = (OperationPenaltyDefend) currentOperation;
 		
+		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
+		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
+		
+		int opponentFacingSector = op.getOpponentFacingSector(alfieInfo.getPosition(), 
+				opponentInfo.getFacingDirection());
+		int currentSector = op.getCurrentSector(alfieInfo.getPosition());
+		
+		int desiredSector = -1;
+		
+		switch (opponentFacingSector) {
+		case 1: 
+			if (op.isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 2
+				desiredSector = 2;
+			} else {
+				// move to 1
+				desiredSector = 1;
+			}
+			break;
+		case 2:
+			if (op.isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 3
+				desiredSector = 3;
+			} else if (op.isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 1
+				desiredSector = 1;
+			} else {
+				// move to 2
+				desiredSector = 2;
+			}
+			break;
+		case 3:
+			if (op.isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 2
+				desiredSector = 2;
+			} else {
+				// move to 3
+				desiredSector = 3;
+			}
+			break;
+		}
+
+		if (currentSector != desiredSector) {
+			PathStepArc penaltyArc = getPenaltyArc(
+					currentSector, 
+					desiredSector, 
+					alfieInfo.getPosition(), 
+					alfieInfo.getFacingDirection()
+					);
+			pathStepList.add(penaltyArc);
+		}
+		pathStepList.add(new PathStepStop());
 	}
 
 	/**

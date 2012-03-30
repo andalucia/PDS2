@@ -11,7 +11,7 @@ public class OperationPenaltyDefend implements Operation {
 	private static final double FRONT_SECTOR_DISTANCE = 7;
 	private static final double BACK_SECTOR_DISTANCE = -7;
 	private static final double PENALTY_RADIUS = 60;
-	private static final double ZONE_SIZE = 7;
+	private static final double ZONE_SIZE = 10;
 	private double alfieFacingDirection;
 
 	public OperationPenaltyDefend(double alfieFacingDirection) {
@@ -25,19 +25,19 @@ public class OperationPenaltyDefend implements Operation {
 	public int getCurrentSector(Point2D alfiePosition) {
 		// facing up
 		if (alfieFacingDirection < 180) {
-			if (alfiePosition.getY() > FRONT_SECTOR_DISTANCE) {
+			if (alfiePosition.getY() >= FRONT_SECTOR_DISTANCE) {
 				return 1;
 			}
-			if (alfiePosition.getY() < BACK_SECTOR_DISTANCE) {
+			if (alfiePosition.getY() <= BACK_SECTOR_DISTANCE) {
 				return 3;
 			}
 			return 2;
 		} else {
 			// facing down
-			if (alfiePosition.getY() > FRONT_SECTOR_DISTANCE) {
+			if (alfiePosition.getY() >= FRONT_SECTOR_DISTANCE) {
 				return 3;
 			}
-			if (alfiePosition.getY() < BACK_SECTOR_DISTANCE) {
+			if (alfiePosition.getY() <= BACK_SECTOR_DISTANCE) {
 				return 1;
 			}
 			return 2;
@@ -62,12 +62,62 @@ public class OperationPenaltyDefend implements Operation {
 		}
 	}
 
-	public boolean isAngleIncreasing() {
-		return true;
+	/**
+	 * The angle is increasing if the opponent is rotating from the front of Alfie to 
+	 * the back.
+	 * @param isOpponentRotatingCCW
+	 * @param rotatingSpeed
+	 * @return
+	 */
+	public boolean isAngleIncreasing(boolean isOpponentRotatingCCW, double rotatingSpeed) {
+		//TODO check speed threshold
+		if (rotatingSpeed == 0) {
+			return false;
+		}
+		if (alfieFacingDirection < 180) {
+			//facing up
+			if (isOpponentRotatingCCW) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			//facing down
+			if (isOpponentRotatingCCW) {
+				return false;
+			} else {
+				return true;
+			}
+		}
 	}
 
-	public boolean isAngleDecreasing() {
-		return true;
+	/**
+	 * The angle is decreasing if the opponent is rotating from the back of Alfie to 
+	 * the front
+	 * @param isOpponentRotatingCCW
+	 * @param rotatingSpeed
+	 * @return
+	 */
+	public boolean isAngleDecreasing(boolean isOpponentRotatingCCW, double rotatingSpeed) {
+		//TODO check speed threshold
+		if(rotatingSpeed == 0) {
+			return false;
+		}
+		if (alfieFacingDirection < 180) {
+			//facing up
+			if (isOpponentRotatingCCW) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			//facing down
+			if (isOpponentRotatingCCW) {
+				return true;
+			} else {
+				return false;
+			}
+		}
 	}
 	
 	/**

@@ -363,7 +363,6 @@ public class Geometry {
 	public static boolean isPointBehind(Point2D referencePoint, double direction, Point2D testPoint) {
 		double dt = perpendicularisePaul(direction);
 		boolean result = isArcLeft(referencePoint, dt, testPoint);
-		System.out.println("[isPointBehind]: " + result);
 		return result;
 	}
 	

@@ -150,8 +150,8 @@ public class Overlord implements DynamicInfoConsumer {
 			return Strategy.STOP;
 		}
 		if (defendPenalty) {
-			// 30 seconds has passed
 			if (System.currentTimeMillis() - penaltyStart > 30000) {
+				// 30 seconds has passed
 				defendPenalty = false;
 				computeStrategy(dpi);
 				//TODO check if 0 is a good threshold
