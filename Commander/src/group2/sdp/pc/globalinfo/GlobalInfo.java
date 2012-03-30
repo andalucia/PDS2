@@ -12,6 +12,18 @@ import java.awt.geom.Point2D;
 public class GlobalInfo {
 	
 	/**
+	 * The position we take penalties from
+	 */
+	private static Point2D attackingPenalty;
+	/**
+	 * The position the opponent takes penalties from
+	 */
+	private static Point2D defendingPenalty;
+	
+	private static final Point2D PENALTY_SPOT_LEFT = new Point2D.Double(-60,0);
+	private static final Point2D PENALTY_SPOT_RIGHT = new Point2D.Double(60,0);
+	
+	/**
 	 * If we are on pitch one or not.
 	 */
 	private static boolean pitchOne;
@@ -64,6 +76,13 @@ public class GlobalInfo {
 	 * it is attacking left.
 	 */
 	public static void setAttackingRight(boolean attackingRight) {
+		if (attackingRight) {
+			attackingPenalty = PENALTY_SPOT_RIGHT;
+			defendingPenalty = PENALTY_SPOT_LEFT;
+		} else {
+			attackingPenalty = PENALTY_SPOT_LEFT;
+			defendingPenalty = PENALTY_SPOT_RIGHT;
+		}
 		GlobalInfo.attackingRight = attackingRight;
 	}
 
@@ -129,6 +148,20 @@ public class GlobalInfo {
 	
 	public static boolean isPitchOne() {
 		return pitchOne;
+	}
+	
+	/**
+	 * Returns the position the opponent will take penalties from
+	 */
+	public static Point2D getDefendingPenalty() {
+		return defendingPenalty;
+	}
+	
+	/**
+	 * Returns the position we will take penalties from
+	 */
+	public static Point2D getAttackingPenalty() {
+		return attackingPenalty;
 	}
 
 	/**
