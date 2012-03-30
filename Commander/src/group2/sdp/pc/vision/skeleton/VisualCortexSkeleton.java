@@ -85,6 +85,7 @@ public abstract class VisualCortexSkeleton implements ImageConsumer {
 			opponentPosition = new Point(0,0);
 		}
 		double opponentFacingDirection = extractOpponentFacingDirection(image);
+		System.out.println(opponentFacingDirection);
 		StaticRobotInfo opponentInfo = new StaticRobotInfo(opponentPosition, opponentFacingDirection, false, false, time);		
 		
 		StaticInfo spi = new StaticInfo(ballInfo, alfieInfo, opponentInfo);
