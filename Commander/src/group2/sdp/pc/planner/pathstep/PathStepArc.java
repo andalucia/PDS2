@@ -24,9 +24,9 @@ public abstract class PathStepArc extends PathStep {
 	
 	protected double startDirection;
 	
-	protected double targetDirection;
+	protected double endDirection;
 
-	protected Point2D targetDestination;
+	protected Point2D endPoint;
 
 
 	/**
@@ -45,8 +45,8 @@ public abstract class PathStepArc extends PathStep {
 
 		this.threshold = threshold;
 		this.start = start;
-		inferTargetDestination(start);
-		inferTargetOrientation();
+		inferEndPoint();
+		inferEndDirection();
 	}
 	
 
@@ -54,20 +54,20 @@ public abstract class PathStepArc extends PathStep {
 	 * Computes the target orientation, given the start direction.
 	 * @param startDirection
 	 */
-	protected abstract void inferTargetOrientation();
+	protected abstract void inferEndDirection();
 
-	protected abstract void inferTargetDestination(Point2D start);
+	protected abstract void inferEndPoint();
 	
 	public double getThreshold() {
 		return threshold;
 	}
 
 	public double getTargetOrientation() {
-		return targetDirection;
+		return endDirection;
 	}
 
 	public Point2D getTargetDestination() {
-		return targetDestination;
+		return endPoint;
 	}
 	
 	public Point2D getStartPoint() {
@@ -90,7 +90,7 @@ public abstract class PathStepArc extends PathStep {
 	 */
 	@Override
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
-		double d = pitchStatus.getAlfieInfo().getPosition().distance(targetDestination);
+		double d = pitchStatus.getAlfieInfo().getPosition().distance(endPoint);
 		return d < threshold;
 	}
 
@@ -132,8 +132,8 @@ public abstract class PathStepArc extends PathStep {
 	public String toString() {
 		return "[radius=" + radius + ", angle=" + angle
 		+ ", threshold=" + threshold + ", targetDestination="
-		+ targetDestination + ", targetOrientation="
-		+ targetDirection + "]";
+		+ endPoint + ", targetOrientation="
+		+ endDirection + "]";
 	}
 
 	public static PathStepArc getForwardPathStepArc(Point2D arcStart,

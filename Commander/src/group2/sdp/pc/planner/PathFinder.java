@@ -376,9 +376,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			double a = w / 2 + c.getX() * dx[i];
 			double b = l / 2 + c.getY() * dy[i];
 			  
-			M = updateMax(r, M, phiStart, alphaStart, i, a, b, phiStart, phiEnd);
-			M = updateMax(r, M, phiEnd, alphaEnd, i, a, b, phiStart, phiEnd);
-			
+			M = updateMax(r, M, phiStart, alphaStart, i, a, b, phiStart, phiEnd, CCW);
+			M = updateMax(r, M, phiEnd, alphaEnd, i, a, b, phiStart, phiEnd, CCW);
 			double phi = 
 				Math.atan2(
 						Math.cos(Math.toRadians(k)) * b - Math.sin(Math.toRadians(k)) * a + r,
@@ -386,13 +385,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				);
 			phi = Math.toDegrees(phi);
 			phi = Geometry.normalizeToPositive(phi);
-			System.out.println("phi " + i + ": " + phi);
+//			System.out.println("phi " + i + ": " + phi);
 			double alpha = phi + k;
 			alpha = Geometry.normalizeToPositive(alpha);
-			System.out.println("alpha " + i + ": " + alpha);
+//			System.out.println("alpha " + i + ": " + alpha);
 
 			System.out.println("M: " + M);
-			M = updateMax(r, M, phi, alpha, i, a, b, phiStart, phiEnd);
+			M = updateMax(r, M, phi, alpha, i, a, b, phiStart, phiEnd, CCW);
 		}
 		System.out.println("Safe distance: " + safeDistance);
 		return M < safeDistance;
@@ -402,15 +401,28 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 * A snippet of a bigger function. Makes no sense on its own.
 	 */
 	public double updateMax(double r, double M, double phi, double alpha,
-			int i, double a, double b, double phiStart, double phiEnd) {
+			int i, double a, double b, double phiStart, double phiEnd, boolean CCW) {
 
-		boolean alphaValid = alpha > 90.0 * i && alpha < 90.0 * (i + 1);
-		boolean phiValid = phi >= phiStart && phi <= phiEnd;
+		boolean alphaValid = 
+			Geometry.angleWithinBounds(alpha, 90.0 * i, 90.0 * (i + 1));
+		boolean phiValid = 
+			Geometry.angleWithinBounds(phi, phiStart, phiEnd);
+		
+		System.out.println("phi: " + phi);
+		System.out.println("alpha: " + alpha);
+		
+		System.out.println("phi valid: " + phiValid);
+		System.out.println("alpha valid: " + alphaValid);
 		if (alphaValid && phiValid) {
-			double p = Math.sin(Math.toRadians(alpha - 90)) * r;
-			System.out.println(">> Phi: " + phi);
-			System.out.println(">> Alpha: " + alpha);
-			double d = Math.sin(Math.toRadians(alpha)) * b + Math.cos(Math.toRadians(alpha)) * a;
+			double beta = CCW ? alpha - 90 : alpha + 90;
+						
+			double p = Math.sin(Math.toRadians(beta)) * r; 
+				
+			double d = 
+				Math.abs(Math.sin(Math.toRadians(alpha))) * b + 
+				Math.abs(Math.cos(Math.toRadians(alpha))) * a;
+			System.out.println("then p: " + p);
+			System.out.println("then d: " + d);
 			// Update maximum if necessary.
 			if (p + d > M) {
 				M = p + d;

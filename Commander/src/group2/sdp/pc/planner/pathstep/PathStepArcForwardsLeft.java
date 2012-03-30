@@ -40,14 +40,15 @@ public class PathStepArcForwardsLeft extends PathStepArc {
 	}
 
 	@Override
-	protected void inferTargetOrientation()  {
-		this.targetDirection = startDirection + angle;
-		targetDirection = Geometry.normalizeToPositive(targetDirection);
+	protected void inferEndDirection()  {
+		this.endDirection = startDirection + angle;
+		endDirection = Geometry.normalizeToPositive(endDirection);
 	}
 	
 	@Override
-	protected void inferTargetDestination(Point2D start) {
-		this.targetDestination = 
+	protected void inferEndPoint() {
+		System.out.println();
+		this.endPoint = 
 			Geometry.getArcEnd(
 					start, 
 					startDirection, 

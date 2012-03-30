@@ -180,9 +180,17 @@ public class GeometryTest {
 		testArcEndCase(
 				new Point2D.Double(0.0, 0.0),
 				90.0,
-				1.0,
-				-90,
+				-1.0,
+				90,
 				new Point2D.Double(1.0, -1.0)
+		);
+		
+		testArcEndCase(
+				new Point2D.Double(50.0, 0.0), 
+				90.0, 
+				50.0, 
+				90.0,
+				new Point2D.Double(0.0, 50.0)
 		);
 	}
 	
