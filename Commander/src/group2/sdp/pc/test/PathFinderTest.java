@@ -470,6 +470,26 @@ public class PathFinderTest {
 						10
 						)
 		);
+		// defending left, facing up, move from 2 to 1
+		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 90, true,
+				new PathStepArcForwardsRight(
+						new Point2D.Double(-120,0), 
+						90, 
+						60, 
+						10, 
+						10
+						)
+		);
+		// defending left, facing up, move from 3 to 1
+		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 90, true,
+				new PathStepArcForwardsRight(
+						new Point2D.Double(-120,0), 
+						90, 
+						60, 
+						10, 
+						10
+						)
+		);
 		// defending left, facing down, move from 2 to 1
 		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 270, true,
 				new PathStepArcForwardsLeft(
