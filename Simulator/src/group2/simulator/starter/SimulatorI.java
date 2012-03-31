@@ -408,24 +408,26 @@ public class SimulatorI {
 					System.exit(0);
 					break;
 				case KeyEvent.VK_UP:
-					oppRobot.moveForward(world, ball.getBody());
+					robot.moveForward(world, ball.getBody());
 					break;
 				case KeyEvent.VK_DOWN:
-					oppRobot.moveBackward(world, ball.getBody());
+					robot.moveBackward(world, ball.getBody());
 					break;
 				case KeyEvent.VK_RIGHT:
-					oppRobot.turn(-3);
+					robot.turn(-3);
 					break;
 				case KeyEvent.VK_LEFT:
-					oppRobot.turn(3);
+					robot.turn(3);
 					break;
 				case KeyEvent.VK_R:
 					resetSimulation();
 					break;
 				case KeyEvent.VK_ENTER:
-					oppRobot.kick(ball);
+					robot.kick(ball);
 					break;
-
+				case KeyEvent.VK_1:
+					arc(50, 90);
+					break;
 				}
 
 			}
@@ -577,6 +579,65 @@ public class SimulatorI {
 		robot.turn(angle);
 	}
 
+	/**
+	 * arc <br\>
+	 * |radius | angle | arc | <br\>
+	 * | + | + | FL | <br\>
+	 * | + | - | BL | <br\>
+	 * | - | + | BR | <br\>
+	 * | - | - | FR | <br\>
+	 * 
+	 */
+
+	public static void arc(double radius, double angle) {
+		boolean isLeft = false;
+		double rotateAngle = 0;
+		double turn = 1;
+		if (radius > 0 && angle > 0) {
+			// FL
+			isLeft = true;
+			rotateAngle = -1;
+			turn = 1;
+		} else if (radius > 0 && angle < 0) {
+			isLeft = true;
+			rotateAngle = 1;
+			turn = -1;
+		} else if (radius < 0 && angle > 0) {
+			// BR
+			isLeft = false;
+			rotateAngle = -1;
+			turn = 1;
+		} else if (radius < 0 && angle < 0) {
+			// FR
+			isLeft = false;
+			rotateAngle = 1;
+			turn = -1;
+		}
+
+		radius = Math.abs(radius);
+		angle = Math.abs(angle);
+		Point2D circleCentre = calCircleCentre(robot.getPosition(), radius,
+				robot.getAngle(), 90, isLeft);
+		int angleCounter = 0;
+		while (angleCounter < angle) {
+			angleCounter++;
+			Point2D nextPostition = calPoint(robot.getPosition(), circleCentre,
+					rotateAngle);
+			robot.setPosition((float) nextPostition.getX(),
+					(float) nextPostition.getY());
+			robot.turn((int) (turn * needRotateAngle(robot.getPosition(),
+					circleCentre, robot.getAngle())));
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+	}
+
 	private int convertSpeed(int speed) {
 		return Tools.sanitizeInput(speed, 0, 54);
 	}
@@ -600,6 +661,52 @@ public class SimulatorI {
 		world.remove(robot.getBody());
 		world.remove(oppRobot.getBody());
 		world.remove(ball.getBody());
+	}
+
+	public static Point2D nextPosition(Point2D robot, double radius,
+			double angle, boolean isLeft) {
+
+		double x = Math.cos(Math.toRadians(1)) * radius + robot.getX();
+		double y = Math.sin(Math.toRadians(1)) * radius + robot.getY();
+
+		return new Point2D.Double(x, y);
+	}
+
+	public static Point2D calCircleCentre(Point2D robot, double radius,
+			double robotDirection, double rotateAngle, boolean isLeft) {
+
+		double angle = isLeft ? robotDirection - rotateAngle : robotDirection
+				+ rotateAngle;
+
+		double x = Math.cos(Math.toRadians(angle)) * radius + robot.getX();
+		double y = Math.sin(Math.toRadians(angle)) * radius + robot.getY();
+
+		return new Point2D.Double(x, y);
+	}
+
+	public static Point2D calPoint(Point2D origin, Point2D round, double angle) {
+		double x = origin.getX() - round.getX();
+		double y = origin.getY() - round.getY();
+		double newX = x * Math.cos(Math.toRadians(angle)) - y
+				* Math.sin(Math.toRadians(angle));
+		double newY = x * Math.sin(Math.toRadians(angle)) + y
+				* Math.cos(Math.toRadians(angle));
+		newX += round.getX();
+		newY += round.getY();
+		return new Point2D.Double(newX, newY);
+
+	}
+
+	public static double needRotateAngle(Point2D robot, Point2D circle,
+			double robotDirection) {
+
+		double m = (robot.getX() - circle.getX())
+				/ (robot.getY() - circle.getY());
+		double m1 = 1 / m;
+		double m2 = Math.tan(Math.toRadians(robotDirection));
+
+		return Math.abs(Math.toDegrees(Math.atan(((m2 - m1) / (1 + m2 * m1)))));
+
 	}
 
 }
