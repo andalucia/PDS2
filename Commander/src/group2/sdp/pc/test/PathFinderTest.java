@@ -520,7 +520,5 @@ public class PathFinderTest {
 						10
 						)
 		);
-		
 	}
-	
 }
