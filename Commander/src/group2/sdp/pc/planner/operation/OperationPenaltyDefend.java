@@ -102,11 +102,12 @@ public class OperationPenaltyDefend implements Operation {
 	 * Get the sector which the opponent is facing
 	 * TODO remove alfiePosition: something else could be used instead
 	 */
-	public int getOpponentFacingSector(Point2D alfiePosition, double opponentFacingDirection) {
+	public int getOpponentFacingSector(double opponentFacingDirection) {
 		Point2D intersection = getIntersection(GlobalInfo.getDefendingPenalty(), opponentFacingDirection);
-		Point2D alfieStartingPosition = new Point2D.Double(alfiePosition.getX(),0);
-		if (alfieStartingPosition.distance(intersection) > ZONE_SIZE) {
-			if (Geometry.isPointBehind(alfieStartingPosition, alfieFacingDirection, intersection)) {
+		Point2D defensiveGoalMiddle = GlobalInfo.getDefensiveGoalMiddle();
+		
+		if (defensiveGoalMiddle.distance(intersection) > ZONE_SIZE) {
+			if (Geometry.isPointBehind(defensiveGoalMiddle, alfieFacingDirection, intersection)) {
 				return 3;
 			} else {
 				return 1;
@@ -125,7 +126,7 @@ public class OperationPenaltyDefend implements Operation {
 	 */
 	public boolean isAngleIncreasing(boolean isOpponentRotatingCCW, double rotatingSpeed) {
 		//TODO check speed threshold
-		if (rotatingSpeed == 0) {
+		if (rotatingSpeed < 90) {
 			return false;
 		}
 		if (alfieFacingDirection < 180) {
@@ -154,7 +155,7 @@ public class OperationPenaltyDefend implements Operation {
 	 */
 	public boolean isAngleDecreasing(boolean isOpponentRotatingCCW, double rotatingSpeed) {
 		//TODO check speed threshold
-		if(rotatingSpeed == 0) {
+		if(rotatingSpeed < 90) {
 			return false;
 		}
 		if (alfieFacingDirection < 180) {

@@ -38,7 +38,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
-	private static final boolean verbose = true;
+	private static final boolean verbose = false;
 
 	private static final double DISTANCE_THRESHOLD = 10.0;
 	
@@ -92,7 +92,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		// Get the next PathStep from the queue
 		do {
 			currentStep = pathStepList.pollFirst();
-		} while (currentStep.isSuccessful(dpi));
+		} while (currentStep != null && currentStep.isSuccessful(dpi));
 		// If it is successful, try and execute the next PathStep in the queue
 		if(currentStep != null) {
 			execute();
@@ -148,6 +148,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			break;
 			
 		case PENALTY_DEFEND:
+			System.out.println("DEFENDING PENALTY");
 			planPenaltyDefend(dpi);
 			break;
 		}
@@ -572,8 +573,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				for (PathStep ps : pathStepListSecondCW) {
 					lengthCW += ((PathStepArc) ps).getLength();
 				}
-				System.out.println("CCW arc length: " + lengthCCW);
-				System.out.println("CW arc length: " + lengthCW);
+//				System.out.println("CCW arc length: " + lengthCCW);
+//				System.out.println("CW arc length: " + lengthCW);
 				
 				pathStepList.addAll(
 					lengthCCW < lengthCW
@@ -627,12 +628,12 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 * @param dpi
 	 */
 	private void planPenaltyDefend(DynamicInfo dpi) {
+		System.out.println("PLANNING PENALTY DEFENCE");
 		OperationPenaltyDefend op = (OperationPenaltyDefend) currentOperation;
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		
-		int opponentFacingSector = op.getOpponentFacingSector(alfieInfo.getPosition(), 
-				opponentInfo.getFacingDirection());
+		int opponentFacingSector = op.getOpponentFacingSector(opponentInfo.getFacingDirection());
 		
 		int desiredSector = op.getDesiredSector(opponentInfo,
 				opponentFacingSector);
@@ -647,6 +648,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 					);
 			pathStepList.add(penaltyArc);
 		}
+		System.out.println("currentSector = " + currentSector);
+		System.out.println("desiredSector = " + desiredSector);
 		pathStepList.add(new PathStepStop());
 	}
 

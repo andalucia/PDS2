@@ -239,6 +239,19 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 				return true;
 			}
 		}
+		if (currentOperation instanceof OperationPenaltyDefend) {
+			long FAILURE_TIMEOUT = 500;
+			long now = System.currentTimeMillis();
+			if (failureStartTime > 0 && now - failureStartTime > FAILURE_TIMEOUT) {
+				failureStartTime = 0;
+				return true;
+			}
+			if (failureStartTime == 0) {
+				failureStartTime = now;
+			}
+		} else {
+			failureStartTime = 0;	
+		}
 		
 		return false;
 	}

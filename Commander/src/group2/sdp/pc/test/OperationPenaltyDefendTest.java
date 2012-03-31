@@ -135,7 +135,7 @@ public class OperationPenaltyDefendTest {
 			int expected) {
 		GlobalInfo.setAttackingRight(isAttackingRight);
 		OperationPenaltyDefend op = new OperationPenaltyDefend(alfieFacingDirection);
-		int actual = op.getOpponentFacingSector(alfiePosition, opponentFacingDirection);
+		int actual = op.getOpponentFacingSector(opponentFacingDirection);
 		Assert.assertEquals(expected, actual);
 	}
 	

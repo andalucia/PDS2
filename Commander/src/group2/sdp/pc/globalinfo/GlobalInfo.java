@@ -146,6 +146,21 @@ public class GlobalInfo {
 		return new Point2D.Double(x, y);
 	}
 	
+	/**
+	 * Computes the middle of the goal Alfie defends.
+	 * @return The middle of the goal Alfie defends.
+	 */
+	public static Point2D getDefensiveGoalMiddle() {
+		double x;
+		if (!attackingRight) {
+			x = pitch.getMinimumEnclosingRectangle().getMaxX();
+		} else {
+			x = pitch.getMinimumEnclosingRectangle().getMinX();
+		}
+		double y = pitch.getGoalCentreY();
+		return new Point2D.Double(x, y);
+	}
+	
 	public static boolean isPitchOne() {
 		return pitchOne;
 	}

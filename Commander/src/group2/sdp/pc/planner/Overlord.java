@@ -149,8 +149,9 @@ public class Overlord implements DynamicInfoConsumer {
 		}
 		if (defendPenalty) {
 			if (System.currentTimeMillis() - penaltyStart > 30000 ||
-					dpi.getBallInfo().getRollingSpeed() > 0) {
+					dpi.getBallInfo().getRollingSpeed() > 5) {
 				// 30 seconds has passed or ball has moved
+				System.out.println("Exiting penalty mode");
 				defendPenalty = false;
 				computeStrategy(dpi);
 				//TODO check if 0 is a good threshold
