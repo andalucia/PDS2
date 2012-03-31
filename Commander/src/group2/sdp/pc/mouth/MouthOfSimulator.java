@@ -217,25 +217,26 @@ private final boolean verbose = false;
 	@Override
 	public void sendForwardArcLeft(double radius, double angle) {
 		// TODO Auto-generated method stub
+		SimulatorI.arc(radius, angle);
 		
 	}
 
 	@Override
 	public void sendForwardArcRight(double radius, double angle) {
 		// TODO Auto-generated method stub
-		
+		SimulatorI.arc(radius, angle);
 	}
 
 	@Override
 	public void sendBackwardsArcLeft(double radius, double angle) {
 		// TODO Auto-generated method stub
-		
+		SimulatorI.arc(radius, angle);
 	}
 
 	@Override
 	public void sendBackwardsArcRight(double radius, double angle) {
 		// TODO Auto-generated method stub
-		
+		SimulatorI.arc(radius, angle);
 	}
 
 }
