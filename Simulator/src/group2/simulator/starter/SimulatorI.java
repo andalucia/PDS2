@@ -628,7 +628,7 @@ public class SimulatorI {
 			robot.turn((int) (turn * needRotateAngle(robot.getPosition(),
 					circleCentre, robot.getAngle())));
 			try {
-				Thread.sleep(10);
+				Thread.sleep(1);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
