@@ -2,6 +2,7 @@ package group2.sdp.pc.planner.operation;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.common.util.Pair;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 
 import java.awt.geom.Point2D;
@@ -16,6 +17,59 @@ public class OperationPenaltyDefend implements Operation {
 
 	public OperationPenaltyDefend(double alfieFacingDirection) {
 		this.alfieFacingDirection = alfieFacingDirection;
+	}
+	
+	/**
+	 * Gets the sector which we want Alfie to move to: This takes in to account 
+	 * the sector the opponent is facing and how they are rotating.
+	 * @param op
+	 * @param opponentInfo
+	 * @param opponentFacingSector
+	 * @return
+	 */
+	public int getDesiredSector(DynamicRobotInfo opponentInfo, int opponentFacingSector) {
+		int desiredSector;
+		switch (opponentFacingSector) {
+		case 1: 
+			if (isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 2
+				desiredSector = 2;
+			} else {
+				// move to 1
+				desiredSector = 1;
+			}
+			break;
+		case 2:
+			if (isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 3
+				desiredSector = 3;
+			} else if (isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 1
+				desiredSector = 1;
+			} else {
+				// move to 2
+				desiredSector = 2;
+			}
+			break;
+		case 3:
+			if (isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 2
+				desiredSector = 2;
+			} else {
+				// move to 3
+				desiredSector = 3;
+			}
+			break;
+		default:
+			// should not reach here
+			desiredSector = -1;
+			break;
+		}
+		return desiredSector;
 	}
 
 	/**
@@ -46,7 +100,7 @@ public class OperationPenaltyDefend implements Operation {
 
 	/**
 	 * Get the sector which the opponent is facing
-	 * @return
+	 * TODO remove alfiePosition: something else could be used instead
 	 */
 	public int getOpponentFacingSector(Point2D alfiePosition, double opponentFacingDirection) {
 		Point2D intersection = getIntersection(GlobalInfo.getDefendingPenalty(), opponentFacingDirection);

@@ -440,27 +440,43 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	/**
 	 * Returns the arc necessary to move from Alfie's current sector to 
-	 * the sector the opponent is facing.
-	 * @param alfieSector != opSector
+	 * the desired sector.
+	 * @param alfieSector != desiredSector
 	 * @return
 	 */
-	public PathStepArc getPenaltyArc(int alfieSector, int opSector,
-			Point2D start, double startDirection) {
+	public PathStepArc getPenaltyArc(int alfieSector, int desiredSector,
+			Point2D start, double alfieStartDirection) {
 		double radius = 60; //TODO
 		double angle = 10; //TODO
-		if (alfieSector < opSector) {
+		if (alfieSector < desiredSector) {
 			//backwards arc
 			if (GlobalInfo.isAttackingRight()) {
-				return new PathStepArcBackwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				if (alfieStartDirection <= 180) {
+					return new PathStepArcBackwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				} else {
+					return new PathStepArcBackwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				}
 			} else {
-				return new PathStepArcBackwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				if (alfieStartDirection <= 180) {
+					return new PathStepArcBackwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				} else {
+					return new PathStepArcBackwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				}
 			}
 		} else {
 			//forwards arc
 			if (GlobalInfo.isAttackingRight()) {
-				return new PathStepArcForwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				if (alfieStartDirection <= 180) {
+					return new PathStepArcForwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				} else {
+					return new PathStepArcForwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				}
 			} else {
-				return new PathStepArcForwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				if (alfieStartDirection <= 180) {
+					return new PathStepArcForwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				} else {
+					return new PathStepArcForwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
+				}
 			}
 		}
 	}
@@ -605,61 +621,23 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	}
 	
 	/**
-	 * Decide what to do when defending a penalty. This looks at the direction 
-	 * the opponent robot is facing and our current position and then tries 
-	 * to block the ball. Also uses the speed and direction the opponent is turning 
-	 * to try plan ahead.
+	 * Uses getDesiredSector to find out what sector we want to be in and then 
+	 * uses getPenaltyArc to get the correct arc to move there (if we are already 
+	 * there then no arc is added)
 	 * @param dpi
 	 */
 	private void planPenaltyDefend(DynamicInfo dpi) {
 		OperationPenaltyDefend op = (OperationPenaltyDefend) currentOperation;
-		
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		
 		int opponentFacingSector = op.getOpponentFacingSector(alfieInfo.getPosition(), 
 				opponentInfo.getFacingDirection());
-		int currentSector = op.getCurrentSector(alfieInfo.getPosition());
 		
-		int desiredSector = -1;
-		
-		switch (opponentFacingSector) {
-		case 1: 
-			if (op.isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
-					opponentInfo.getRotatingSpeed())) {
-				// move to 2
-				desiredSector = 2;
-			} else {
-				// move to 1
-				desiredSector = 1;
-			}
-			break;
-		case 2:
-			if (op.isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
-					opponentInfo.getRotatingSpeed())) {
-				// move to 3
-				desiredSector = 3;
-			} else if (op.isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
-					opponentInfo.getRotatingSpeed())) {
-				// move to 1
-				desiredSector = 1;
-			} else {
-				// move to 2
-				desiredSector = 2;
-			}
-			break;
-		case 3:
-			if (op.isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
-					opponentInfo.getRotatingSpeed())) {
-				// move to 2
-				desiredSector = 2;
-			} else {
-				// move to 3
-				desiredSector = 3;
-			}
-			break;
-		}
+		int desiredSector = op.getDesiredSector(opponentInfo,
+				opponentFacingSector);
 
+		int currentSector = op.getCurrentSector(alfieInfo.getPosition());
 		if (currentSector != desiredSector) {
 			PathStepArc penaltyArc = getPenaltyArc(
 					currentSector, 
@@ -671,6 +649,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		}
 		pathStepList.add(new PathStepStop());
 	}
+
+	
 
 	/**
 	 * Creates a candy packet based on the current operation and send it to MouthInstance thats been

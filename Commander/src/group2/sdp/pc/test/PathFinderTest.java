@@ -2,9 +2,12 @@ package group2.sdp.pc.test;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
+import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 
@@ -442,4 +445,62 @@ public class PathFinderTest {
 		);
 		Assert.assertEquals(true, good);
 	}
+	
+	public void getPenaltyArcCase(int alfieSector, int opSector,
+			Point2D start, double startDirection, 
+			boolean isAttackingRight, PathStepArc expected) {
+		
+		GlobalInfo.setAttackingRight(isAttackingRight);
+		
+		PathFinder pf = new PathFinder(null);
+		
+		PathStepArc actual = pf.getPenaltyArc(alfieSector, opSector, start, startDirection);
+		Assert.assertEquals(expected, actual);
+	}
+	
+	@Test
+	public void testGetPenaltyArc() {
+		// defending left, facing up, move from 2 to 3
+		getPenaltyArcCase(2, 3, new Point2D.Double(-120,0), 90, true,
+				new PathStepArcBackwardsRight(
+						new Point2D.Double(-120,0), 
+						90, 
+						60, 
+						10, 
+						10
+						)
+		);
+		// defending left, facing down, move from 2 to 1
+		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 270, true,
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-120,0), 
+						270, 
+						60, 
+						10, 
+						10
+						)
+		);
+		// defending right, facing up, move from 2 to 3
+		getPenaltyArcCase(2, 3, new Point2D.Double(120,0), 90, false,
+				new PathStepArcBackwardsLeft(
+						new Point2D.Double(120,0), 
+						90, 
+						60, 
+						10, 
+						10
+						)
+		);
+		// defending right, facing down, move from 2 to 1
+		getPenaltyArcCase(2, 1, new Point2D.Double(120,0), 270, false,
+				new PathStepArcForwardsRight(
+						new Point2D.Double(120,0), 
+						270, 
+						60, 
+						10, 
+						10
+						)
+		);
+		
+	}
+	
 }

@@ -172,4 +172,59 @@ public abstract class PathStepArc extends PathStep {
 	public boolean whisper(MouthInterface mouth) {
 		return super.whisper(mouth);
 	}
+
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(angle);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(endDirection);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result
+				+ ((endPoint == null) ? 0 : endPoint.hashCode());
+		temp = Double.doubleToLongBits(radius);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + ((start == null) ? 0 : start.hashCode());
+		temp = Double.doubleToLongBits(startDirection);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PathStepArc other = (PathStepArc) obj;
+		if (Double.doubleToLongBits(angle) != Double
+				.doubleToLongBits(other.angle))
+			return false;
+		if (Double.doubleToLongBits(endDirection) != Double
+				.doubleToLongBits(other.endDirection))
+			return false;
+		if (endPoint == null) {
+			if (other.endPoint != null)
+				return false;
+		} else if (!endPoint.equals(other.endPoint))
+			return false;
+		if (Double.doubleToLongBits(radius) != Double
+				.doubleToLongBits(other.radius))
+			return false;
+		if (start == null) {
+			if (other.start != null)
+				return false;
+		} else if (!start.equals(other.start))
+			return false;
+		if (Double.doubleToLongBits(startDirection) != Double
+				.doubleToLongBits(other.startDirection))
+			return false;
+		return true;
+	}
 }

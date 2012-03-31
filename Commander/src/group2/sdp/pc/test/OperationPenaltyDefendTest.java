@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import org.junit.Test;
 
 import junit.framework.Assert;
+import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.OperationPenaltyDefend;
 
@@ -153,6 +154,30 @@ public class OperationPenaltyDefendTest {
 		getOpponentFacingSectorCase(new Point2D.Double(120,0), 350, false, 90, 3);
 		getOpponentFacingSectorCase(new Point2D.Double(120,0), 10, false, 90, 1);
 		
+	}
+	
+	public void getDesiredSectorCase(double rotatingSpeed, 
+			boolean isRotatingCounterClockWise, 
+			int opponentFacingSector, 
+			double alfieFacingDirection,
+			int expected) {
+		OperationPenaltyDefend op = new OperationPenaltyDefend(alfieFacingDirection);
+		DynamicRobotInfo opponentInfo = new DynamicRobotInfo(null, 0, false, true, 0, 0, 
+				rotatingSpeed, isRotatingCounterClockWise, 0);
+		int actual = op.getDesiredSector(opponentInfo, opponentFacingSector);
+		Assert.assertEquals(expected, actual);
+	}
+	
+	@Test
+	public void getDesiredSectorTest() {
+		getDesiredSectorCase(1, true, 3, 90, 3);
+		getDesiredSectorCase(1, false, 3, 90, 2);
+		getDesiredSectorCase(1, true, 3, 270, 2);
+		getDesiredSectorCase(1, false, 3, 270, 3);
+		getDesiredSectorCase(0, true, 2, 90, 2);
+		getDesiredSectorCase(0, true, 2, 270, 2);
+		getDesiredSectorCase(1, false, 2, 90, 1);
+		getDesiredSectorCase(1, true, 2, 90, 3);
 	}
 
 }
