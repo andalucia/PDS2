@@ -1,7 +1,6 @@
 package group2.sdp.pc.controlstation;
 
 import group2.sdp.pc.globalinfo.GlobalInfo;
-import group2.sdp.pc.globalinfo.Pitch;
 import group2.sdp.pc.globalinfo.Salvator;
 import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.FieldMarshal;
@@ -356,7 +355,7 @@ public class ControlStation {
 					lord.stop();
 					Penalty pen=new Penalty(alfieMouth,lord);
 					pen.go();
-				}else{
+				} else{
 					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
 			}
@@ -413,6 +412,7 @@ public class ControlStation {
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {
 			public void windowClosed(WindowEvent arg0) {
+				
 			}
 
 			public void windowActivated(WindowEvent arg0) {

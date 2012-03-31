@@ -4,13 +4,11 @@ import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.controlstation.ControlStation;
-import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.planner.skeleton.StrategyConsumer;
 import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
-import java.awt.geom.Point2D;
 
 /**
  *<p><b>Description</b>: "If they have no bread, let them eat cake!" The popularity of 
@@ -150,14 +148,12 @@ public class Overlord implements DynamicInfoConsumer {
 			return Strategy.STOP;
 		}
 		if (defendPenalty) {
-			if (System.currentTimeMillis() - penaltyStart > 30000) {
-				// 30 seconds has passed
+			if (System.currentTimeMillis() - penaltyStart > 30000 ||
+					dpi.getBallInfo().getRollingSpeed() > 0) {
+				// 30 seconds has passed or ball has moved
 				defendPenalty = false;
 				computeStrategy(dpi);
 				//TODO check if 0 is a good threshold
-			} else if (dpi.getBallInfo().getRollingSpeed() > 0) {
-				defendPenalty = false;
-				computeStrategy(dpi);
 			} else {
 				return Strategy.PENALTY_DEFEND;
 			}
