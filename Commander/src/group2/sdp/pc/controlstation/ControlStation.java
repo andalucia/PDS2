@@ -328,7 +328,7 @@ public class ControlStation {
 
 		
 		goalieButton = new Button();
-		goalieButton.setLabel("Goalkeeper!");
+		goalieButton.setLabel("Defend penalty!");
 		goalieButton.setBounds(502, 310, 100, 25);
 		goalieButton.addActionListener(new ActionListener() {
 			
@@ -336,8 +336,7 @@ public class ControlStation {
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
 					lord.stop();
-					Penalty pen=new Penalty(alfieMouth,lord);
-					pen.defend();
+					lord.defendPenalty();
 				} else {
 					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
