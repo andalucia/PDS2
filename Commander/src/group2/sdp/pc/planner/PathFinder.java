@@ -18,7 +18,6 @@ import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
-import java.awt.AlphaComposite;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -141,10 +140,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		case OVERLOAD:
 			planOverload();
 			break;
+		case PRETZEL_EXCLAMATION_MARK:
+			planPretzelExclamationMark(dpi);
+			break;
 		}
 		lastPlanIssuedTime = System.currentTimeMillis();
 	}
-	
+
 	private long lastTimeSpinning = 0;
 	
 	/**
@@ -237,6 +239,45 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		pathStepList.add(new PathStepKick(1000));
 	}
 
+	private void planPretzelExclamationMark(DynamicInfo dpi) {
+		pathStepList.clear();
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				30.0, 
+				45.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				10.0, 
+				180.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				24.0, 
+				90.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				10.0, 
+				180.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				30.0, 
+				45.0, 
+				5.0
+		));
+	}
+	
 	public static LinkedList<PathStep> getDoubleArcPath(DynamicInfo dpi,
 			OperationReallocation op, boolean secondArcCCW, double angleCorrect) {
 		LinkedList<PathStep> pathStepList = new LinkedList<PathStep>();

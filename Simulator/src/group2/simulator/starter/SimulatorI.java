@@ -50,7 +50,7 @@ public class SimulatorI {
 	private static Body leftGoalLine;
 	private static Body rightGoalLine;
 	public static int robotStartX = padding + wallThickness; // 120
-	public static int oppRobotStartX = padding + boardWidth - wallThickness; // 710
+	public static int oppRobotStartX = padding + boardWidth - wallThickness - 100; // 710
 	public static int ballStartX = boardWidth / 2 + padding;
 	public static int ballStartY = boardHeight / 2 + padding;
 	public static int robotStartY = boardHeight / 2 + padding; // 265

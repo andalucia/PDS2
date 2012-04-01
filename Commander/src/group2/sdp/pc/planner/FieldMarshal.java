@@ -9,6 +9,7 @@ import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
+import group2.sdp.pc.planner.operationo.OperationPretzelExclamationMark;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.planner.skeleton.StrategyConsumer;
 import group2.sdp.pc.planner.strategy.Strategy;
@@ -85,19 +86,20 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 		switch (currentStrategy) {
 		case TEST_PATH_FINDER:
-			if (!dpi.getAlfieInfo().isHasBall()) {
-				System.out.println("Don't have ball.");
-				Point2D ballPosition = dpi.getBallInfo().getPosition();
-				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
-				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
-				
-				return new OperationReallocation(
-						ballPosition,
-						shootingDirection
-				);
-			} else {
-				return new OperationStrike();
-			}
+//			if (!dpi.getAlfieInfo().isHasBall()) {
+//				System.out.println("Don't have ball.");
+//				Point2D ballPosition = dpi.getBallInfo().getPosition();
+//				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+//				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+//				
+//				return new OperationReallocation(
+//						ballPosition,
+//						shootingDirection
+//				);
+//			} else {
+//				return new OperationStrike();
+//			}
+			return new OperationPretzelExclamationMark();
 			
 		case DEFENSIVE:
 			return planNextDefensive(dpi);
