@@ -98,12 +98,9 @@ public class StaticInfo {
 	 * print goal information (because it's boring)
 	 */
 	public void printAllStaticInfo() {
-		//print ball info
 		System.out.println("Ball info: position = " + ballInfo.getPosition());
-		//print alfie info
 		System.out.println("Alfie info: position = " + alfieInfo.getPosition() + 
 				"\t facing direction = " + alfieInfo.getFacingDirection());
-		//print ENEMY info
 		System.out.println("Enemy info: position = " + opponentInfo.getPosition() + 
 				"\t facing direction = " + opponentInfo.getFacingDirection());
 

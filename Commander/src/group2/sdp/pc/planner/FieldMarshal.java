@@ -4,6 +4,7 @@ import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationOverload;
@@ -38,6 +39,8 @@ import java.awt.geom.Point2D;
  */
 public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
+	private static final boolean VERBOSE = false;
+	
 	private static final double SAFE_FACTOR = 20.0;
 
 	/**
@@ -79,24 +82,29 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	private Operation planNextOperation(DynamicInfo dpi) {
 		
 		if (currentStrategy == null) {
-			System.err.println("No current strategy. Stopping.");
+			if (VERBOSE)
+				System.err.println("No current strategy. Stopping.");
 			System.exit(1);
 			return null;
 		}
 
 		switch (currentStrategy) {
-		case TEST_PATH_FINDER:
-			if (!dpi.getAlfieInfo().isHasBall()) {
-				System.out.println("Don't have ball.");
-				Point2D ballPosition = dpi.getBallInfo().getPosition();
-				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
-				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
-				
-				return new OperationReallocation(
-						ballPosition,
-						shootingDirection
-				);
+		case TEST:
+			if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
+				if (VERBOSE)
+					System.out.println("Don't have ball.");
+//				Point2D ballPosition = dpi.getBallInfo().getPosition();
+//				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+//				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+//				
+//				return new OperationReallocation(
+//						ballPosition,
+//						shootingDirection
+//				);
+				return new OperationOverload();
 			} else {
+				if (VERBOSE)
+					System.out.println("Has ball.");
 				return new OperationStrike();
 			}
 			
@@ -111,7 +119,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		case PENALTY_DEFEND:
 			return new OperationPenaltyDefend(dpi.getAlfieInfo().getFacingDirection());
 		default:
-			System.err.println("No current strategy. Exiting.");
+			if (VERBOSE)
+				System.err.println("No current strategy. Exiting.");
 			System.exit(1);
 			return null;
 		}
@@ -125,13 +134,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		
 		Point2D temp = Geometry.generateRandomPoint(ballPosition, opponentDirection);
 		
-		System.out.println("temp: " + temp);
-		System.out.println("opponentDirection: " + opponentDirection);
-		
-		System.out.println("G1: " + g1);
-		System.out.println("G2: " + g2);
 		Point2D d = Geometry.getLinesIntersection(ballPosition, temp, g1, g2);
-		System.out.println("D point: " + d);
+		
 		double reverseDirection = Geometry.reverse(opponentDirection);
 		
 		double factor = SAFE_FACTOR + 
@@ -139,7 +143,19 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		
 		Point2D directionVector = Geometry.getDirectionVector(reverseDirection);
 		Point2D s = Geometry.translate(d, factor, directionVector);
-		System.out.println("S point: " + s);
+		
+		if (VERBOSE) {
+			System.out.println("temp: " + temp);
+			System.out.println("opponentDirection: " + opponentDirection);
+			
+			System.out.println("G1: " + g1);
+			System.out.println("G2: " + g2);
+			
+			System.out.println("D point: " + d);
+			
+			System.out.println("S point: " + s);
+		}
+		
 		return new OperationReallocation(s, reverseDirection);
 	}
 
@@ -185,7 +201,9 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 				long now = System.currentTimeMillis();
 				if (successStartTime > 0 && now - successStartTime > SUCCESS_TIMEOUT) {
 					successStartTime = 0;
-					System.out.println("Operation successful.");
+					if (VERBOSE) {
+						System.out.println("Operation successful.");
+					}
 					return true;
 				}
 				if (successStartTime == 0)
@@ -239,6 +257,21 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 				return true;
 			}
 		}
+		// If Overload - fail all the time
+		if (currentOperation instanceof OperationOverload) {
+			long FAILURE_TIMEOUT = 1;
+			long now = System.currentTimeMillis();
+			
+			if (failureStartTime > 0 && now - failureStartTime > FAILURE_TIMEOUT) {
+				failureStartTime = 0;
+				return true;
+			}
+			if (failureStartTime == 0) {
+				failureStartTime = now;
+			}
+		}
+		
+		// If OperationPenaltyDefend - fail all the time
 		if (currentOperation instanceof OperationPenaltyDefend) {
 			long FAILURE_TIMEOUT = 500;
 			long now = System.currentTimeMillis();
@@ -249,8 +282,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			if (failureStartTime == 0) {
 				failureStartTime = now;
 			}
-		} else {
-			failureStartTime = 0;	
 		}
 		
 		return false;
@@ -267,9 +298,11 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		boolean success = operationSuccessful(dpi);
 		boolean fail = operationFailed(dpi);
 		if (replan || success || fail) {
-			System.out.println("Replan: " + replan);
-			System.out.println("Success: " + success);
-			System.out.println("Fail: " + fail);
+			if (VERBOSE) {
+				System.out.println("Replan: " + replan);
+				System.out.println("Success: " + success);
+				System.out.println("Fail: " + fail);	
+			}
 			currentOperation = planNextOperation(dpi);
 			operationConsumer.consumeOperation(currentOperation);
 			replan = false;

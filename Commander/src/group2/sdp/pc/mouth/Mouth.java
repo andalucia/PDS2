@@ -14,7 +14,7 @@ import lejos.pc.comm.NXTConnector;
  */
 public class Mouth implements MouthInterface {
 
-	private final boolean verbose = true;
+	private static final boolean VERBOSE = true;
 	
 	private String nxtAddress = "btspp://group2";
 	
@@ -206,7 +206,7 @@ public class Mouth implements MouthInterface {
 	 * Sends the given bytes across the opened connection and checks the 
 	 * response. 
 	 * @param b The bytes to send.
-	 * @param verbose If true, the bytes are printed before being sent.
+	 * @param VERBOSE If true, the bytes are printed before being sent.
 	 */
 	private void sendCandyPacket(CandyPacket packet) {
 		//long start = System.currentTimeMillis();
@@ -215,7 +215,7 @@ public class Mouth implements MouthInterface {
 		do {
 			try {
 				// Print output if requested
-				if (verbose) {
+				if (VERBOSE) {
 					System.out.println("Sending bytes:");
 					packet.printSweets();
 				}

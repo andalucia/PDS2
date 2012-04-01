@@ -7,6 +7,7 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 @Deprecated
 public class Penalty implements DynamicInfoConsumer {
 
+	private static final boolean VERBOSE = true;
 
 	private Overlord lord;
 	/**
@@ -43,14 +44,16 @@ public class Penalty implements DynamicInfoConsumer {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			System.out.println("interrupted penalty");
+			if (VERBOSE)
+				System.out.println("interrupted penalty");
 			
 		}
 		alfieServer.sendKick(1024);
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			System.out.println("interrupted penalty");
+			if (VERBOSE)
+				System.out.println("interrupted penalty");
 			
 		}
 		lord.start();

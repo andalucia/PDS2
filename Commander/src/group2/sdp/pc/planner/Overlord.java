@@ -1,8 +1,6 @@
 package group2.sdp.pc.planner;
 
-import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
-import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.controlstation.ControlStation;
 import group2.sdp.pc.planner.skeleton.StrategyConsumer;
 import group2.sdp.pc.planner.strategy.Strategy;
@@ -35,6 +33,8 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
  */
 public class Overlord implements DynamicInfoConsumer {
 	 
+	private static final boolean VERBOSE = true;
+
 	/**
 	 * Indicates if the overlord is running or not.
 	 */
@@ -151,7 +151,10 @@ public class Overlord implements DynamicInfoConsumer {
 			if (System.currentTimeMillis() - penaltyStart > 30000 ||
 					dpi.getBallInfo().getRollingSpeed() > 5) {
 				// 30 seconds has passed or ball has moved
-				System.out.println("Exiting penalty mode");
+				if (VERBOSE) {
+					System.out.println("Exiting penalty mode");
+				}
+				
 				defendPenalty = false;
 				computeStrategy(dpi);
 				//TODO check if 0 is a good threshold
@@ -159,7 +162,7 @@ public class Overlord implements DynamicInfoConsumer {
 				return Strategy.PENALTY_DEFEND;
 			}
 		}
-		return Strategy.TEST_PATH_FINDER;
+		return Strategy.TEST;
 		
 //		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 //		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();

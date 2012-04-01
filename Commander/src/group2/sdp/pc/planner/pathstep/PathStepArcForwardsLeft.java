@@ -47,7 +47,6 @@ public class PathStepArcForwardsLeft extends PathStepArc {
 	
 	@Override
 	protected void inferEndPoint() {
-		System.out.println();
 		this.endPoint = 
 			Geometry.getArcEnd(
 					start, 

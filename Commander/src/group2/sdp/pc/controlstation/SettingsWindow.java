@@ -217,8 +217,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = yellowHueStartSlider.getValue();
 				GlobalInfo.getColourSettings().setYellowHueStart(value);
-				System.out.println(value);
-				yellowHueStartLabel.setText(Integer
+ 				yellowHueStartLabel.setText(Integer
 						.toString(yellowHueStartSlider.getValue()));
 
 			}
@@ -238,8 +237,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = yellowHueEndSlider.getValue();
 				GlobalInfo.getColourSettings().setYellowHueEnd(value);
-				System.out.println(value);
-				yellowHueEndLabel.setText(Integer.toString(yellowHueEndSlider
+ 				yellowHueEndLabel.setText(Integer.toString(yellowHueEndSlider
 						.getValue()));
 			}
 		});
@@ -259,8 +257,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = yellowLumaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setYellowLumaStart(value);
-				System.out.println(value);
-				yellowLumaStartLabel.setText(Integer
+ 				yellowLumaStartLabel.setText(Integer
 						.toString(yellowLumaStartSlider.getValue()));
 			}
 		});
@@ -279,8 +276,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = yellowLumaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setYellowLumaEnd(value);
-				System.out.println(value);
-				yellowLumaEndLabel.setText(Integer.toString(yellowLumaEndSlider
+ 				yellowLumaEndLabel.setText(Integer.toString(yellowLumaEndSlider
 						.getValue()));
 			}
 		});
@@ -299,8 +295,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = yellowChromaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setYellowChromaStart(value);
-				System.out.println(value);
-				yellowChromaStartLabel.setText(Integer
+ 				yellowChromaStartLabel.setText(Integer
 						.toString(yellowChromaStartSlider.getValue()));
 			}
 		});
@@ -319,8 +314,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = yellowChromaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setYellowChromaEnd(value);
-				System.out.println(value);
-				yellowChromaEndLabel.setText(Integer
+ 				yellowChromaEndLabel.setText(Integer
 						.toString(yellowChromaEndSlider.getValue()));
 			}
 		});
@@ -340,8 +334,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = blueHueStartSlider.getValue();
 				GlobalInfo.getColourSettings().setBlueHueStart(value);
-				System.out.println(value);
-				blueHueStartLabel.setText(Integer.toString(blueHueStartSlider
+ 				blueHueStartLabel.setText(Integer.toString(blueHueStartSlider
 						.getValue()));
 			}
 		});
@@ -360,8 +353,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = blueHueEndSlider.getValue();
 				GlobalInfo.getColourSettings().setBlueHueEnd(value);
-				System.out.println(value);
-				blueHueEndLabel.setText(Integer.toString(blueHueEndSlider
+ 				blueHueEndLabel.setText(Integer.toString(blueHueEndSlider
 						.getValue()));
 			}
 		});
@@ -380,8 +372,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = blueLumaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setBlueLumaStart(value);
-				System.out.println(value);
-				blueLumaStartLabel.setText(Integer.toString(blueLumaStartSlider
+ 				blueLumaStartLabel.setText(Integer.toString(blueLumaStartSlider
 						.getValue()));
 			}
 		});
@@ -401,8 +392,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = blueLumaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setBlueLumaEnd(value);
-				System.out.println(value);
-				blueLumaEndLabel.setText(Integer.toString(blueLumaEndSlider
+ 				blueLumaEndLabel.setText(Integer.toString(blueLumaEndSlider
 						.getValue()));
 			}
 		});
@@ -422,8 +412,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = blueChromaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setBlueChromaStart(value);
-				System.out.println(value);
-				blueChromaStartLabel.setText(Integer
+ 				blueChromaStartLabel.setText(Integer
 						.toString(blueChromaStartSlider.getValue()));
 			}
 		});
@@ -443,8 +432,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = blueChromaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setBlueChromaEnd(value);
-				System.out.println(value);
-				blueChromaEndLabel.setText(Integer.toString(blueChromaEndSlider
+ 				blueChromaEndLabel.setText(Integer.toString(blueChromaEndSlider
 						.getValue()));
 			}
 		});
@@ -464,8 +452,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = redHueStartSlider.getValue();
 				GlobalInfo.getColourSettings().setRedHueStart(value);
-				System.out.println(value);
-				redHueStartLabel.setText(Integer.toString(redHueStartSlider
+ 				redHueStartLabel.setText(Integer.toString(redHueStartSlider
 						.getValue()));
 			}
 		});
@@ -484,8 +471,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = redHueEndSlider.getValue();
 				GlobalInfo.getColourSettings().setRedHueEnd(value);
-				System.out.println(value);
-				redHueEndLabel.setText(Integer.toString(redHueEndSlider
+ 				redHueEndLabel.setText(Integer.toString(redHueEndSlider
 						.getValue()));
 			}
 		});
@@ -504,8 +490,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = redLumaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setRedLumaStart(value);
-				System.out.println(value);
-				redLumaStartLabel.setText(Integer.toString(redLumaStartSlider
+ 				redLumaStartLabel.setText(Integer.toString(redLumaStartSlider
 						.getValue()));
 			}
 		});
@@ -524,8 +509,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = redLumaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setRedLumaEnd(value);
-				System.out.println(value);
-				redLumaEndLabel.setText(Integer.toString(redLumaEndSlider
+ 				redLumaEndLabel.setText(Integer.toString(redLumaEndSlider
 						.getValue()));
 			}
 		});
@@ -544,8 +528,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = redChromaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setRedChromaStart(value);
-				System.out.println(value);
-				redChromaStartLabel.setText(Integer
+ 				redChromaStartLabel.setText(Integer
 						.toString(redChromaStartSlider.getValue()));
 			}
 		});
@@ -565,8 +548,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = redChromaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setRedChromaEnd(value);
-				System.out.println(value);
-				redChromaEndLabel.setText(Integer.toString(redChromaEndSlider
+ 				redChromaEndLabel.setText(Integer.toString(redChromaEndSlider
 						.getValue()));
 			}
 		});
@@ -587,8 +569,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = plateHueStartSlider.getValue();
 				GlobalInfo.getColourSettings().setPlateHueStart(value);
-				System.out.println(value);
-				plateHueStartLabel.setText(Integer.toString(plateHueStartSlider
+ 				plateHueStartLabel.setText(Integer.toString(plateHueStartSlider
 						.getValue()));
 			}
 		});
@@ -607,8 +588,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = plateHueEndSlider.getValue();
 				GlobalInfo.getColourSettings().setPlateHueEnd(value);
-				System.out.println(value);
-				plateHueEndLabel.setText(Integer.toString(plateHueEndSlider
+ 				plateHueEndLabel.setText(Integer.toString(plateHueEndSlider
 						.getValue()));
 			}
 		});
@@ -628,8 +608,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = plateLumaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setPlateLumaStart(value);
-				System.out.println(value);
-				plateLumaStartLabel.setText(Integer
+ 				plateLumaStartLabel.setText(Integer
 						.toString(plateLumaStartSlider.getValue()));
 			}
 		});
@@ -649,8 +628,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = plateLumaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setPlateLumaEnd(value);
-				System.out.println(value);
-				plateLumaEndLabel.setText(Integer.toString(plateLumaEndSlider
+ 				plateLumaEndLabel.setText(Integer.toString(plateLumaEndSlider
 						.getValue()));
 			}
 		});
@@ -670,8 +648,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = plateChromaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setPlateChromaStart(value);
-				System.out.println(value);
-				plateChromaStartLabel.setText(Integer
+ 				plateChromaStartLabel.setText(Integer
 						.toString(plateChromaStartSlider.getValue()));
 			}
 		});
@@ -691,8 +668,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = plateChromaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setPlateChromaEnd(value);
-				System.out.println(value);
-				plateChromaEndLabel.setText(Integer
+ 				plateChromaEndLabel.setText(Integer
 						.toString(plateChromaEndSlider.getValue()));
 			}
 		});
@@ -713,8 +689,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = pitchHueStartSlider.getValue();
 				GlobalInfo.getColourSettings().setPitchHueStart(value);
-				System.out.println(value);
-				pitchHueStartLabel.setText(Integer.toString(pitchHueStartSlider
+ 				pitchHueStartLabel.setText(Integer.toString(pitchHueStartSlider
 						.getValue()));
 			}
 		});
@@ -733,8 +708,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = pitchHueEndSlider.getValue();
 				GlobalInfo.getColourSettings().setPitchHueEnd(value);
-				System.out.println(value);
-				pitchHueEndLabel.setText(Integer.toString(pitchHueEndSlider
+ 				pitchHueEndLabel.setText(Integer.toString(pitchHueEndSlider
 						.getValue()));
 			}
 		});
@@ -754,8 +728,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = pitchLumaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setPitchLumaStart(value);
-				System.out.println(value);
-				pitchLumaStartLabel.setText(Integer
+ 				pitchLumaStartLabel.setText(Integer
 						.toString(pitchLumaStartSlider.getValue()));
 			}
 		});
@@ -775,8 +748,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = pitchLumaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setPitchLumaEnd(value);
-				System.out.println(value);
-				pitchLumaEndLabel.setText(Integer.toString(pitchLumaEndSlider
+ 				pitchLumaEndLabel.setText(Integer.toString(pitchLumaEndSlider
 						.getValue()));
 			}
 		});
@@ -796,8 +768,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = pitchChromaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setPitchChromaStart(value);
-				System.out.println(value);
-				pitchChromaStartLabel.setText(Integer
+ 				pitchChromaStartLabel.setText(Integer
 						.toString(pitchChromaStartSlider.getValue()));
 			}
 		});
@@ -817,8 +788,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = pitchChromaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setPitchChromaEnd(value);
-				System.out.println(value);
-				pitchChromaEndLabel.setText(Integer
+ 				pitchChromaEndLabel.setText(Integer
 						.toString(pitchChromaEndSlider.getValue()));
 			}
 		});
@@ -838,8 +808,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = grayHueStartSlider.getValue();
 				GlobalInfo.getColourSettings().setGrayHueStart(value);
-				System.out.println(value);
-				grayHueStartLabel.setText(Integer.toString(grayHueStartSlider
+ 				grayHueStartLabel.setText(Integer.toString(grayHueStartSlider
 						.getValue()));
 			}
 		});
@@ -858,8 +827,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = grayHueEndSlider.getValue();
 				GlobalInfo.getColourSettings().setGrayHueEnd(value);
-				System.out.println(value);
-				grayHueEndLabel.setText(Integer.toString(grayHueEndSlider
+ 				grayHueEndLabel.setText(Integer.toString(grayHueEndSlider
 						.getValue()));
 			}
 		});
@@ -878,8 +846,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = grayLumaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setGrayLumaStart(value);
-				System.out.println(value);
-				grayLumaStartLabel.setText(Integer.toString(grayLumaStartSlider
+ 				grayLumaStartLabel.setText(Integer.toString(grayLumaStartSlider
 						.getValue()));
 			}
 		});
@@ -899,8 +866,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = grayLumaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setGrayLumaEnd(value);
-				System.out.println(value);
-				grayLumaEndLabel.setText(Integer.toString(grayLumaEndSlider
+ 				grayLumaEndLabel.setText(Integer.toString(grayLumaEndSlider
 						.getValue()));
 			}
 		});
@@ -920,8 +886,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = grayChromaStartSlider.getValue();
 				GlobalInfo.getColourSettings().setGrayChromaStart(value);
-				System.out.println(value);
-				grayChromaStartLabel.setText(Integer
+ 				grayChromaStartLabel.setText(Integer
 						.toString(grayChromaStartSlider.getValue()));
 			}
 		});
@@ -941,8 +906,7 @@ public class SettingsWindow extends JFrame {
 			public void stateChanged(ChangeEvent arg0) {
 				value = grayChromaEndSlider.getValue();
 				GlobalInfo.getColourSettings().setGrayChromaEnd(value);
-				System.out.println(value);
-				grayChromaEndLabel.setText(Integer.toString(grayChromaEndSlider
+ 				grayChromaEndLabel.setText(Integer.toString(grayChromaEndSlider
 						.getValue()));
 			}
 		});

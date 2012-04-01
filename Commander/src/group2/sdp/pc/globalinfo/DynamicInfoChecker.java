@@ -1,9 +1,9 @@
 package group2.sdp.pc.globalinfo;
 
 import group2.sdp.common.util.Geometry;
+import group2.sdp.pc.breadbin.DynamicBallInfo;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
-import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 
 import java.awt.Point;
@@ -17,6 +17,8 @@ import java.awt.geom.Rectangle2D;
  */
 public class DynamicInfoChecker {
 
+	private static final boolean VERBOSE = true;
+	
 	public DynamicInfoChecker(DynamicInfo dynamicInfo) {
 		//		this.dynamicInfo = dynamicInfo;
 	}
@@ -65,6 +67,8 @@ public class DynamicInfoChecker {
 		return angle;
 	}
 
+	private static boolean lastHadBall = false;
+	
 	/**
 	 * Projects a point from the centroid of the robot in the facing
 	 * direction of the robot. Checks the distance between that point
@@ -78,14 +82,60 @@ public class DynamicInfoChecker {
 	public static boolean hasBall(StaticRobotInfo robot, Point2D ballPosition){
 		double lengthThreshold = 2.0;
 		double halfLength = (StaticRobotInfo.getLength()) / 2 + lengthThreshold;
-		double widthThreshold = 5.0;
-		double halfWidth = (StaticRobotInfo.getWidth()) / 2 - widthThreshold;
+		double widthThreshold = 0.0;
+		double halfWidth = (StaticRobotInfo.getWidth()) / 2 + widthThreshold;
 		Point2D frontOfRobot = Geometry.generatePointOnLine(robot.getPosition(),
 				robot.getFacingDirection(), halfLength);
 		
-		return frontOfRobot.distance(ballPosition) < halfWidth
+		boolean result = frontOfRobot.distance(ballPosition) < halfWidth
 				? true
 				: false;
+		if (VERBOSE) {
+//			if (!lastHadBall && result) {
+//				System.out.println("Acquired ball!");
+//			}
+//			System.out.println("Front of robot: " + frontOfRobot);
+//			System.out.println((result ? "Has " : "Does not have ") + "ball.");
+		}
+		lastHadBall = result;
+		return result;
+	}
+	
+	/**
+	 * Looks into the future to check if the given robot would get the given ball
+	 * in 0.5 seconds.
+	 */
+	public static boolean wouldHaveBall(DynamicRobotInfo robot, DynamicBallInfo ball) {
+		double lengthThreshold = 2.0;
+		double halfLength = (StaticRobotInfo.getLength()) / 2 + lengthThreshold;
+		double widthThreshold = 0.0;
+		double halfWidth = (StaticRobotInfo.getWidth()) / 2 + widthThreshold;
+		
+		double FUTURE_PERIOD = 0.35; // seconds
+	
+		Point2D futureBallPosition = Geometry.generatePointOnLine(
+				ball.getPosition(), ball.getRollingDirection(), 
+				ball.getRollingSpeed() * FUTURE_PERIOD);
+		
+		Point2D futurePosition = Geometry.generatePointOnLine(
+				robot.getPosition(), robot.getTravelDirection(), 
+				robot.getTravelSpeed() * FUTURE_PERIOD);
+	
+		// TODO future facing direction?
+		
+		Point2D frontOfRobot = Geometry.generatePointOnLine(futurePosition,
+				robot.getFacingDirection(), halfLength);
+		
+		boolean result = frontOfRobot.distance(futureBallPosition) < halfWidth
+				? true
+				: false;
+		if (VERBOSE) {
+			if (!lastHadBall && result) {
+				System.out.println("Will acquire ball!");
+			}
+			System.out.println((result ? "Would have " : "Would not have ") + "ball.");
+		}
+		return result;
 	}
 
 	/**
@@ -167,7 +217,8 @@ public class DynamicInfoChecker {
 	 */
 	public static boolean opponentBlockingPath(DynamicRobotInfo alfie, Point2D obstaclePosition){
 		if(alfie.getFacingDirection()==-1){
-			System.out.println("angle negative return false");
+			if (VERBOSE)
+				System.out.println("angle negative return false");
 			return false;
 		}
 		Point2D alfiePos = alfie.getPosition();
@@ -184,7 +235,7 @@ public class DynamicInfoChecker {
 		//now work out constant for y=mx+c using c=y-mx
 		constant=y-(slope*x);
 
-		//increase x or y by 100 to cre			System.out.println("DEFENSIVE");ate arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
+		//increase x or y by 100 to create arbitrary point for end of line segment(therefore line of minmum length 100. can be tweaked)
 		Point2D.Double endP;
 		//case increase y
 		if (angle>=45 && angle<135){
@@ -279,7 +330,8 @@ public class DynamicInfoChecker {
 			kickingPositionX = (float) ballPosition.getX();
 			kickingPositionY = (float) ballPosition.getY();
 		}
-		System.out.println("DEFENSIVE");
+		if (VERBOSE)
+			System.out.println("DEFENSIVE");
 
 		Point2D kickingPosition = new Point.Float(kickingPositionX,kickingPositionY);
 
@@ -396,7 +448,7 @@ public class DynamicInfoChecker {
 	/**
 	 * this function will tell us if we are facing the oppositions goal
 	 * it compares the angle we are facing with the angle to the extremes
-	 * of the goal, it must act dif			System.out.println("DEFENSIVE");ferently for each goal as one of the goals has the zero angle in the middle 
+	 * of the goal, it must act differently for each goal as one of the goals has the zero angle in the middle 
 	 * @param robotInfo robot's info
 	 * @param opponentInfo opponent info used to get the points of the goal where shooting for
 	 * @param ball nuff said
@@ -433,7 +485,8 @@ public class DynamicInfoChecker {
 		double bottomAngle = getAngleFromOrigin(alfiePos, bottomGoal);
 		//if other robot is in the way threshold can be changed, current uses 30 degree angle and 30cm distance
 		if((alfiePos.distance(enemyPos)<30)&&(isSimilarAngle(getAngleFromOrigin(alfiePos,enemyPos),robotInfo.getFacingDirection(),30))){
-			System.out.println("ENEMY CLOSE NO SHOT");
+			if (VERBOSE)
+				System.out.println("ENEMY CLOSE NO SHOT");
 			return false;
 		}
 

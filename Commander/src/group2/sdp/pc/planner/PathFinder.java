@@ -38,7 +38,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
-	private static final boolean verbose = true;
+	private static final boolean VERBOSE = false;
 
 	private static final double DISTANCE_THRESHOLD = 10.0;
 	
@@ -74,13 +74,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		} else {
 			long now = System.currentTimeMillis();
 			if (currentStep.isSuccessful(dpi)) {
-				if (verbose) {
+				if (VERBOSE) {
 					System.out.println("Step succeeded :D");
 				}
 				executeNextStep(dpi);
 			} else if (now - lastPlanIssuedTime > WARMUP_TIMEOUT &&
 					currentStep.hasFailed(dpi)) {
-				if (verbose) {
+				if (VERBOSE) {
 					System.out.println("Step failed D:");
 				}
 				plan(dpi);
@@ -92,9 +92,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		// Get the next PathStep from the queue
 		do {
 			currentStep = pathStepList.pollFirst();
-		} while (currentStep.isSuccessful(dpi));
+		} while (currentStep != null && currentStep.isSuccessful(dpi));
 		// If it is successful, try and execute the next PathStep in the queue
-		if(currentStep != null) {
+		if (currentStep != null) {
 			execute();
 		} else {
 			// The queue is empty so re-plan
@@ -124,7 +124,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 */
 	private void plan(DynamicInfo dpi) {
 		
-		System.out.println("Looking for a path...");
+		if (VERBOSE)
+			System.out.println("Looking for a path...");
 		// Clear the PathStep queue
 		pathStepList.clear();
 		
@@ -260,7 +261,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		pathStepList.add(firstArc);
 		pathStepList.add(secondArc);
 
-		if (verbose) {
+		if (VERBOSE) {
 			System.out.println();
 			System.out.println("ARC THINGY:");
 			System.out.println("startPosition      = " + startPosition);
@@ -368,13 +369,15 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		alphaStart = Geometry.normalizeToPositive(alphaStart);
 		alphaEnd = Geometry.normalizeToPositive(alphaEnd);
 		
-		System.out.println();
-		System.out.println("Centre: " + o);
-		System.out.println("Radius: " + r);
-		System.out.println("PhiStart: " + phiStart);
-		System.out.println("PhiEnd: " + phiEnd);
-		System.out.println("P1: " + p1);
-		System.out.println("P2: " + p2);
+		if (VERBOSE) {
+			System.out.println();
+			System.out.println("Centre: " + o);
+			System.out.println("Radius: " + r);
+			System.out.println("PhiStart: " + phiStart);
+			System.out.println("PhiEnd: " + phiEnd);
+			System.out.println("P1: " + p1);
+			System.out.println("P2: " + p2);
+		}
 		
 		int[] dx;
 		int[] dy;
@@ -396,26 +399,29 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			double alpha; 
 			if (CCW) { 
 				alpha = Math.toDegrees(Math.atan2(b, -(a + r)));
-				System.out.println("0 == " + 
-						(Math.cos(Math.toRadians(alpha)) * b + 
-						 Math.sin(Math.toRadians(alpha)) * (a + r)));
+				if (VERBOSE)
+					System.out.println("0 == " + 
+							(Math.cos(Math.toRadians(alpha)) * b + 
+							 Math.sin(Math.toRadians(alpha)) * (a + r)));
 			} else { 
 				alpha = Math.toDegrees(Math.atan2(b, a + r));
-				System.out.println("0 == " + 
-						(Math.cos(Math.toRadians(alpha)) * b - 
-						 Math.sin(Math.toRadians(alpha)) * (a + r)));
+				if (VERBOSE)
+					System.out.println("0 == " + 
+							(Math.cos(Math.toRadians(alpha)) * b - 
+							 Math.sin(Math.toRadians(alpha)) * (a + r)));
 			}
 			
-			
-			System.out.println("a: " + a);
-			System.out.println("b: " + b);
 			alpha = Geometry.normalizeToPositive(alpha);
-//			System.out.println("alpha " + i + ": " + alpha);
 
 			M = updateMax(r, M, alpha, alphaStart, alphaEnd, i, a, b, CCW);
-			System.out.println("M: " + M);
+			if (VERBOSE) {
+				System.out.println("a: " + a);
+				System.out.println("b: " + b);
+				System.out.println("M: " + M);
+			}			
 		}
-		System.out.println("Safe distance: " + safeDistance);
+		if (VERBOSE)
+			System.out.println("Safe distance: " + safeDistance);
 		return M < safeDistance;
 	}
 
@@ -428,11 +434,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		boolean alphaValid = 
 			Geometry.angleWithinBounds(alpha, 90.0 * i, 90.0 * (i + 1)) && 
 			Geometry.angleWithinBounds(alpha, alphaMin, alphaMax);
-		System.out.println();
-		System.out.println(i);
-		
-		System.out.println("alpha: " + alpha);
-		System.out.println("alpha valid: " + alphaValid);
+		if (VERBOSE) {
+			System.out.println();
+			System.out.println(i);
+			
+			System.out.println("alpha: " + alpha);
+			System.out.println("alpha valid: " + alphaValid);
+		}
 		if (alphaValid) {
 			double p;
 			double d;
@@ -447,8 +455,10 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 					Math.sin(Math.toRadians(alpha)) * b + 
 					Math.cos(Math.toRadians(alpha)) * a;
 			}
-			System.out.println("then p: " + p);
-			System.out.println("then d: " + d);
+			if (VERBOSE) {
+				System.out.println("then p: " + p);
+				System.out.println("then d: " + d);
+			}
 			// Update maximum if necessary.
 			if (p + d > M) {
 				M = p + d;
@@ -516,7 +526,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				angleCorrect = targetAngle - dpi.getAlfieInfo().getFacingDirection();
 				angleCorrect = Geometry.normalizeToPositive(angleCorrect);
 				
-				System.out.println("Angle correct: " + angleCorrect);
+				if (VERBOSE)
+					System.out.println("Angle correct: " + angleCorrect);
 				
 				pathStepList.add(
 						new PathStepSpinLeft(
@@ -575,8 +586,10 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				for (PathStep ps : pathStepListSecondCW) {
 					lengthCW += ((PathStepArc) ps).getLength();
 				}
-				System.out.println("CCW arc length: " + lengthCCW);
-				System.out.println("CW arc length: " + lengthCW);
+				if (VERBOSE) {
+					System.out.println("CCW arc length: " + lengthCCW);
+					System.out.println("CW arc length: " + lengthCW);
+				}
 				
 				pathStepList.addAll(
 					lengthCCW < lengthCW
@@ -598,7 +611,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	private void planStrike() {
 		pathStepList = new LinkedList<PathStep>();
 		pathStepList.add(new PathStepKick(1000));
-		System.out.println(">>> Striking!");
+		if (VERBOSE)
+			System.out.println(">>> Striking!");
 	}
 
 	/**
@@ -636,8 +650,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		
-		int opponentFacingSector = op.getOpponentFacingSector(alfieInfo.getPosition(), 
-				opponentInfo.getFacingDirection());
+		int opponentFacingSector = op.getOpponentFacingSector(opponentInfo.getFacingDirection());
 		int currentSector = op.getCurrentSector(alfieInfo.getPosition());
 		
 		int desiredSector = -1;

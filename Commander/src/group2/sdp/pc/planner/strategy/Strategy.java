@@ -21,5 +21,5 @@ public enum Strategy {
 	PENALTY_DEFEND,
 	PENALTY_TAKE,
 	STOP, 
-	TEST_PATH_FINDER
+	TEST
 }

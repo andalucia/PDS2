@@ -22,7 +22,7 @@ import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 public class Bakery extends BakerySkeleton {
 
 	
-	private final boolean verbose = false;
+	private static final boolean VERBOSE = false;
 	
 	/**
 	 * Variables used to prevent too much correction in correct facing direction
@@ -55,7 +55,7 @@ public class Bakery extends BakerySkeleton {
 		// and uses these two average positions and times to calculate speed
 		int historySize=ballHistoryInfos.size();
 		if (historySize < 6) {
-			if (verbose) {
+			if (VERBOSE) {
 				System.out.println("Not enough history ball speed 0");
 			}
 			return 0;
@@ -88,7 +88,7 @@ public class Bakery extends BakerySkeleton {
 		int numPoints=ballHistoryInfos.size();
 		double angle;
 		if (numPoints < 6) {
-			if (verbose) {
+			if (VERBOSE) {
 				System.out.println("Not enough history ball direction 0");
 			}
 			return 0;
@@ -123,7 +123,7 @@ public class Bakery extends BakerySkeleton {
 		int numPoints=historyInfos.size();
 		// at beginning when no history speed cannot be calculated
 		if (numPoints < 6) {
-			if (verbose) {
+			if (VERBOSE) {
 				System.out.println("Not enough history robot speed 0");
 			}
 			return 0;
@@ -243,7 +243,7 @@ public class Bakery extends BakerySkeleton {
 		double angle;
 		int numPoints=historyInfos.size();
 		if (numPoints < 6) {
-			if (verbose) {
+			if (VERBOSE) {
 				System.out.println("Not enough history robot direction set to facing direction");
 			}
 			return historyInfos.getLast().getFacingDirection();
@@ -305,7 +305,7 @@ public class Bakery extends BakerySkeleton {
 			if((angleDifference) > 180){
 				angleDifference = 360 - angleDifference;
 			}
-			if(verbose){
+			if(VERBOSE){
 				System.out.println("Difference in angle between frames = " +angleDifference);
 			}
 			double rotSpeed = angleDifference / timeDifference;

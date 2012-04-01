@@ -91,7 +91,8 @@ public class StaticRobotInfo {
 		this.position = info.position;
 		this.facingDirection = info.facingDirection;
 		this.alfie = info.alfie;
-		this.timeStamp= info.timeStamp;
+		this.timeStamp = info.timeStamp;
+		this.hasBall = info.hasBall;
 		if (!alfie)
 			this.centrePoint = new Point2D.Double(0.0, 0.0);
 		else 
