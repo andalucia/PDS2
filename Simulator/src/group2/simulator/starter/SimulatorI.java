@@ -426,7 +426,7 @@ public class SimulatorI {
 					robot.kick(ball);
 					break;
 				case KeyEvent.VK_1:
-					arc(50, 90);
+					//arc(50, 90);
 					break;
 				}
 
@@ -583,35 +583,43 @@ public class SimulatorI {
 	 * arc <br\>
 	 * |radius | angle | arc | <br\>
 	 * | + | + | FL | <br\>
-	 * | + | - | BL | <br\>
-	 * | - | + | BR | <br\>
-	 * | - | - | FR | <br\>
+	 * 1 | + | - | BL | <br\>
+	 * 2 | - | + | BR | <br\>
+	 * 3 | - | - | FR | <br\>
+	 * 4
 	 * 
 	 */
 
-	public static void arc(double radius, double angle) {
+	public static void arc(double radius, double angle, int LorR) {
 		boolean isLeft = false;
 		double rotateAngle = 0;
 		double turn = 1;
-		if (radius > 0 && angle > 0) {
+
+		switch (LorR) {
+		case 1:
 			// FL
 			isLeft = true;
 			rotateAngle = -1;
 			turn = 1;
-		} else if (radius > 0 && angle < 0) {
+			break;
+		case 2:
+			// BL
 			isLeft = true;
 			rotateAngle = 1;
 			turn = -1;
-		} else if (radius < 0 && angle > 0) {
+			break;
+		case 3:
 			// BR
 			isLeft = false;
 			rotateAngle = -1;
 			turn = 1;
-		} else if (radius < 0 && angle < 0) {
+			break;
+		case 4:
 			// FR
 			isLeft = false;
 			rotateAngle = 1;
 			turn = -1;
+			break;
 		}
 
 		radius = Math.abs(radius);
