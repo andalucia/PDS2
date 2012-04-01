@@ -1,5 +1,6 @@
 package group2.sdp.pc.test;
 
+import group2.sdp.pc.breadbin.StaticBallInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.pathstep.PathStep;
@@ -777,6 +778,250 @@ public class PathFinderTest {
 				), 
 				new Point2D.Double(120, -60),
 				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+	}
+
+	/**
+	 * Testing 180 deg CCW arcs with top pitch line.
+	 */
+	@Test
+	public void testIsGoodArc9() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(50.0, 0.0),
+						90.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(120, 60),
+				new Point2D.Double(-120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CW arcs with top pitch line.
+	 */
+	@Test
+	public void testIsGoodArc10() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(-50.0, 0.0),
+						90.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(120, 60),
+				new Point2D.Double(-120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CCW arcs with bottom pitch line.
+	 */
+	@Test
+	public void testIsGoodArc11() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-50.0, 0.0),
+						270.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(-120, -60),
+				new Point2D.Double(120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CW arcs with bottom pitch line.
+	 */
+	@Test
+	public void testIsGoodArc12() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(50.0, 0.0),
+						270.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(-120, -60),
+				new Point2D.Double(120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CCW arcs with left pitch line.
+	 */
+	@Test
+	public void testIsGoodArc13() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-60.0, 50.0),
+						180.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CW arcs with bottom pitch line.
+	 */
+	@Test
+	public void testIsGoodArc14() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(-60.0, -50.0),
+						180.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CCW arcs with left pitch line.
+	 */
+	@Test
+	public void testIsGoodArc15() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(60.0, 50.0),
+						0.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	/**
+	 * Testing 180 deg CW arcs with bottom pitch line.
+	 */
+	@Test
+	public void testIsGoodArc16() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(60.0, -50.0),
+						0.0,
+						50.0,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+	}
+	
+	@Test
+	public void testHowBigWeCanGet() {
+		PathFinder pf = new PathFinder(null);
+		
+		double R = 45.0;
+		// TODO: ^ Use for sweeping the ball from the wall.
+		
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(R, -R - StaticRobotInfo.getWidth() / 2 - StaticBallInfo.getRadius() / 4 * 3),
+						90.0,
+						R,
+						180.0,
+						0.0
+				), 
+				new Point2D.Double(120, 0),
+				new Point2D.Double(-120, 0),
 				new StaticRobotInfo(
 						null,
 						0.0,

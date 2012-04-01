@@ -127,47 +127,47 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	}
 
 	private Operation planNextDefensive(DynamicInfo dpi) {
+		
+		// TODO: TESTME
+		
 		Point2D ballPosition = dpi.getBallInfo().getPosition();
-		double opponentDirection = dpi.getOpponentInfo().getFacingDirection();
-		Point2D g1 = GlobalInfo.getDefendingTopGoalPost();
-		Point2D g2 = GlobalInfo.getDefendingBottomGoalPost();
+		Point2D defensiveGoalPosition = GlobalInfo.getDefensiveGoalMiddle();
 		
-		Point2D temp = Geometry.generateRandomPoint(ballPosition, opponentDirection);
+		double goalToBallDirection = 
+			Geometry.getVectorDirection(defensiveGoalPosition, ballPosition);
 		
-		Point2D d = Geometry.getLinesIntersection(ballPosition, temp, g1, g2);
+		double safeDistance = 
+			PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME /
+			Math.sin(Math.toRadians(goalToBallDirection)) + 
+			dpi.getAlfieInfo().getSafeDistance();
 		
-		double reverseDirection = Geometry.reverse(opponentDirection);
-		
-		double factor = SAFE_FACTOR + 
-			PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME + StaticRobotInfo.getWidth();
-		
-		Point2D directionVector = Geometry.getDirectionVector(reverseDirection);
-		Point2D s = Geometry.translate(d, factor, directionVector);
+		Point2D destination = Geometry.translate(defensiveGoalPosition, safeDistance, 
+				goalToBallDirection);
 		
 		if (VERBOSE) {
-			System.out.println("temp: " + temp);
-			System.out.println("opponentDirection: " + opponentDirection);
-			
-			System.out.println("G1: " + g1);
-			System.out.println("G2: " + g2);
-			
-			System.out.println("D point: " + d);
-			
-			System.out.println("S point: " + s);
+			System.out.println("Defensive destination: " + destination);
 		}
 		
-		return new OperationReallocation(s, reverseDirection);
+		return new OperationReallocation(destination, goalToBallDirection);
 	}
 
 	private Operation planNextOffensive(DynamicInfo dpi) {
-		Point2D ballPosition = dpi.getBallInfo().getPosition();
-		Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
-		double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
-		
-		return new OperationReallocation(
-				ballPosition,
-				shootingDirection
-		);
+		if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
+			if (VERBOSE)
+				System.out.println("Don't have ball.");
+			Point2D ballPosition = dpi.getBallInfo().getPosition();
+			Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+			
+			return new OperationReallocation(
+					ballPosition,
+					shootingDirection
+			);
+		} else {
+			if (VERBOSE)
+				System.out.println("Has ball.");
+			return new OperationStrike();
+		}
 	}
 
 	/**
@@ -223,7 +223,6 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 * Checks if there is a problem with executing the current operation.
 	 * @param dpi Current pitch info.
 	 * @return True if the current operation is null, false otherwise.
-	 * TODO implement
 	 */
 	protected boolean operationFailed(DynamicInfo dpi) {
 		if (currentStrategy == null) {

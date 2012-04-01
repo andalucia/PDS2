@@ -38,7 +38,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 
 	private static final double DISTANCE_THRESHOLD = 10.0;
 	
