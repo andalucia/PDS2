@@ -1,13 +1,9 @@
 package group2.sdp.pc.test;
 
-import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
-import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
-import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
-import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 
@@ -61,31 +57,31 @@ public class PathFinderTest {
 	
 	@Test
 	public void testDoubleArcCurve() {
-//		Point2D start = new Point2D.Double(-80, 0.0);
-//		double startDir = 0.0;
-//		double startRadius = 140.0;
-//		double startArcAngle = 0.0;
-//		
-////		Point2D middlePoint = Geometry.getArcEnd(start, startDir, startRadius, startAngle);
-//		
-//		Point2D end = new Point2D.Double(80.0, 1.0);
-//		double endDir = 0.0;
-//		double radius2 = 0.0;
-//		double angle2 = 0.0;
-//		
-//		PathStepArc arc1 = 
-//			new PathStepArcForwardsLeft(start, startDir, startRadius, startArcAngle, 20);
-//		PathStepArc arc2 = 
-//			new PathStepArcForwardsRight(
-//					arc1.getTargetDestination(), 
-//					arc1.getTargetOrientation(), 
-//					radius2, angle2, 20);
-//		
-//		LinkedList<PathStep> expected = new LinkedList<PathStep>();
-//		expected.add(arc1);
-//		expected.add(arc2);
-//		
-//		testDoubleArcCurveCase(start, startDir, end, endDir, expected);
+		Point2D start = new Point2D.Double(-80, 0.0);
+		double startDir = 0.0;
+		double startRadius = 140.0;
+		double startArcAngle = 0.0;
+		
+//		Point2D middlePoint = Geometry.getArcEnd(start, startDir, startRadius, startAngle);
+		
+		Point2D end = new Point2D.Double(80.0, 1.0);
+		double endDir = 0.0;
+		double radius2 = 0.0;
+		double angle2 = 0.0;
+		
+		PathStepArc arc1 = 
+			new PathStepArcForwardsLeft(start, startDir, startRadius, startArcAngle, 20);
+		PathStepArc arc2 = 
+			new PathStepArcForwardsRight(
+					arc1.getTargetDestination(), 
+					arc1.getTargetOrientation(), 
+					radius2, angle2, 20);
+		
+		LinkedList<PathStep> expected = new LinkedList<PathStep>();
+		expected.add(arc1);
+		expected.add(arc2);
+		
+		testDoubleArcCurveCase(start, startDir, end, endDir, expected);
 		
 		//test 2
 	}
@@ -95,9 +91,11 @@ public class PathFinderTest {
 	 */
 	@Test
 	public void testIsGoodArc1() {
-		// docs/diagrams/ @ diagram 13
 		PathFinder pf = new PathFinder(null);
-		boolean good = pf.isGoodArc(
+		boolean good;
+		
+		// docs/diagrams/ @ diagram 13
+		good = pf.isGoodArc(
 				new PathStepArcForwardsLeft(
 						new Point2D.Double(-50.0, 0.0),
 						0.0,
@@ -136,7 +134,7 @@ public class PathFinderTest {
 						0
 				)
 		);
-		Assert.assertEquals(true, good);
+		Assert.assertEquals(false, good);
 		
 		good = pf.isGoodArc(
 				new PathStepArcForwardsLeft(
@@ -185,7 +183,9 @@ public class PathFinderTest {
 	@Test
 	public void testIsGoodArc2() {
 		PathFinder pf = new PathFinder(null);
-		boolean good = pf.isGoodArc(
+		boolean good;
+		
+		good = pf.isGoodArc(
 				new PathStepArcForwardsRight(
 						new Point2D.Double(50.0, 0.0),
 						180.0,
@@ -223,7 +223,6 @@ public class PathFinderTest {
 						0
 				)
 		);
-//		// TODO: fix phi-s
 		Assert.assertEquals(false, good);
 		
 		good = pf.isGoodArc(
@@ -244,7 +243,6 @@ public class PathFinderTest {
 						0
 				)
 		);
-//		// TODO: fix phi-s
 		Assert.assertEquals(true, good);
 		
 		good = pf.isGoodArc(
@@ -312,7 +310,6 @@ public class PathFinderTest {
 						0
 				)
 		);
-//		// TODO: fix phi-s
 		Assert.assertEquals(false, good);
 		
 		good = pf.isGoodArc(
@@ -333,8 +330,7 @@ public class PathFinderTest {
 						0
 				)
 		);
-//		// TODO: fix phi-s
-		Assert.assertEquals(false, good);
+		Assert.assertEquals(true, good);
 		
 		good = pf.isGoodArc(
 				new PathStepArcForwardsLeft(
@@ -401,8 +397,7 @@ public class PathFinderTest {
 						0
 				)
 		);
-		// TODO: fix phi-s
-//		Assert.assertEquals(false, good);
+		Assert.assertEquals(false, good);
 		
 		good = pf.isGoodArc(
 				new PathStepArcForwardsRight(
@@ -422,7 +417,6 @@ public class PathFinderTest {
 						0
 				)
 		);
-//		// TODO: fix phi-s
 		Assert.assertEquals(true, good);
 		
 		good = pf.isGoodArc(
@@ -446,79 +440,351 @@ public class PathFinderTest {
 		Assert.assertEquals(true, good);
 	}
 	
-	public void getPenaltyArcCase(int alfieSector, int opSector,
-			Point2D start, double startDirection, 
-			boolean isAttackingRight, PathStepArc expected) {
-		
-		GlobalInfo.setAttackingRight(isAttackingRight);
-		
+	/**
+	 * Testing CCW arcs with left pitch line and start or end point at -110, 0 (10 cm from the line).
+	 */
+	@Test
+	public void testIsGoodArc5() {
 		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-60.0, -50.0),
+						90.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
 		
-		PathStepArc actual = pf.getPenaltyArc(alfieSector, opSector, start, startDirection);
-		Assert.assertEquals(expected, actual);
+		good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-60.0, 50.0),
+						180.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-110.0, 0.0),
+						270.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(-110.0, 0.0),
+						0.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
 	}
 	
+	/**
+	 * Testing CW arcs with left pitch line and start or end point at -110, 0 (10 cm from the line).
+	 */
 	@Test
-	public void testGetPenaltyArc() {
-		// defending left, facing up, move from 2 to 3
-		getPenaltyArcCase(2, 3, new Point2D.Double(-120,0), 90, true,
-				new PathStepArcBackwardsRight(
-						new Point2D.Double(-120,0), 
-						90, 
-						60, 
-						10, 
-						10
-						)
-		);
-		// defending left, facing up, move from 2 to 1
-		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 90, true,
+	public void testIsGoodArc6() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
 				new PathStepArcForwardsRight(
-						new Point2D.Double(-120,0), 
-						90, 
-						60, 
-						10, 
-						10
-						)
+						new Point2D.Double(-60.0, 50.0),
+						270.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
 		);
-		// defending left, facing up, move from 3 to 1
-		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 90, true,
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
 				new PathStepArcForwardsRight(
-						new Point2D.Double(-120,0), 
-						90, 
-						60, 
-						10, 
-						10
-						)
+						new Point2D.Double(-60.0, -50.0),
+						180.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
 		);
-		// defending left, facing down, move from 2 to 1
-		getPenaltyArcCase(2, 1, new Point2D.Double(-120,0), 270, true,
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(-110.0, 0.0),
+						90.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(-110.0, 0.0),
+						0.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(-120, 60),
+				new Point2D.Double(-120, -60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+	}
+	
+	/**
+	 * Testing CCW arcs with right pitch line and start or end point at 110, 0 (10 cm from the line).
+	 */
+	@Test
+	public void testIsGoodArc7() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
 				new PathStepArcForwardsLeft(
-						new Point2D.Double(-120,0), 
-						270, 
-						60, 
-						10, 
-						10
-						)
+						new Point2D.Double(60.0, -50.0),
+						270.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
 		);
-		// defending right, facing up, move from 2 to 3
-		getPenaltyArcCase(2, 3, new Point2D.Double(120,0), 90, false,
-				new PathStepArcBackwardsLeft(
-						new Point2D.Double(120,0), 
-						90, 
-						60, 
-						10, 
-						10
-						)
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(60.0, 50.0),
+						0.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
 		);
-		// defending right, facing down, move from 2 to 1
-		getPenaltyArcCase(2, 1, new Point2D.Double(120,0), 270, false,
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(110.0, 0.0),
+						90.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsLeft(
+						new Point2D.Double(110.0, 0.0),
+						180.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+	}
+	
+	/**
+	 * Testing CW arcs with right pitch line and start or end point at 110, 0 (10 cm from the line).
+	 */
+	@Test
+	public void testIsGoodArc8() {
+		PathFinder pf = new PathFinder(null);
+		boolean good = pf.isGoodArc(
 				new PathStepArcForwardsRight(
-						new Point2D.Double(120,0), 
-						270, 
-						60, 
-						10, 
-						10
-						)
+						new Point2D.Double(60.0, 50.0),
+						90.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
 		);
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(60.0, -50.0),
+						0.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(false, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(110.0, 0.0),
+						270.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
+		
+		good = pf.isGoodArc(
+				new PathStepArcForwardsRight(
+						new Point2D.Double(110.0, 0.0),
+						180.0,
+						50.0,
+						90.0,
+						0.0
+				), 
+				new Point2D.Double(120, -60),
+				new Point2D.Double(120, 60),
+				new StaticRobotInfo(
+						null,
+						0.0,
+						true,
+						false,
+						0
+				)
+		);
+		Assert.assertEquals(true, good);
 	}
 }

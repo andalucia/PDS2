@@ -38,7 +38,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
-	private static final boolean verbose = false;
+	private static final boolean verbose = true;
 
 	private static final double DISTANCE_THRESHOLD = 10.0;
 	
@@ -92,7 +92,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		// Get the next PathStep from the queue
 		do {
 			currentStep = pathStepList.pollFirst();
-		} while (currentStep != null && currentStep.isSuccessful(dpi));
+		} while (currentStep.isSuccessful(dpi));
 		// If it is successful, try and execute the next PathStep in the queue
 		if(currentStep != null) {
 			execute();
@@ -148,7 +148,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			break;
 			
 		case PENALTY_DEFEND:
-			System.out.println("DEFENDING PENALTY");
 			planPenaltyDefend(dpi);
 			break;
 		}
@@ -368,9 +367,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		alphaStart = Geometry.normalizeToPositive(alphaStart);
 		alphaEnd = Geometry.normalizeToPositive(alphaEnd);
-			
-		int[] dx = {1, -1, -1, 1};
-		int[] dy = {-1, -1, 1, 1};
 		
 		System.out.println();
 		System.out.println("Centre: " + o);
@@ -380,26 +376,44 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		System.out.println("P1: " + p1);
 		System.out.println("P2: " + p2);
 		
+		int[] dx;
+		int[] dy;
+		
+		if (CCW) {
+			dx = new int [] {1, -1, -1, 1};
+			dy = new int [] {1, 1, -1, -1};
+		} else {
+			dx = new int [] {-1, 1, 1, -1};
+			dy = new int [] {1, 1, -1, -1};
+		}
+		
 		for (int i = 0; i < 4; ++i) {
-			double a = w / 2 + c.getX() * dx[i];
-			double b = l / 2 + c.getY() * dy[i];
+			double a = - (w / 2 * dx[i] + c.getX());
+			double b =    l / 2 * dy[i] - c.getY();
 			  
-			M = updateMax(r, M, phiStart, alphaStart, i, a, b, phiStart, phiEnd, CCW);
-			M = updateMax(r, M, phiEnd, alphaEnd, i, a, b, phiStart, phiEnd, CCW);
-			double phi = 
-				Math.atan2(
-						Math.cos(Math.toRadians(k)) * b - Math.sin(Math.toRadians(k)) * a + r,
-						Math.cos(Math.toRadians(k)) * a + Math.sin(Math.toRadians(k)) * b
-				);
-			phi = Math.toDegrees(phi);
-			phi = Geometry.normalizeToPositive(phi);
-//			System.out.println("phi " + i + ": " + phi);
-			double alpha = phi + k;
+			M = updateMax(r, M, alphaStart, alphaStart, alphaEnd, i, a, b, CCW);
+			M = updateMax(r, M, alphaEnd, alphaStart, alphaEnd, i, a, b, CCW);
+			double alpha; 
+			if (CCW) { 
+				alpha = Math.toDegrees(Math.atan2(b, -(a + r)));
+				System.out.println("0 == " + 
+						(Math.cos(Math.toRadians(alpha)) * b + 
+						 Math.sin(Math.toRadians(alpha)) * (a + r)));
+			} else { 
+				alpha = Math.toDegrees(Math.atan2(b, a + r));
+				System.out.println("0 == " + 
+						(Math.cos(Math.toRadians(alpha)) * b - 
+						 Math.sin(Math.toRadians(alpha)) * (a + r)));
+			}
+			
+			
+			System.out.println("a: " + a);
+			System.out.println("b: " + b);
 			alpha = Geometry.normalizeToPositive(alpha);
 //			System.out.println("alpha " + i + ": " + alpha);
 
+			M = updateMax(r, M, alpha, alphaStart, alphaEnd, i, a, b, CCW);
 			System.out.println("M: " + M);
-			M = updateMax(r, M, phi, alpha, i, a, b, phiStart, phiEnd, CCW);
 		}
 		System.out.println("Safe distance: " + safeDistance);
 		return M < safeDistance;
@@ -408,27 +422,31 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	/**
 	 * A snippet of a bigger function. Makes no sense on its own.
 	 */
-	public double updateMax(double r, double M, double phi, double alpha,
-			int i, double a, double b, double phiStart, double phiEnd, boolean CCW) {
+	public double updateMax(double r, double M, double alpha, double alphaMin, double alphaMax,
+			int i, double a, double b, boolean CCW) {
 
 		boolean alphaValid = 
-			Geometry.angleWithinBounds(alpha, 90.0 * i, 90.0 * (i + 1));
-		boolean phiValid = 
-			Geometry.angleWithinBounds(phi, phiStart, phiEnd);
+			Geometry.angleWithinBounds(alpha, 90.0 * i, 90.0 * (i + 1)) && 
+			Geometry.angleWithinBounds(alpha, alphaMin, alphaMax);
+		System.out.println();
+		System.out.println(i);
 		
-		System.out.println("phi: " + phi);
 		System.out.println("alpha: " + alpha);
-		
-		System.out.println("phi valid: " + phiValid);
 		System.out.println("alpha valid: " + alphaValid);
-		if (alphaValid && phiValid) {
-			double beta = CCW ? alpha - 90 : alpha + 90;
-						
-			double p = Math.sin(Math.toRadians(beta)) * r; 
-				
-			double d = 
-				Math.abs(Math.sin(Math.toRadians(alpha))) * b + 
-				Math.abs(Math.cos(Math.toRadians(alpha))) * a;
+		if (alphaValid) {
+			double p;
+			double d;
+			if (CCW) {
+				p = -Math.cos(Math.toRadians(alpha)) * r;
+				d = 
+					Math.sin(Math.toRadians(alpha)) * b - 
+					Math.cos(Math.toRadians(alpha)) * a;
+			} else {
+				p = Math.cos(Math.toRadians(alpha)) * r;
+				d = 
+					Math.sin(Math.toRadians(alpha)) * b + 
+					Math.cos(Math.toRadians(alpha)) * a;
+			}
 			System.out.println("then p: " + p);
 			System.out.println("then d: " + d);
 			// Update maximum if necessary.
@@ -441,43 +459,27 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	/**
 	 * Returns the arc necessary to move from Alfie's current sector to 
-	 * the desired sector.
-	 * @param alfieSector != desiredSector
+	 * the sector the opponent is facing.
+	 * @param alfieSector != opSector
 	 * @return
 	 */
-	public PathStepArc getPenaltyArc(int alfieSector, int desiredSector,
-			Point2D start, double alfieStartDirection) {
+	public PathStepArc getPenaltyArc(int alfieSector, int opSector,
+			Point2D start, double startDirection) {
 		double radius = 60; //TODO
 		double angle = 10; //TODO
-		if (alfieSector < desiredSector) {
+		if (alfieSector < opSector) {
 			//backwards arc
 			if (GlobalInfo.isAttackingRight()) {
-				if (alfieStartDirection <= 180) {
-					return new PathStepArcBackwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				} else {
-					return new PathStepArcBackwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				}
+				return new PathStepArcBackwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
 			} else {
-				if (alfieStartDirection <= 180) {
-					return new PathStepArcBackwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				} else {
-					return new PathStepArcBackwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				}
+				return new PathStepArcBackwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
 			}
 		} else {
 			//forwards arc
 			if (GlobalInfo.isAttackingRight()) {
-				if (alfieStartDirection <= 180) {
-					return new PathStepArcForwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				} else {
-					return new PathStepArcForwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				}
+				return new PathStepArcForwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
 			} else {
-				if (alfieStartDirection <= 180) {
-					return new PathStepArcForwardsLeft(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				} else {
-					return new PathStepArcForwardsRight(start, alfieStartDirection, radius, angle, DISTANCE_THRESHOLD);
-				}
+				return new PathStepArcForwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
 			}
 		}
 	}
@@ -573,8 +575,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				for (PathStep ps : pathStepListSecondCW) {
 					lengthCW += ((PathStepArc) ps).getLength();
 				}
-//				System.out.println("CCW arc length: " + lengthCCW);
-//				System.out.println("CW arc length: " + lengthCW);
+				System.out.println("CCW arc length: " + lengthCCW);
+				System.out.println("CW arc length: " + lengthCW);
 				
 				pathStepList.addAll(
 					lengthCCW < lengthCW
@@ -622,23 +624,61 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	}
 	
 	/**
-	 * Uses getDesiredSector to find out what sector we want to be in and then 
-	 * uses getPenaltyArc to get the correct arc to move there (if we are already 
-	 * there then no arc is added)
+	 * Decide what to do when defending a penalty. This looks at the direction 
+	 * the opponent robot is facing and our current position and then tries 
+	 * to block the ball. Also uses the speed and direction the opponent is turning 
+	 * to try plan ahead.
 	 * @param dpi
 	 */
 	private void planPenaltyDefend(DynamicInfo dpi) {
-		System.out.println("PLANNING PENALTY DEFENCE");
 		OperationPenaltyDefend op = (OperationPenaltyDefend) currentOperation;
+		
 		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
 		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		
-		int opponentFacingSector = op.getOpponentFacingSector(opponentInfo.getFacingDirection());
-		
-		int desiredSector = op.getDesiredSector(opponentInfo,
-				opponentFacingSector);
-
+		int opponentFacingSector = op.getOpponentFacingSector(alfieInfo.getPosition(), 
+				opponentInfo.getFacingDirection());
 		int currentSector = op.getCurrentSector(alfieInfo.getPosition());
+		
+		int desiredSector = -1;
+		
+		switch (opponentFacingSector) {
+		case 1: 
+			if (op.isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 2
+				desiredSector = 2;
+			} else {
+				// move to 1
+				desiredSector = 1;
+			}
+			break;
+		case 2:
+			if (op.isAngleIncreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 3
+				desiredSector = 3;
+			} else if (op.isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 1
+				desiredSector = 1;
+			} else {
+				// move to 2
+				desiredSector = 2;
+			}
+			break;
+		case 3:
+			if (op.isAngleDecreasing(opponentInfo.isRotatingCounterClockWise(), 
+					opponentInfo.getRotatingSpeed())) {
+				// move to 2
+				desiredSector = 2;
+			} else {
+				// move to 3
+				desiredSector = 3;
+			}
+			break;
+		}
+
 		if (currentSector != desiredSector) {
 			PathStepArc penaltyArc = getPenaltyArc(
 					currentSector, 
@@ -648,12 +688,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 					);
 			pathStepList.add(penaltyArc);
 		}
-		System.out.println("currentSector = " + currentSector);
-		System.out.println("desiredSector = " + desiredSector);
 		pathStepList.add(new PathStepStop());
 	}
-
-	
 
 	/**
 	 * Creates a candy packet based on the current operation and send it to MouthInstance thats been
