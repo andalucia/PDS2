@@ -64,12 +64,18 @@ public class Overlord implements DynamicInfoConsumer {
 	 * Tells the Overlord if we are defending a penalty
 	 */
 	protected boolean defendPenalty = false;
-	
+	/**
+	 * Tells the Overlord if we are taking a penalty
+	 */
+	protected boolean takePenalty = false;
 	/**
 	 * Time at which we started defending a penalty
 	 */
-	protected long penaltyStart;
-
+	protected long penaltyDefenceStart;
+	/**
+	 * Time at which we started taking a penalty
+	 */
+	protected long penaltyTakeStart;
 	/**
 	 * Stopping the Overlord. Sending a STOP strategy.
 	 */
@@ -108,8 +114,15 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	public void defendPenalty() {
 		defendPenalty = true;
-		penaltyStart = System.currentTimeMillis();
+		penaltyDefenceStart = System.currentTimeMillis();
 		start();
+	}
+	
+	public void takePenalty() {
+		takePenalty = true;
+		penaltyTakeStart = System.currentTimeMillis();
+		start();
+		
 	}
 
 	
@@ -150,11 +163,13 @@ public class Overlord implements DynamicInfoConsumer {
 			stopping = false;
 			running = false;
 			defendPenalty = false;
+			takePenalty = false;
 			return Strategy.STOP;
 		}
 		if (defendPenalty) {
-			if (System.currentTimeMillis() - penaltyStart > 30000 ||
+			if (System.currentTimeMillis() - penaltyDefenceStart > 30000 ||
 					dpi.getBallInfo().getRollingSpeed() > 5) {
+				//TODO check if 5 is a good threshold
 				// 30 seconds has passed or ball has moved
 				if (VERBOSE) {
 					System.out.println("Exiting penalty mode");
@@ -162,9 +177,24 @@ public class Overlord implements DynamicInfoConsumer {
 				
 				defendPenalty = false;
 				computeStrategy(dpi);
-				//TODO check if 5 is a good threshold
 			} else {
 				return Strategy.PENALTY_DEFEND;
+			}
+		}
+		
+		if (takePenalty) {
+			if (System.currentTimeMillis() - penaltyTakeStart > 30000 ||
+					dpi.getBallInfo().getRollingSpeed() > 5) {
+				//TODO check if 5 is a good threshold
+				// 30 seconds has passed or ball has moved
+				if (VERBOSE) {
+					System.out.println("Exiting penalty mode");
+				}
+				
+				takePenalty = false;
+				computeStrategy(dpi);
+			} else {
+				return Strategy.PENALTY_TAKE;
 			}
 		}
 //		return Strategy.TEST;

@@ -6,7 +6,6 @@ import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.FieldMarshal;
 import group2.sdp.pc.planner.Overlord;
 import group2.sdp.pc.planner.PathFinder;
-import group2.sdp.pc.planner.Penalty;
 import group2.sdp.pc.vision.Artist;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.Eye;
@@ -353,8 +352,7 @@ public class ControlStation {
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
 					lord.stop();
-					Penalty pen=new Penalty(alfieMouth,lord);
-					pen.go();
+					lord.takePenalty();
 				} else{
 					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}

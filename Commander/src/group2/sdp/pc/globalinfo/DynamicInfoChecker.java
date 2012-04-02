@@ -103,7 +103,7 @@ public class DynamicInfoChecker {
 	
 	/**
 	 * Looks into the future to check if the given robot would get the given ball
-	 * in 0.5 seconds.
+	 * in 0.35 seconds.
 	 */
 	public static boolean wouldHaveBall(DynamicRobotInfo robot, DynamicBallInfo ball) {
 		double lengthThreshold = 2.0;
