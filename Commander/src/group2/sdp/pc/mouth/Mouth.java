@@ -210,7 +210,6 @@ public class Mouth implements MouthInterface {
 	 */
 	private void sendCandyPacket(CandyPacket packet) {
 		//long start = System.currentTimeMillis();
-		
 		boolean success = false;
 		do {
 			try {

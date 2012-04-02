@@ -122,7 +122,6 @@ public class Overlord implements DynamicInfoConsumer {
 		takePenalty = true;
 		penaltyTakeStart = System.currentTimeMillis();
 		start();
-		
 	}
 
 	
