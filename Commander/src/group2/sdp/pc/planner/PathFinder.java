@@ -709,7 +709,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	private void planPenaltyTake(double alfieFacingAngle) {
 		//TODO check threshold values of spins
-		//FIXME decide how spins should be implemented
 		PathStep turn;
 		OperationPenaltyTake op = (OperationPenaltyTake) currentOperation;
 		double opponentRobotPositionY = op.getOpponentRobotPosition().getY();
@@ -719,13 +718,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
 			} else {
 				//turn right
-				turn = new PathStepSpinRight(20, 10, 50);
+				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
 
 			}
 		} else {
 			if (opponentRobotPositionY > 0) {
 				//turn right
-				turn = new PathStepSpinRight(20, 10, 50);
+				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
 			} else {
 				//turn left
 				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);

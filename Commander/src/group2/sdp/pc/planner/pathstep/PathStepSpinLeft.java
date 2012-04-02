@@ -13,11 +13,11 @@ import group2.sdp.pc.mouth.MouthInterface;
  */
 public class PathStepSpinLeft extends PathStep {
 
+	private double startingAngle;
 	private double angle;
+	private double targetAngle;
 	private double threshold;
 	private double speed;
-	private double startingAngle;
-	private double targetAngle;
 	
 	public PathStepSpinLeft(double startingAngle, double angle, double threshold, double speed) {
 		this.startingAngle = startingAngle;
