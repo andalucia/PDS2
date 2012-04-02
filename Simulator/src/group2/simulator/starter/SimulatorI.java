@@ -590,10 +590,13 @@ public class SimulatorI {
 	 * 
 	 */
 
+	public static double angle_abs = 0;
+	public static Point2D circleCentre;
+	static boolean isLeft = false;
+	static double rotateAngle = 0;
+	static double turn = 1;
+
 	public static void arc(double radius, double angle, int LorR) {
-		boolean isLeft = false;
-		double rotateAngle = 0;
-		double turn = 1;
 
 		switch (LorR) {
 		case 1:
@@ -623,26 +626,32 @@ public class SimulatorI {
 		}
 
 		radius = Math.abs(radius);
-		angle = Math.abs(angle);
-		Point2D circleCentre = calCircleCentre(robot.getPosition(), radius,
+		angle_abs = Math.abs(angle);
+		circleCentre = calCircleCentre(robot.getPosition(), radius,
 				robot.getAngle(), 90, isLeft);
-		int angleCounter = 0;
-		while (angleCounter < angle) {
-			angleCounter++;
-			Point2D nextPostition = calPoint(robot.getPosition(), circleCentre,
-					rotateAngle);
-			robot.setPosition((float) nextPostition.getX(),
-					(float) nextPostition.getY());
-			robot.turn((int) (turn * needRotateAngle(robot.getPosition(),
-					circleCentre, robot.getAngle())));
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		new Thread() {
+			public void run() {
 
-		}
+				int angleCounter = 0;
+
+				while (angleCounter < angle_abs) {
+					angleCounter++;
+					Point2D nextPostition = calPoint(robot.getPosition(),
+							circleCentre, rotateAngle);
+					robot.setPosition((float) nextPostition.getX(),
+							(float) nextPostition.getY());
+					robot.turn((int) (turn * needRotateAngle(
+							robot.getPosition(), circleCentre, robot.getAngle())));
+					try {
+						sleep(30);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
+			}
+		}.start();
 
 	}
 
