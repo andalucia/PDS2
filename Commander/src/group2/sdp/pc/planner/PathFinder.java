@@ -154,7 +154,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			case PENALTY_DEFEND:
 				planPenaltyDefend(dpi);
 				break;
-				// TODO: tell Paul to add the class 
 			case PENALTY_TAKE:
 				planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
 				break;

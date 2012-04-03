@@ -182,7 +182,6 @@ public class ControlStation {
 		
 		PathFinder finder = new PathFinder(alfieMouth);
 		
-		//FIXME change null to finder when it implements correctly
 		FieldMarshal marshal = new FieldMarshal(finder, finder);
 		
 		lord = new Overlord(marshal, marshal);

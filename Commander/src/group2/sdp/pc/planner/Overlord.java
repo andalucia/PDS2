@@ -194,20 +194,18 @@ public class Overlord implements DynamicInfoConsumer {
 				return Strategy.PENALTY_TAKE;
 			}
 		}
-		// TODO: comment out
-		return Strategy.TEST;
+//		return Strategy.TEST;
 		
-//		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
-//		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-//		DynamicBallInfo ballInfo = dpi.getBallInfo();
-//		
-//		if (!DynamicInfoChecker.defensiveSide(alfieInfo, ballInfo)) {
-//			ControlStation.log("Defending.");
-//			return Strategy.DEFENSIVE;
-//		} else {
-//			ControlStation.log("Attacking.");
-//			return Strategy.OFFENSIVE;
-//		}
+		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
+		DynamicBallInfo ballInfo = dpi.getBallInfo();
+		
+		if (!DynamicInfoChecker.defensiveSide(alfieInfo, ballInfo)) {
+			ControlStation.log("Defending.");
+			return Strategy.DEFENSIVE;
+		} else {
+			ControlStation.log("Attacking.");
+			return Strategy.OFFENSIVE;
+		}
 	}
 	
 	/**
