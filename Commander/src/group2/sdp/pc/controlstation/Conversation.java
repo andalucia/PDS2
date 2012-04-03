@@ -3,9 +3,14 @@ package group2.sdp.pc.controlstation;
 import group2.sdp.pc.mouth.Mouth;
 import group2.sdp.pc.planner.PathFinder;
 import group2.sdp.pc.planner.pathstep.PathStep;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
+import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.LinkedList;
 
 /**
@@ -21,8 +26,42 @@ public class Conversation {
 		// testDoubleArc(s);
 		
 		
-		new PathStepSpinLeft(0.0, 180.0, 10.0, 1000.0).whisper(s);
-		Thread.sleep(1000);
+		new PathStepArcForwardsLeft(
+				new Double(0.0, 0.0), 
+				90.0, 
+				20.0, 
+				90.0, 
+				0.0).whisper(s);
+		
+		Thread.sleep(2500);
+		
+		new PathStepArcBackwardsLeft(
+				new Double(0.0, 0.0), 
+				90.0, 
+				20.0, 
+				90.0, 
+				0.0).whisper(s);
+		
+		Thread.sleep(2500);
+		
+		new PathStepArcBackwardsRight(
+				new Double(0.0, 0.0), 
+				90.0, 
+				20.0, 
+				90.0, 
+				0.0).whisper(s);
+		
+		Thread.sleep(2500);
+		
+		new PathStepArcForwardsRight(
+				new Double(0.0, 0.0), 
+				90.0, 
+				20.0, 
+				90.0, 
+				0.0).whisper(s);
+		
+		Thread.sleep(2500);
+		
 		s.sendStop();
 		Thread.sleep(250);
 		s.sendReset();

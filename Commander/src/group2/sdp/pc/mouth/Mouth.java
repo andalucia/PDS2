@@ -14,7 +14,7 @@ import lejos.pc.comm.NXTConnector;
  */
 public class Mouth implements MouthInterface {
 
-	private static final boolean VERBOSE = true;
+	private static final boolean VERBOSE = false;
 	
 	private String nxtAddress = "btspp://group2";
 	

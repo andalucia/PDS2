@@ -152,13 +152,23 @@ public class GlobalInfo {
 	 */
 	public static Point2D getDefensiveGoalMiddle() {
 		double x;
-		if (!attackingRight) {
-			x = pitch.getMinimumEnclosingRectangle().getMaxX();
-		} else {
+		if (attackingRight) {
 			x = pitch.getMinimumEnclosingRectangle().getMinX();
+		} else {
+			x = pitch.getMinimumEnclosingRectangle().getMaxX();
 		}
 		double y = pitch.getGoalCentreY();
 		return new Point2D.Double(x, y);
+	}
+	
+	public static Point2D getDefensiveGoalRightPost() {
+		Point2D result;
+		if (attackingRight) {
+			result = getDefendingBottomGoalPost();
+		} else {
+			result = getDefendingTopGoalPost();
+		}
+		return result;
 	}
 	
 	public static boolean isPitchOne() {

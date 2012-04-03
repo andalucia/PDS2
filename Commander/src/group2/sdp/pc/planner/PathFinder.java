@@ -132,35 +132,38 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		pathStepList.clear();
 		
 		// Plan based on the current operation type
-		switch(currentOperation.getType()) {
+		if (currentOperation != null) {
+			switch(currentOperation.getType()) {
+				
+			case REALLOCATION:
+				planReallocation(dpi);
+				break;
 			
-		case REALLOCATION:
-			planReallocation(dpi);
-			break;
-		
-		case STRIKE:
-			planStrike();
-			break;			
+			case STRIKE:
+				planStrike();
+				break;			
+				
+			case CHARGE:
+				planCharge();
+				break;	
 			
-		case CHARGE:
-			planCharge();
-			break;	
-		
-		case OVERLOAD:
-			planOverload();
-			break;
-			
-		case PENALTY_DEFEND:
-			planPenaltyDefend(dpi);
-			break;
-		case PENALTY_TAKE:
-			planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
-		case PRETZEL_EXCLAMATION_MARK:
-			planPretzelExclamationMark(dpi);
-			break;
+			case OVERLOAD:
+				planOverload();
+				break;
+				
+			case PENALTY_DEFEND:
+				planPenaltyDefend(dpi);
+				break;
+				// TODO: tell Paul to add the class 
+			case PENALTY_TAKE:
+				planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
+				break;
+			}
+			lastPlanIssuedTime = System.currentTimeMillis();
 		}
-		lastPlanIssuedTime = System.currentTimeMillis();
 	}
+	
+
 	private long lastTimeSpinning = 0;
 	
 
@@ -250,14 +253,14 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		double secondArcAngle = 
 			Geometry.getArcOrientedAngle(
 					transitionPoint,
-					firstArc.getTargetOrientation(),
+					firstArc.getEndDirection(),
 					endPosition,
 					secondCircleCentre
 			);
 		
 		PathStepArc secondArc = PathStepArc.getForwardPathStepArc(
 				firstArc.getTargetDestination(), 
-				firstArc.getTargetOrientation(),
+				firstArc.getEndDirection(),
 				secondCircleCentre, 
 				secondArcAngle, 
 				DISTANCE_THRESHOLD
@@ -273,10 +276,10 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			System.out.println("startDirection     = " + startDirection);
 			System.out.println();
 			System.out.println("transitionPoint    = " + transitionPoint);
-			System.out.println("transitionDirection= " + firstArc.getTargetOrientation());
+			System.out.println("transitionDirection= " + firstArc.getEndDirection());
 			System.out.println();
 			System.out.println("endPosition     = " + endPosition);
-			System.out.println("endDirection    = " + secondArc.getTargetOrientation());
+			System.out.println("endDirection    = " + secondArc.getEndDirection());
 			System.out.println();
 			System.out.println("p3                 = " + p3);
 			System.out.println();
@@ -332,7 +335,7 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 		));
 	}
 	
-	public boolean isGoodPath(LinkedList<PathStep> path, StaticRobotInfo robotInfo) {
+	public boolean isGoodPath(LinkedList<PathStep> path, DynamicInfo dpi) {
 		Rectangle2D r = GlobalInfo.getPitch().getMinimumEnclosingRectangle();
 		Point2D.Double [] ps = {
 				new Point2D.Double(
@@ -355,14 +358,22 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 		
 		for (PathStep arc : path) {
 			for (int i = 0; i < 4; ++i) {
-				if (!isGoodArc((PathStepArc) arc, ps[i], ps[(i + 1) % 4], robotInfo)) {
+				if (!isGoodArc((PathStepArc) arc, ps[i], ps[(i + 1) % 4], dpi.getAlfieInfo())) {
 					return false;
 				}
 			}
+			if (robotInTheWay(dpi.getAlfieInfo(), dpi.getOpponentInfo(), (PathStepArc) arc)) {
+				return false;
+			}
 		}
+		
 		return true;
 	}
 	
+	/**
+	 * Checks if the robot moving on the arc will cross the line passing through the 
+	 * points. 
+	 */
 	public boolean isGoodArc(PathStepArc arc, Point2D p1, Point2D p2, 
 			StaticRobotInfo robotInfo) {
 		boolean CCW = 
@@ -391,8 +402,9 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 		double M = 0.0;
 		
 		double oriStart = arc.getStartDirection();
-		double oriEnd = arc.getTargetOrientation();
+		double oriEnd = arc.getEndDirection();
 		
+		// Counter-clock-wise start and stop angles of the arc.
 		double phiStart;
 		double phiEnd;
 		
@@ -468,6 +480,49 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 			System.out.println("Safe distance: " + safeDistance);
 		return M < safeDistance;
 	}
+	
+	private boolean robotInTheWay(StaticRobotInfo alfieInfo, StaticRobotInfo opponentInfo,
+			PathStepArc arc) {
+		boolean CCW = 
+			arc instanceof PathStepArcForwardsLeft ||
+			arc instanceof PathStepArcBackwardsRight
+		;
+		
+		double oriStart = arc.getStartDirection();
+		double oriEnd = arc.getEndDirection();
+		
+		// Counter-clock-wise start and stop angles of the arc.
+		double phiStart;
+		double phiEnd;
+		
+		if (CCW) {
+			phiStart = oriStart - 90;
+			phiEnd = oriEnd - 90;
+		} else {
+			phiStart = oriEnd + 90;
+			phiEnd = oriStart + 90;
+			
+			phiStart = Geometry.normalizeToPositive(phiStart);
+			phiEnd = Geometry.normalizeToPositive(phiEnd);
+		}
+		
+		Point2D arcCentre = arc.getCentrePoint();
+		Point2D opponentCentre = opponentInfo.getPosition();
+		
+		double centreToOpponentAngle = Geometry.getVectorDirection(
+				arcCentre, opponentCentre);
+		
+		boolean angleInBounds = Geometry.angleWithinBounds(
+				centreToOpponentAngle, 
+				phiStart, 
+				phiEnd
+		);
+		
+		double opRadius = arcCentre.distance(opponentCentre);
+		// times two - for two robots
+		boolean inRange = Math.abs(opRadius - arc.getRadius()) < alfieInfo.getSafeDistance() * 2;
+		return inRange && angleInBounds;
+	}
 
 	/**
 	 * A snippet of a bigger function. Makes no sense on its own.
@@ -477,7 +532,8 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 
 		boolean alphaValid = 
 			Geometry.angleWithinBounds(alpha, 90.0 * i, 90.0 * (i + 1)) && 
-			Geometry.angleWithinBounds(alpha, alphaMin, alphaMax);
+			Geometry.angleWithinBounds(alpha, alphaMin, alphaMax) && 
+			true;
 		if (VERBOSE) {
 			System.out.println();
 			System.out.println(i);
@@ -603,24 +659,24 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 					angleCorrect
 			);
 		
-//		if (!isGoodPath(pathStepListSecondCCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//				pathStepList.add(
-//						new PathStepArcBackwardsLeft(
-//								dpi.getAlfieInfo().getPosition(), 
-//								dpi.getAlfieInfo().getFacingDirection(), 
-//								10.0, 
-//								180, 
-//								5.0
-//						)
-//				);
-//			} else {
-//				pathStepList = pathStepListSecondCW;
-//			}
-//		} else {
-//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//				pathStepList = pathStepListSecondCCW;
-//			} else {
+		if (!isGoodPath(pathStepListSecondCCW, dpi)) {
+			if (!isGoodPath(pathStepListSecondCW, dpi)) {
+				pathStepList.add(
+						new PathStepArcBackwardsLeft(
+								dpi.getAlfieInfo().getPosition(), 
+								dpi.getAlfieInfo().getFacingDirection(), 
+								10.0, 
+								180, 
+								5.0
+						)
+				);
+			} else {
+				pathStepList = pathStepListSecondCW;
+			}
+		} else {
+			if (!isGoodPath(pathStepListSecondCW, dpi)) {
+				pathStepList = pathStepListSecondCCW;
+			} else {
 				double lengthCCW = 0.0;
 				for (PathStep ps : pathStepListSecondCCW) {
 					lengthCCW += ((PathStepArc) ps).getLength();
@@ -640,8 +696,8 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 					? pathStepListSecondCCW
 					: pathStepListSecondCW
 				);
-//			}
-//		}
+			}
+		}
 		pathStepList.add(new PathStepKick(1000));
 	}
 	
@@ -782,7 +838,6 @@ private void planPretzelExclamationMark(DynamicInfo dpi) {
 		currentStep.whisper(mouth);
 	}
 
-	
 	@Override
 	public void consumeOperation(Operation operation) {
 		setOperation(operation);

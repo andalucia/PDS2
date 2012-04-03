@@ -139,75 +139,15 @@ public class DynamicInfoChecker {
 	}
 
 	/**
-	 * Checks if the robot is between the ball and the goal it
-	 * is defending.
-	 * @param robotInfo
-	 * @param ballPosition
-	 * @return true if the robot is on the correct side of the ball
+	 * Checks if a robot is between the goal that Alfie needs to guard and the ball or not.
 	 */
-	public static boolean defensiveSide(DynamicRobotInfo robotInfo, Point2D ballPosition){
-		double defensiveGoalXCoord;
-		if (robotInfo.isAlfie()){
-			defensiveGoalXCoord = GlobalInfo.isAttackingRight() 
-						? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX();
-			} else {
-				defensiveGoalXCoord = GlobalInfo.isAttackingRight() 
-						? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-						: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX();
-		}
-		double robotXCoord = robotInfo.getPosition().getX();
-		double ballXCoord = ballPosition.getX();
-		return Math.abs(defensiveGoalXCoord - robotXCoord)
-							< Math.abs(defensiveGoalXCoord - ballXCoord)
-					? true
-					: false;
-		}
-
-	/**
-	 * Checks if the robot is in a defensive position. If true it means the robot is closer 
-	 * to the robot's goal than the ball and is not facing the robot's goal. Or it is facing 
-	 * the robot's goal and is around halfway between the ball and the goal (see threshold)
-	 * @param robotInfo
-	 * @param ballInfo
-	 * @return
-	 */
-	public static boolean inDefensivePosition(DynamicRobotInfo robotInfo, Point2D ball) {
-		//		float y1 = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
-
-		double goalX = 		
-			GlobalInfo.isAttackingRight() 
-			? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-					: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-					;
-			double ballX = ball.getX();
-			double robotX = robotInfo.getPosition().getX();
-			double betweenBallAndGoalX = (goalX + ballX)/2;
-
-			int threshold = 30;
-
-			if (!defensiveSide(robotInfo, ball)) {
-				return false;
-			} else {
-				float x = (float) (
-						GlobalInfo.isAttackingRight() 
-						? GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinX()
-								: GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxX()
-				);
-				float y = GlobalInfo.getPitch().getTopGoalPostYCoordinate();
-				Point2D topGoalPost = new Point2D.Float(x, y);
-				int angleToGoal = getAngleToBall(topGoalPost, robotInfo.getPosition(), robotInfo.getFacingDirection());
-				if (Math.abs(angleToGoal) > 90) {
-					return true;
-				} else {
-					if (Math.abs(robotX - betweenBallAndGoalX) < threshold) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-			}
+	public static boolean defensiveSide(DynamicRobotInfo robotInfo, DynamicBallInfo ballInfo){
+		double xAlfie = robotInfo.getPosition().getX();
+		double xBall = ballInfo.getPosition().getX();
+		double xGoal = GlobalInfo.getDefensiveGoalMiddle().getX();
+		return Math.abs(xGoal- xBall) > Math.abs(xGoal - xAlfie); 
 	}
+
 	/**
 	 * Checks if the robot is blocking our path(in the current facing direction). Projects a line from our 
 	 * centroid to a box drawn around the opponent and checks for intersection. 
@@ -504,22 +444,7 @@ public class DynamicInfoChecker {
 			}
 		}
 	}
-
-	/**
-	 * This method was created for clarity. It just combines two other methods. 
-	 * This should only be used for the opponent robot (unless you decide otherwise)
-	 * @param robotInfo
-	 * @param ballPosition
-	 * @return True if the (opponent) robot has the ball and is on the correct side of the ball 
-	 * i.e. they are in an attacking position
-	 */
-	public static boolean isInAttackingPosition(DynamicRobotInfo robotInfo, Point2D ballPosition) {
-		boolean condition1 = hasBall(robotInfo, ballPosition);
-		boolean condition2 = defensiveSide(robotInfo, ballPosition);
-
-		return condition1 && condition2;
-	}
-
+	
 	/**
 	 * Get the x coordinate of the defensive goal of the robot
 	 * @param isAlfie whether or not we want to get the defensive 

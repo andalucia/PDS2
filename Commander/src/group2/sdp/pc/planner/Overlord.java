@@ -10,8 +10,6 @@ import group2.sdp.pc.planner.strategy.Strategy;
 import group2.sdp.pc.vision.Bakery;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
 
-import java.awt.geom.Point2D;
-
 
 /**
  *<p><b>Description</b>: "If they have no bread, let them eat cake!" The popularity of 
@@ -126,7 +124,7 @@ public class Overlord implements DynamicInfoConsumer {
 
 	
 	private long lastStrategyIssueTime = 0;
-	private final long REPLAN_PERIOD = 3000;
+	private final long REPLAN_PERIOD = 300;
 	
 	/**
 	 * When running, computes the strategy that should be employed depending 
@@ -196,22 +194,20 @@ public class Overlord implements DynamicInfoConsumer {
 				return Strategy.PENALTY_TAKE;
 			}
 		}
-//		return Strategy.TEST;
+		// TODO: comment out
+		return Strategy.TEST;
 		
-		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
-		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
-		DynamicBallInfo ballInfo = dpi.getBallInfo();
-		
-		Point2D ballPosition = ballInfo.getPosition();  
-		
-		if (DynamicInfoChecker.isInAttackingPosition(opponentInfo, ballPosition)
-				|| !DynamicInfoChecker.defensiveSide(alfieInfo,ballPosition)) {
-			ControlStation.log("Defending.");
-			return Strategy.DEFENSIVE;
-		} else {
-			ControlStation.log("Attacking.");
-			return Strategy.OFFENSIVE;
-		}
+//		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
+//		DynamicRobotInfo opponentInfo = dpi.getOpponentInfo();
+//		DynamicBallInfo ballInfo = dpi.getBallInfo();
+//		
+//		if (!DynamicInfoChecker.defensiveSide(alfieInfo, ballInfo)) {
+//			ControlStation.log("Defending.");
+//			return Strategy.DEFENSIVE;
+//		} else {
+//			ControlStation.log("Attacking.");
+//			return Strategy.OFFENSIVE;
+//		}
 	}
 	
 	/**

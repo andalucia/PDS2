@@ -1,6 +1,8 @@
 package group2.sdp.common.util;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 public class Geometry {
 
@@ -429,5 +431,29 @@ public class Geometry {
 				(start.getX() + end.getX()) / 2,
 				(start.getY() + end.getY()) / 2
 		);
+	}
+
+	public static double getVectorLength(Point2D v) {
+		return v.distance(new Point2D.Double(0.0, 0.0));
+	}
+
+	public static double pointToRectangleDistance(Point2D point, Rectangle2D rectangle) {
+		Point2D [] points = {
+				new Point2D.Double(rectangle.getMaxX(), rectangle.getMaxY()),
+				new Point2D.Double(rectangle.getMinX(), rectangle.getMaxY()),
+				new Point2D.Double(rectangle.getMinX(), rectangle.getMinY()),
+				new Point2D.Double(rectangle.getMaxX(), rectangle.getMinY())
+		};
+		
+		double mind = Double.MAX_VALUE;
+		
+		for (int i = 0; i < 4; ++i) {
+			Point2D p1 = points[i];
+			Point2D p2 = points[(i + 1) % 4];
+			double d = Line2D.ptLineDist(p1.getX(), p1.getY(), p2.getX(), p2.getY(), point.getX(), point.getY());
+			if (d < mind) mind = d;
+		}
+		
+		return mind;
 	}
 }

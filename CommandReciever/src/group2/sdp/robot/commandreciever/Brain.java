@@ -62,7 +62,7 @@ public class Brain {
 	
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
-	private static final float TRACK_WIDTH = 13.0f; // 13.52f; reduce to correct oversteering
+	private static final float TRACK_WIDTH = 9.9f; // 13.52f; reduce to correct oversteering
 	private static final float WHEEL_DIAMETER = 8.16f;
 	
 	private static final MotorPort LEFT_MOTOR_PORT = MotorPort.C;
@@ -282,10 +282,10 @@ public class Brain {
 	/**
 	 * Makes Alfie move in an arc <br\>
 	 * |radius | angle |  arc  | <br\> 
-	 * |   +   |   +   |  FL   | <br\>
-	 * |   +   |   -   |  BL   | <br\>
-	 * |   -   |   +   |  BR   | <br\>
-	 * |   -   |   -   |  FR   | <br\>
+	 * |   +   |   +   |  BR   | <br\>
+	 * |   +   |   -   |  FR   | <br\>
+	 * |   -   |   +   |  FL   | <br\>
+	 * |   -   |   -   |  BL   | <br\>
 	 * @param radius
 	 * @param angle
 	 */

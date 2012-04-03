@@ -309,9 +309,9 @@ public class LCHColourSettings {
 		} 
 		
 		// Less certain
-		if (ys == 2) {
-			return ColourClass.YELLOW;
-		}
+//		if (ys == 2) {
+//			return ColourClass.YELLOW;
+//		}
 		return ColourClass.UNKNOWN;
 	}
 	
