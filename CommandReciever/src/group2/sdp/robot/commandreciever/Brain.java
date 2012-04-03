@@ -90,7 +90,7 @@ public class Brain {
 	private static final int KICKER_DELAY = 300;
 	
 	// The angle of the kicker at the end of the kick.
-	private static final int PLUNGE_ANGLE = -900;
+	private static final int PLUNGE_ANGLE = 900;
 	// The delay before resetting the kicker.
 	private static final int PLUNGE_DELAY = 1000;
 	
