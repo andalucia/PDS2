@@ -155,12 +155,12 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			break;
 		case PENALTY_TAKE:
 			planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
+		case PRETZEL_EXCLAMATION_MARK:
+			planPretzelExclamationMark(dpi);
 			break;
 		}
 		lastPlanIssuedTime = System.currentTimeMillis();
 	}
-	
-
 	private long lastTimeSpinning = 0;
 	
 
@@ -188,6 +188,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		Point2D secondCircleCentre = new Point2D.Double(x0, y0);
 	
+		double startDirection = dpi.getAlfieInfo().getFacingDirection();
 		startDirection += angleCorrect;
 		startDirection = Geometry.normalizeToPositive(startDirection);
 		
@@ -291,6 +292,45 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		}
 		
 		return pathStepList;
+	}
+
+private void planPretzelExclamationMark(DynamicInfo dpi) {
+		pathStepList.clear();
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				30.0, 
+				45.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				10.0, 
+				180.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				24.0, 
+				90.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				10.0, 
+				180.0, 
+				5.0
+		));
+		pathStepList.add(new PathStepArcBackwardsLeft(
+				dpi.getAlfieInfo().getPosition(), 
+				dpi.getAlfieInfo().getFacingDirection(), 
+				30.0, 
+				45.0, 
+				5.0
+		));
 	}
 	
 	public boolean isGoodPath(LinkedList<PathStep> path, StaticRobotInfo robotInfo) {

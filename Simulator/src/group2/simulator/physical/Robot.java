@@ -19,9 +19,9 @@ public class Robot extends BoardObject {
 	final int xSize;
 	final int ySize;
 	Double rectangle;
-	int speed = 7;
+	int speed = 3;
 	BufferedImage img = null;
-	private int score;
+	int score = 0;
 
 	public Robot(int x, int y, int xSize, int ySize, Color color, BufferedImage img,
 			int angle) {
@@ -34,8 +34,6 @@ public class Robot extends BoardObject {
 		this.body.setRestitution(1.0f);
 		this.body.setDamping(2f);
 		this.body.setRotatable(false);
-		
-		setScore(0);
 	}
 	
 	public int getLength() {
@@ -67,16 +65,15 @@ public class Robot extends BoardObject {
 	}
 	
 	
-	
 	public void moveBackward(World w, Body b) {
 		move(w,b,-1);
 	}
 	
-	public void moveForwards(World w, Body b) {
+	public void moveForward(World w, Body b) {
 		move(w,b,1);
 	}
 	
-	public void move(World world, Body ball, int mult) {
+	private void move(World world, Body ball, int mult) {
 		// moves 5px forwards unless touching a wall
 		Ball b = (Ball)ball.getUserData();
 		boolean squashingBall = false;
@@ -110,7 +107,7 @@ public class Robot extends BoardObject {
 			this.body.move(x, y);
 		}
 		try { 
-			Thread.sleep(30);
+			Thread.sleep(5);
 		} catch (Exception e) {
 			System.out.println("Exception when trying to sleep: "
 					+ e.toString());
@@ -132,16 +129,15 @@ public class Robot extends BoardObject {
 		return img;
 	}
 	
-	// negative for right, positive for left
-	public void turn(int value) {
-		if (value < 0) {
-			this.setAngle(this.getAngle() - (-value));
-		} else if (value > 0) {
-			this.setAngle(this.getAngle() + value);
-		}
-		// rotates the body
-		this.getBody().setRotation((float) Math.toRadians(getAngle()));
 	
+	public void turn(int value) {
+		if (value > 0) {
+			this.setAngle(this.getAngle() - 1);
+		} else if (value < 0) {
+			this.setAngle(this.getAngle() + 1);
+		}
+
+		this.getBody().setRotation((float) Math.toRadians(getAngle()));
 	}
 	
 	
