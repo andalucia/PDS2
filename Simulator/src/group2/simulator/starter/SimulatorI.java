@@ -629,21 +629,24 @@ public class SimulatorI {
 		angle_abs = Math.abs(angle);
 		circleCentre = calCircleCentre(robot.getPosition(), radius,
 				robot.getAngle(), 90, isLeft);
-		new Thread() {
+		new Thread("arc") {
 			public void run() {
 
-				int angleCounter = 0;
-
+				double angleCounter = 0;
+				double r = 0.1;
 				while (angleCounter < angle_abs) {
-					angleCounter++;
+					angleCounter += 0.1;
+					r += 0.1;
 					Point2D nextPostition = calPoint(robot.getPosition(),
-							circleCentre, rotateAngle);
+							circleCentre, rotateAngle * 0.1);
 					robot.setPosition((float) nextPostition.getX(),
 							(float) nextPostition.getY());
-					robot.turn((int) (turn * needRotateAngle(
-							robot.getPosition(), circleCentre, robot.getAngle())));
+					if (r > 1) {
+						robot.turn((int) (turn * r));
+						r = 0.1;
+					}
 					try {
-						sleep(30);
+						sleep(1);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
