@@ -9,7 +9,6 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationPenaltyDefend;
-import group2.sdp.pc.planner.operation.OperationPenaltyTake;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
@@ -19,7 +18,6 @@ import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
-import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
 import group2.sdp.pc.planner.pathstep.PathStepStop;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
@@ -40,7 +38,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	
 	public static final double HARDCODED_SECOND_RADIUS_REMOVEME = 20.0;
 
-	private static final boolean VERBOSE = true;
+	private static final boolean VERBOSE = false;
 
 	private static final double DISTANCE_THRESHOLD = 10.0;
 	
@@ -132,32 +130,35 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		pathStepList.clear();
 		
 		// Plan based on the current operation type
-		switch(currentOperation.getType()) {
+		if (currentOperation != null) {
+			switch(currentOperation.getType()) {
+				
+			case REALLOCATION:
+				planReallocation(dpi);
+				break;
 			
-		case REALLOCATION:
-			planReallocation(dpi);
-			break;
-		
-		case STRIKE:
-			planStrike();
-			break;			
+			case STRIKE:
+				planStrike();
+				break;			
+				
+			case CHARGE:
+				planCharge();
+				break;	
 			
-		case CHARGE:
-			planCharge();
-			break;	
-		
-		case OVERLOAD:
-			planOverload();
-			break;
-			
-		case PENALTY_DEFEND:
-			planPenaltyDefend(dpi);
-			break;
-		case PENALTY_TAKE:
-			planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
-			break;
+			case OVERLOAD:
+				planOverload();
+				break;
+				
+			case PENALTY_DEFEND:
+				planPenaltyDefend(dpi);
+				break;
+				// TODO: tell Paul to add the class 
+	//		case PENALTY_TAKE:
+	//			planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
+	//			break;
+			}
+			lastPlanIssuedTime = System.currentTimeMillis();
 		}
-		lastPlanIssuedTime = System.currentTimeMillis();
 	}
 	
 
@@ -250,14 +251,14 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		double secondArcAngle = 
 			Geometry.getArcOrientedAngle(
 					transitionPoint,
-					firstArc.getTargetOrientation(),
+					firstArc.getEndDirection(),
 					endPosition,
 					secondCircleCentre
 			);
 		
 		PathStepArc secondArc = PathStepArc.getForwardPathStepArc(
 				firstArc.getTargetDestination(), 
-				firstArc.getTargetOrientation(),
+				firstArc.getEndDirection(),
 				secondCircleCentre, 
 				secondArcAngle, 
 				DISTANCE_THRESHOLD
@@ -273,10 +274,10 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			System.out.println("startDirection     = " + startDirection);
 			System.out.println();
 			System.out.println("transitionPoint    = " + transitionPoint);
-			System.out.println("transitionDirection= " + firstArc.getTargetOrientation());
+			System.out.println("transitionDirection= " + firstArc.getEndDirection());
 			System.out.println();
 			System.out.println("endPosition     = " + endPosition);
-			System.out.println("endDirection    = " + secondArc.getTargetOrientation());
+			System.out.println("endDirection    = " + secondArc.getEndDirection());
 			System.out.println();
 			System.out.println("p3                 = " + p3);
 			System.out.println();
@@ -293,7 +294,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		return pathStepList;
 	}
 	
-	public boolean isGoodPath(LinkedList<PathStep> path, StaticRobotInfo robotInfo) {
+	public boolean isGoodPath(LinkedList<PathStep> path, DynamicInfo dpi) {
 		Rectangle2D r = GlobalInfo.getPitch().getMinimumEnclosingRectangle();
 		Point2D.Double [] ps = {
 				new Point2D.Double(
@@ -316,14 +317,22 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		for (PathStep arc : path) {
 			for (int i = 0; i < 4; ++i) {
-				if (!isGoodArc((PathStepArc) arc, ps[i], ps[(i + 1) % 4], robotInfo)) {
+				if (!isGoodArc((PathStepArc) arc, ps[i], ps[(i + 1) % 4], dpi.getAlfieInfo())) {
 					return false;
 				}
 			}
+			if (robotInTheWay(dpi.getAlfieInfo(), dpi.getOpponentInfo(), (PathStepArc) arc)) {
+				return false;
+			}
 		}
+		
 		return true;
 	}
 	
+	/**
+	 * Checks if the robot moving on the arc will cross the line passing through the 
+	 * points. 
+	 */
 	public boolean isGoodArc(PathStepArc arc, Point2D p1, Point2D p2, 
 			StaticRobotInfo robotInfo) {
 		boolean CCW = 
@@ -352,8 +361,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		double M = 0.0;
 		
 		double oriStart = arc.getStartDirection();
-		double oriEnd = arc.getTargetOrientation();
+		double oriEnd = arc.getEndDirection();
 		
+		// Counter-clock-wise start and stop angles of the arc.
 		double phiStart;
 		double phiEnd;
 		
@@ -429,6 +439,49 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			System.out.println("Safe distance: " + safeDistance);
 		return M < safeDistance;
 	}
+	
+	private boolean robotInTheWay(StaticRobotInfo alfieInfo, StaticRobotInfo opponentInfo,
+			PathStepArc arc) {
+		boolean CCW = 
+			arc instanceof PathStepArcForwardsLeft ||
+			arc instanceof PathStepArcBackwardsRight
+		;
+		
+		double oriStart = arc.getStartDirection();
+		double oriEnd = arc.getEndDirection();
+		
+		// Counter-clock-wise start and stop angles of the arc.
+		double phiStart;
+		double phiEnd;
+		
+		if (CCW) {
+			phiStart = oriStart - 90;
+			phiEnd = oriEnd - 90;
+		} else {
+			phiStart = oriEnd + 90;
+			phiEnd = oriStart + 90;
+			
+			phiStart = Geometry.normalizeToPositive(phiStart);
+			phiEnd = Geometry.normalizeToPositive(phiEnd);
+		}
+		
+		Point2D arcCentre = arc.getCentrePoint();
+		Point2D opponentCentre = opponentInfo.getPosition();
+		
+		double centreToOpponentAngle = Geometry.getVectorDirection(
+				arcCentre, opponentCentre);
+		
+		boolean angleInBounds = Geometry.angleWithinBounds(
+				centreToOpponentAngle, 
+				phiStart, 
+				phiEnd
+		);
+		
+		double opRadius = arcCentre.distance(opponentCentre);
+		// times two - for two robots
+		boolean inRange = Math.abs(opRadius - arc.getRadius()) < alfieInfo.getSafeDistance() * 2;
+		return inRange && angleInBounds;
+	}
 
 	/**
 	 * A snippet of a bigger function. Makes no sense on its own.
@@ -438,7 +491,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 		boolean alphaValid = 
 			Geometry.angleWithinBounds(alpha, 90.0 * i, 90.0 * (i + 1)) && 
-			Geometry.angleWithinBounds(alpha, alphaMin, alphaMax);
+			Geometry.angleWithinBounds(alpha, alphaMin, alphaMax) && 
+			true;
 		if (VERBOSE) {
 			System.out.println();
 			System.out.println(i);
@@ -564,24 +618,24 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 					angleCorrect
 			);
 		
-//		if (!isGoodPath(pathStepListSecondCCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//				pathStepList.add(
-//						new PathStepArcBackwardsLeft(
-//								dpi.getAlfieInfo().getPosition(), 
-//								dpi.getAlfieInfo().getFacingDirection(), 
-//								10.0, 
-//								180, 
-//								5.0
-//						)
-//				);
-//			} else {
-//				pathStepList = pathStepListSecondCW;
-//			}
-//		} else {
-//			if (!isGoodPath(pathStepListSecondCW, (StaticRobotInfo)dpi.getAlfieInfo())) {
-//				pathStepList = pathStepListSecondCCW;
-//			} else {
+		if (!isGoodPath(pathStepListSecondCCW, dpi)) {
+			if (!isGoodPath(pathStepListSecondCW, dpi)) {
+				pathStepList.add(
+						new PathStepArcBackwardsLeft(
+								dpi.getAlfieInfo().getPosition(), 
+								dpi.getAlfieInfo().getFacingDirection(), 
+								10.0, 
+								180, 
+								5.0
+						)
+				);
+			} else {
+				pathStepList = pathStepListSecondCW;
+			}
+		} else {
+			if (!isGoodPath(pathStepListSecondCW, dpi)) {
+				pathStepList = pathStepListSecondCCW;
+			} else {
 				double lengthCCW = 0.0;
 				for (PathStep ps : pathStepListSecondCCW) {
 					lengthCCW += ((PathStepArc) ps).getLength();
@@ -601,8 +655,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 					? pathStepListSecondCCW
 					: pathStepListSecondCW
 				);
-//			}
-//		}
+			}
+		}
 		pathStepList.add(new PathStepKick(1000));
 	}
 	
@@ -707,33 +761,33 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		pathStepList.add(new PathStepStop());
 	}
 	
-	private void planPenaltyTake(double alfieFacingAngle) {
-		//TODO check threshold values of spins
-		PathStep turn;
-		OperationPenaltyTake op = (OperationPenaltyTake) currentOperation;
-		double opponentRobotPositionY = op.getOpponentRobotPosition().getY();
-		if (GlobalInfo.isAttackingRight()) {
-			if (opponentRobotPositionY > 0) {
-				//turn left
-				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
-			} else {
-				//turn right
-				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
-
-			}
-		} else {
-			if (opponentRobotPositionY > 0) {
-				//turn right
-				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
-			} else {
-				//turn left
-				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
-			}
-		}
-		pathStepList = new LinkedList<PathStep>();
-		pathStepList.add(turn);
-		pathStepList.add(new PathStepKick(1024));
-	}
+//	private void planPenaltyTake(double alfieFacingAngle) {
+//		//TODO check threshold values of spins
+//		PathStep turn;
+//		OperationPenaltyTake op = (OperationPenaltyTake) currentOperation;
+//		double opponentRobotPositionY = op.getOpponentRobotPosition().getY();
+//		if (GlobalInfo.isAttackingRight()) {
+//			if (opponentRobotPositionY > 0) {
+//				//turn left
+//				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
+//			} else {
+//				//turn right
+//				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
+//
+//			}
+//		} else {
+//			if (opponentRobotPositionY > 0) {
+//				//turn right
+//				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
+//			} else {
+//				//turn left
+//				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
+//			}
+//		}
+//		pathStepList = new LinkedList<PathStep>();
+//		pathStepList.add(turn);
+//		pathStepList.add(new PathStepKick(1024));
+//	}
 
 	/**
 	 * Creates a candy packet based on the current operation and send it to MouthInstance thats been
@@ -743,7 +797,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		currentStep.whisper(mouth);
 	}
 
-	
 	@Override
 	public void consumeOperation(Operation operation) {
 		setOperation(operation);

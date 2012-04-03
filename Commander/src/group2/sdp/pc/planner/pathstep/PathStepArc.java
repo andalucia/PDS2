@@ -13,6 +13,7 @@ public abstract class PathStepArc extends PathStep {
 	 * The radius of the circle containing the arc.
 	 */
 	protected double radius;
+
 	/**
 	 * The central angle of the arc.
 	 */
@@ -62,7 +63,7 @@ public abstract class PathStepArc extends PathStep {
 		return threshold;
 	}
 
-	public double getTargetOrientation() {
+	public double getEndDirection() {
 		return endDirection;
 	}
 
@@ -78,6 +79,10 @@ public abstract class PathStepArc extends PathStep {
 		return startDirection;
 	}
 
+	public double getRadius() {
+		return radius;
+	}
+	
 	public abstract Point2D getCentrePoint();
 	
 	public double getLength() {

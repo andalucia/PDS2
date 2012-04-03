@@ -22,11 +22,11 @@ public class StaticRobotInfo {
 	/**
 	 * The width of the robot.
 	 */
-	protected static final double WIDTH = 18;
+	protected static final double WIDTH = 17.5;
 	/**
 	 * The height of the robot.
 	 */
-	protected static final double HEIGHT = 17;
+	protected static final double HEIGHT = 19;
 	/**
 	 * The position of the robot with respect to the centre of the pitch. The 
 	 * units are centimetres.

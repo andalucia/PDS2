@@ -9,7 +9,6 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationOverload;
 import group2.sdp.pc.planner.operation.OperationPenaltyDefend;
-import group2.sdp.pc.planner.operation.OperationPenaltyTake;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.operation.OperationStrike;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
@@ -42,7 +41,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 	private static final boolean VERBOSE = false;
 	
-	private static final double SAFE_FACTOR = 20.0;
+//	private static final double SAFE_FACTOR = 20.0;
 
 	/**
 	 * The current strategy to employ.
@@ -65,6 +64,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	protected OperationConsumer operationConsumer;
 	protected DynamicInfoConsumer dynamicInfoConsumer;
 
+	private Strategy plannedStrategy;
+
 	public FieldMarshal(
 			OperationConsumer operationConsumer, 
 			DynamicInfoConsumer dynamicInfoConsumer
@@ -73,6 +74,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		this.dynamicInfoConsumer = dynamicInfoConsumer;
 	}
 
+	
 	/**
 	 * Most important method of the class. According to the current strategy
 	 * and dpi, plans the next operation that should be executed.
@@ -91,9 +93,9 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
 		switch (currentStrategy) {
 		case TEST:
-			if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
-				if (VERBOSE)
-					System.out.println("Don't have ball.");
+//			if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
+//				if (VERBOSE)
+//					System.out.println("Don't have ball.");
 //				Point2D ballPosition = dpi.getBallInfo().getPosition();
 //				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
 //				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
@@ -102,12 +104,14 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 //						ballPosition,
 //						shootingDirection
 //				);
-				return new OperationOverload();
-			} else {
-				if (VERBOSE)
-					System.out.println("Has ball.");
-				return new OperationStrike();
-			}
+////				return new OperationOverload();
+//			} else {
+//				if (VERBOSE)
+//					System.out.println("Has ball.");
+//				return new OperationStrike();
+//			}
+			System.out.println("ASD!");
+			return planSweep(dpi);
 			
 		case DEFENSIVE:
 			return planNextDefensive(dpi);
@@ -119,8 +123,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			return new OperationOverload();
 		case PENALTY_DEFEND:
 			return new OperationPenaltyDefend(dpi.getAlfieInfo().getFacingDirection());
-		case PENALTY_TAKE:
-			return new OperationPenaltyTake(dpi.getOpponentInfo().getPosition());
+//		case PENALTY_TAKE:
+//			return new OperationPenaltyTake(dpi.getOpponentInfo().getPosition());
 		default:
 			if (VERBOSE)
 				System.err.println("No current strategy. Exiting.");
@@ -129,25 +133,97 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		}
 	}
 
-	private Operation planNextDefensive(DynamicInfo dpi) {
-		
-		// TODO: TESTME
-		
+	
+	/**
+	 * Tries to sweep the ball off the wall.
+	 */
+	private Operation planSweep(DynamicInfo dpi) {
 		Point2D ballPosition = dpi.getBallInfo().getPosition();
-		Point2D defensiveGoalPosition = GlobalInfo.getDefensiveGoalMiddle();
 		
-		double goalToBallDirection = 
-			Geometry.getVectorDirection(defensiveGoalPosition, ballPosition);
+		Point2D endPosition;
+		
+		double SPECIAL_THRESHOLD = 7.0;
+		
+		double distanceFromWall = SPECIAL_THRESHOLD + StaticRobotInfo.getWidth() / 2;
+		
+		if (ballPosition.getY() < 0.0) {
+			endPosition = new Point2D.Double(
+					ballPosition.getX(),
+					GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMinY() + 
+					distanceFromWall
+			);
+		} else {
+			endPosition = new Point2D.Double(
+					ballPosition.getX(),
+					GlobalInfo.getPitch().getMinimumEnclosingRectangle().getMaxY() - 
+					distanceFromWall
+			);
+		}
+		
+		double endOrientation;
+		if (GlobalInfo.isAttackingRight()) {
+			endOrientation = 0.0;
+		} else {
+			endOrientation = 180.0;
+		}
+		
+		return new OperationReallocation(endPosition, endOrientation);
+	}
+	
+	/**
+	 * Position Alfie between the ball and the centre of the goal it needs to
+	 * defend. Make him face the ball. 
+	 */
+	private Operation planNextDefensive(DynamicInfo dpi) {
+		Point2D ballPosition = dpi.getBallInfo().getPosition();
+		Point2D defensiveGoalMiddlePosition = GlobalInfo.getDefensiveGoalMiddle();
+		Point2D defensiveGoalRightPost = GlobalInfo.getDefensiveGoalRightPost();
+		
+		Point2D v1 = Geometry.getVectorDifference(
+				defensiveGoalRightPost, 
+				defensiveGoalMiddlePosition
+		);
+		
+		Point2D v2 = Geometry.getVectorDifference(
+				ballPosition, 
+				defensiveGoalMiddlePosition
+		); 
+		
+		// get the sine of the angle between the vectors by using cross product
+		
+		double cp = Geometry.crossProduct(v1, v2);
+		
+		double sine = Geometry.crossProduct(v1, v2) / 
+			(Geometry.getVectorLength(v1) * Geometry.getVectorLength(v2)); 
 		
 		double safeDistance = 
-			PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME /
-			Math.sin(Math.toRadians(goalToBallDirection)) + 
+			PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME / sine + 
 			dpi.getAlfieInfo().getSafeDistance();
 		
-		Point2D destination = Geometry.translate(defensiveGoalPosition, safeDistance, 
+		double goalToBallDirection = 
+			Geometry.getVectorDirection(defensiveGoalMiddlePosition, ballPosition);
+		
+		Point2D destination = Geometry.translate(defensiveGoalMiddlePosition, safeDistance, 
 				goalToBallDirection);
 		
+		double unsafeDistance = 0.0;
+		if (defensiveGoalMiddlePosition.distance(destination) > 
+			defensiveGoalMiddlePosition.distance(ballPosition)) {
+			// Safe distance won't work. Try a sweep.
+			unsafeDistance = dpi.getAlfieInfo().getSafeDistance();
+			destination = Geometry.translate(defensiveGoalMiddlePosition, unsafeDistance, 
+					goalToBallDirection);
+		}
+		
 		if (VERBOSE) {
+			System.out.println("Ball position: " + ballPosition);
+			System.out.println("cp: " + cp);
+			System.out.println("v1: " + v1);
+			System.out.println("v2: " + v2);
+			System.out.println("Sine: " + sine);
+			System.out.println("Goal-to-ball direction: " + goalToBallDirection);
+			System.out.println("Safe distance: " + safeDistance);
+			System.out.println("Unsafe distance: " + unsafeDistance);
 			System.out.println("Defensive destination: " + destination);
 		}
 		
@@ -155,17 +231,29 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	}
 
 	private Operation planNextOffensive(DynamicInfo dpi) {
+		// Check for ball possession.
 		if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
 			if (VERBOSE)
 				System.out.println("Don't have ball.");
-			Point2D ballPosition = dpi.getBallInfo().getPosition();
-			Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
-			double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
 			
-			return new OperationReallocation(
-					ballPosition,
-					shootingDirection
-			);
+			Point2D ballPosition = dpi.getBallInfo().getPosition();
+			double SWEEPING_DISTANCE = StaticRobotInfo.getWidth();
+				
+			// Check if the ball is close to a wall.
+			if (Geometry.pointToRectangleDistance(
+					ballPosition, 
+					GlobalInfo.getPitch().getMinimumEnclosingRectangle()
+				) < SWEEPING_DISTANCE) {
+				return planSweep(dpi);
+			} else {
+				Point2D goalMiddle = GlobalInfo.getTargetGoalMiddle();
+				double shootingDirection = Geometry.getVectorDirection(ballPosition, goalMiddle);
+				
+				return new OperationReallocation(
+						ballPosition,
+						shootingDirection
+				);
+			}
 		} else {
 			if (VERBOSE)
 				System.out.println("Has ball.");
@@ -179,7 +267,11 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	public void setStrategy(Strategy strategy) {
 		currentStrategy = strategy;
-		replan = true;
+		if (plannedStrategy == Strategy.DEFENSIVE && currentStrategy == Strategy.OFFENSIVE) {
+			replan = false;
+		} else {
+			replan = true;
+		}
 	}
 
 	private long successStartTime = 0;
@@ -237,7 +329,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			
 			int STOP_THRESHOLD = 10;
 			double ROLL_THRESHOLD = 5.0;
-			long FAILURE_TIMEOUT = 800;
+			long FAILURE_TIMEOUT = 500;
 			
 			if (didNotFail && dpi.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
 				long now = System.currentTimeMillis();
@@ -320,6 +412,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			}
 			currentOperation = planNextOperation(dpi);
 			operationConsumer.consumeOperation(currentOperation);
+			plannedStrategy = currentStrategy;
 			replan = false;
 		}
 		dynamicInfoConsumer.consumeInfo(dpi);

@@ -41,7 +41,7 @@ public class PathFinderTest {
 //				System.out.println("Actual: " + arcActualFirst);
 		
 		Assert.assertEquals(arcExpectedFirst.getType(), arcActualFirst.getType());
-		Assert.assertTrue(Math.abs(arcExpectedFirst.getTargetOrientation() - arcActualFirst.getTargetOrientation()) < threshold);
+		Assert.assertTrue(Math.abs(arcExpectedFirst.getEndDirection() - arcActualFirst.getEndDirection()) < threshold);
 		Assert.assertTrue(Math.abs(arcExpectedFirst.getTargetDestination().distance(arcActualFirst.getTargetDestination())) < threshold);
 
 		/* variant: type */
@@ -52,7 +52,7 @@ public class PathFinderTest {
 //				System.out.println("Actual: " + arcActualSecond);
 		
 		Assert.assertEquals(arcExpectedSecond.getType(), arcActualSecond.getType());
-		Assert.assertTrue(Math.abs(arcExpectedSecond.getTargetOrientation() - arcActualSecond.getTargetOrientation()) < threshold);
+		Assert.assertTrue(Math.abs(arcExpectedSecond.getEndDirection() - arcActualSecond.getEndDirection()) < threshold);
 		Assert.assertTrue(Math.abs(arcExpectedSecond.getTargetDestination().distance(arcActualSecond.getTargetDestination())) < threshold);
 	}
 	
@@ -75,7 +75,7 @@ public class PathFinderTest {
 		PathStepArc arc2 = 
 			new PathStepArcForwardsRight(
 					arc1.getTargetDestination(), 
-					arc1.getTargetOrientation(), 
+					arc1.getEndDirection(), 
 					radius2, angle2, 20);
 		
 		LinkedList<PathStep> expected = new LinkedList<PathStep>();
