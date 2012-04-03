@@ -9,6 +9,7 @@ import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
 import group2.sdp.pc.planner.operation.OperationPenaltyDefend;
+import group2.sdp.pc.planner.operation.OperationPenaltyTake;
 import group2.sdp.pc.planner.operation.OperationReallocation;
 import group2.sdp.pc.planner.pathstep.PathStep;
 import group2.sdp.pc.planner.pathstep.PathStepArc;
@@ -18,6 +19,7 @@ import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
+import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
 import group2.sdp.pc.planner.pathstep.PathStepStop;
 import group2.sdp.pc.planner.skeleton.OperationConsumer;
 import group2.sdp.pc.vision.skeleton.DynamicInfoConsumer;
@@ -153,9 +155,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				planPenaltyDefend(dpi);
 				break;
 				// TODO: tell Paul to add the class 
-	//		case PENALTY_TAKE:
-	//			planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
-	//			break;
+			case PENALTY_TAKE:
+				planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
+				break;
 			}
 			lastPlanIssuedTime = System.currentTimeMillis();
 		}
@@ -761,33 +763,33 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		pathStepList.add(new PathStepStop());
 	}
 	
-//	private void planPenaltyTake(double alfieFacingAngle) {
-//		//TODO check threshold values of spins
-//		PathStep turn;
-//		OperationPenaltyTake op = (OperationPenaltyTake) currentOperation;
-//		double opponentRobotPositionY = op.getOpponentRobotPosition().getY();
-//		if (GlobalInfo.isAttackingRight()) {
-//			if (opponentRobotPositionY > 0) {
-//				//turn left
-//				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
-//			} else {
-//				//turn right
-//				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
-//
-//			}
-//		} else {
-//			if (opponentRobotPositionY > 0) {
-//				//turn right
-//				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
-//			} else {
-//				//turn left
-//				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
-//			}
-//		}
-//		pathStepList = new LinkedList<PathStep>();
-//		pathStepList.add(turn);
-//		pathStepList.add(new PathStepKick(1024));
-//	}
+	private void planPenaltyTake(double alfieFacingAngle) {
+		//TODO check threshold values of spins
+		PathStep turn;
+		OperationPenaltyTake op = (OperationPenaltyTake) currentOperation;
+		double opponentRobotPositionY = op.getOpponentRobotPosition().getY();
+		if (GlobalInfo.isAttackingRight()) {
+			if (opponentRobotPositionY > 0) {
+				//turn left
+				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
+			} else {
+				//turn right
+				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
+
+			}
+		} else {
+			if (opponentRobotPositionY > 0) {
+				//turn right
+				turn = new PathStepSpinRight(alfieFacingAngle, 20, 10, 50);
+			} else {
+				//turn left
+				turn = new PathStepSpinLeft(alfieFacingAngle, 20, 10, 50);
+			}
+		}
+		pathStepList = new LinkedList<PathStep>();
+		pathStepList.add(turn);
+		pathStepList.add(new PathStepKick(1024));
+	}
 
 	/**
 	 * Creates a candy packet based on the current operation and send it to MouthInstance thats been
