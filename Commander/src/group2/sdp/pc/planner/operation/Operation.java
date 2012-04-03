@@ -25,6 +25,7 @@ public interface Operation {
 		PENALTY_DEFEND,
 		PENALTY_TAKE
 		// ADD OTHERS
+, PRETZEL_EXCLAMATION_MARK
 	}
 	
 	public Type getType(); 

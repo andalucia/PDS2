@@ -188,7 +188,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		Point2D secondCircleCentre = new Point2D.Double(x0, y0);
 	
-		double startDirection = dpi.getAlfieInfo().getFacingDirection();
 		startDirection += angleCorrect;
 		startDirection = Geometry.normalizeToPositive(startDirection);
 		
