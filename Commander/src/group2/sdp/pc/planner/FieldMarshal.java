@@ -341,7 +341,7 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			
 			int STOP_THRESHOLD = 10;
 			double ROLL_THRESHOLD = 5.0;
-			long FAILURE_TIMEOUT = 5000;
+			long FAILURE_TIMEOUT = 500;
 			
 			if (didNotFail && dpi.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
 				long now = System.currentTimeMillis();
