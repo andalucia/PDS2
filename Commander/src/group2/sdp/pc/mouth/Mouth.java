@@ -189,6 +189,13 @@ public class Mouth implements MouthInterface {
 	}
 	
 	/**
+	 * Tells Alfie to load his ram kicker.
+	 */
+	public void sendLoadRam() {
+		sendCandyPacket(new CandyPacket(CandyPacket.LOAD_RAM));
+	}
+	
+	/**
 	 * Tells Alfie to reset communication.
 	 */
 	public void sendReset() {

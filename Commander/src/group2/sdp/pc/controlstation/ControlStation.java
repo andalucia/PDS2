@@ -30,7 +30,7 @@ import javax.swing.JTextPane;
  * The main GUI program to control Alfie during match or testing.
  */
 public class ControlStation {
-	
+
 	/**
 	 * used to check if image is processing
 	 */
@@ -39,29 +39,31 @@ public class ControlStation {
 	private JFrame frmAlfieCommandCentre;
 	@SuppressWarnings("unused")
 	private SettingsWindow settingsWindow;
-	
+
 	private CheckboxGroup pitchGroup;
 	private Checkbox pitchOneCheckbox;
 	private Checkbox pitchTwoCheckbox;
-	
+
 	private CheckboxGroup yellowBlueAlfieGroup;
 	private Checkbox yellowAlfieCheckbox;
 	private Checkbox blueAlfieCheckbox;
-	
+
 	private CheckboxGroup shootingDirectionGroup;
 	private Checkbox rightAlfieCheckbox;
 	private Checkbox leftAlfieCheckbox;
-	
+
 	private Checkbox processImageCheckbox;
 
 	private Button connectButton;
 	private Button runButton;
 	private Button startPlanningButton;
 	private Button stopPlanningButton;
+	private Button chargeButton;
+	private Button kickButton;
 	private Button penaltyButton;
 	private Button goalieButton;
 
-	
+
 	private static JTextPane txtLog;
 
 	/**
@@ -87,7 +89,7 @@ public class ControlStation {
 	 * True if the main window was closed.
 	 */
 	private boolean exiting = false;
-			
+
 	/**
 	 * The threads for starting and stopping the communication to Alfie.
 	 */
@@ -115,7 +117,7 @@ public class ControlStation {
 		});
 	}
 
-	
+
 	/**
 	 * Create the application.
 	 * @throws Exception Thrown when another instance of the class already 
@@ -139,7 +141,7 @@ public class ControlStation {
 			public void run() {
 				for(int i = 1; i <= CONNECTION_ATTEMPTS && !exiting; ++i) {	
 					log("Connection attempt: " + i);
-					
+
 					try {
 						alfieMouth = new Mouth();
 						log("Connected to Alfie");
@@ -157,15 +159,15 @@ public class ControlStation {
 				}
 			}
 		};
-		
+
 		cleanup_thread = new Thread() {		
 			public void run() {
 				alfieMouth.sendReset();
 			}
 		};
 	}
-	
-	
+
+
 	/**
 	 * Starts the processing pipeline.
 	 */
@@ -175,30 +177,33 @@ public class ControlStation {
 		GlobalInfo.setPitchOne(
 				pitchOneCheckbox.getState()
 				? true
-				: false
-				);
+						: false
+		);
 		Salvator.loadLCHSettings();
-		
-		
+
 		PathFinder finder = new PathFinder(alfieMouth);
-		
+
 		FieldMarshal marshal = new FieldMarshal(finder, finder);
-		
+
 		lord = new Overlord(marshal, marshal);
-		
+
 		Bakery bakery = new Bakery(lord);
-		
+
 		Artist previewer = new Artist();
-		
+
+		if (alfieMouth != null) {
+			// don't load ram if we aren't connected to Alfie
+			alfieMouth.sendLoadRam();
+		}
 		if (processImageCheckbox.getState()) {
 			processor = new VisualCortex(bakery, previewer);
 			new Eye(processor);
 		} else {
 			new Eye(previewer);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Initialise the contents of the frame.
 	 */
@@ -208,44 +213,44 @@ public class ControlStation {
 		frmAlfieCommandCentre.setBounds(100, 100, 632, 507);
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAlfieCommandCentre.getContentPane().setLayout(null);
-		
+
 		connectButton = new Button();
 		connectButton.setLabel("Connect");
 		connectButton.setBounds(42, 12, 100, 25);
 		connectButton.setBackground(new Color(0, 128, 255));
 		connectButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				initializeConnectionThreads();
 				init_thread.start();
 			}
 		});
-		
-		
+
+
 		pitchGroup = new CheckboxGroup();
-		
-	    pitchOneCheckbox = new Checkbox("Pitch One", pitchGroup, true);
-	    pitchOneCheckbox.setBounds(332, 75, 160, 25);
-	    
-	    pitchTwoCheckbox = new Checkbox("Pitch Two", pitchGroup, false);
-	    pitchTwoCheckbox.setBounds(332, 105, 160, 25);
-	    
-		
+
+		pitchOneCheckbox = new Checkbox("Pitch One", pitchGroup, true);
+		pitchOneCheckbox.setBounds(332, 75, 160, 25);
+
+		pitchTwoCheckbox = new Checkbox("Pitch Two", pitchGroup, false);
+		pitchTwoCheckbox.setBounds(332, 105, 160, 25);
+
+
 		yellowBlueAlfieGroup = new CheckboxGroup();
-		
-	    yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
-	    yellowAlfieCheckbox.setBounds(514, 75, 160, 25);
-	    
-	    blueAlfieCheckbox = new Checkbox("Blue Alfie", yellowBlueAlfieGroup, false);
-	    blueAlfieCheckbox.setBounds(514, 105, 160, 25);
-		
-		
+
+		yellowAlfieCheckbox = new Checkbox("Yellow Alfie", yellowBlueAlfieGroup, true);
+		yellowAlfieCheckbox.setBounds(514, 75, 160, 25);
+
+		blueAlfieCheckbox = new Checkbox("Blue Alfie", yellowBlueAlfieGroup, false);
+		blueAlfieCheckbox.setBounds(514, 105, 160, 25);
+
+
 		processImageCheckbox = new Checkbox();
 		processImageCheckbox.setLabel("Process image");
 		processImageCheckbox.setBounds(332, 150, 160, 25);
 		processImageCheckbox.setState(true);
-		
+
 		runButton = new Button();
 		runButton.setLabel("Initialise");
 		runButton.setBounds(332, 208, 100, 25);
@@ -259,27 +264,27 @@ public class ControlStation {
 				}
 				startPipeline();
 				settingsWindow = new SettingsWindow(processor);
-				
+
 				frmAlfieCommandCentre.setLocation(0, 0);
-				
+
 				pitchOneCheckbox.setEnabled(false);
-			    pitchTwoCheckbox.setEnabled(false);
-				
+				pitchTwoCheckbox.setEnabled(false);
+
 				yellowAlfieCheckbox.setEnabled(false);
-			    blueAlfieCheckbox.setEnabled(false);
-			    
+				blueAlfieCheckbox.setEnabled(false);
+
 				connectButton.setEnabled(false);
 				processImageCheckbox.setEnabled(false);
 				runButton.setEnabled(false);
 			}
 		});
-		
+
 		shootingDirectionGroup = new CheckboxGroup();
-		
-	    leftAlfieCheckbox = new Checkbox("Alfie shooting left", shootingDirectionGroup, true);
-	    leftAlfieCheckbox.setBounds(332, 310, 160, 25);
-	    leftAlfieCheckbox.addItemListener(new ItemListener() {
-			
+
+		leftAlfieCheckbox = new Checkbox("Alfie shooting left", shootingDirectionGroup, true);
+		leftAlfieCheckbox.setBounds(332, 310, 160, 25);
+		leftAlfieCheckbox.addItemListener(new ItemListener() {
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (leftAlfieCheckbox.getState()) {
@@ -288,12 +293,12 @@ public class ControlStation {
 					log("Attacking left now");
 				}
 			}
-	    });
-	    
-	    rightAlfieCheckbox = new Checkbox("Alfie shooting right", shootingDirectionGroup, false);
-	    rightAlfieCheckbox.setBounds(332, 340, 160, 25);
-	    rightAlfieCheckbox.addItemListener(new ItemListener() {
-			
+		});
+
+		rightAlfieCheckbox = new Checkbox("Alfie shooting right", shootingDirectionGroup, false);
+		rightAlfieCheckbox.setBounds(332, 340, 160, 25);
+		rightAlfieCheckbox.addItemListener(new ItemListener() {
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (rightAlfieCheckbox.getState()) {
@@ -302,17 +307,17 @@ public class ControlStation {
 					log("Attacking right now");
 				}
 			}
-	    });		
-	    
+		});		
+
 		startPlanningButton = new Button();
 		startPlanningButton.setLabel("Start Planning");
 		startPlanningButton.setBounds(332, 435, 100, 25);
 		startPlanningButton.setBackground(Color.green);
 		startPlanningButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+
 				if (lord != null) {
 					lord.start();
 				}
@@ -321,14 +326,14 @@ public class ControlStation {
 				}
 			}
 		});
-		
 
-		
+
+
 		goalieButton = new Button();
 		goalieButton.setLabel("Defend penalty!");
 		goalieButton.setBounds(502, 310, 100, 25);
 		goalieButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
@@ -338,15 +343,15 @@ public class ControlStation {
 					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
 			}
-			
-			
+
+
 		});
-		
+
 		penaltyButton = new Button();
 		penaltyButton.setLabel("Take Penalty!");
 		penaltyButton.setBounds(502, 345, 100, 25);
 		penaltyButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
@@ -356,16 +361,16 @@ public class ControlStation {
 					log("OVERLORD IS NULL WHEN PENALTY CALLED");
 				}
 			}
-			
-			
+
+
 		});
-		
+
 		stopPlanningButton = new Button();
 		stopPlanningButton.setLabel("Stop!");
 		stopPlanningButton.setBounds(502, 435, 100, 25);
 		stopPlanningButton.setBackground(Color.red);
 		stopPlanningButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (lord != null) {
@@ -377,23 +382,55 @@ public class ControlStation {
 					}
 				}
 			}
-			
-			
+
+
+		});
+
+		chargeButton = new Button();
+		chargeButton.setLabel("Charge!");
+		chargeButton.setBounds(332, 400, 100, 25);
+		chargeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (alfieMouth != null) {
+					alfieMouth.sendLoadRam();
+				} else {
+					log("No mouth to tell Alfie to kick");
+				}
+			}
+
+
 		});
 		
+		kickButton = new Button();
+		kickButton.setLabel("Kick!");
+		kickButton.setBounds(502, 400, 100, 25);
+		kickButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (alfieMouth != null) {
+					alfieMouth.sendKick(1024);
+				} else {
+					log("No mouth to tell Alfie to kick");
+				}
+			}
+
+
+		});
+
 		txtLog = new JTextPane();
 		txtLog.setEditable(false);
 		txtLog.setBounds(20, 50, 300, 410);
-		
+
 		frmAlfieCommandCentre.getContentPane().add(rightAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(leftAlfieCheckbox);
-		
+
 		frmAlfieCommandCentre.getContentPane().add(pitchOneCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(pitchTwoCheckbox);
-		
+
 		frmAlfieCommandCentre.getContentPane().add(yellowAlfieCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(blueAlfieCheckbox);
-		
+
 		frmAlfieCommandCentre.getContentPane().add(connectButton);
 		frmAlfieCommandCentre.getContentPane().add(processImageCheckbox);
 		frmAlfieCommandCentre.getContentPane().add(runButton);
@@ -402,18 +439,20 @@ public class ControlStation {
 		frmAlfieCommandCentre.getContentPane().add(penaltyButton);
 		frmAlfieCommandCentre.getContentPane().add(goalieButton);
 		frmAlfieCommandCentre.getContentPane().add(stopPlanningButton);
+		frmAlfieCommandCentre.getContentPane().add(chargeButton);
+		frmAlfieCommandCentre.getContentPane().add(kickButton);
 		
 		frmAlfieCommandCentre.getContentPane().add(txtLog);
-		
+
 		frmAlfieCommandCentre.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmAlfieCommandCentre.setVisible(true);
 		frmAlfieCommandCentre.addWindowListener(new WindowListener() {
 			public void windowClosed(WindowEvent arg0) {
-				
+
 			}
 
 			public void windowActivated(WindowEvent arg0) {
-				
+
 			}
 
 			public void windowClosing(WindowEvent arg0) {
@@ -438,13 +477,13 @@ public class ControlStation {
 			}
 
 			public void windowOpened(WindowEvent arg0) {
-				
+
 			}
 		});
 
 	}
 
-	
+
 	/**
 	 * Gets the singleton instance of the class.
 	 * @return The singleton instance of the class.
@@ -452,8 +491,8 @@ public class ControlStation {
 	public static ControlStation getInstance() {
 		return instance;
 	}
-	
-	
+
+
 	/**
 	 * Adds a string and a new line to the log text box.
 	 * @param logString The string to add.

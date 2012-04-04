@@ -27,6 +27,8 @@ public class CandyPacket {
 	public static final byte BACKWARDS_RIGHT_ARC_CANDY = 8;
 	// The brand of candy that makes Alfie move in a backwards arc turning left.
 	public static final byte BACKWARDS_LEFT_ARC_CANDY = 9;
+	// The brand of candy that makes Alfie load the ram
+	public static final byte LOAD_RAM = 10;
 	// The brand of candy that makes Alfie reset the candy exchange.
 	public static final byte RESET_CANDY = 126;
 	// The brand of candy that makes Alfie go to bed.

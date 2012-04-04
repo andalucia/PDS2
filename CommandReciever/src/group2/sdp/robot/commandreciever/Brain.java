@@ -19,35 +19,35 @@ import lejos.robotics.navigation.DifferentialPilot;
  * Make sure you run Brain.init() first!
  */
 public class Brain {
-	
+
 	// The minimum speed that could ever be received.
 	private static final int MIN_SPEED = 0;
 	// The maximum speed that could ever be received.
 	private static final int MAX_SPEED = 1024;
-	
+
 	// The minimum turn speed that could ever be received.
 	@SuppressWarnings("unused")
 	private static final int MIN_TURN_SPEED = -1024;
 	// The maximum turn speed that could ever be received.
 	@SuppressWarnings("unused")
 	private static final int MAX_TURN_SPEED = 1024;
-	
+
 	// The minimum speed that could ever be received.
 	private static final int MIN_DISTANCE = 0;
 	// The maximum speed that could ever be received.
 	private static final int MAX_DISTANCE = 300;
-	
+
 	// The minimum speed that could ever be received.
 	private static final int MIN_KICK_POWER = 0;
 	// The maximum speed that could ever be received.
 	private static final int MAX_KICK_POWER = 1024;
-	
+
 	// The minimum speed that could ever be received.
 	private static final int MIN_ANGLE = -360;
 	// The maximum speed that could ever be received.
 	private static final int MAX_ANGLE = 360;
-	
-	
+
+
 	// Alfie's mouth. String constants to be displayed on the LCD, each line is
 	// defined as a different field.
 	private static String FWD1 = "Going forward ";
@@ -57,20 +57,23 @@ public class Brain {
 	private static String STP = "Stopped.";
 	private static String KCK1 = "Kicking with ";
 	private static String KCK2 = "power:";
+	private static String RAM1 = "Ramming!";
+	private static String LD1 = "Loading ram";
+	private static String LD2 = "Angle: ";
 	private static String SPN = "Spinning around...";
 	private static String ARC = "Arcing";
-	
+
 	// Alfie's physical attributes. Constants for the pilot class,
 	// measurements are in centimetres.
-	private static final float TRACK_WIDTH = 9.9f; // 13.52f; reduce to correct oversteering
+	private static final float TRACK_WIDTH = 8.0f; // 13.52f; reduce to correct oversteering
 	private static final float WHEEL_DIAMETER = 8.16f;
-	
+
 	private static final MotorPort LEFT_MOTOR_PORT = MotorPort.C;
 	private static final MotorPort RIGHT_MOTOR_PORT = MotorPort.A;
-	
+
 	// Alfie's legs and arms. The motors to be controlled.
 	private static final NXTRegulatedMotor KICKER = Motor.B;
-	
+
 	// Alfie's finger tips
 	private static final TouchSensor LEFT_TOUCH_SENSOR = new TouchSensor(
 			SensorPort.S1);
@@ -83,27 +86,36 @@ public class Brain {
 	private static final int KICKER_ANGLE = 30;
 	// The delay before resetting the kicker.
 	private static final int KICKER_DELAY = 300;
-	
+
 	// Alfie's actions. Robot state indicators.
 	private static volatile boolean kicking = false;
 	
+	private static volatile boolean loading = false;
+	
 	private static boolean initialized = false;
-	
+
 	// PID controller
-	private static DifferentialPilot straightLinePilot;
-//	private static DifferentialPilot archingPilot;
-	
+	private static DifferentialPilot pilot;
+	//	private static DifferentialPilot archingPilot;
+
 	// Indicates whether messages should be output to the LCD or not.
 	private static boolean VERBOSE = true;
-	
+
 	// If set to true, Alfie will stop when one of his touch sensors fires.
-	private static boolean stopOnTouch = false;
-	
+//	private static boolean stopOnTouch = true;
+
 	private static final int BACKING_TIMEOUT = 500;
 	private static final int BACKING_SPEED = 28;
 	private static final int BACKING_DISTANCE = 20;
-	private static boolean backingOff = false;
 	
+	protected static final int PLUNGE_ANGLE = 900;
+	protected static final int LOAD_ANGLE = 550; //TODO find correct angle
+	protected static final long LOAD_SPEED = 1000;
+	protected static final long PLUNGE_DELAY = 1000;
+	protected static final long PLUNGE_SPEED = 1000;
+	
+	private static boolean backingOff = false;
+
 	// These flags are true during the period after the corresponding touch 
 	// sensor was fired and before a command was issued to Alfie. When Alfie 
 	// drools on a candy packet, he returns these flags and sets them to false.
@@ -111,7 +123,7 @@ public class Brain {
 	private static boolean rightTouchFired = false;
 	// Create a Thread to detect whether touch sensors have been touched
 	private static Thread touchSensorsThread;
-	
+
 	/**
 	 * All methods in this class are static so there is no constructor.
 	 * This method should be called before running any other methods in the class.	
@@ -119,30 +131,30 @@ public class Brain {
 	public static void init () {
 		NXTRegulatedMotor leftWheel = new NXTRegulatedMotor(LEFT_MOTOR_PORT);
 		NXTRegulatedMotor rightWheel = new NXTRegulatedMotor(RIGHT_MOTOR_PORT);
-		
-//		NXTRegulatedMotor leftWheel2 = new NXTRegulatedMotor(LEFT_MOTOR_PORT);
-//		NXTRegulatedMotor rightWheel2 = new NXTRegulatedMotor(RIGHT_MOTOR_PORT);
-//		
-		straightLinePilot = 
+
+		//		NXTRegulatedMotor leftWheel2 = new NXTRegulatedMotor(LEFT_MOTOR_PORT);
+		//		NXTRegulatedMotor rightWheel2 = new NXTRegulatedMotor(RIGHT_MOTOR_PORT);
+		//		
+		pilot = 
 			new DifferentialPilot(
 					WHEEL_DIAMETER, 
 					TRACK_WIDTH, 
 					leftWheel, 
 					rightWheel
 			);
-//		straightLinePilot.setAcceleration((int) ((1.25) * MAX_SPEED));
-//		
-//		archingPilot = 
-//			new DifferentialPilot(
-//					WHEEL_DIAMETER, 
-//					TRACK_WIDTH,
-//					leftWheel,
-//					rightWheel
-//			);
+		//		straightLinePilot.setAcceleration((int) ((1.25) * MAX_SPEED));
+		//		
+		//		archingPilot = 
+		//			new DifferentialPilot(
+		//					WHEEL_DIAMETER, 
+		//					TRACK_WIDTH,
+		//					leftWheel,
+		//					rightWheel
+		//			);
 		initTouchThread();		
 		initialized = true;
 	}
-	
+
 	/**
 	 * Initializes the thread that is watching the touch sensors.
 	 */
@@ -150,12 +162,21 @@ public class Brain {
 		touchSensorsThread = new Thread() {
 
 			public void run() {
-				while (true) {			
+				while (true) {
 					if (LEFT_TOUCH_SENSOR.isPressed() || 
-						RIGHT_TOUCH_SENSOR.isPressed()) {
-						if (stopOnTouch && !kicking) {
+							RIGHT_TOUCH_SENSOR.isPressed()) {
+						LCD.clear();
+						String magic = "";
+//						if (stopOnTouch)
+							magic += "SoT";
+						if (kicking)
+							magic += " kick";
+						magic += " !";
+						LCD.drawString(magic, 0, 0);
+						LCD.refresh();
+						if (/* stopOnTouch && */!kicking) {
 							backingOff = true;
-							goBackwards(BACKING_SPEED, BACKING_DISTANCE);
+							pilot.travel(-BACKING_DISTANCE, false);
 							try {
 								Thread.sleep(BACKING_TIMEOUT);
 							} catch (InterruptedException e) {
@@ -179,7 +200,7 @@ public class Brain {
 		//start the touch sensor thread
 		touchSensorsThread.start();
 	}
-	
+
 	/**
 	 * Make Alfie go forward.
 	 * 
@@ -192,22 +213,22 @@ public class Brain {
 		if (!backingOff) {
 			speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
 			distance = Tools.sanitizeInput(distance, MIN_DISTANCE, MAX_DISTANCE);
-			
-			stopOnTouch = true;
-//			straightLinePilot.setTravelSpeed(speed);
+
+//			stopOnTouch = true;
+			//			straightLinePilot.setTravelSpeed(speed);
 			if (distance == 0) {
-				straightLinePilot.forward();
+				pilot.forward();
 			} else {
-				straightLinePilot.travel(distance,true);
+				pilot.travel(distance,true);
 			}
-			
+
 			if (VERBOSE) {
 				LCD.clear();
 				LCD.drawString(FWD1, 0, 0);
 				LCD.drawString(FWD2, 0, 1);
 				LCD.drawInt(speed, 1, 2);
 				LCD.drawString("MAX SPEED", 0, 3);
-				LCD.drawInt((int)straightLinePilot.getMaxTravelSpeed(), 1, 4);
+				LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 				LCD.refresh();
 			}
 		} else {
@@ -216,7 +237,7 @@ public class Brain {
 			LCD.refresh();
 		}
 	}
-	
+
 	/**
 	 * Make Alfie go backwards.
 	 * 
@@ -226,27 +247,25 @@ public class Brain {
 	 */
 	public static void goBackwards(int speed, int distance) {
 		assert(initialized);
-		speed = Tools.sanitizeInput(speed, MIN_SPEED, MAX_SPEED);
-		
-		stopOnTouch = false;
-		straightLinePilot.setTravelSpeed(speed);
+
+//		stopOnTouch = false;
 		if (distance == 0) {
-			straightLinePilot.backward();			
+			pilot.backward();			
 		} else {
-			straightLinePilot.travel(-distance,true);
+			pilot.travel(-distance,true);
 		}
-		
+
 		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(BWD1, 0, 0);
 			LCD.drawString(BWD2, 0, 1);
 			LCD.drawInt(speed, 1, 2);
 			LCD.drawString("MAX SPEED", 0, 3);
-			LCD.drawInt((int)straightLinePilot.getMaxTravelSpeed(), 1, 4);
+			LCD.drawInt((int)pilot.getMaxTravelSpeed(), 1, 4);
 			LCD.refresh();
 		}
 	}
-	
+
 	/**
 	 * Makes Alfie spin around his centre at the given angle and with the given speed.
 	 * If the angle is negative, he spins clock wise and otherwise he spins 
@@ -258,27 +277,27 @@ public class Brain {
 	public static void spin(int speed, int angle) {
 		assert(initialized);
 		speed = Tools.sanitizeInput(speed, MIN_TURN_SPEED, MAX_TURN_SPEED);
-		
-		stopOnTouch = true;
-		straightLinePilot.setRotateSpeed(Math.abs(speed));		
+
+//		stopOnTouch = true;
+		pilot.setRotateSpeed(Math.abs(speed));		
 		if (angle == 0) {
 			if (speed > 0) {
-				straightLinePilot.rotateLeft();
+				pilot.rotateLeft();
 			} else {
-				straightLinePilot.rotateRight();
+				pilot.rotateRight();
 			}
-			
+
 		} else {
-			straightLinePilot.rotate(angle,true);
+			pilot.rotate(angle,true);
 		}
-		
+
 		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(SPN, 0, 0);
 			LCD.refresh();
 		}
 	}
-	
+
 	/**
 	 * Makes Alfie move in an arc <br\>
 	 * |radius | angle |  arc  | <br\> 
@@ -292,12 +311,12 @@ public class Brain {
 	public static void moveArc(float radius, float angle) {
 		assert(initialized);
 		angle = Tools.sanitizeInput(angle, MIN_ANGLE, MAX_ANGLE);
-		stopOnTouch = true;
-		
+//		stopOnTouch = true;
+
 		if (angle != 0 && radius != 0) {
-			straightLinePilot.arc(radius, angle, true);
+			pilot.arc(radius, angle, true);
 		} 
-		
+
 		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(ARC,0,0);
@@ -312,17 +331,17 @@ public class Brain {
 	 */
 	public static void stop() {
 		assert(initialized);
-		
-		stopOnTouch = false;
-		straightLinePilot.stop();
-		
+
+//		stopOnTouch = false;
+		pilot.stop();
+
 		if (VERBOSE) {
 			LCD.clear();
 			LCD.drawString(STP, 0, 0);
 			LCD.refresh();
 		}
 	}
-	
+
 	/**
 	 * Kick the ball!
 	 * 
@@ -334,24 +353,23 @@ public class Brain {
 		assert(initialized);
 		// Start a new thread to control the kicker
 		Thread Kick_thread = new Thread() {
-	
+
 			public void run() {
 				try {
 					kicking = true;
 					KICKER.rotate(KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
-								
+
 					KICKER.rotate(-KICKER_ANGLE);
 					Thread.sleep(KICKER_DELAY);
 				} catch (InterruptedException exc) {
 					System.out.println(exc.toString());
 				}
-				
+
 				kicking = false;
 			}
-			
+
 		};
-		
 		// Alfie only has 1 leg, so he can only make 1 kick at a time
 		if (!kicking) {
 			kicking = true;
@@ -370,14 +388,96 @@ public class Brain {
 			}
 		}	
 	}
+
+	/**
+	 * Plunge the ball! Works with the experimental kicker.
+	 *
+	 * Starts a new thread and makes the robot kick if it isn't already kicking
+	 *
+	 */
+	public static void ram() {
+		assert(initialized);
+		// Start a new thread to control the kicker
+		Thread Kick_thread = new Thread() {
+
+			public void run() {
+				try {
+					kicking = true;
+					KICKER.setSpeed(PLUNGE_SPEED);
+					KICKER.rotate(PLUNGE_ANGLE);
+					Thread.sleep(PLUNGE_DELAY);
+				} catch (InterruptedException exc) {
+					System.out.println(exc.toString());
+				}
+
+				kicking = false;
+			}
+
+		};
+
+		// Alfie only has 1 leg, so he can only make 1 kick at a time
+		if (!kicking) {
+			kicking = true;
+			KICKER.setSpeed(KICKER.getMaxSpeed());
+			Kick_thread.start();
+
+			if (VERBOSE) {
+				LCD.clear();
+				LCD.drawString(RAM1, 0, 0);
+				LCD.refresh();
+			}
+		}
+	}
 	
+	/**
+	 * Loads the ram so it will be quickly released. Makes a new thread 
+	 * for this although perhaps not necessary
+	 */
+	public static void loadRam() {
+		// Start a new thread to load the ram
+		Thread Kick_thread = new Thread() {
+
+			public void run() {
+				try {
+//					loading = true;
+//					KICKER.setSpeed(LOAD_SPEED);
+//					KICKER.rotate(-2 * LOAD_ANGLE);
+//					Thread.sleep(PLUNGE_DELAY);
+					
+					KICKER.setSpeed(PLUNGE_SPEED);
+					KICKER.rotate(LOAD_ANGLE);
+					Thread.sleep(PLUNGE_DELAY);
+				} catch (InterruptedException exc) {
+					System.out.println(exc.toString());
+				}
+				loading = false;
+			}
+		};
+		
+		if (!loading) {
+			loading = true;
+			KICKER.setSpeed(KICKER.getMaxSpeed());
+			Kick_thread.start();
+
+			if (VERBOSE) {
+				LCD.clear();
+				LCD.drawString(LD1, 0, 0);
+				LCD.drawString(LD2, 0, 1);
+				LCD.drawInt(LOAD_ANGLE, 1, 2);
+				LCD.refresh();
+			}
+		}
+	}
+
+
+
 	/**
 	 * Sets whether the brain should output messages to the screen or not.
 	 */
 	public static void setVerbose(boolean value) {
 		VERBOSE = value;
 	}
-	
+
 	/**
 	 * Returns the left touch flag and resets it to false. 
 	 * @return The left touch flag.
@@ -387,7 +487,7 @@ public class Brain {
 		leftTouchFired = false;
 		return result;
 	}
-	
+
 	/**
 	 * Returns the right touch flag and resets it to false. 
 	 * @return The right touch flag.

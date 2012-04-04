@@ -2,6 +2,7 @@ package group2.sdp.pc.planner.pathstep;
 
 import group2.sdp.common.util.Geometry;
 import group2.sdp.pc.breadbin.DynamicInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.mouth.MouthInterface;
 
 /**
@@ -56,18 +57,13 @@ public class PathStepSpinLeft extends PathStep {
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
 		double angle = pitchStatus.getAlfieInfo().getFacingDirection();
 		
-		long SUCCESS_TIMEOUT = 250;
-		
-		if (Math.abs(Geometry.normalizeToPositive(targetAngle - angle)) < threshold) {
-			long now = System.currentTimeMillis();
-			if (successStartTime > 0 && now - successStartTime > SUCCESS_TIMEOUT) {
-				successStartTime = 0;
-				return true;	
-			}
-			if (successStartTime == 0) 
-				successStartTime = now;
-		} else {
-			successStartTime = 0;
+//		if (Math.abs(Geometry.normalizeToPositive(targetAngle - angle)) < threshold) {
+		if (DynamicInfoChecker.isSimilarAngle(
+				targetAngle, 
+				angle, 
+				threshold
+				)) {
+			return true;
 		}
 		return false;
 	}

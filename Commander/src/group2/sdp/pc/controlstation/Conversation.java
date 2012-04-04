@@ -37,7 +37,7 @@ public class Conversation {
 		
 		new PathStepArcBackwardsLeft(
 				new Double(0.0, 0.0), 
-				90.0, 
+				90.0,
 				20.0, 
 				90.0, 
 				0.0).whisper(s);

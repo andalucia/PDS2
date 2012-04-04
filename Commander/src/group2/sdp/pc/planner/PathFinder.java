@@ -5,6 +5,7 @@ import group2.sdp.common.util.Pair;
 import group2.sdp.pc.breadbin.DynamicInfo;
 import group2.sdp.pc.breadbin.DynamicRobotInfo;
 import group2.sdp.pc.breadbin.StaticRobotInfo;
+import group2.sdp.pc.globalinfo.DynamicInfoChecker;
 import group2.sdp.pc.globalinfo.GlobalInfo;
 import group2.sdp.pc.mouth.MouthInterface;
 import group2.sdp.pc.planner.operation.Operation;
@@ -17,6 +18,7 @@ import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcBackwardsRight;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsLeft;
 import group2.sdp.pc.planner.pathstep.PathStepArcForwardsRight;
+import group2.sdp.pc.planner.pathstep.PathStepGoForward;
 import group2.sdp.pc.planner.pathstep.PathStepKick;
 import group2.sdp.pc.planner.pathstep.PathStepSpinLeft;
 import group2.sdp.pc.planner.pathstep.PathStepSpinRight;
@@ -42,7 +44,13 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 
 	private static final boolean VERBOSE = false;
 
-	private static final double DISTANCE_THRESHOLD = 10.0;
+	private static final double MAX_DISTANCE_THRESHOLD = 15.0;
+	
+	private static final double MIN_DISTANCE_THRESHOLD = 3.0;
+	
+	private static final double RADIUS_DISTANCE_SCALE = 0.3;
+	
+//	private static final double DISTANCE_THRESHOLD = 5.0;
 	
 	/**
 	 * This is a queue which stores a list of paths 
@@ -154,6 +162,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 			case PENALTY_DEFEND:
 				planPenaltyDefend(dpi);
 				break;
+				
 			case PENALTY_TAKE:
 				planPenaltyTake(dpi.getAlfieInfo().getFacingDirection());
 				break;
@@ -162,10 +171,8 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		}
 	}
 	
-
 	private long lastTimeSpinning = 0;
 	
-
 	public LinkedList<PathStep> getDoubleArcPath(Point2D startPosition, 
 			double startDirection, Point2D endPosition, double endDirection,
 			boolean secondArcCCW, double angleCorrect) {
@@ -238,17 +245,19 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 //					DISTANCE_THRESHOLD
 ////			);	
 //		} else {
+		double firstDistanceThreshold = firstRadius*RADIUS_DISTANCE_SCALE;
 		firstArc = PathStepArc.getForwardPathStepArc(
 				startPosition, 
 				startDirection,
 				firstCircleCentre, 
 				firstArcAngle,
-				DISTANCE_THRESHOLD
+				firstDistanceThreshold
 		);	
 //		}
 		
 		
-		
+		double secondDistanceThreshold = secondRadius*RADIUS_DISTANCE_SCALE;
+
 		double secondArcAngle = 
 			Geometry.getArcOrientedAngle(
 					transitionPoint,
@@ -262,7 +271,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				firstArc.getEndDirection(),
 				secondCircleCentre, 
 				secondArcAngle, 
-				DISTANCE_THRESHOLD
+				secondDistanceThreshold
 		);
 		
 		pathStepList.add(firstArc);
@@ -322,9 +331,9 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 					return false;
 				}
 			}
-			if (robotInTheWay(dpi.getAlfieInfo(), dpi.getOpponentInfo(), (PathStepArc) arc)) {
-				return false;
-			}
+//			if (robotInTheWay(dpi.getAlfieInfo(), dpi.getOpponentInfo(), (PathStepArc) arc)) {
+//				return false;
+//			}
 		}
 		
 		return true;
@@ -536,20 +545,21 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	public PathStepArc getPenaltyArc(int alfieSector, int opSector,
 			Point2D start, double startDirection) {
 		double radius = 60; //TODO
+		double threshold = radius*RADIUS_DISTANCE_SCALE;
 		double angle = 10; //TODO
 		if (alfieSector < opSector) {
 			//backwards arc
 			if (GlobalInfo.isAttackingRight()) {
-				return new PathStepArcBackwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				return new PathStepArcBackwardsRight(start, startDirection, radius, angle, threshold);
 			} else {
-				return new PathStepArcBackwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				return new PathStepArcBackwardsLeft(start, startDirection, radius, angle, threshold);
 			}
 		} else {
 			//forwards arc
 			if (GlobalInfo.isAttackingRight()) {
-				return new PathStepArcForwardsRight(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				return new PathStepArcForwardsRight(start, startDirection, radius, angle, threshold);
 			} else {
-				return new PathStepArcForwardsLeft(start, startDirection, radius, angle, DISTANCE_THRESHOLD);
+				return new PathStepArcForwardsLeft(start, startDirection, radius, angle, threshold);
 			}
 		}
 	}
@@ -621,15 +631,34 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 		
 		if (!isGoodPath(pathStepListSecondCCW, dpi)) {
 			if (!isGoodPath(pathStepListSecondCW, dpi)) {
-				pathStepList.add(
-						new PathStepArcBackwardsLeft(
-								dpi.getAlfieInfo().getPosition(), 
-								dpi.getAlfieInfo().getFacingDirection(), 
-								10.0, 
-								180, 
-								5.0
-						)
+				// turn and go straight to ball
+				//Overlord.forceDefence();
+				System.out.println("GOING TO STRAIGHT TO BALL, YEEEEEAH");
+				double angleToBall = DynamicInfoChecker.getAngleToBall(
+						dpi.getBallInfo().getPosition(), 
+						dpi.getAlfieInfo().getPosition(), 
+						dpi.getAlfieInfo().getFacingDirection());
+				if (angleToBall < 0) {
+					//turn right
+					pathStepList.add(new PathStepSpinRight(dpi.getAlfieInfo().getFacingDirection(), 
+							angleToBall,
+							20, 
+							50)//TODO speed
+					);
+				} else {
+					pathStepList.add(new PathStepSpinLeft(dpi.getAlfieInfo().getFacingDirection(), 
+							angleToBall,
+							20, 
+							50)//TODO speed
+					);
+				}
+				
+				pathStepList.add(new PathStepGoForward(dpi.getBallInfo().getPosition(), 
+						(int)dpi.getBallInfo().getPosition().distance(dpi.getAlfieInfo().getPosition()),
+						10, 
+						50)
 				);
+			
 			} else {
 				pathStepList = pathStepListSecondCW;
 			}
@@ -658,7 +687,6 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 				);
 			}
 		}
-		pathStepList.add(new PathStepKick(1000));
 	}
 	
 	/**
@@ -795,6 +823,7 @@ public class PathFinder implements DynamicInfoConsumer, OperationConsumer{
 	 * passed in
 	 */
 	private void execute() {
+		System.out.println("Executing " + currentStep.getType());
 		currentStep.whisper(mouth);
 	}
 

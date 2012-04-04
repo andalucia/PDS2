@@ -175,7 +175,11 @@ public class Ear {
 			);
     		break;
 		case CandyPacket.KICK_CANDY:     
-			Brain.kick(candy.getPretzel(0));
+			//Brain.kick(candy.getPretzel(0));
+			Brain.ram();
+			break;
+		case CandyPacket.LOAD_RAM:
+			Brain.loadRam();
 			break;
 		case CandyPacket.RESET_CANDY:
 			break;

@@ -40,7 +40,7 @@ import java.awt.geom.Point2D;
  */
 public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 	
 //	private static final double SAFE_FACTOR = 20.0;
 
@@ -194,12 +194,13 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		
 		double cp = Geometry.crossProduct(v1, v2);
 		
-		double sine = Geometry.crossProduct(v1, v2) / 
+		double sine = cp / 
 			(Geometry.getVectorLength(v1) * Geometry.getVectorLength(v2)); 
 		
-		double safeDistance = 
-			PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME / sine + 
-			dpi.getAlfieInfo().getSafeDistance();
+//		double safeDistance = 			
+//			(PathFinder.HARDCODED_SECOND_RADIUS_REMOVEME + 
+//			dpi.getAlfieInfo().getSafeDistance()) / sine ;
+		double safeDistance = 25.0;
 		
 		double goalToBallDirection = 
 			Geometry.getVectorDirection(defensiveGoalMiddlePosition, ballPosition);
@@ -207,14 +208,14 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 		Point2D destination = Geometry.translate(defensiveGoalMiddlePosition, safeDistance, 
 				goalToBallDirection);
 		
-		double unsafeDistance = 0.0;
-		if (defensiveGoalMiddlePosition.distance(destination) > 
-			defensiveGoalMiddlePosition.distance(ballPosition)) {
-			// Safe distance won't work. Try a sweep.
-			unsafeDistance = dpi.getAlfieInfo().getSafeDistance();
-			destination = Geometry.translate(defensiveGoalMiddlePosition, unsafeDistance, 
-					goalToBallDirection);
-		}
+//		double unsafeDistance = 0.0;
+//		if (defensiveGoalMiddlePosition.distance(destination) > 
+//			defensiveGoalMiddlePosition.distance(ballPosition)) {
+//			// Safe distance won't work. Try a sweep.
+//			unsafeDistance = dpi.getAlfieInfo().getSafeDistance();
+//			destination = Geometry.translate(defensiveGoalMiddlePosition, unsafeDistance, 
+//					goalToBallDirection);
+//		}
 		
 		if (VERBOSE) {
 			System.out.println("Ball position: " + ballPosition);
@@ -224,16 +225,25 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			System.out.println("Sine: " + sine);
 			System.out.println("Goal-to-ball direction: " + goalToBallDirection);
 			System.out.println("Safe distance: " + safeDistance);
-			System.out.println("Unsafe distance: " + unsafeDistance);
+//			System.out.println("Unsafe distance: " + unsafeDistance);
 			System.out.println("Defensive destination: " + destination);
 		}
-		
+		double destinationX;
+		//TODO use previous stuff
+		if (defensiveGoalMiddlePosition.getX() < 0) {
+			//left goal
+			destinationX = defensiveGoalMiddlePosition.getX() + 35;
+		} else {
+			//right goal
+			destinationX = defensiveGoalMiddlePosition.getX() + 35;
+		}
+		destination = new Point2D.Double(destinationX,0);
 		return new OperationReallocation(destination, goalToBallDirection);
 	}
 
 	private Operation planNextOffensive(DynamicInfo dpi) {
 		// Check for ball possession.
-		if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
+//		if (!DynamicInfoChecker.wouldHaveBall(dpi.getAlfieInfo(), dpi.getBallInfo())) {
 			if (VERBOSE)
 				System.out.println("Don't have ball.");
 			
@@ -255,11 +265,11 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 						shootingDirection
 				);
 			}
-		} else {
-			if (VERBOSE)
-				System.out.println("Has ball.");
-			return new OperationStrike();
-		}
+//		} else {
+//			if (VERBOSE)
+//				System.out.println("Has ball.");
+//			return new OperationStrike();
+//		}
 	}
 
 	/**
@@ -268,7 +278,8 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 	 */
 	public void setStrategy(Strategy strategy) {
 		currentStrategy = strategy;
-		if (plannedStrategy == Strategy.DEFENSIVE && currentStrategy == Strategy.OFFENSIVE) {
+		if ((plannedStrategy == Strategy.DEFENSIVE && currentStrategy == Strategy.OFFENSIVE) || 
+			(plannedStrategy == Strategy.OFFENSIVE && currentStrategy == Strategy.DEFENSIVE)) {
 			replan = false;
 		} else {
 			replan = true;
@@ -330,11 +341,12 @@ public class FieldMarshal implements DynamicInfoConsumer, StrategyConsumer {
 			
 			int STOP_THRESHOLD = 10;
 			double ROLL_THRESHOLD = 5.0;
-			long FAILURE_TIMEOUT = 500;
+			long FAILURE_TIMEOUT = 5000;
 			
 			if (didNotFail && dpi.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
 				long now = System.currentTimeMillis();
 				if (failureStartTime > 0 && now - failureStartTime > FAILURE_TIMEOUT) {
+					System.out.println("Failed reaching " + op.getPosition());
 					failureStartTime = 0;
 					didNotFail = false;
 					return true;

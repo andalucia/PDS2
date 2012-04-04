@@ -199,11 +199,12 @@ public class Overlord implements DynamicInfoConsumer {
 		DynamicRobotInfo alfieInfo = dpi.getAlfieInfo();
 		DynamicBallInfo ballInfo = dpi.getBallInfo();
 		
-		if (!DynamicInfoChecker.defensiveSide(alfieInfo, ballInfo)) {
-			ControlStation.log("Defending.");
+		if (forceDefence || !DynamicInfoChecker.defensiveSide(alfieInfo, ballInfo)) {
+//			System.out.println("Defending.");
+			forceDefence = false;
 			return Strategy.DEFENSIVE;
 		} else {
-			ControlStation.log("Attacking.");
+//			System.out.println("Attacking.");
 			return Strategy.OFFENSIVE;
 		}
 	}
@@ -241,5 +242,12 @@ public class Overlord implements DynamicInfoConsumer {
 	 */
 	protected boolean problemExists(DynamicInfo di) {
 		return true;
+	}
+
+	
+	private static boolean forceDefence = false;
+	
+	public static void forceDefence() {
+		forceDefence = true;
 	}
 }

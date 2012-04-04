@@ -55,20 +55,34 @@ public class PathStepGoForward extends PathStep {
 	 */
 	@Override
 	public boolean isSuccessful(DynamicInfo pitchStatus) {
-		// TODO Auto-generated method stub 
-		// logic yet to be added
-		return false;
+		double d = pitchStatus.getAlfieInfo().getPosition().distance(destination);
+		return d < threshold;
 	}
 
+	long failureStartTime = 0;
+	
 	/**
 	 *
 	 * Fail: If Alfie's facing direction is not within the specified threshold angle from the same
 	 * point.
 	 */
-	@Override
 	public boolean hasFailed(DynamicInfo pitchStatus) {
-		// TODO Auto-generated method stub
-		//Coming soon Logic!
+		int STOP_THRESHOLD = 10;
+		
+		long FAILURE_TIMEOUT = 800;
+		
+		if (pitchStatus.getAlfieInfo().getTravelSpeed() < STOP_THRESHOLD) {
+			long now = System.currentTimeMillis();
+			if (failureStartTime  > 0 && now - failureStartTime > FAILURE_TIMEOUT) {
+				failureStartTime = 0;
+				return true;
+			}
+			if (failureStartTime == 0)
+				failureStartTime = now;
+		} else {
+			failureStartTime = 0;
+		}
+		
 		return false;
 	}
 
